@@ -691,9 +691,8 @@ const generated = extraTopics.map((item, i) => ({
   disadvantages: ["Complex build"],
   parts: [{ name: "Kit", buyLink: "https://robu.in" }]
 }));
-
-const allProjects = [...baseProjects, ...generated];
-
+// SUCCESS: Just use the 'projects' array you actually created
+const allProjects = projects; 
 export { allProjects as projects };
 export const extendedProjects = allProjects;
 
