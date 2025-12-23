@@ -1,21 +1,21 @@
-const i=t=>t.replace(/^\s{12}/gm,"").trim(),p={Basics:{tech:["Arduino Uno","Electronics"],estimatedTime:"20 mins",concept:"Fundamental Circuitry",workingPrinciple:"Uses basic GPIO control or standard electronic components to achieve a functional output.",circuit:"Connect components to the primary digital/analog pins as indicated in the pinout mappings.",howToRun:"Set up the circuit on a breadboard, verify polarities, and upload the code using Arduino IDE.",output:"A physical response (light, sound, or movement) based on the project's logic.",advantages:["Simple to build","Educational","Low cost"],disadvantages:["Limited functionality"],extensions:["Add a second output","Integrate a sensor for automation"],mappings:{arduino:"Pin 13",esp32:"GPIO 2"}},Sensors:{tech:["Arduino","Sensors"],estimatedTime:"35 mins",concept:"Data Acquisition",workingPrinciple:"Translates physical environmental data into electrical signals for the microcontroller to process.",circuit:"Ensure the sensor has proper power (5V or 3.3V) and the data pin is connected correctly.",howToRun:"Connect the sensor, upload the code, and open the Serial Monitor to see real-time data.",output:"Real-time measurements displayed on Serial Monitor or indicated by LEDs.",advantages:["High interactive value","Real-world utility"],disadvantages:["Requires calibration"],extensions:["Log data to SD card","Transmit data wirelessly"],mappings:{arduino:"Analog A0",esp32:"GPIO 34"}},IoT:{tech:["ESP32","WiFi","IoT"],estimatedTime:"60 mins",concept:"Connected Intelligence",workingPrinciple:"Uses wireless protocols (WiFi/Bluetooth) to monitor or control hardware from a remote dashboard.",circuit:"Focuses on minimal wiring with maximum software connectivity.",howToRun:"Configure WiFi credentials in the code, upload to ESP32, and access the provided IP address or Cloud portal.",output:"Digital dashboard showing sensor readings or interactive control buttons.",advantages:["Remote access","Data visualization"],disadvantages:["Requires internet connectivity","Security considerations"],extensions:["Add mobile notifications","Integrate with Google Assistant/Alexa"],mappings:{arduino:"N/A (Use ESP32)",esp32:"GPIO 4"}},Robotics:{tech:["Arduino","Servo","Motor Driver"],estimatedTime:"90 mins",concept:"Kinematic Control",workingPrinciple:"Converts electrical energy into mechanical motion using actuators like servos or DC motors.",circuit:"Requires external power for motors; isolation between microcontroller and high-current components is critical.",howToRun:"Assemble the mechanical frame, wire the motors to the driver, and upload the movement logic.",output:"Physical movement (rotation, translation, or complex arm coordination).",advantages:["High complexity","Impressive output"],disadvantages:["High power consumption","Mechanical wear"],extensions:["Add obstacle avoidance","Implement remote control via App"],mappings:{arduino:"Pin 9 (PWM)",esp32:"GPIO 18"}},Security:{tech:["Arduino","Keypad/RFID","Buzzer"],estimatedTime:"45 mins",concept:"Access Control",workingPrinciple:"Verifies user identity through inputs like passwords or unique IDs before triggering an action.",circuit:"Connect the input module (RFID/Keypad) and the feedback module (Buzzer/Lock).",howToRun:"Define your access code in the sketch, wire the modules, and test with valid/invalid inputs.",output:"System unlocks or sounds alarm based on verification result.",advantages:["Practical utility","Safety focused"],disadvantages:["Vulnerable to logical bypass if not encrypted"],extensions:["Add fingerprint sensor","Integrate log of entry attempts"],mappings:{arduino:"Pin 10 (SS)",esp32:"GPIO 5"}},AI:{tech:["ESP32-CAM","Edge AI","Computer Vision"],estimatedTime:"120 mins",concept:"Edge Intelligence",workingPrinciple:"Runs machine learning models locally on the microcontroller to recognize objects, sounds, or patterns.",circuit:"Usually internal to complex modules like ESP32-CAM.",howToRun:"Flash the firmware with the trained model and view the inference results via Web interface.",output:"Detection labels and confidence scores for recognized patterns.",advantages:["Latest technology","No server needed"],disadvantages:["Limited processing power","Complex setup"],extensions:["Identify specific faces","Trigger IFTTT on detection"],mappings:{arduino:"Not Recommended",esp32:"Internal Cam Pinout"}}},g=["LED Blink using Arduino","LED Fade using PWM","Push Button LED Control","Traffic Light System","Buzzer Control using Arduino","Digital Dice using LEDs","RGB LED Color Mixer","Automatic Night Lamp","LDR Light Intensity Monitor","Fire Alarm using Buzzer","Temperature Display using LCD","Smart Door Bell","Clap Switch","Obstacle Detection using IR Sensor","Touch Sensor Lamp","Gas Leakage Alert System","Rain Detection Alarm","Ultrasonic Distance Measurement","Water Level Indicator","Automatic Water Pump","Digital Thermometer","Password Protected Door Lock","Motion Detector Alarm","Smart Dustbin","Soil Moisture Monitor","Automatic Street Light","Line Following Robot","IR Remote Controlled LED","Keypad Based Security System","Speed Control of DC Motor","Temperature Alert System","Servo Motor Control","Automatic Hand Sanitizer","Smart Fan Controller","Electronic Voting Machine","Smart Parking Indicator","Door Open Alert","Light Control using Bluetooth","Voice Controlled LED","Smart Bell with Mobile Alert","Digital Clock using Arduino","Smart Switch Board","Fire Detection System","Gas Level Indicator","Automatic Plant Watering","Visitor Counter","Smart Alarm Clock","Home Light Automation (Basic)","Smart Power Saver","Smart Door Alert System","Distance Based Alarm","Smart Bicycle Indicator","Temperature Logger","Smart Classroom Bell","Automatic Garage Door","Sound Level Monitor","Smart Dustbin Lid","Smart Blind Stick","Water Overflow Alarm","Motion Activated Light","Smart Fan Speed Controller","Automatic Window Opener","Smart Toilet Flush","Smart Washroom Light","Smart Locker System","Smart Mirror Display (Basic)","Smart Attendance System (Basic)","Smart Pet Feeder","Smart Plant Monitor","Digital Compass","Smart Key Finder","Home Security Alarm","Smart Door Knock Detector","Light Intensity Logger","Smart Emergency Button","Smart Door Mat","Temperature Based Fan","Smart Entry System","Automatic Gate Opener","Smart Lamp Controller"],m=["WiFi LED Control using ESP32","Smart Home Automation","Smart Energy Meter","IoT Based Weather Station","Smart Irrigation System","Smart Door Lock using RFID","Smart Attendance System","IoT Gas Leakage Monitoring","Smart Parking System","Smart Street Lighting","IoT Fire Alert System","Smart Water Level Monitoring","Smart Refrigerator Monitor","Smart Room Automation","Smart Health Monitoring System","Smart Greenhouse Monitoring","Smart Traffic Management","IoT Based Air Quality Monitor","Smart Waste Management","Smart Vehicle Tracking","Smart Water Quality Monitoring","IoT Based Flood Alert","Smart Security Camera System","Smart Lift Control","Smart Classroom Automation","Smart Power Monitoring","Smart Energy Saving System","Smart Inventory Management","Smart Cold Storage Monitor","Smart Weather Alert System","Smart Pollution Monitoring","Smart Home Voice Control","Smart Smartwatch Prototype","Smart Factory Monitoring","Smart Water Billing System","Smart Firefighting Robot","Smart Railway Gate Control","Smart Public Announcement System","Smart Vehicle Speed Monitor","Smart Toll Collection System","Smart Vending Machine","Smart ATM Security System","Smart Warehouse Monitoring","Smart Attendance using Face ID","Smart Access Control System","Smart Power Grid Monitor","Smart Smart Helmet","Smart Garbage Level Monitoring","Smart Bus Tracking System","Smart Fuel Monitoring","Smart Smart Mirror","Smart Library Management","Smart Classroom Attendance","Smart Doorbell with Camera","Smart Crop Monitoring","Smart Industrial Automation","Smart Fire Safety System","Smart IoT Dashboard","Smart IoT Data Logger","Smart Smart Lock System","Smart IoT Notification System","Smart Home Security System","Smart Vehicle Diagnostics","Smart IoT Alarm System","Smart Remote Monitoring","Smart Smart Energy System","Smart IoT Analytics","Smart IoT Health Dashboard","Smart Asset Tracking","Smart Smart City Module"],c=["Smart City Management System","AI Based Smart Surveillance","Smart Autonomous Vehicle","Smart Drone Control System","Smart Traffic Signal with AI","Smart Face Recognition Door","Smart Predictive Maintenance","Smart Smart Farming System","Smart Industrial IoT Platform","Smart Healthcare IoT System","Smart Smart Grid System","Smart Smart Home Hub","Smart AI Voice Assistant","Smart Smart Parking with AI","Smart Smart Energy Optimization","Smart Vehicle Accident Detection","Smart Fire Detection with AI","Smart AI Attendance System","Smart Smart Water Management","Smart Smart Waste Management","Smart Smart Security Platform","Smart Smart City Dashboard","Smart AI Traffic Control","Smart Smart Agriculture AI","Smart Smart Factory Automation","Smart Smart Hospital System","Smart Smart Campus Automation","Smart Smart Retail System","Smart Smart Power Management","Smart Smart Disaster Management","Smart Smart Environmental Monitor","Smart Smart Building Automation","Smart Smart Transportation System","Smart Smart Logistics System","Smart Smart Supply Chain","Smart Smart Industrial AI","Smart Smart Energy AI","Smart Smart Surveillance AI","Smart Smart Water AI","Smart Smart Waste AI","Smart Smart IoT Cloud Platform","Smart Smart Digital Twin","Smart Smart Edge AI System","Smart Smart Predictive AI","Smart Smart Robotics System","Smart Smart Autonomous Systems","Smart Smart Smart City AI","Smart Smart Future Home","Smart Smart AI Assistant","Smart Smart Next-Gen IoT Platform"],S=t=>{const e=t.toLowerCase();return e.includes("wifi")||e.includes("iot")||e.includes("bluetooth")||e.includes("remote")?"IoT":e.includes("robot")||e.includes("motor")||e.includes("servo")||e.includes("vehicle")?"Robotics":e.includes("ai")||e.includes("recognition")||e.includes("predictive")||e.includes("future")?"AI":e.includes("security")||e.includes("lock")||e.includes("alarm")||e.includes("alert")?"Security":e.includes("sensor")||e.includes("monitor")||e.includes("display")||e.includes("detector")?"Sensors":"Basics"},l=(t,e)=>t.map((n,s)=>{let r=1;e==="Intermediate"&&(r=81),e==="Advanced"&&(r=151);const u=r+s,d=S(n),o=p[d]||p.Basics;return{id:u,title:n,level:e,estimatedTime:o.estimatedTime,description:`Build a professional ${e.toLowerCase()} ${n.toLowerCase()} system for real-world applications.`,tech:o.tech,category:d,concept:o.concept,learning:[`Master the hardware integration for ${n}`,"Understand real-time signal processing","Implement efficient firmware logic","Introduction to modular system design"],workingPrinciple:o.workingPrinciple,circuit:o.circuit,pins:[{component:"Primary Control Pin",mappings:o.mappings},{component:"Ground Connection",mappings:{arduino:"GND",esp32:"GND"}},{component:"System VCC",mappings:{arduino:"5V",esp32:"3.3V"}}],code:i(`
+const i=n=>n.replace(/^\s{12}/gm,"").trim(),p={Basics:{tech:["Arduino Uno","Electronics"],estimatedTime:"20 mins",concept:"Fundamental Circuitry",workingPrinciple:"Uses basic GPIO control or standard electronic components to achieve a functional output.",circuit:"Connect components to the primary digital/analog pins as indicated in the pinout mappings.",howToRun:"Set up the circuit on a breadboard, verify polarities, and upload the code using Arduino IDE.",output:"A physical response (light, sound, or movement) based on the project's logic.",advantages:["Simple to build","Educational","Low cost"],disadvantages:["Limited functionality"],extensions:["Add a second output","Integrate a sensor for automation"],mappings:{arduino:"Pin 13",esp32:"GPIO 2"}},Sensors:{tech:["Arduino","Sensors"],estimatedTime:"35 mins",concept:"Data Acquisition",workingPrinciple:"Translates physical environmental data into electrical signals for the microcontroller to process.",circuit:"Ensure the sensor has proper power (5V or 3.3V) and the data pin is connected correctly.",howToRun:"Connect the sensor, upload the code, and open the Serial Monitor to see real-time data.",output:"Real-time measurements displayed on Serial Monitor or indicated by LEDs.",advantages:["High interactive value","Real-world utility"],disadvantages:["Requires calibration"],extensions:["Log data to SD card","Transmit data wirelessly"],mappings:{arduino:"Analog A0",esp32:"GPIO 34"}},IoT:{tech:["ESP32","WiFi","IoT"],estimatedTime:"60 mins",concept:"Connected Intelligence",workingPrinciple:"Uses wireless protocols (WiFi/Bluetooth) to monitor or control hardware from a remote dashboard.",circuit:"Focuses on minimal wiring with maximum software connectivity.",howToRun:"Configure WiFi credentials in the code, upload to ESP32, and access the provided IP address or Cloud portal.",output:"Digital dashboard showing sensor readings or interactive control buttons.",advantages:["Remote access","Data visualization"],disadvantages:["Requires internet connectivity","Security considerations"],extensions:["Add mobile notifications","Integrate with Google Assistant/Alexa"],mappings:{arduino:"N/A (Use ESP32)",esp32:"GPIO 4"}},Robotics:{tech:["Arduino","Servo","Motor Driver"],estimatedTime:"90 mins",concept:"Kinematic Control",workingPrinciple:"Converts electrical energy into mechanical motion using actuators like servos or DC motors.",circuit:"Requires external power for motors; isolation between microcontroller and high-current components is critical.",howToRun:"Assemble the mechanical frame, wire the motors to the driver, and upload the movement logic.",output:"Physical movement (rotation, translation, or complex arm coordination).",advantages:["High complexity","Impressive output"],disadvantages:["High power consumption","Mechanical wear"],extensions:["Add obstacle avoidance","Implement remote control via App"],mappings:{arduino:"Pin 9 (PWM)",esp32:"GPIO 18"}},Security:{tech:["Arduino","Keypad/RFID","Buzzer"],estimatedTime:"45 mins",concept:"Access Control",workingPrinciple:"Verifies user identity through inputs like passwords or unique IDs before triggering an action.",circuit:"Connect the input module (RFID/Keypad) and the feedback module (Buzzer/Lock).",howToRun:"Define your access code in the sketch, wire the modules, and test with valid/invalid inputs.",output:"System unlocks or sounds alarm based on verification result.",advantages:["Practical utility","Safety focused"],disadvantages:["Vulnerable to logical bypass if not encrypted"],extensions:["Add fingerprint sensor","Integrate log of entry attempts"],mappings:{arduino:"Pin 10 (SS)",esp32:"GPIO 5"}},AI:{tech:["ESP32-CAM","Edge AI","Computer Vision"],estimatedTime:"120 mins",concept:"Edge Intelligence",workingPrinciple:"Runs machine learning models locally on the microcontroller to recognize objects, sounds, or patterns.",circuit:"Usually internal to complex modules like ESP32-CAM.",howToRun:"Flash the firmware with the trained model and view the inference results via Web interface.",output:"Detection labels and confidence scores for recognized patterns.",advantages:["Latest technology","No server needed"],disadvantages:["Limited processing power","Complex setup"],extensions:["Identify specific faces","Trigger IFTTT on detection"],mappings:{arduino:"Not Recommended",esp32:"Internal Cam Pinout"}}},g=["LED Blink using Arduino","LED Fade using PWM","Push Button LED Control","Traffic Light System","Buzzer Control using Arduino","Digital Dice using LEDs","RGB LED Color Mixer","Automatic Night Lamp","LDR Light Intensity Monitor","Fire Alarm using Buzzer","Temperature Display using LCD","Smart Door Bell","Clap Switch","Obstacle Detection using IR Sensor","Touch Sensor Lamp","Gas Leakage Alert System","Rain Detection Alarm","Ultrasonic Distance Measurement","Water Level Indicator","Automatic Water Pump","Digital Thermometer","Password Protected Door Lock","Motion Detector Alarm","Smart Dustbin","Soil Moisture Monitor","Automatic Street Light","Line Following Robot","IR Remote Controlled LED","Keypad Based Security System","Speed Control of DC Motor","Temperature Alert System","Servo Motor Control","Automatic Hand Sanitizer","Smart Fan Controller","Electronic Voting Machine","Smart Parking Indicator","Door Open Alert","Light Control using Bluetooth","Voice Controlled LED","Smart Bell with Mobile Alert","Digital Clock using Arduino","Smart Switch Board","Fire Detection System","Gas Level Indicator","Automatic Plant Watering","Visitor Counter","Smart Alarm Clock","Home Light Automation (Basic)","Smart Power Saver","Smart Door Alert System","Distance Based Alarm","Smart Bicycle Indicator","Temperature Logger","Smart Classroom Bell","Automatic Garage Door","Sound Level Monitor","Smart Dustbin Lid","Smart Blind Stick","Water Overflow Alarm","Motion Activated Light","Smart Fan Speed Controller","Automatic Window Opener","Smart Toilet Flush","Smart Washroom Light","Smart Locker System","Smart Mirror Display (Basic)","Smart Attendance System (Basic)","Smart Pet Feeder","Smart Plant Monitor","Digital Compass","Smart Key Finder","Home Security Alarm","Smart Door Knock Detector","Light Intensity Logger","Smart Emergency Button","Smart Door Mat","Temperature Based Fan","Smart Entry System","Automatic Gate Opener","Smart Lamp Controller"],m=["WiFi LED Control using ESP32","Smart Home Automation","Smart Energy Meter","IoT Based Weather Station","Smart Irrigation System","Smart Door Lock using RFID","Smart Attendance System","IoT Gas Leakage Monitoring","Smart Parking System","Smart Street Lighting","IoT Fire Alert System","Smart Water Level Monitoring","Smart Refrigerator Monitor","Smart Room Automation","Smart Health Monitoring System","Smart Greenhouse Monitoring","Smart Traffic Management","IoT Based Air Quality Monitor","Smart Waste Management","Smart Vehicle Tracking","Smart Water Quality Monitoring","IoT Based Flood Alert","Smart Security Camera System","Smart Lift Control","Smart Classroom Automation","Smart Power Monitoring","Smart Energy Saving System","Smart Inventory Management","Smart Cold Storage Monitor","Smart Weather Alert System","Smart Pollution Monitoring","Smart Home Voice Control","Smart Smartwatch Prototype","Smart Factory Monitoring","Smart Water Billing System","Smart Firefighting Robot","Smart Railway Gate Control","Smart Public Announcement System","Smart Vehicle Speed Monitor","Smart Toll Collection System","Smart Vending Machine","Smart ATM Security System","Smart Warehouse Monitoring","Smart Attendance using Face ID","Smart Access Control System","Smart Power Grid Monitor","Smart Smart Helmet","Smart Garbage Level Monitoring","Smart Bus Tracking System","Smart Fuel Monitoring","Smart Smart Mirror","Smart Library Management","Smart Classroom Attendance","Smart Doorbell with Camera","Smart Crop Monitoring","Smart Industrial Automation","Smart Fire Safety System","Smart IoT Dashboard","Smart IoT Data Logger","Smart Smart Lock System","Smart IoT Notification System","Smart Home Security System","Smart Vehicle Diagnostics","Smart IoT Alarm System","Smart Remote Monitoring","Smart Smart Energy System","Smart IoT Analytics","Smart IoT Health Dashboard","Smart Asset Tracking","Smart Smart City Module"],c=["Smart City Management System","AI Based Smart Surveillance","Smart Autonomous Vehicle","Smart Drone Control System","Smart Traffic Signal with AI","Smart Face Recognition Door","Smart Predictive Maintenance","Smart Smart Farming System","Smart Industrial IoT Platform","Smart Healthcare IoT System","Smart Smart Grid System","Smart Smart Home Hub","Smart AI Voice Assistant","Smart Smart Parking with AI","Smart Smart Energy Optimization","Smart Vehicle Accident Detection","Smart Fire Detection with AI","Smart AI Attendance System","Smart Smart Water Management","Smart Smart Waste Management","Smart Smart Security Platform","Smart Smart City Dashboard","Smart AI Traffic Control","Smart Smart Agriculture AI","Smart Smart Factory Automation","Smart Smart Hospital System","Smart Smart Campus Automation","Smart Smart Retail System","Smart Smart Power Management","Smart Smart Disaster Management","Smart Smart Environmental Monitor","Smart Smart Building Automation","Smart Smart Transportation System","Smart Smart Logistics System","Smart Smart Supply Chain","Smart Smart Industrial AI","Smart Smart Energy AI","Smart Smart Surveillance AI","Smart Smart Water AI","Smart Smart Waste AI","Smart Smart IoT Cloud Platform","Smart Smart Digital Twin","Smart Smart Edge AI System","Smart Smart Predictive AI","Smart Smart Robotics System","Smart Smart Autonomous Systems","Smart Smart Smart City AI","Smart Smart Future Home","Smart Smart AI Assistant","Smart Smart Next-Gen IoT Platform"],S=n=>{const e=n.toLowerCase();return e.includes("wifi")||e.includes("iot")||e.includes("bluetooth")||e.includes("remote")?"IoT":e.includes("robot")||e.includes("motor")||e.includes("servo")||e.includes("vehicle")?"Robotics":e.includes("ai")||e.includes("recognition")||e.includes("predictive")||e.includes("future")?"AI":e.includes("security")||e.includes("lock")||e.includes("alarm")||e.includes("alert")?"Security":e.includes("sensor")||e.includes("monitor")||e.includes("display")||e.includes("detector")?"Sensors":"Basics"},d=(n,e)=>n.map((t,s)=>{let r=1;e==="Intermediate"&&(r=81),e==="Advanced"&&(r=151);const u=r+s,l=S(t),o=p[l]||p.Basics;return{id:u,title:t,level:e,estimatedTime:o.estimatedTime,description:`Build a professional ${e.toLowerCase()} ${t.toLowerCase()} system for real-world applications.`,tech:o.tech,category:l,concept:o.concept,learning:[`Master the hardware integration for ${t}`,"Understand real-time signal processing","Implement efficient firmware logic","Introduction to modular system design"],workingPrinciple:o.workingPrinciple,circuit:o.circuit,pins:[{component:"Primary Control Pin",mappings:o.mappings},{component:"Ground Connection",mappings:{arduino:"GND",esp32:"GND"}},{component:"System VCC",mappings:{arduino:"5V",esp32:"3.3V"}}],code:i(`
               /* 
-               * IoTnext Project: ${n}
+               * IoTnext Project: ${t}
                * Target: ${o.tech[0]}
                */
               
               void setup() {
                 Serial.begin(9600);
-                Serial.println("${n} Initialized");
+                Serial.println("${t} Initialized");
                 // Power on sequence and config
               }
               
               void loop() {
-                // Logic for ${n} goes here
+                // Logic for ${t} goes here
                 // Read inputs -> Process -> Output Results
                 delay(1000); 
               }
-          `),howToRun:o.howToRun,output:o.output,extensions:o.extensions,useCase:"Critical for smart infrastructure and personal automation.",advantages:o.advantages,disadvantages:o.disadvantages,parts:[{name:o.tech[0],buyLink:"https://robu.in"},{name:"Supporting Sensors",buyLink:"https://robu.in"}]}}),v=l(g,"Beginner"),T=l(m,"Intermediate"),I=l(c,"Advanced"),a={1:{pins:[{component:"LED Anode (+)",mappings:{arduino:"Pin 13",esp32:"GPIO 2"}},{component:"GND",mappings:{arduino:"GND",esp32:"GND"}}],code:i(`
+          `),howToRun:o.howToRun,output:o.output,extensions:o.extensions,useCase:"Critical for smart infrastructure and personal automation.",advantages:o.advantages,disadvantages:o.disadvantages,parts:[{name:o.tech[0],buyLink:"https://robu.in"},{name:"Supporting Sensors",buyLink:"https://robu.in"}]}}),P=d(g,"Beginner"),I=d(m,"Intermediate"),v=d(c,"Advanced"),a={1:{pins:[{component:"LED Anode (+)",mappings:{arduino:"Pin 13",esp32:"GPIO 2"}},{component:"GND",mappings:{arduino:"GND",esp32:"GND"}}],code:i(`
             void setup() {
               pinMode(13, OUTPUT);
             }
@@ -431,37 +431,40 @@ const i=t=>t.replace(/^\s{12}/gm,"").trim(),p={Basics:{tech:["Arduino Uno","Elec
               int speed = map(value, 0, 1023, 0, 255);
               analogWrite(fan, speed);
             }
-        `)}},P={1:i(`
-            void setup() { pinMode(13, OUTPUT); }
+        `)}},T={1:{pins:[{component:"LED (+)",mappings:{arduino:"Pin 13",esp32:"GPIO 2"}},{component:"LED (-)",mappings:{arduino:"GND",esp32:"GND"}}],code:i(`
+            void setup() { 
+              pinMode(13, OUTPUT); // Built-in LED on Uno, GPIO2 on ESP32
+            }
             void loop() {
               digitalWrite(13, HIGH); delay(1000);
               digitalWrite(13, LOW); delay(1000);
             }
-        `),2:i(`
-            void setup() { pinMode(9, OUTPUT); }
+        `)},2:{pins:[{component:"LED Pin",mappings:{arduino:"Pin 9 (PWM)",esp32:"GPIO 25 (PWM)"}}],code:i(`
+            int led = 9;
+            void setup() { pinMode(led, OUTPUT); }
             void loop() {
-              for (int i = 0; i <= 255; i++) { analogWrite(9, i); delay(10); }
-              for (int i = 255; i >= 0; i--) { analogWrite(9, i); delay(10); }
+              for (int i = 0; i <= 255; i++) { analogWrite(led, i); delay(10); }
+              for (int i = 255; i >= 0; i--) { analogWrite(led, i); delay(10); }
             }
-        `),3:i(`
+        `)},3:{pins:[{component:"Button",mappings:{arduino:"Pin 2",esp32:"GPIO 4"}},{component:"LED",mappings:{arduino:"Pin 13",esp32:"GPIO 2"}}],code:i(`
             int btn = 2; int led = 13;
             void setup() { pinMode(btn, INPUT); pinMode(led, OUTPUT); }
             void loop() { digitalWrite(led, digitalRead(btn)); }
-        `),4:i(`
-            int r = 13, y = 12, g = 11;
+        `)},4:{pins:[{component:"Red LED",mappings:{arduino:"Pin 8",esp32:"GPIO 12"}},{component:"Yellow LED",mappings:{arduino:"Pin 9",esp32:"GPIO 14"}},{component:"Green LED",mappings:{arduino:"Pin 10",esp32:"GPIO 27"}}],code:i(`
+            int r = 8, y = 9, g = 10;
             void setup() { pinMode(r, OUTPUT); pinMode(y, OUTPUT); pinMode(g, OUTPUT); }
             void loop() {
               digitalWrite(r, HIGH); delay(5000); digitalWrite(r, LOW);
               digitalWrite(g, HIGH); delay(5000); digitalWrite(g, LOW);
               digitalWrite(y, HIGH); delay(2000); digitalWrite(y, LOW);
             }
-        `),5:i(`
-            int buzzer = 8;
+        `)},5:{pins:[{component:"Buzzer",mappings:{arduino:"Pin 7",esp32:"GPIO 26"}}],code:i(`
+            int buzzer = 7;
             void setup() { pinMode(buzzer, OUTPUT); }
             void loop() {
               tone(buzzer, 1000); delay(500); noTone(buzzer); delay(500);
             }
-        `),6:i(`
+        `)},6:{pins:[{component:"LEDs 1-6",mappings:{arduino:"Pin 2-7",esp32:"GPIO 13,14,16,17,18,19"}},{component:"Roll Button",mappings:{arduino:"Pin 8",esp32:"GPIO 4"}}],code:i(`
             int pins[] = {2,3,4,5,6,7};
             void setup() { for(int i=0; i<6; i++) pinMode(pins[i], OUTPUT); randomSeed(analogRead(0)); }
             void loop() {
@@ -472,63 +475,63 @@ const i=t=>t.replace(/^\s{12}/gm,"").trim(),p={Basics:{tech:["Arduino Uno","Elec
                 delay(1000);
               }
             }
-        `),7:i(`
+        `)},7:{pins:[{component:"RGB Red",mappings:{arduino:"Pin 9",esp32:"GPIO 25"}},{component:"RGB Green",mappings:{arduino:"Pin 10",esp32:"GPIO 26"}},{component:"RGB Blue",mappings:{arduino:"Pin 11",esp32:"GPIO 27"}}],code:i(`
             int r=9, g=10, b=11;
             void setup() { pinMode(r, OUTPUT); pinMode(g, OUTPUT); pinMode(b, OUTPUT); }
             void loop() {
               analogWrite(r, 255); analogWrite(g, 0); analogWrite(b, 255); delay(1000);
               analogWrite(r, 0); analogWrite(g, 255); analogWrite(b, 255); delay(1000);
             }
-        `),8:i(`
+        `)},8:{pins:[{component:"LDR Signal",mappings:{arduino:"Analog A0",esp32:"GPIO 34"}},{component:"LED Output",mappings:{arduino:"Pin 13",esp32:"GPIO 2"}}],code:i(`
             int ldr = A0; int led = 13;
             void setup() { pinMode(led, OUTPUT); }
             void loop() { if (analogRead(ldr) < 500) digitalWrite(led, HIGH); else digitalWrite(led, LOW); }
-        `),9:i(`
+        `)},9:{pins:[{component:"LDR Signal",mappings:{arduino:"Analog A0",esp32:"GPIO 34"}}],code:i(`
             void setup() { Serial.begin(9600); }
-            void loop() { Serial.print("Light Level: "); Serial.println(analogRead(A0)); delay(500); }
-        `),10:i(`
-            int fire = 2; int alarm = 8;
+            void loop() { Serial.print("Light: "); Serial.println(analogRead(A0)); delay(500); }
+        `)},10:{pins:[{component:"Flame Sensor",mappings:{arduino:"Pin 2",esp32:"GPIO 4"}},{component:"Buzzer",mappings:{arduino:"Pin 7",esp32:"GPIO 26"}}],code:i(`
+            int fire = 2; int alarm = 7;
             void setup() { pinMode(fire, INPUT); pinMode(alarm, OUTPUT); }
             void loop() { if (digitalRead(fire) == LOW) digitalWrite(alarm, HIGH); else digitalWrite(alarm, LOW); }
-        `),11:i(`
+        `)},11:{pins:[{component:"LM35 Temp Pin",mappings:{arduino:"Analog A0",esp32:"GPIO 34"}},{component:"LCD RS Pin",mappings:{arduino:"Pin 12",esp32:"GPIO 15"}},{component:"LCD EN Pin",mappings:{arduino:"Pin 11",esp32:"GPIO 2"}},{component:"LCD D4-D7 Pins",mappings:{arduino:"Pin 5,4,3,2",esp32:"GPIO 4,16,17,5"}}],code:i(`
             #include <LiquidCrystal.h>
             LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
             void setup() { lcd.begin(16, 2); }
             void loop() { lcd.setCursor(0, 0); lcd.print("Temp: 25C"); delay(2000); }
-        `),12:i(`
-            int btn = 2; int buzzer = 13;
+        `)},12:{pins:[{component:"Bell Button",mappings:{arduino:"Pin 2",esp32:"GPIO 4"}},{component:"Buzzer Output",mappings:{arduino:"Pin 8",esp32:"GPIO 26"}}],code:i(`
+            int btn = 2; int buzzer = 8;
             void setup() { pinMode(btn, INPUT); pinMode(buzzer, OUTPUT); }
             void loop() { if (digitalRead(btn) == HIGH) tone(buzzer, 500, 200); }
-        `),13:i(`
-            int button = 2; int buzzer = 8;
+        `)},13:{pins:[{component:"Sound Sensor (D0)",mappings:{arduino:"Pin 2",esp32:"GPIO 4"}},{component:"LED Output",mappings:{arduino:"Pin 13",esp32:"GPIO 2"}}],code:i(`
+            int button = 2; int buzzer = 13;
             void setup() { pinMode(button, INPUT); pinMode(buzzer, OUTPUT); }
             void loop() {
               if (digitalRead(button) == HIGH) {
                 digitalWrite(buzzer, HIGH); delay(500); digitalWrite(buzzer, LOW);
               }
             }
-        `),14:i(`
+        `)},14:{pins:[{component:"IR Sensor OUT",mappings:{arduino:"Pin 2",esp32:"GPIO 13"}}],code:i(`
             int ir = 2; int led = 13;
             void setup() { pinMode(ir, INPUT); pinMode(led, OUTPUT); }
             void loop() { if (digitalRead(ir) == LOW) digitalWrite(led, HIGH); else digitalWrite(led, LOW); }
-        `),15:i(`
+        `)},15:{pins:[{component:"Touch OUT Pin",mappings:{arduino:"Pin 2",esp32:"GPIO 4"}},{component:"LED Output",mappings:{arduino:"Pin 13",esp32:"GPIO 2"}}],code:i(`
             int touch = 2; int lamp = 13;
             void setup() { pinMode(touch, INPUT); pinMode(lamp, OUTPUT); }
             void loop() { if (digitalRead(touch) == HIGH) digitalWrite(lamp, !digitalRead(lamp)); delay(500); }
-        `),16:i(`
+        `)},16:{pins:[{component:"MQ Gas Sensor",mappings:{arduino:"Analog A0",esp32:"GPIO 34"}},{component:"Buzzer Alarm",mappings:{arduino:"Pin 8",esp32:"GPIO 26"}}],code:i(`
             int mq2 = A0; int alarm = 8;
             void setup() { pinMode(alarm, OUTPUT); }
             void loop() { if (analogRead(mq2) > 400) digitalWrite(alarm, HIGH); else digitalWrite(alarm, LOW); }
-        `),17:i(`
+        `)},17:{pins:[{component:"Rain Sensor",mappings:{arduino:"Analog A0",esp32:"GPIO 34"}},{component:"Buzzer Alarm",mappings:{arduino:"Pin 8",esp32:"GPIO 26"}}],code:i(`
             int sensor = A0; void setup() { Serial.begin(9600); }
             void loop() { if (analogRead(sensor) < 500) Serial.println("It's Raining!"); delay(1000); }
-        `),18:i(`
+        `)},18:{pins:[{component:"Ultrasonic Trig",mappings:{arduino:"Pin 9",esp32:"GPIO 5"}},{component:"Ultrasonic Echo",mappings:{arduino:"Pin 10",esp32:"GPIO 18"}}],code:i(`
             int t = 9, e = 10; void setup() { pinMode(t, OUTPUT); pinMode(e, INPUT); Serial.begin(9600); }
             void loop() {
               digitalWrite(t, LOW); delayMicroseconds(2); digitalWrite(t, HIGH); delayMicroseconds(10); digitalWrite(t, LOW);
               long d = pulseIn(e, HIGH) * 0.034 / 2; Serial.print("Distance: "); Serial.println(d); delay(500);
             }
-        `),19:i(`
+        `)},19:{pins:[{component:"Water Sensor",mappings:{arduino:"Analog A0",esp32:"GPIO 34"}},{component:"Level LED",mappings:{arduino:"Pin 13",esp32:"GPIO 2"}}],code:i(`
             int level = A0; int led = 13;
             void setup() { pinMode(led, OUTPUT); }
             void loop() {
@@ -536,118 +539,135 @@ const i=t=>t.replace(/^\s{12}/gm,"").trim(),p={Basics:{tech:["Arduino Uno","Elec
               if (value > 500) digitalWrite(led, HIGH);
               else digitalWrite(led, LOW);
             }
-        `),20:i(`
-            int sensor = 2; int pump = 8;
+        `)},20:{pins:[{component:"Soil Moisture",mappings:{arduino:"Analog A0",esp32:"GPIO 32"}},{component:"Pump Relay",mappings:{arduino:"Pin 8",esp32:"GPIO 25"}}],code:i(`
+            int sensor = A0; int pump = 8;
             void setup() { pinMode(sensor, INPUT); pinMode(pump, OUTPUT); }
             void loop() { if (digitalRead(sensor) == LOW) digitalWrite(pump, HIGH); else digitalWrite(pump, LOW); }
-        `),21:i(`
+        `)},21:{pins:[{component:"LM35 Output",mappings:{arduino:"Analog A0",esp32:"GPIO 34"}}],code:i(`
             void setup() { Serial.begin(9600); }
             void loop() { float t = analogRead(A0) * 0.488; Serial.println(t); delay(1000); }
-        `),22:i(`
+        `)},22:{pins:[{component:"Keypad Pins",mappings:{arduino:"Pin 2-9",esp32:"GPIO 13,12,14,27,26,25,33,32"}},{component:"Servo Signal",mappings:{arduino:"Pin 10",esp32:"GPIO 18"}}],code:i(`
             #include <Keypad.h>
-            void setup() { Serial.begin(9600); }
-            void loop() { /* Basic logic for Keypad */ }
-        `),24:i(`
-            int t = 9, e = 10;
-            void setup() { pinMode(t, OUTPUT); pinMode(e, INPUT); }
-            void loop() { /* Dustbin ultrasonic logic */ }
-        `),23:i(`
+            #include <Servo.h>
+            Servo door;
+            void setup() { Serial.begin(9600); door.attach(10); }
+            void loop() { /* Keypad security logic */ }
+        `)},23:{pins:[{component:"PIR Sensor",mappings:{arduino:"Pin 2",esp32:"GPIO 13"}},{component:"Buzzer Alert",mappings:{arduino:"Pin 8",esp32:"GPIO 26"}}],code:i(`
             #include <Servo.h>
             Servo door; int button = 2;
             void setup() { pinMode(button, INPUT); door.attach(9); }
             void loop() {
               if (digitalRead(button) == HIGH) door.write(90); else door.write(0);
             }
-        `),25:i(`
+        `)},24:{pins:[{component:"Ultrasonic Trig",mappings:{arduino:"Pin 9",esp32:"GPIO 5"}},{component:"Ultrasonic Echo",mappings:{arduino:"Pin 10",esp32:"GPIO 18"}},{component:"Servo Signal",mappings:{arduino:"Pin 6",esp32:"GPIO 26"}}],code:i(`
+            int t = 9, e = 10;
+            void setup() { pinMode(t, OUTPUT); pinMode(e, INPUT); }
+            void loop() { /* Dustbin ultrasonic logic */ }
+        `)},25:{pins:[{component:"Soil Sensor",mappings:{arduino:"Analog A0",esp32:"GPIO 32"}}],code:i(`
             int soil = A0; void setup() { Serial.begin(9600); }
             void loop() {
               int value = analogRead(soil);
               Serial.print("Soil Moisture: "); Serial.println(value);
               delay(1000);
             }
-        `),26:i(`
-            int ldr = A0; int led = 13;
+        `)},26:{pins:[{component:"LDR Signal",mappings:{arduino:"Analog A0",esp32:"GPIO 34"}},{component:"Street Light Relay",mappings:{arduino:"Pin 8",esp32:"GPIO 25"}}],code:i(`
+            int ldr = A0; int led = 8;
             void setup() { pinMode(led, OUTPUT); }
             void loop() {
               int value = analogRead(ldr);
               if (value < 500) digitalWrite(led, HIGH);
               else digitalWrite(led, LOW);
             }
-        `),30:i(`
+        `)},27:{pins:[{component:"Left IR Sensor",mappings:{arduino:"Pin 2",esp32:"GPIO 13"}},{component:"Right IR Sensor",mappings:{arduino:"Pin 3",esp32:"GPIO 14"}},{component:"Motor Driver Pins",mappings:{arduino:"Pin 8-11",esp32:"GPIO 25,26,27,33"}}],code:i(`
+            void setup() { /* Line follower config */ }
+            void loop() { /* Control motors based on IR */ }
+        `)},28:{pins:[{component:"IR Receiver",mappings:{arduino:"Pin 2",esp32:"GPIO 15"}},{component:"LED Control",mappings:{arduino:"Pin 13",esp32:"GPIO 2"}}],code:i(`
+            #include <IRremote.h>
+            void setup() { IrReceiver.begin(2); }
+            void loop() { if (IrReceiver.decode()) { /* Handle remote */ IrReceiver.resume(); } }
+        `)},29:{pins:[{component:"Keypad Rows",mappings:{arduino:"Pin 9,8,7,6",esp32:"GPIO 13,12,14,27"}},{component:"Keypad Columns",mappings:{arduino:"Pin 5,4,3,2",esp32:"GPIO 26,25,33,32"}}],code:i(`
+            void setup() { /* Keypad config */ }
+            void loop() { /* Security logic */ }
+        `)},30:{pins:[{component:"Motor Driver EN",mappings:{arduino:"Pin 9 (PWM)",esp32:"GPIO 25"}}],code:i(`
             int motor = 9; void setup() { pinMode(motor, OUTPUT); }
             void loop() {
               for (int speed = 0; speed <= 255; speed += 10) {
                 analogWrite(motor, speed); delay(500);
               }
             }
-        `),31:i(`
-            int motor = 9; void setup() { pinMode(motor, OUTPUT); }
-            void loop() {
-              for (int speed = 0; speed <= 255; speed += 10) {
-                analogWrite(motor, speed); delay(500);
-              }
-            }
-        `),34:i(`
-            int ir = 2; int pump = 8;
-            void setup() { pinMode(ir, INPUT); pinMode(pump, OUTPUT); }
-            void loop() {
-              if (digitalRead(ir) == LOW) { digitalWrite(pump, HIGH); delay(1000); digitalWrite(pump, LOW); }
-            }
-        `),36:i(`
+        `)},31:{pins:[{component:"Temp Sensor",mappings:{arduino:"Analog A0",esp32:"GPIO 34"}},{component:"Buzzer Alarm",mappings:{arduino:"Pin 8",esp32:"GPIO 26"}}],code:i(`
+            int sensor = A0; int buzzer = 8;
+            void setup() { pinMode(buzzer, OUTPUT); }
+            void loop() { if (analogRead(sensor) > 500) { digitalWrite(buzzer, HIGH); delay(100); digitalWrite(buzzer, LOW); } }
+        `)},32:{pins:[{component:"Servo Signal",mappings:{arduino:"Pin 9",esp32:"GPIO 18"}}],code:i(`
+            #include <Servo.h>
+            Servo s; void setup() { s.attach(9); }
+            void loop() { s.write(90); delay(1000); s.write(0); delay(1000); }
+        `)},33:{pins:[{component:"IR Sensor OUT",mappings:{arduino:"Pin 2",esp32:"GPIO 13"}},{component:"Servo Signal",mappings:{arduino:"Pin 9",esp32:"GPIO 18"}}],code:i(`
+            #include <Servo.h>
+            Servo lid;
+            void setup() { pinMode(2, INPUT); lid.attach(9); }
+            void loop() { if (digitalRead(2) == LOW) lid.write(90); else lid.write(0); }
+        `)},34:{pins:[{component:"Temp Sensor",mappings:{arduino:"Analog A0",esp32:"GPIO 34"}},{component:"Fan Relay",mappings:{arduino:"Pin 8",esp32:"GPIO 25"}}],code:i(`
+            int sensor = A0; int relay = 8;
+            void setup() { pinMode(relay, OUTPUT); }
+            void loop() { if (analogRead(sensor) > 400) digitalWrite(relay, HIGH); else digitalWrite(relay, LOW); }
+        `)},35:{pins:[{component:"Vote Button A",mappings:{arduino:"Pin 2",esp32:"GPIO 4"}},{component:"Vote Button B",mappings:{arduino:"Pin 3",esp32:"GPIO 5"}}],code:i(`
+            int vA=0, vB=0;
+            void setup() { pinMode(2, INPUT); pinMode(3, INPUT); Serial.begin(9600); }
+            void loop() { if(digitalRead(2)) vA++; if(digitalRead(3)) vB++; }
+        `)},36:{pins:[{component:"IR Sensor OUT",mappings:{arduino:"Pin 2",esp32:"GPIO 13"}},{component:"Parking LED",mappings:{arduino:"Pin 13",esp32:"GPIO 2"}}],code:i(`
             int ir = 2; int led = 13;
             void setup() { pinMode(ir, INPUT); pinMode(led, OUTPUT); }
             void loop() {
               if (digitalRead(ir) == LOW) digitalWrite(led, HIGH);
               else digitalWrite(led, LOW);
             }
-        `),37:i(`
-            int ir = 2; int led = 13;
-            void setup() { pinMode(ir, INPUT); pinMode(led, OUTPUT); }
-            void loop() {
-              if (digitalRead(ir) == LOW) digitalWrite(led, HIGH);
-              else digitalWrite(led, LOW);
-            }
-        `),39:i(`
-            #include <WiFi.h>
-            void setup() { Serial.begin(9600); WiFi.begin("SSID", "PASS"); }
-            void loop() {
-              if (Serial.available()) { char c = Serial.read(); Serial.print("Remote CMD: "); Serial.println(c); }
-            }
-        `),40:i(`
-            int button = 2; void setup() { Serial.begin(9600); pinMode(button, INPUT); }
-            void loop() {
-              if (digitalRead(button) == HIGH) {
-                Serial.println("Visitor at Door"); delay(1000);
-              }
-            }
-        `),42:i(`
+        `)},37:{pins:[{component:"Reed Switch",mappings:{arduino:"Pin 2",esp32:"GPIO 13"}},{component:"Buzzer Alert",mappings:{arduino:"Pin 8",esp32:"GPIO 26"}}],code:i(`
+            int reed = 2; int buzzer = 13;
+            void setup() { pinMode(reed, INPUT); pinMode(buzzer, OUTPUT); }
+            void loop() { if (digitalRead(reed) == HIGH) digitalWrite(buzzer, HIGH); else digitalWrite(buzzer, LOW); }
+        `)},38:{pins:[{component:"Bluetooth TX",mappings:{arduino:"Pin 10",esp32:"TX2 (17)"}},{component:"Bluetooth RX",mappings:{arduino:"Pin 11",esp32:"RX2 (16)"}},{component:"Light LED",mappings:{arduino:"Pin 13",esp32:"GPIO 2"}}],code:i(`
+            void setup() { Serial.begin(9600); pinMode(13, OUTPUT); }
+            void loop() { if(Serial.available()) { char c = Serial.read(); if(c=='1') digitalWrite(13, HIGH); } }
+        `)},39:{pins:[{component:"Bluetooth Module",mappings:{arduino:"Pin 10,11",esp32:"GPIO 16,17"}},{component:"Voice LED",mappings:{arduino:"Pin 13",esp32:"GPIO 2"}}],code:i(`
+            #include <SoftwareSerial.h>
+            void setup() { Serial.begin(9600); pinMode(13, OUTPUT); }
+            void loop() { /* Voice command processing */ }
+        `)},41:{pins:[{component:"RTC SDA",mappings:{arduino:"Analog A4",esp32:"GPIO 21"}},{component:"RTC SCL",mappings:{arduino:"Analog A5",esp32:"GPIO 22"}}],code:i(`
+            #include <Wire.h>
+            #include <RTClib.h>
+            RTC_DS3231 rtc;
+            void setup() { Serial.begin(9600); rtc.begin(); }
+            void loop() { DateTime now = rtc.now(); Serial.println(now.hour()); delay(1000); }
+        `)},42:{pins:[{component:"Relay Module",mappings:{arduino:"Pin 8",esp32:"GPIO 25"}}],code:i(`
             int relay = 8; void setup() { pinMode(relay, OUTPUT); }
             void loop() {
               digitalWrite(relay, HIGH); delay(2000);
               digitalWrite(relay, LOW); delay(2000);
             }
-        `),43:i(`
+        `)},43:{pins:[{component:"Flame Sensor",mappings:{arduino:"Pin 2",esp32:"GPIO 4"}},{component:"Buzzer Alarm",mappings:{arduino:"Pin 8",esp32:"GPIO 26"}}],code:i(`
             int flame = 2; int buzzer = 8;
             void setup() { pinMode(flame, INPUT); pinMode(buzzer, OUTPUT); }
             void loop() {
               if (digitalRead(flame) == LOW) digitalWrite(buzzer, HIGH);
               else digitalWrite(buzzer, LOW);
             }
-        `),44:i(`
+        `)},44:{pins:[{component:"Gas Sensor",mappings:{arduino:"Analog A0",esp32:"GPIO 34"}},{component:"Status LED",mappings:{arduino:"Pin 13",esp32:"GPIO 2"}}],code:i(`
             int gas = A0; int led = 13; void setup() { pinMode(led, OUTPUT); }
             void loop() {
               int value = analogRead(gas);
               if (value > 400) digitalWrite(led, HIGH);
               else digitalWrite(led, LOW);
             }
-        `),45:i(`
+        `)},45:{pins:[{component:"Soil Sensor",mappings:{arduino:"Analog A0",esp32:"GPIO 32"}},{component:"Pump Relay",mappings:{arduino:"Pin 8",esp32:"GPIO 25"}}],code:i(`
             int soil = A0; int relay = 8; void setup() { pinMode(relay, OUTPUT); }
             void loop() {
               int value = analogRead(soil);
               if (value < 350) digitalWrite(relay, HIGH);
               else digitalWrite(relay, LOW);
             }
-        `),46:i(`
+        `)},46:{pins:[{component:"Entry IR",mappings:{arduino:"Pin 2",esp32:"GPIO 13"}},{component:"Exit IR",mappings:{arduino:"Pin 3",esp32:"GPIO 14"}}],code:i(`
             int ir1 = 2; int ir2 = 3; int count = 0;
             void setup() { pinMode(ir1, INPUT); pinMode(ir2, INPUT); Serial.begin(9600); }
             void loop() {
@@ -655,33 +675,33 @@ const i=t=>t.replace(/^\s{12}/gm,"").trim(),p={Basics:{tech:["Arduino Uno","Elec
               if (digitalRead(ir2) == LOW) { count--; delay(500); }
               Serial.print("Visitors: "); Serial.println(count);
             }
-        `),47:i(`
+        `)},47:{pins:[{component:"Alarm Buzzer",mappings:{arduino:"Pin 8",esp32:"GPIO 26"}}],code:i(`
             int buzzer = 8; void setup() { pinMode(buzzer, OUTPUT); }
             void loop() {
               digitalWrite(buzzer, HIGH); delay(1000);
               digitalWrite(buzzer, LOW); delay(1000);
             }
-        `),48:i(`
+        `)},48:{pins:[{component:"Home Relay",mappings:{arduino:"Pin 8",esp32:"GPIO 25"}}],code:i(`
             int buzzer = 8; void setup() { pinMode(buzzer, OUTPUT); }
             void loop() {
               digitalWrite(buzzer, HIGH); delay(1000);
               digitalWrite(buzzer, LOW); delay(1000);
             }
-        `),49:i(`
+        `)},49:{pins:[{component:"PIR Motion",mappings:{arduino:"Pin 2",esp32:"GPIO 13"}},{component:"Power Relay",mappings:{arduino:"Pin 8",esp32:"GPIO 25"}}],code:i(`
             int pir = 2; int appliance = 8;
             void setup() { pinMode(pir, INPUT); pinMode(appliance, OUTPUT); }
             void loop() {
               if (digitalRead(pir) == HIGH) digitalWrite(appliance, HIGH);
               else digitalWrite(appliance, LOW);
             }
-        `),50:i(`
+        `)},50:{pins:[{component:"Reed Switch",mappings:{arduino:"Pin 2",esp32:"GPIO 13"}},{component:"Status LED",mappings:{arduino:"Pin 13",esp32:"GPIO 2"}}],code:i(`
             int reed = 2; int led = 13;
             void setup() { pinMode(reed, INPUT); pinMode(led, OUTPUT); }
             void loop() {
               if (digitalRead(reed) == HIGH) digitalWrite(led, HIGH);
               else digitalWrite(led, LOW);
             }
-        `),52:i(`
+        `)},52:i(`
             int leftBtn = 2; int rightBtn = 3; int leftLED = 8; int rightLED = 9;
             void setup() { 
               pinMode(leftBtn, INPUT); pinMode(rightBtn, INPUT); 
@@ -906,7 +926,7 @@ const i=t=>t.replace(/^\s{12}/gm,"").trim(),p={Basics:{tech:["Arduino Uno","Elec
                 digitalWrite(lamp, !digitalRead(lamp)); delay(300);
               }
             }
-        `)},W={81:i(`
+        `)},O={81:i(`
             #include <WiFi.h>
             #include <WebServer.h>
             const char* ssid = "YOUR_WIFI";
@@ -1479,7 +1499,7 @@ const i=t=>t.replace(/^\s{12}/gm,"").trim(),p={Basics:{tech:["Arduino Uno","Elec
             void loop() {
               digitalWrite(l, analogRead(traffic) > 2500 ? HIGH : LOW);
             }
-        `)},O={161:{pins:[{component:"Load Sensor",mappings:{arduino:"N/A",esp32:"GPIO 34"}},{component:"Non-Critical Relay",mappings:{arduino:"N/A",esp32:"GPIO 5"}}],code:i(`
+        `)},W={161:{pins:[{component:"Load Sensor",mappings:{arduino:"N/A",esp32:"GPIO 34"}},{component:"Non-Critical Relay",mappings:{arduino:"N/A",esp32:"GPIO 5"}}],code:i(`
             #include <WiFi.h>
             #include <PubSubClient.h>
             #define LOAD_SENSOR 34
@@ -1635,4 +1655,4 @@ const i=t=>t.replace(/^\s{12}/gm,"").trim(),p={Basics:{tech:["Arduino Uno","Elec
               digitalWrite(ALERT, (moisture < 1800 && temp > 30) ? HIGH : LOW);
               delay(1500);
             }
-        `)}};[P,W,O].forEach(t=>{Object.keys(t).forEach(e=>{a[e]||(a[e]={}),typeof t[e]=="string"?a[e].code=i(t[e]):a[e]={...a[e],...t[e]}})});const f=[...v,...T,...I].map(t=>a[t.id]?{...t,...a[t.id]}:t),y=f,b=[{title:"Voltage, Current & Resistance",content:"The holy trinity of electronics (Ohm's Law). Voltage is the pressure pushing electrons, Current is the flow of electrons, and Resistance is the opposition to that flow.",deepDive:"High current needs thick wires. High voltage needs insulation.",mistakes:"Shorting Power to Ground (Infinite Current = Fire).",tip:"Always check polarity before powering up."},{title:"Microcontrollers (The Brain)",content:"A small computer on a single chip. It reads inputs (sensors), processes data based on your code, and controls outputs (lights, motors). Common examples: Arduino Uno, ESP32, STM32.",deepDive:"They run firmware (C/C++), not a full OS like Windows.",mistakes:"Drawing too much current from a GPIO pin (>20mA).",tip:"Use transistors/MOSFETs to drive high-power loads."}];export{b,y as p};
+        `)}};[T,O,W].forEach(n=>{Object.keys(n).forEach(e=>{a[e]||(a[e]={}),typeof n[e]=="string"?a[e].code=i(n[e]):a[e]={...a[e],...n[e]}})});const y=[...P,...I,...v].map(n=>a[n.id]?{...n,...a[n.id]}:n),f=y,R=[{title:"Voltage, Current & Resistance",content:"The holy trinity of electronics (Ohm's Law). Voltage is the pressure pushing electrons, Current is the flow of electrons, and Resistance is the opposition to that flow.",deepDive:"High current needs thick wires. High voltage needs insulation.",mistakes:"Shorting Power to Ground (Infinite Current = Fire).",tip:"Always check polarity before powering up."},{title:"Microcontrollers (The Brain)",content:"A small computer on a single chip. It reads inputs (sensors), processes data based on your code, and controls outputs (lights, motors). Common examples: Arduino Uno, ESP32, STM32.",deepDive:"They run firmware (C/C++), not a full OS like Windows.",mistakes:"Drawing too much current from a GPIO pin (>20mA).",tip:"Use transistors/MOSFETs to drive high-power loads."}];export{R as b,f as p};
