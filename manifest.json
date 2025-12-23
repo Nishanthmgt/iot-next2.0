@@ -2,7 +2,7 @@
     "name": "IoTnext Education",
     "short_name": "IoTnext",
     "description": "Premium IoT Education & Project Hub",
-    "start_url": "/",
+    "start_url": ".",
     "display": "standalone",
     "background_color": "#ffffff",
     "theme_color": "#4f46e5",
