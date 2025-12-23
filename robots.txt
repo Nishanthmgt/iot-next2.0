@@ -5,4 +5,4 @@ Disallow: /admin-login
 Disallow: /admin-add
 Disallow: /admin-edit
 
-Sitemap: https://nishanth-iot.github.io/iotnext2.0/sitemap.xml
+Sitemap: https://iotnext.store/sitemap.xml
