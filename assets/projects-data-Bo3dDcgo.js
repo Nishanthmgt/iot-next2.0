@@ -1,49 +1,68 @@
-const t=e=>e.replace(/^\s{12}/gm,"").trim(),a=[{id:1,title:"LED Blink",level:"Beginner",description:"The classic 'Hello World' of electronics. Blinks an internal LED.",tech:["Arduino","LED"],category:"Basics",concept:"Digital Output",principle:"Toggling Voltage Levels (0V/5V)",pins:[{from:"Built-in LED",to:"Pin 13"}],code:t(`
+const t=e=>e.replace(/^\s{12}/gm,"").trim(),a=[{id:1,title:"LED Blink",level:"Beginner",estimatedTime:"15 mins",description:"The classic 'Hello World' of electronics. Learn how to control physical hardware using code by blinking an LED.",tech:["Arduino","LED"],category:"Basics",concept:"Digital Output Control",learning:["Setting up Arduino IDE","Digital pin configuration (OUTPUT mode)","Understanding digitalWrite()","Creating time delays with delay()","Basic C++ structure (setup & loop)"],workingPrinciple:"The microcontroller sends a HIGH (5V) or LOW (0V) signal to a specific GPIO pin. When HIGH, current flows through the LED, lighting it up. When LOW, current stops, turning it off.",circuit:"Connect the long leg (Anode) of the LED to Digital Pin 13 of the Arduino. Connect the short leg (Cathode) to the GND pin through a 220-ohm resistor to prevent burnout.",pins:[{from:"LED Anode (+)",to:"Digital Pin 13"},{from:"LED Cathode (-)",to:"GND (via Resistor)"}],code:t(`
             // Blink an LED
-            const int ledPin = 13;
+            const int ledPin = 13; // Built-in LED on most Arduinos
 
             void setup() {
+              // Initialize the digital pin as an output
               pinMode(ledPin, OUTPUT);
             }
 
             void loop() {
-              digitalWrite(ledPin, HIGH);  // Turn ON
-              delay(1000);                 // Wait 1 sec
-              digitalWrite(ledPin, LOW);   // Turn OFF
-              delay(1000);                 // Wait 1 sec
+              digitalWrite(ledPin, HIGH);  // Turn the LED ON (Voltage HIGH)
+              delay(1000);                 // Wait for a second
+              digitalWrite(ledPin, LOW);   // Turn the LED OFF (Voltage LOW)
+              delay(1000);                 // Wait for a second
             }
-        `),useCase:"System status indicators (Power, WiFi connection).",advantages:["Visual feedback","Debugging aid"],disadvantages:["Basic utility"],parts:[{name:"Arduino Uno",buyLink:"https://robu.in/product/arduino-uno-r3/"}]},{id:2,title:"Push Button LED",level:"Beginner",description:"Turn an LED on only when a button is pressed.",tech:["Arduino","Button"],category:"Basics",concept:"Digital Input",principle:"Reading circuit continuity",pins:[{from:"Button",to:"Pin 2"},{from:"LED",to:"Pin 13"}],code:t(`
-            const int buttonPin = 2;
-            const int ledPin = 13;
+        `),howToRun:`1. Connect your Arduino Uno to your PC using a USB cable.
+2. Open the Arduino IDE and select your board and port.
+3. Copy and paste the code above into a new sketch.
+4. Click 'Upload' (right arrow icon).
+5. Observe the LED on Pin 13 blinking.`,output:"The on-board LED (or external LED on Pin 13) will turn on for 1 second and then turn off for 1 second, repeating indefinitely.",extensions:["Change the delay values to make it blink faster/slower.","Add multiple LEDs and blink them in sequence.","Make an SOS signal using Morse code timings."],useCase:"System status indicators, visual debugging, heart-beat signals in embedded systems.",advantages:["Extremely simple to implement","No complex external parts needed","Instant visual feedback"],disadvantages:["Very basic utility","Only shows binary state (ON/OFF)"],parts:[{name:"Arduino Uno R3",buyLink:"https://robu.in/product/arduino-uno-r3/"},{name:"LED (Red/Green)",buyLink:"https://robu.in/product/5mm-red-led/"},{name:"220 Ohm Resistor",buyLink:"https://robu.in/product/220-ohm-resistor/"},{name:"Breadboard & Wires",buyLink:"https://robu.in/product/830-points-breadboard-and-jumper-wire-kit/"}],downloads:[{label:"Circuit Schematic (PDF)",link:"#"},{label:"Project eBook",link:"#"}]},{id:2,title:"Push Button LED",level:"Beginner",estimatedTime:"25 mins",description:"Learn how to read digital inputs from the real world. Control an LED manually using a tactile push button.",tech:["Arduino","Button","LED"],category:"Basics",concept:"Digital Input & Pull-up Resistors",learning:["Reading Digital States (LOW/HIGH)","Using INPUT_PULLUP mode","Conditional logic (if/else)","Circuit continuity basics","Introduction to 'Polling' technique"],workingPrinciple:"The button acts as a switch. When pressed, it completes the circuit and pulls the input pin to GND (LOW). When released, the internal pull-up resistor keeps the pin at 5V (HIGH). The code detects this state change and toggles the LED.",circuit:"Connect one terminal of the button to Pin 2 and the other to GND. Connect the LED to Pin 13 and GND. No external resistor is needed for the button if using INPUT_PULLUP.",pins:[{from:"Button Pin 1",to:"Digital Pin 2"},{from:"Button Pin 2",to:"GND"},{from:"LED (+)",to:"Digital Pin 13"}],code:t(`
+            const int buttonPin = 2; // Pin connected to button
+            const int ledPin = 13;    // Pin connected to LED
 
             void setup() {
               pinMode(ledPin, OUTPUT);
-              pinMode(buttonPin, INPUT_PULLUP); // Use internal pull-up
+              // Use internal pull-up: Pin is HIGH when button is NOT pressed
+              pinMode(buttonPin, INPUT_PULLUP); 
             }
 
             void loop() {
               int buttonState = digitalRead(buttonPin);
-              // Button is LOW when pressed (due to pull-up)
+              
+              // Button is LOW when pressed (connected to GND)
               if (buttonState == LOW) {
-                digitalWrite(ledPin, HIGH);
+                digitalWrite(ledPin, HIGH); // Button pressed -> ON
               } else {
-                digitalWrite(ledPin, LOW);
+                digitalWrite(ledPin, LOW);  // Released -> OFF
               }
             }
-        `),useCase:"Doorbells, Keyboards, Industrial Start Switches.",advantages:["Interactivity","Simple logic"],disadvantages:["Switch bouncing"],parts:[{name:"Push Button",buyLink:"https://robu.in/product/tactile-push-button-switch/"}]},{id:3,title:"Potentiometer Dimmer",level:"Beginner",description:"Control LED brightness using a potentiometer knob.",tech:["Arduino","Potentiometer"],category:"Basics",concept:"Analog Input & PWM",principle:"Pulse Width Modulation",pins:[{from:"Pot Center",to:"A0"},{from:"LED",to:"Pin 9 (PWM)"}],code:t(`
-            int potPin = A0;
-            int ledPin = 9; // Must be PWM pin
+        `),howToRun:`1. Build the circuit on a breadboard as described.
+2. Upload the code to your Arduino.
+3. Open the Serial Monitor (optional) to debug if needed.
+4. Press the button and watch the LED respond.`,output:"The LED will stay ON as long as you keep the button pressed, and turn OFF immediately upon release.",extensions:["Create a toggle switch (press once for ON, again for OFF).","Add a second button to turn the LED OFF.","Implement a simple counter that blinks the LED X times based on button presses."],useCase:"User interfaces, keypads, limit switches in CNC machines, doorbells.",advantages:["Direct user interaction","Reliable input detection","Low power consumption"],disadvantages:["Suffer from 'Contact Bounce' (mechanical noise)"],parts:[{name:"Arduino Uno",buyLink:"https://robu.in/product/arduino-uno-r3/"},{name:"Tactile Push Button",buyLink:"https://robu.in/product/tactile-push-button-switch/"},{name:"LED",buyLink:"https://robu.in/product/5mm-red-led/"}],downloads:[{label:"Connection Diagram",link:"#"}]},{id:3,title:"Potentiometer Dimmer",level:"Beginner",estimatedTime:"20 mins",description:"Graduate from simple ON/OFF to variable control. Use a rotary knob to smoothly dim an LED's brightness.",tech:["Arduino","Potentiometer","PWM"],category:"Basics",concept:"Analog Input & Pulse Width Modulation (PWM)",learning:["Understanding Analog-to-Digital Conversion (ADC)","Reading variable voltage with analogRead()","The map() function for value conversion","Controlling intensity with analogWrite() (PWM)","Using 10-bit resolution (0-1023)"],workingPrinciple:"The potentiometer creates a voltage divider, sending 0V to 5V to the analog pin. Arduino converts this to a 0-1023 value. We map this value to 0-255 (PWM range) to control the LED brightness via rapidly toggling power.",circuit:"Potentiometer: Side pins to 5V and GND, center pin (wiper) to Analog A0. LED: Long leg to Pin 9 (must be a PWM pin, marked ~), short leg to GND via resistor.",pins:[{from:"Pot Center Pin",to:"Analog Pin A0"},{from:"Pot Side Pins",to:"5V and GND"},{from:"LED Anode",to:"Digital Pin 9 (PWM)"}],code:t(`
+            int potPin = A0; // Potentiometer on A0
+            int ledPin = 9;  // LED must be on a PWM pin like 3, 5, 6, 9, 10, 11
 
             void setup() {
               pinMode(ledPin, OUTPUT);
             }
 
             void loop() {
-              int val = analogRead(potPin); // 0-1023
+              // Read raw pot value (0 to 1023)
+              int val = analogRead(potPin); 
+              
+              // Map 0-1023 to 0-255 (PWM duty cycle)
               int brightness = map(val, 0, 1023, 0, 255);
+              
+              // Output PWM signal to LED
               analogWrite(ledPin, brightness);
             }
-        `),useCase:"Light dimmers, Volume knobs, Motor speed control.",advantages:["Smooth control","Analog interface"],disadvantages:["Energy loss as heat (in linear circuits)"],parts:[{name:"10k Potentiometer",buyLink:"https://robu.in/product/10k-potentiometer/"}]},{id:4,title:"Traffic Light System",level:"Beginner",description:"Simulate a traffic intersection with Red, Yellow, Green LEDs.",tech:["Arduino","LEDs"],category:"Basics",concept:"Sequential Logic",principle:"Finite State Machine",pins:[{from:"Red",to:"Pin 10"},{from:"Yellow",to:"Pin 11"},{from:"Green",to:"Pin 12"}],code:t(`
+        `),howToRun:`1. Connect the Potentiometer and LED as per the circuit instructions.
+2. Ensure the LED is on Pin 9 (supports PWM).
+3. Upload the code.
+4. Rotate the knob to see the LED fade in and out.`,output:"The LED brightness should change smoothly as you turn the potentiometer knob from one end to the other.",extensions:["Control a DC motor's speed instead of an LED.","Change the LED color (using RGB LED) based on rotation.","Create a 'Sleep Mode' where the LED pulses automatically."],useCase:"Volume knobs, lamp dimmers, motor speed controllers, fan speed regulation.",advantages:["Intuitive analog control","Fine-grained resolution","No complex math needed"],disadvantages:["Analog noise can cause flicker","Potentiometers wear out over time"],parts:[{name:"10k Potentiometer",buyLink:"https://robu.in/product/10k-potentiometer/"},{name:"LED & Resistor",buyLink:"https://robu.in/product/leds/"}]},{id:4,title:"Traffic Light System",level:"Beginner",estimatedTime:"30 mins",description:"Simulate a real-world infrastructure system. Control three LEDs in a specific sequence to mimic a traffic intersection.",tech:["Arduino","LEDs"],category:"Basics",concept:"Sequential Execution & State Logic",learning:["Managing multiple outputs simultaneously","Implementing logical sequences","Timed execution patterns","Code organization for larger projects","Understanding 'Blocking' vs 'Non-blocking' code"],workingPrinciple:"The program executes a loop that turns specific pins HIGH and LOW in a fixed order (Red -> Green -> Yellow). Delays are used to hold each state for the required duration, simulating traffic flow timings.",circuit:"Connect Red LED to Pin 10, Yellow to Pin 11, and Green to Pin 12. Connect all short legs to a common GND rail on the breadboard through individual resistors.",pins:[{from:"Red LED",to:"Pin 10"},{from:"Yellow LED",to:"Pin 11"},{from:"Green LED",to:"Pin 12"},{from:"All Cathodes",to:"GND via Resistors"}],code:t(`
+            // Pin definitions
             int red = 10;
             int yellow = 11;
             int green = 12;
@@ -55,40 +74,50 @@ const t=e=>e.replace(/^\s{12}/gm,"").trim(),a=[{id:1,title:"LED Blink",level:"Be
             }
 
             void loop() {
+              // Stop State (Red)
               digitalWrite(red, HIGH);
-              delay(5000);
+              delay(5000); // 5 Seconds
               digitalWrite(red, LOW);
               
-              digitalWrite(yellow, HIGH);
-              delay(2000);
-              digitalWrite(yellow, LOW);
-
+              // Proceed State (Green)
               digitalWrite(green, HIGH);
-              delay(5000);
+              delay(5000); // 5 Seconds
               digitalWrite(green, LOW);
+
+              // Caution State (Yellow)
+              digitalWrite(yellow, HIGH);
+              delay(2000); // 2 Seconds
+              digitalWrite(yellow, LOW);
             }
-        `),useCase:"Traffic Control, Production Line Sequence.",advantages:["Visual logic demonstration"],disadvantages:["Blocking code (delays)"],parts:[{name:"LEDs (R/Y/G)",buyLink:"https://robu.in/product/leds/"}]},{id:5,title:"LDR Night Light",level:"Beginner",description:"Automatically turns on light when it gets dark.",tech:["Arduino","LDR"],category:"Sensors",concept:"Light Sensing",principle:"Photo-resistivity",pins:[{from:"LDR Divider",to:"A0"},{from:"LED",to:"Pin 13"}],code:t(`
-            int ldrPin = A0;
-            int ledPin = 13;
-            int threshold = 500;
+        `),howToRun:`1. Wire up the three LEDs carefully on the breadboard.
+2. Map the pins correctly in the code.
+3. Upload and watch the 'intersection' begin operating.`,output:"The LEDs will cycle through Red (5s), Green (5s), and Yellow (2s) continuously.",extensions:["Add a button for a 'Pedestrian Crosswalk' request.","Include a buzzer that beeps during the Yellow phase.","Use a 7-segment display to show a countdown timer for the Red light."],useCase:"Smart City simulation, Industrial state indicators, Sequential process controllers.",advantages:["Simulates real industrial logic","Great for learning basic sequencing"],disadvantages:["Using delay() blocks the CPU from doing anything else"],parts:[{name:"LEDs (R, Y, G Pack)",buyLink:"https://robu.in/product/leds/"}]},{id:5,title:"LDR Night Light",level:"Beginner",estimatedTime:"25 mins",description:"Create an autonomous smart device. This light sensor project automatically turns on an LED when the room gets dark.",tech:["Arduino","LDR","Sensor"],category:"Sensors",concept:"Ambient Light Sensing & Thresholding",learning:["Working with variable resistance (LDR)","Building a Voltage Divider circuit","Defining logical thresholds","Using Serial Monitor for debugging sensor data","Automation logic basics"],workingPrinciple:"An LDR (Light Dependent Resistor) changes resistance based on light intensity. In a voltage divider, this translates to variable voltage at Pin A0. The code reads this voltage and triggers the LED when it falls below a set dark-threshold.",circuit:"Connect one leg of LDR to 5V. Connect the other leg to A0 and also to GND through a 10k-ohm resistor. This forms a voltage divider. Connect LED to Pin 13.",pins:[{from:"LDR Side A",to:"5V"},{from:"LDR Side B / 10k Resistor",to:"Analog Pin A0"},{from:"10k Resistor Other Side",to:"GND"},{from:"LED (+)",to:"Pin 13"}],code:t(`
+            int ldrPin = A0;   // LDR connected to A0
+            int ledPin = 13;   // Active LED
+            int threshold = 400; // Adjust based on your room lighting
 
             void setup() {
               pinMode(ledPin, OUTPUT);
-              Serial.begin(9600);
+              Serial.begin(9600); // Open monitoring
             }
 
             void loop() {
               int lightLevel = analogRead(ldrPin);
+              Serial.print("Current Light: ");
               Serial.println(lightLevel);
               
+              // If it's dark (low value), turn ON light
               if (lightLevel < threshold) {
-                digitalWrite(ledPin, HIGH); // Dark -> ON
+                digitalWrite(ledPin, HIGH); 
               } else {
-                digitalWrite(ledPin, LOW);  // Light -> OFF
+                digitalWrite(ledPin, LOW);  
               }
-              delay(500);
+              delay(500); // Check every half second
             }
-        `),useCase:"Street lights, Automatic Garden Lights.",advantages:["Energy efficient"],disadvantages:["Needs calibration"],parts:[{name:"LDR Sensor",buyLink:"https://robu.in/product/ldr-light-dependent-resistor/"}]},{id:6,title:"Ultrasonic Distance Meter",level:"Beginner",description:"Measure distance using sound waves.",tech:["Arduino","HC-SR04"],category:"Sensors",concept:"Time of Flight",principle:"Distance = (Time x Speed)/2",pins:[{from:"Trig",to:"Pin 9"},{from:"Echo",to:"Pin 10"}],code:t(`
+        `),howToRun:`1. Build the circuit and upload the code.
+2. Open the Serial Monitor (Tools -> Serial Monitor).
+3. Cover the LDR with your hand to simulate darkness.
+4. The LED should turn ON instantly.`,output:"The LED will illuminate automatically whenever the ambient light drops below the threshold value.",extensions:["Use a potentiometer to adjust the light sensitivity (threshold) on the fly.","Add an LCD to display the exact light percentage.","Control a Relay to switch a real 220V light bulb (Caution: AC power!)."],useCase:"Smart street lights, garden lighting, solar charging switches, automatic screen brightness.",advantages:["Fully automatic","Energy efficient","Very low cost"],disadvantages:["Requires calibration for different environments"],parts:[{name:"LDR Sensor (Photoresistor)",buyLink:"https://robu.in/product/ldr-light-dependent-resistor/"},{name:"10k Resistor",buyLink:"https://robu.in/product/10k-resistor/"}]},{id:6,title:"Ultrasonic Distance Meter",level:"Beginner",description:"Measure distance using sound waves.",tech:["Arduino","HC-SR04"],category:"Sensors",concept:"Time of Flight",principle:"Distance = (Time x Speed)/2",pins:[{from:"Trig",to:"Pin 9"},{from:"Echo",to:"Pin 10"}],code:t(`
             #define TRIG 9
             #define ECHO 10
 
@@ -494,4 +523,4 @@ const t=e=>e.replace(/^\s{12}/gm,"").trim(),a=[{id:1,title:"LED Blink",level:"Be
           esp_camera_fb_return(fb);
           delay(1000);
         }
-    `}},l=s.map((e,r)=>{let i=e.c;i==="Env"&&(i="Environmental"),(i==="Sensing"||i==="Agriculture")&&(i="Environmental"),(i==="Smart Home"||i==="City"||i==="Industrial")&&(i="Automation");const o=n[i]||n.Environmental;return{id:50+r,title:e.t,level:"Intermediate",description:`Professional hardware implementation for ${e.t}. Focuses on ${e.p} architectures and scalable code.`,tech:["Arduino",...e.p.split(" + ")],category:e.c,concept:o.concept,principle:o.principle,pins:o.pins,code:t(o.code(e.t)),useCase:`Critical for ${e.c.toLowerCase()} systems and smart infrastructure.`,advantages:["Proven reliability","Modular design"],disadvantages:["Requires specific hardware calibration"],parts:[{name:e.p,buyLink:"https://robu.in"}]}}),d=[...a,...l],c=d,p=[{title:"Voltage, Current & Resistance",content:"The holy trinity of electronics (Ohm's Law). Voltage is the pressure pushing electrons, Current is the flow of electrons, and Resistance is the opposition to that flow. Understanding V=IR is crucial for not burning components.",deepDive:"High current needs thick wires. High voltage needs insulation.",mistakes:"Shorting Power to Ground (Infinite Current = Fire).",tip:"Always check polarity before powering up."},{title:"Microcontrollers (The Brain)",content:"A small computer on a single chip. It reads inputs (sensors), processes data based on your code, and controls outputs (lights, motors). Common examples: Arduino Uno, ESP32, STM32.",deepDive:"They run firmware (C/C++), not a full OS like Windows.",mistakes:"Drawing too much current from a GPIO pin (>20mA).",tip:"Use transistors/MOSFETs to drive high-power loads."},{title:"Digital vs Analog Signals",content:"Digital signals are binary (ON/OFF, 0V/5V), like a light switch. Analog signals are continuous (0V to 5V), like a dimmer knob. Microcontrollers live in a digital world but use ADCs (Analog-to-Digital Converters) to understand analog.",deepDive:"ADC Resolution (10-bit = 0-1023 values) determines precision.",mistakes:"Connecting 5V analog sensors to 3.3V ADC pins.",tip:"PWM (Pulse Width Modulation) fakes analog output using digital pulses."},{title:"Sensors (Inputs)",content:"Devices that convert physical world data (temp, light, motion) into electrical signals. They are the 'eyes and ears' of your IoT system. They can be active (require power) or passive (like LDRs).",deepDive:"Calibration is often needed for accurate real-world readings.",mistakes:"Ignoring sensor warm-up time (e.g., Gas sensors).",tip:"Check datasheets for response time and accuracy."},{title:"Actuators (Outputs)",content:"Devices that perform actions: moving motors, lighting LEDs, buzzing alarms. They convert electrical energy back into physical movement or light.",deepDive:"Inductive loads (motors/relays) generate voltage spikes when turned off.",mistakes:"Forgetting flyback diodes on motors/relays.",tip:"Isolate high-power actuators from sensitive MCUs."},{title:"Pull-up & Pull-down Resistors",content:"Resistors used to ensure a known state (HIGH or LOW) for a signal line when no other input is active. Without them, 'floating' pins pick up static noise and trigger randomly.",deepDive:"Internal pull-ups (INPUT_PULLUP) save wiring.",mistakes:"Leaving a button pin floating (unpredictable behavior).",tip:"10kΩ is the standard value for pull-up/down resistors."},{title:"UART (Serial Communication)",content:"Universal Asynchronous Receiver-Transmitter. The most common way for chips to talk. Uses two wires: TX (Transmit) and RX (Receive). Crucial for debugging via Serial Monitor.",deepDive:"Baud rate (e.g., 9600) must match on both sides.",mistakes:"Connecting TX to TX instead of TX to RX.",tip:"Grounds must be connected between communicating devices."},{title:"I2C Protocol",content:"Inter-Integrated Circuit. A bus protocol that allows multiple 'slave' devices (sensors, screens) to talk to a 'master' (Arduino) using just two wires: SDA (Data) and SCL (Clock).",deepDive:"Each device has a unique Hex address (e.g., 0x27).",mistakes:"Missing pull-up resistors on SDA/SCL lines.",tip:"Use an I2C Scanner sketch to find device addresses."},{title:"SPI Protocol",content:"Serial Peripheral Interface. Faster than I2C, used for SD cards and displays. Uses 4 wires: MOSI (Master Out), MISO (Master In), SCK (Clock), and CS (Chip Select).",deepDive:"Full-duplex: can send and receive simultaneously.",mistakes:"Confusing MOSI/MISO connections.",tip:"Cable length matters; SPI degrades over long wires."},{title:"Power Scaling (3.3V vs 5V)",content:"Different chips run on different logic levels. Arduino is typically 5V, while modern chips like ESP32/ESP8266 are 3.3V. Mixing them without level shifters is dangerous.",deepDive:"Voltage Dividers can shift 5V signal down to 3.3V.",mistakes:"Connecting 5V logic to a 3.3V input pin (Boom).",tip:"Logic Level Converters are cheap insurance."}];export{c as a,p as b};
+    `}},l=s.map((e,r)=>{let i=e.c;i==="Env"&&(i="Environmental"),(i==="Sensing"||i==="Agriculture")&&(i="Environmental"),(i==="Smart Home"||i==="City"||i==="Industrial")&&(i="Automation");const o=n[i]||n.Environmental;return{id:50+r,title:e.t,level:"Intermediate",description:`Professional hardware implementation for ${e.t}. Focuses on ${e.p} architectures and scalable code.`,tech:["Arduino",...e.p.split(" + ")],category:e.c,concept:o.concept,principle:o.principle,pins:o.pins,code:t(o.code(e.t)),useCase:`Critical for ${e.c.toLowerCase()} systems and smart infrastructure.`,advantages:["Proven reliability","Modular design"],disadvantages:["Requires specific hardware calibration"],parts:[{name:e.p,buyLink:"https://robu.in"}]}}),d=[...a,...l],c=d,u=[{title:"Voltage, Current & Resistance",content:"The holy trinity of electronics (Ohm's Law). Voltage is the pressure pushing electrons, Current is the flow of electrons, and Resistance is the opposition to that flow. Understanding V=IR is crucial for not burning components.",deepDive:"High current needs thick wires. High voltage needs insulation.",mistakes:"Shorting Power to Ground (Infinite Current = Fire).",tip:"Always check polarity before powering up."},{title:"Microcontrollers (The Brain)",content:"A small computer on a single chip. It reads inputs (sensors), processes data based on your code, and controls outputs (lights, motors). Common examples: Arduino Uno, ESP32, STM32.",deepDive:"They run firmware (C/C++), not a full OS like Windows.",mistakes:"Drawing too much current from a GPIO pin (>20mA).",tip:"Use transistors/MOSFETs to drive high-power loads."},{title:"Digital vs Analog Signals",content:"Digital signals are binary (ON/OFF, 0V/5V), like a light switch. Analog signals are continuous (0V to 5V), like a dimmer knob. Microcontrollers live in a digital world but use ADCs (Analog-to-Digital Converters) to understand analog.",deepDive:"ADC Resolution (10-bit = 0-1023 values) determines precision.",mistakes:"Connecting 5V analog sensors to 3.3V ADC pins.",tip:"PWM (Pulse Width Modulation) fakes analog output using digital pulses."},{title:"Sensors (Inputs)",content:"Devices that convert physical world data (temp, light, motion) into electrical signals. They are the 'eyes and ears' of your IoT system. They can be active (require power) or passive (like LDRs).",deepDive:"Calibration is often needed for accurate real-world readings.",mistakes:"Ignoring sensor warm-up time (e.g., Gas sensors).",tip:"Check datasheets for response time and accuracy."},{title:"Actuators (Outputs)",content:"Devices that perform actions: moving motors, lighting LEDs, buzzing alarms. They convert electrical energy back into physical movement or light.",deepDive:"Inductive loads (motors/relays) generate voltage spikes when turned off.",mistakes:"Forgetting flyback diodes on motors/relays.",tip:"Isolate high-power actuators from sensitive MCUs."},{title:"Pull-up & Pull-down Resistors",content:"Resistors used to ensure a known state (HIGH or LOW) for a signal line when no other input is active. Without them, 'floating' pins pick up static noise and trigger randomly.",deepDive:"Internal pull-ups (INPUT_PULLUP) save wiring.",mistakes:"Leaving a button pin floating (unpredictable behavior).",tip:"10kΩ is the standard value for pull-up/down resistors."},{title:"UART (Serial Communication)",content:"Universal Asynchronous Receiver-Transmitter. The most common way for chips to talk. Uses two wires: TX (Transmit) and RX (Receive). Crucial for debugging via Serial Monitor.",deepDive:"Baud rate (e.g., 9600) must match on both sides.",mistakes:"Connecting TX to TX instead of TX to RX.",tip:"Grounds must be connected between communicating devices."},{title:"I2C Protocol",content:"Inter-Integrated Circuit. A bus protocol that allows multiple 'slave' devices (sensors, screens) to talk to a 'master' (Arduino) using just two wires: SDA (Data) and SCL (Clock).",deepDive:"Each device has a unique Hex address (e.g., 0x27).",mistakes:"Missing pull-up resistors on SDA/SCL lines.",tip:"Use an I2C Scanner sketch to find device addresses."},{title:"SPI Protocol",content:"Serial Peripheral Interface. Faster than I2C, used for SD cards and displays. Uses 4 wires: MOSI (Master Out), MISO (Master In), SCK (Clock), and CS (Chip Select).",deepDive:"Full-duplex: can send and receive simultaneously.",mistakes:"Confusing MOSI/MISO connections.",tip:"Cable length matters; SPI degrades over long wires."},{title:"Power Scaling (3.3V vs 5V)",content:"Different chips run on different logic levels. Arduino is typically 5V, while modern chips like ESP32/ESP8266 are 3.3V. Mixing them without level shifters is dangerous.",deepDive:"Voltage Dividers can shift 5V signal down to 3.3V.",mistakes:"Connecting 5V logic to a 3.3V input pin (Boom).",tip:"Logic Level Converters are cheap insurance."}];export{c as a,u as b};
