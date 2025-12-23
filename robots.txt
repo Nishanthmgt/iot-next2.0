@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin-dashboard
+Disallow: /admin-login
+Disallow: /admin-add
+Disallow: /admin-edit
+
+Sitemap: https://nishanth-iot.github.io/iotnext2.0/sitemap.xml
