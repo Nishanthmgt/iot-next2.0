@@ -5,6 +5,7 @@
   <meta charset="UTF-8" />
   <link rel="icon" type="image/png" href="./logo.png?v=2" />
   <meta name="viewport" content="width=1024">
+  <link rel="preload" as="image" href="/assets/industrial_iot_bg.png" fetchpriority="high">
 
   <!-- SEO Primary -->
   <title>IoTNext – Learn Industrial IoT, Embedded Systems & Projects</title>
@@ -14,12 +15,14 @@
   <meta name="robots" content="index, follow">
 
   <!-- Google Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-xxxxxxxxxx"></script>
+  <script defer src="https://www.googletagmanager.com/gtag/js?id=G-xxxxxxxxxx"></script>
   <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag() { dataLayer.push(arguments); }
-    gtag('js', new Date());
-    gtag('config', 'G-xxxxxxxxxx');
+    window.addEventListener('load', function () {
+      window.dataLayer = window.dataLayer || [];
+      function gtag() { dataLayer.push(arguments); }
+      gtag('js', new Date());
+      gtag('config', 'G-xxxxxxxxxx');
+    });
   </script>
 
   <!-- Open Graph / Facebook -->
@@ -66,12 +69,12 @@
   <link rel="manifest" href="./manifest.json?v=2" />
   <link rel="apple-touch-icon" href="./logo.png?v=2" />
 
-  <script type="module" crossorigin src="/assets/index-DRn0D4-v.js"></script>
+  <script type="module" crossorigin src="/assets/index-Bt-ql0QA.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/vendor-framer-4xoplDiI.js">
   <link rel="modulepreload" crossorigin href="/assets/vendor-supabase-BUiByx9r.js">
   <link rel="modulepreload" crossorigin href="/assets/vendor-icons-ClLsNfhY.js">
   <link rel="modulepreload" crossorigin href="/assets/projects-data-dwlI2odW.js">
-  <link rel="stylesheet" crossorigin href="/assets/index-BKb0PWw2.css">
+  <link rel="stylesheet" crossorigin href="/assets/index-C5HofcnP.css">
 </head>
 
 <body>
