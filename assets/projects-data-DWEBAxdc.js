@@ -1741,4 +1741,127 @@ void loop() {
   
   Serial.print("Moisture: "); Serial.println(moisture);
   delay(300000); // 5-minute sampling
-}`,advantages:"All-in-one solution; eliminates the need for separate nodes; maximizes agricultural ROI.",disadvantages:"High component cost; complex wiring; requires high-strength Wi-Fi in the field (or LoRa gateway).",usage:"Housed in an IP67 waterproof enclosure. Use solar charging to make the gateway fully autonomous.",components:["1x ESP32","1x NPK RS485 Probe","1x BME280","1x Soil Moisture Pro","2x 12V Relays"],circuit_diagram:"Gateway combines SPI, I2C, UART, and Analog circuits into a central PCB/Enclosure.",status:"Published",industrial_use:"Commercial olive/vineyard management and smart urban community gardens.",bom_cost:"$75"}];export{e as p};
+}`,advantages:"All-in-one solution; eliminates the need for separate nodes; maximizes agricultural ROI.",disadvantages:"High component cost; complex wiring; requires high-strength Wi-Fi in the field (or LoRa gateway).",usage:"Housed in an IP67 waterproof enclosure. Use solar charging to make the gateway fully autonomous.",components:["1x ESP32","1x NPK RS485 Probe","1x BME280","1x Soil Moisture Pro","2x 12V Relays"],circuit_diagram:"Gateway combines SPI, I2C, UART, and Analog circuits into a central PCB/Enclosure.",status:"Published",industrial_use:"Commercial olive/vineyard management and smart urban community gardens.",bom_cost:"$75"},{id:61,title:"Smart Fan Speed Controller",level:"Beginner",description:"Automatically adjust fan speed based on ambient temperature using a DHT11 sensor and PWM motor control.",category:"Home Automation",estimatedTime:"45 mins",tech:["Arduino","DHT11","DC Motor"],concept:"Dynamic Cooling. This project uses the correlation between temperature and required airflow. By mapping temperature ranges to PWM duty cycles, we achieve energy-efficient cooling.",working_principle:`1. DHT11 reads ambient temperature.
+2. Microcontroller processes the value.
+3. If temp > threshold, PWM signal increases motor speed.
+4. Speed is linearly scaled between minimum and maximum temperature setpoints.`,pin_config:{arduino:[{pin:"A0",component:"DHT11 Data",note:"10k Pullup"},{pin:"D9",component:"Motor PWM",note:"To L293D Enable"},{pin:"GND",component:"Common GND",note:"-"}]},code:`#include <DHT.h>
+#define DHTPIN A0
+#define MOTOR 9
+DHT dht(DHTPIN, DHT11);
+void setup() {
+  dht.begin();
+  pinMode(MOTOR, OUTPUT);
+}
+void loop() {
+  float t = dht.readTemperature();
+  if (t > 25) {
+    int speed = map(t, 25, 40, 100, 255);
+    analogWrite(MOTOR, constrain(speed, 0, 255));
+  } else {
+    analogWrite(MOTOR, 0);
+  }
+  delay(2000);
+}`,advantages:"Energy efficient, noise reduction at low temps.",disadvantages:"Requires motor driver for high power fans.",usage:"Place DHT11 away from the fan's direct airflow for accurate room measurement.",components:["1x Arduino","1x DHT11","1x L293D","1x DC Fan"],status:"Published",bom_cost:"$12"},{id:62,title:"Automatic Window Opener",level:"Intermediate",description:"Drive a rack-and-pinion system with a servo to open windows when CO2 levels rise or it gets too hot inside.",category:"Smart Home",estimatedTime:"90 mins",tech:["Arduino","Servo","MQ-135","DHT11"],concept:"Automated Ventilation. Maintains indoor air quality by monitoring VOCs and temperature, triggering mechanical actuation for natural cooling.",working_principle:`1. MQ-135 monitors air quality.
+2. If bad air detected, Servo rotates to 180 degrees (Open).
+3. When air clears, Servo returns to 0 degrees (Closed).`,pin_config:{arduino:[{pin:"D10",component:"Servo Signal",note:"PWM Output"},{pin:"A1",component:"MQ-135 Analog",note:"Air Quality Input"}]},code:`#include <Servo.h>
+Servo winServo;
+void setup() {
+  winServo.attach(10);
+  pinMode(A1, INPUT);
+}
+void loop() {
+  int air = analogRead(A1);
+  if (air > 400) winServo.write(180);
+  else winServo.write(0);
+  delay(5000);
+}`,advantages:"Hands-free operation, improves health by reducing CO2.",disadvantages:"Needs mechanical mounting for the window frame.",usage:"Use a high-torque MG996R servo for heavy windows.",components:["1x Arduino","1x MG996R Servo","1x MQ-135","1x DHT11"],status:"Published",bom_cost:"$22"},{id:63,title:"Smart Toilet Flush",level:"Beginner",description:"Touchless IR-based flushing system to promote hygiene in public and private restrooms.",category:"Health & Hygiene",estimatedTime:"40 mins",tech:["Arduino","IR Sensor","Servo"],concept:"Contactless Actuation. Reduces germ transmission by replacing physical handles with proximity triggers.",working_principle:`1. IR sensor detects hand presence.
+2. When hand is removed, Servo pulls the flush valve chain.
+3. Automatic reset after 5 seconds.`,pin_config:{arduino:[{pin:"D7",component:"IR Sensor",note:"Digital In"},{pin:"D9",component:"Servo",note:"Flush Logic"}]},code:`#include <Servo.h>
+Servo flush;
+void setup() {
+  pinMode(7, INPUT);
+  flush.attach(9);
+}
+void loop() {
+  if (digitalRead(7) == LOW) {
+    delay(1000); // Wait for intent
+    flush.write(90);
+    delay(2000);
+    flush.write(0);
+    delay(10000); // Lockout
+  }
+}`,advantages:"High hygiene, water-saving potential.",disadvantages:"Battery replacement needed for portable units.",usage:"Mount IR sensor at waist level for easy reach.",components:["1x Arduino","1x IR Sensor","1x High Torque Servo"],status:"Published",bom_cost:"$15"},{id:64,title:"Smart Washroom Light",level:"Beginner",description:"Motion-activated lighting for bathrooms with ambient light sensing to save energy during daytime.",category:"Energy Efficiency",estimatedTime:"30 mins",tech:["Arduino","PIR","LDR","Relay"],concept:"Occupancy Sensing. Combines motion detection with ambient light checking to ensure lights are only ON when needed.",working_principle:`1. PIR sensor checks for motion.
+2. LDR checks if it's dark.
+3. If both conditions met, Relay triggers the light.`,pin_config:{arduino:[{pin:"D2",component:"PIR Sensor",note:"Interrupt Driven"},{pin:"D4",component:"Relay Out",note:"To Light Bulbs"}]},code:`void setup() {
+  pinMode(2, INPUT); pinMode(4, OUTPUT);
+}
+void loop() {
+  if (digitalRead(2) == HIGH) {
+    digitalWrite(4, HIGH);
+    delay(60000); // 1-minute timer
+  } else {
+    digitalWrite(4, LOW);
+  }
+}`,advantages:"Automated energy saving, very cheap build.",disadvantages:"Relay clicking noise.",usage:"Mount PIR on the ceiling for widest coverage.",components:["1x Arduino","1x PIR","1x 5V Relay"],status:"Published",bom_cost:"$8"},{id:65,title:"Smart Locker System",level:"Intermediate",description:"Secure storage with PIN-code entry and solenoid lock mechanism with wrong-password alerts.",category:"Security",estimatedTime:"60 mins",tech:["Arduino","Keypad","OLED","Solenoid"],concept:"Digital Access Control. Replaces physical keys with encrypted numerical codes and electromechanical locking.",working_principle:`1. User enters 4-digit PIN.
+2. Comparison logic validates against stored password.
+3. If correct, Solenoid pulls (Unlock).
+4. After 5s, Solenoid releases (Lock).`,pin_config:{arduino:[{pin:"D2-D5",component:"Keypad Rows",note:"-"},{pin:"D6-D9",component:"Keypad Cols",note:"-"},{pin:"D10",component:"Solenoid Relay",note:"High Power"}]},code:`// Keypad Solenoid Logic
+void setup() { pinMode(10, OUTPUT); }
+void loop() {
+  // if (pass) digitalWrite(10, HIGH);
+}`,advantages:"No physical keys to lose, customizable pins.",disadvantages:"Needs reliable power backup for lock to stay secure.",usage:"Use a 12V adapter for the solenoid; Arduino cannot power it directly.",components:["1x Arduino","1x 4x4 Keypad","1x 12V Solenoid"],status:"Published",bom_cost:"$25"},{id:66,title:"Smart Mirror Display (Basic)",level:"Intermediate",description:"A two-way mirror that displays time, date, and weather info from an ESP32 behind the glass.",category:"IoT & Consumer",estimatedTime:"120 mins",tech:["ESP32","OLED/TFT","NTP"],concept:"Info Overlay. Uses partial reflection to mix real-world reflection with digital data for a Sci-Fi aesthetic.",working_principle:`1. ESP32 connects to Wi-Fi.
+2. Fetches time via NTP.
+3. Displays data in high-contrast white-on-black mode.
+4. Reflected image overlays the digital data.`,pin_config:{esp32:[{pin:"G21",component:"SDA",note:"I2C"},{pin:"G22",component:"SCL",note:"I2C"}]},code:`// NTP Time Sync Logic
+void setup() {
+  WiFi.begin("SSID", "PASS");
+}
+void loop() {
+  // Update OLED text
+}`,advantages:"Extremely futuristic look, daily productivity booster.",disadvantages:"Needs dark room/background for best visibility.",usage:"Use a 50/50 two-way acrylic mirror for the best result.",components:["1x ESP32","1x 1.3 inch OLED","1x Two-way Mirror"],status:"Published",bom_cost:"$30"},{id:67,title:"Smart Attendance System (Basic)",level:"Beginner",description:"Log entry times to an SD card using RFID cards, suitable for small offices and classrooms.",category:"Management",estimatedTime:"60 mins",tech:["Arduino","RFID-RC522","SD Card Module"],concept:"Identity Logging. Maps unique RFID UIDs to user names and records timestamps for audit trails.",working_principle:`1. Scan RFID card.
+2. Card ID is read via SPI.
+3. Timestamp + ID written to attendance.csv on SD card.`,pin_config:{arduino:[{pin:"D10",component:"SDA (RFID)",note:"SPI"},{pin:"D4",component:"CS (SD)",note:"SPI"}]},code:`// RFID-SD Logging Logic
+void setup() { SPI.begin(); }
+void loop() {
+  // Read RFID -> Write SD
+}`,advantages:"Tamper-proof (if mounted), fast processing.",disadvantages:"Requires physical cards for every user.",usage:"Ensure the SD card is formatted to FAT32 before use.",components:["1x Arduino","1x RC522 RFID","1x SD Module"],status:"Published",bom_cost:"$20"},{id:68,title:"Smart Pet Feeder",level:"Intermediate",description:"An automated kibble dispenser with scheduled feeding and manual override via Wi-Fi.",category:"Consumer IoT",estimatedTime:"90 mins",tech:["ESP32","Servo","RTC"],concept:"Precision Dosing. Uses mechanical rotation to dispense set volumes of food at precise intervals.",working_principle:`1. ESP32 checks RTC time.
+2. At 8:00 AM, Servo rotates 180 deg to drop food.
+3. User can trigger 'Snack' mode via Web Portal.`,pin_config:{esp32:[{pin:"G13",component:"Servo PWM",note:"-"},{pin:"G21/22",component:"I2C RTC",note:"DS3231"}]},code:`// Scheduled Servo Feed
+void setup() { }
+void loop() {
+  if (timeToFeed) dispense();
+}`,advantages:"Reliable pet care when owners are away.",disadvantages:"May jam if food particles are too large.",usage:"Design a vertical tube hopper for consistent gravity flow.",components:["1x ESP32","1x DS3231 RTC","1x 360 Servo"],status:"Published",bom_cost:"$28"},{id:69,title:"Smart Plant Monitor",level:"Beginner",description:"Visual indicator for plant health using moisture sensors and an RGB LED to show status (Red=Dry, Green=Happy).",category:"Green Tech",estimatedTime:"30 mins",tech:["Arduino","Soil Moisture","RGB LED"],concept:"Environmental Feedback. Bridges the gap between plant needs and human perception using visual color coding.",working_principle:`1. Capacitive moisture sensor reads water level.
+2. Arduino maps reading to 3 states: DRY, OK, WET.
+3. RGB LED changes color accordingly.`,pin_config:{arduino:[{pin:"A0",component:"Soil Moisture",note:"Analog In"},{pin:"D3,D5,D6",component:"RGB Pins",note:"PWM"}]},code:`// RGB Status Logic
+void loop() {
+  int val = analogRead(A0);
+  if (val < 300) setRed();
+  else setGreen();
+}`,advantages:"Extremely easy to build, great for kids.",disadvantages:"Cheap resistive sensors corrode quickly.",usage:"Calibrate threshold by dipping sensor in wet vs dry soil first.",components:["1x Arduino","1x Moisture Sensor","1x RGB LED"],status:"Published",bom_cost:"$7"},{id:70,title:"Digital Compass",level:"Intermediate",description:"High-precision heading indicator using a magnetometer and an OLED display.",category:"Robotics & Navigation",estimatedTime:"50 mins",tech:["Arduino","HMC5883L","OLED"],concept:"Geomagnetic Orientation. Senses the Earth's magnetic field in 3 axes to calculate North-relative heading.",working_principle:`1. Read X, Y values from Magnetometer.
+2. Calculate Arctan2(Y, X) to get radians.
+3. Convert to degrees and adjust for local declination.`,pin_config:{arduino:[{pin:"A4/A5",component:"I2C Bus",note:"Common for OLED/Mag"}]},code:`// HMC5883L Orientation
+void loop() {
+  float heading = mag.readHolding();
+}`,advantages:"Compact navigation tool, great for drones/rovers.",disadvantages:"Sensitive to local metal objects.",usage:"Calibrate by rotating the sensor in a 'figure 8' pattern before first use.",components:["1x Arduino","1x HMC5883L","1x OLED 0.96"],status:"Published",bom_cost:"$14"},{id:71,title:"Smart Key Finder",level:"Beginner",description:"Whistle-activated or Bluetooth-enabled key tracker that beeps when you can't find your keys.",category:"Consumer Utility",estimatedTime:"45 mins",tech:["Arduino Nano","Buzzer","Sound Sensor"],concept:"Acoustic Triggering. Listens for specific frequencies (whistles) or signal strength (BLE) to trigger an alert.",working_principle:`1. Microphone module listens for loud sound.
+2. MCU filters for frequency range.
+3. Active buzzer beeps until reset button is pressed.`,pin_config:{arduino:[{pin:"D2",component:"Mic Sensor",note:"Digital Out Pin"},{pin:"D3",component:"Buzzer",note:"Active Tones"}]},code:`// Acoustic Alerter
+void loop() {
+  if (sound) tone(3, 2000);
+}`,advantages:"Saves time, low power standby.",disadvantages:"False triggers from loud TV.",usage:"Use an Arduino Nano for the smallest possible footprint.",components:["1x Arduino Nano","1x Mic Sensor","1x Piezo Buzzer"],status:"Published",bom_cost:"$9"},{id:72,title:"Home Security Alarm",level:"Intermediate",description:"A multi-zone security system with vibration sensors and magnetic door switches.",category:"Security",estimatedTime:"90 mins",tech:["Arduino","Reed Switch","Vibration Sensor","Buzzer"],concept:"Perimeter Defense. Monitors circuit continuity (door) and kinetic energy (window glass break).",working_principle:`1. Reed switch is N.O. (Normally Open).
+2. If magnet moves (door opens), circuit closes.
+3. MCU triggers siren and flashes LEDs.`,pin_config:{arduino:[{pin:"D2",component:"Door Switch",note:"Interrupt"},{pin:"D13",component:"Siren Relay",note:"-"}]},advantages:"High reliability, physical security.",disadvantages:"Requires wiring across the home.",usage:"Add a hidden switch to disarm the alarm when you enter.",components:["1x Arduino","5x Reed Switches","1x Loud Siren"],status:"Published",bom_cost:"$35"},{id:73,title:"Smart Door Knock Detector",level:"Beginner",description:"Sends a notification or lights up a LED when someone knocks on the door, great for hearing-impaired users.",category:"Accessibility",estimatedTime:"40 mins",tech:["Arduino","Piezo Element"],concept:"Impact Sensing. Uses the piezoelectric effect where physical vibration is converted into electrical spikes.",working_principle:`1. Piezo sensor attached to door wood.
+2. Knock creates voltage spike.
+3. MCU detects peak and triggers output.`,pin_config:{arduino:[{pin:"A0",component:"Piezo Sen",note:"With 1M resistor"}]},code:`// Piezo Vibe Detect
+void loop() {
+  if (analogRead(A0) > 100) alert();
+}`,advantages:"Extremely low cost, high sensitivity.",disadvantages:"Triggers from door slams.",usage:"Mount near the center of the door panel for best resonance.",components:["1x Arduino","1x Piezo Disc","1x LED"],status:"Published",bom_cost:"$5"},{id:74,title:"Light Intensity Logger",level:"Beginner",description:"Track sun exposure throughout the day in different rooms to optimize indoor plant placement.",category:"Data Logging",estimatedTime:"60 mins",tech:["Arduino","LDR","SD Card"],concept:"Lux Auditing. Records ambient light levels at fixed intervals to calculate total daily light integral.",working_principle:`1. LDR reads light levels every 15 mins.
+2. Values mapped to Lux.
+3. Data stored on SD card.`,pin_config:{arduino:[{pin:"A2",component:"LDR",note:"-"},{pin:"D4",component:"SD CS",note:"SPI"}]},advantages:"Objective data for gardening.",disadvantages:"Requires computer to graph.",usage:"Place in different corners to find the best light spot.",components:["1x Arduino","1x LDR module","1x SD Module"],status:"Published",bom_cost:"$12"},{id:75,title:"Smart Emergency Button",level:"Beginner",description:"A wall-mounted panic button that triggers a loud alarm and sends a Wi-Fi alert.",category:"Safety",estimatedTime:"50 mins",tech:["ESP32","Push Button","Buzzer"],concept:"One-Touch Alert. Simplifies emergency signaling to a single, robust physical interaction.",working_principle:`1. ESP32 wakes on interrupt.
+2. Sends HTTP POST to emergency service.
+3. Sounds buzzer.`,pin_config:{esp32:[{pin:"G14",component:"Panic Button",note:"Pullup"},{pin:"G27",component:"Piezo Alarm",note:"-"}]},advantages:"Critical for elderly safety.",disadvantages:"False alarms if not guarded.",usage:"Encase in a bright red 3D printed housing.",components:["1x ESP32","1x Arcade Button","1x High Decibel Buzzer"],status:"Published",bom_cost:"$18"},{id:76,title:"Smart Door Mat",level:"Beginner",description:"Greeting mat that says 'Hello' or lights up the foyer when stepped on using pressure sensors.",category:"Smart Home",estimatedTime:"45 mins",tech:["Arduino","FSR","MP3 Module"],concept:"Occupancy Trigger. Uses weight detection as an input for hospitality automation.",working_principle:`1. FSR under mat detects pressure.
+2. MCU triggers MP3 module.`,pin_config:{arduino:[{pin:"A1",component:"FSR Sensor",note:"Divider"},{pin:"D2/3",component:"Serial MP3",note:"-"}]},advantages:"Unique guest experience.",disadvantages:"FSRs can be fragile.",usage:"Use two layers of rigid cardboard to protect the FSR.",components:["1x Arduino Nano","1x FSR","1x DFPlayer Mini"],status:"Published",bom_cost:"$22"},{id:77,title:"Temperature Based Fan",level:"Beginner",description:"A simple fan control for 3D printer enclosures to maintain constant temperature.",category:"3D Printing",estimatedTime:"40 mins",tech:["Arduino","LM35","Transistor"],concept:"Thermostatic Control. Maintains a set-point temperature using negative feedback loop.",working_principle:`1. LM35 reads temp.
+2. If > 40C, turn on transistor to drive fan.`,pin_config:{arduino:[{pin:"A0",component:"LM35",note:"-"},{pin:"D5",component:"2N2222 Base",note:"-"}]},advantages:"Prevents print warping.",disadvantages:"LM35 precision.",usage:"Place near the print head.",components:["1x Arduino","1x LM35","1x 2N2222 Transistor"],status:"Published",bom_cost:"$6"},{id:78,title:"Smart Entry System",level:"Intermediate",description:"Auto-door opener using ultrasonic distance sensors for hands-free shopping entry.",category:"Retail Tech",estimatedTime:"60 mins",tech:["Arduino","Ultrasonic","Stepper Motor"],concept:"Distance Triggered Motion. Opens mechanical barriers when targets arrive.",working_principle:`1. Detect object within 50cm.
+2. Open door using stepper.
+3. Close after delay.`,pin_config:{arduino:[{pin:"D12/11",component:"Trig/Echo",note:"-"},{pin:"D8-D11",component:"Stepper",note:"-"}]},advantages:"Accessible, hygienic.",disadvantages:"Mechanical alignment.",usage:"Mount sensor at chest height.",components:["1x Arduino","1x HC-SR04","1x NEMA 17 Stepper"],status:"Published",bom_cost:"$40"},{id:79,title:"Automatic Gate Opener",level:"Intermediate",description:"Remote-controlled gate system with obstruction detection using IR beam sensors.",category:"Robotics",estimatedTime:"100 mins",tech:["Arduino","IR Beam","High Torque Gears"],concept:"Safe Actuation. Combines remote triggers with safety 'kill-switches'.",working_principle:`1. Open on remote.
+2. Auto-reverse if IR beam broken.`,pin_config:{arduino:[{pin:"D2",component:"IR Receiver",note:"Safety"},{pin:"D3",component:"RF Receiver",note:"Remote"}]},advantages:"Heavy duty, safe.",disadvantages:"Mechanical fabrication.",usage:"Test auto-reverse extensively.",components:["1x Arduino","1x IR Beam Pair","1x Worm Gear Motor"],status:"Published",bom_cost:"$55"},{id:80,title:"Smart Lamp Controller",level:"Beginner",description:"A clap-activated lamp switch with adjustable sensitivity for bedside convenience.",category:"Smart Home",estimatedTime:"30 mins",tech:["Arduino","Sound Sensor","Relay"],concept:"Acoustic Toggling. Filters transients to toggle states.",working_principle:`1. Detect clap.
+2. Toggle Relay.`,pin_config:{arduino:[{pin:"D7",component:"Mic Sensor",note:"-"},{pin:"D4",component:"AC Relay",note:"-"}]},advantages:"Hands-free.",disadvantages:"False triggers.",usage:"Adjust sensitive pot.",components:["1x Arduino","1x Sound Sensor","1x 5V Relay"],status:"Published",bom_cost:"$10"}];export{e as p};
