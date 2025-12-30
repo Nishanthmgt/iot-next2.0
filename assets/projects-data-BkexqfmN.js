@@ -184,67 +184,197 @@ void loop() {
   } else {
     noTone(buzzer);
   }
-}`,advantages:"Rapid detection speed, robust safety application.",disadvantages:"Susceptible to sunlight IR (false positives in direct sun).",usage:"Adjust the sensitivity potentiometer on the flame sensor module for best results.",components:["1x Microcontroller","1x Flame Sensor Module","1x Piezo Buzzer","1x LED"],circuit_diagram:"Sensor D0 -> Pin 7 | Buzzer (+) -> Pin 8 | Sensor VCC -> 5V | Sensor GND -> GND",status:"Published",industrial_use:"Early-warning system for electrical fire detection in localized control gear.",bom_cost:"$10"},{id:11,title:"Temperature Display using LCD",level:"Beginner",description:"A comprehensive Beginner project: Temperature Display using LCD. Explore the architecture and firmware below.",category:"IoT & Systems",estimatedTime:"45 mins",tech:["Arduino"],concept:"Learning the fundamentals of Temperature Display using LCD.",working_principle:"This section details how the electronics and logic interact to achieve the goal.",pin_config:"Pin mapping will be updated by administrative command.",code:`/* Code block pending administrative update */
+}`,advantages:"Rapid detection speed, robust safety application.",disadvantages:"Susceptible to sunlight IR (false positives in direct sun).",usage:"Adjust the sensitivity potentiometer on the flame sensor module for best results.",components:["1x Microcontroller","1x Flame Sensor Module","1x Piezo Buzzer","1x LED"],circuit_diagram:"Sensor D0 -> Pin 7 | Buzzer (+) -> Pin 8 | Sensor VCC -> 5V | Sensor GND -> GND",status:"Published",industrial_use:"Early-warning system for electrical fire detection in localized control gear.",bom_cost:"$10"},{id:11,title:"Precision Telemetry: LCD Thermometer",level:"Beginner",description:"Interface a Liquid Crystal Display (LCD) to visualize real-time environmental data with high precision and low latency.",category:"IoT & Systems",estimatedTime:"45 mins",tech:["Arduino","ESP32","I2C"],concept:"Digital data visualization. This project introduces the LiquidCrystal I2C protocol, reducing the required wiring from 16 pins to just 4. It teaches how to format floating-point sensor data for human-readable interfaces.",working_principle:`1. Initialize the I2C bus at 100KHz.
+2. Interface an LM35 or DHT sensor for temperature acquisition.
+3. Clear the display buffer and set the cursor position.
+4. Send ASCII-encoded strings to the LCD controller.
+5. Implement a 2000ms refresh rate to prevent data flickering.`,pin_config:{arduino:[{pin:"A4 (SDA)",component:"LCD SDA",note:"I2C Data"},{pin:"A5 (SCL)",component:"LCD SCL",note:"I2C Clock"},{pin:"5V",component:"VCC",note:"Logic Power"},{pin:"GND",component:"GND",note:"Common Ground"}],esp32:[{pin:"GPIO 21",component:"LCD SDA",note:"SDA"},{pin:"GPIO 22",component:"LCD SCL",note:"SCL"},{pin:"3.3V / 5V",component:"VCC",note:"Level check required"}]},code:`// I2C LCD Precision Thermometer
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
 void setup() {
-  // Init
+  lcd.init();
+  lcd.backlight();
+  lcd.setCursor(0, 0);
+  lcd.print("IoT Telemetry");
 }
+
 void loop() {
-  // Logic
-}`,advantages:"Scalable, Educational, Practical.",disadvantages:"Requires specific hardware components.",usage:"Follow the connection diagram and upload the firmware.",components:"1x Controller, Necessary Sensors, Jumper Wires.",circuit_diagram:"",status:"Published"},{id:12,title:"Smart Door Bell",level:"Beginner",description:"A comprehensive Beginner project: Smart Door Bell. Explore the architecture and firmware below.",category:"IoT & Systems",estimatedTime:"45 mins",tech:["Arduino"],concept:"Learning the fundamentals of Smart Door Bell.",working_principle:"This section details how the electronics and logic interact to achieve the goal.",pin_config:"Pin mapping will be updated by administrative command.",code:`/* Code block pending administrative update */
+  float temp = analogRead(A0) * 0.48828125; // LM35 Calc
+  lcd.setCursor(0, 1);
+  lcd.print("Temp: ");
+  lcd.print(temp);
+  lcd.print((char)223); lcd.print("C");
+  delay(2000);
+}`,advantages:"Compact wiring, professional display output, customizable UI.",disadvantages:"Requires I2C library; viewing angle is hardware-dependent.",usage:"Connect I2C pins, adjust contrast pot on the module, and upload.",components:["1x Microcontroller","1x 16x2 LCD with I2C Backboard","1x Temperature Sensor","Jumper Wires"],circuit_diagram:"SDA -> SDA | SCL -> SCL | VCC -> 5V | GND -> GND",status:"Published",industrial_use:"Local diagnostic displays for HVAC controllers and server rack monitors.",bom_cost:"$12"},{id:12,title:"Edge Notification: Smart Doorbell",level:"Beginner",description:"Implement a high-priority alert system using Interrupt Service Routines (ISRs) for instantaneous user feedback.",category:"IoT & Systems",estimatedTime:"30 mins",tech:["Arduino","ESP32"],concept:"Interrupt-driven logic. Instead of constant polling, the microcontroller enters a high-priority state only when the bell is pressed, ensuring zero latency and allowing for power-saving 'sleep' modes.",working_principle:`1. Set the button pin as an INPUT_PULLUP.
+2. Attach an interrupt to the pin on the FALLING edge.
+3. Upon press, execute the ISR to set a global trigger flag.
+4. The main loop detects the flag and initiates the audio-visual sequence.
+5. Implement soft-debounce to prevent false triggers.`,pin_config:{arduino:[{pin:"D2",component:"Bell Switch",note:"Interrupt Pin (Int0)"},{pin:"D8",component:"Piezo Buzzer",note:"Alert Output"},{pin:"GND",component:"Common Ground",note:"-"}],esp32:[{pin:"GPIO 4",component:"Bell Switch",note:"Any GPIO supports ISR"},{pin:"GPIO 25",component:"Buzzer",note:"Audio Out"}]},code:`// Interrupt-Based Doorbell
+volatile bool pressed = false;
+
+void IRAM_ATTR bellISR() { pressed = true; }
+
 void setup() {
-  // Init
+  pinMode(2, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(2), bellISR, FALLING);
+  pinMode(8, OUTPUT);
 }
+
 void loop() {
-  // Logic
-}`,advantages:"Scalable, Educational, Practical.",disadvantages:"Requires specific hardware components.",usage:"Follow the connection diagram and upload the firmware.",components:"1x Controller, Necessary Sensors, Jumper Wires.",circuit_diagram:"",status:"Published"},{id:13,title:"Clap Switch",level:"Beginner",description:"A comprehensive Beginner project: Clap Switch. Explore the architecture and firmware below.",category:"IoT & Systems",estimatedTime:"45 mins",tech:["Arduino"],concept:"Learning the fundamentals of Clap Switch.",working_principle:"This section details how the electronics and logic interact to achieve the goal.",pin_config:"Pin mapping will be updated by administrative command.",code:`/* Code block pending administrative update */
+  if (pressed) {
+    tone(8, 2000, 500);
+    pressed = false;
+  }
+}`,advantages:"Zero latency response, power efficient, clean code structure.",disadvantages:"ISR requires careful handling of shared variables (volatile keyword).",usage:"Press the button to trigger a high-frequency chime instantly.",components:["1x Arduino/ESP32","1x Push Button","1x Passive Buzzer","Jumper Wires"],circuit_diagram:"Button -> Pin 2 & GND | Buzzer -> Pin 8 & GND",status:"Published",industrial_use:"Used in emergency pull-cords for medical facilities and operator call buttons in factories.",bom_cost:"$6"},{id:13,title:"Acoustic Trigger: Digital Sound Switch",level:"Beginner",description:"Design an sound-activated control node by analyzing acoustic energy levels through a microphone transducer.",category:"IoT & Systems",estimatedTime:"35 mins",tech:["Arduino","ESP32"],concept:"Signal threshold analysis. A microphone module converts sound waves into a variable voltage. By setting a digital comparator threshold, we create a switch that responds only to designated decibel levels (like a clap).",working_principle:`1. Provide 5V/3.3V power to the sound sensor module.
+2. The module's onboard comparator identifies sound spikes.
+3. Digital Output (D0) pulses LOW/HIGH when sound exceeds threshold.
+4. Microcontroller toggles a flip-flop state upon detection.
+5. Adjust the multi-turn potentiometer for sensitivity calibration.`,pin_config:{arduino:[{pin:"D7",component:"Sound Sensor (D0)",note:"Trigger Input"},{pin:"D13",component:"Relay/LED",note:"Load Switch"},{pin:"5V",component:"VCC",note:"-"}],esp32:[{pin:"GPIO 4",component:"D0 Input",note:"Sensitive Input"},{pin:"GPIO 2",component:"Onboard LED",note:"HMI Feedback"}]},code:`// Acoustic Toggle Logic
+int state = LOW;
+
 void setup() {
-  // Init
+  pinMode(7, INPUT);
+  pinMode(13, OUTPUT);
 }
+
 void loop() {
-  // Logic
-}`,advantages:"Scalable, Educational, Practical.",disadvantages:"Requires specific hardware components.",usage:"Follow the connection diagram and upload the firmware.",components:"1x Controller, Necessary Sensors, Jumper Wires.",circuit_diagram:"",status:"Published"},{id:14,title:"Obstacle Detection using IR Sensor",level:"Beginner",description:"A comprehensive Beginner project: Obstacle Detection using IR Sensor. Explore the architecture and firmware below.",category:"IoT & Systems",estimatedTime:"45 mins",tech:["Arduino"],concept:"Learning the fundamentals of Obstacle Detection using IR Sensor.",working_principle:"This section details how the electronics and logic interact to achieve the goal.",pin_config:"Pin mapping will be updated by administrative command.",code:`/* Code block pending administrative update */
+  if (digitalRead(7) == HIGH) {
+    state = !state;
+    digitalWrite(13, state);
+    delay(500); // Debounce acoustic bounce
+  }
+}`,advantages:"Hands-free operation, adjustable sensitivity, low power idle.",disadvantages:"Prone to ambient noise interference without advanced filtering.",usage:"Adjust sensor sensitivity until the LED toggles only with a sharp clap.",components:["1x Microcontroller","1x Sound Sensor Module","1x 5V Relay Block","Jumper Wires"],circuit_diagram:"Sensor D0 -> Pin 7 | Relay Signal -> Pin 13",status:"Published",industrial_use:"Touchless interface for sterile medical environments and sound-activated safety shut-offs.",bom_cost:"$8"},{id:14,title:"Proximity Sensing: IR Obstacle Detection",level:"Beginner",description:"Develop an automated obstacle avoidance system using infrared reflection and modulated signal detection.",category:"IoT & Systems",estimatedTime:"30 mins",tech:["Arduino","ESP32"],concept:"Infrared backscatter. An IR LED emits light which reflects off nearby objects. An IR receiver (Photodiode) detects this reflection, creating a non-contact proximity sensor.",working_principle:`1. Emit 38KHz IR signal (modulated for sunlight immunity).
+2. Monitor the receiver pin for signal reflection.
+3. The sensor modules typically output LOW when an object is within 2-30cm range.
+4. Trigger a collision avoidance protocol (alarm or motor stop).
+5. Use black surfaces to test absorption and range calibration.`,pin_config:{arduino:[{pin:"D7",component:"IR Sensor Out",note:"Active LOW Input"},{pin:"D8",component:"Status Alert",note:"Collision LED"},{pin:"5V",component:"VCC",note:"Module Power"}],esp32:[{pin:"GPIO 15",component:"IR Receiver",note:"Digital Input"},{pin:"GPIO 2",component:"Alert LED",note:"Onboard"}]},code:`// IR Proximity Guard
 void setup() {
-  // Init
+  pinMode(7, INPUT);
+  pinMode(8, OUTPUT);
 }
+
 void loop() {
-  // Logic
-}`,advantages:"Scalable, Educational, Practical.",disadvantages:"Requires specific hardware components.",usage:"Follow the connection diagram and upload the firmware.",components:"1x Controller, Necessary Sensors, Jumper Wires.",circuit_diagram:"",status:"Published"},{id:15,title:"Touch Sensor Lamp",level:"Beginner",description:"A comprehensive Beginner project: Touch Sensor Lamp. Explore the architecture and firmware below.",category:"IoT & Systems",estimatedTime:"45 mins",tech:["Arduino"],concept:"Learning the fundamentals of Touch Sensor Lamp.",working_principle:"This section details how the electronics and logic interact to achieve the goal.",pin_config:"Pin mapping will be updated by administrative command.",code:`/* Code block pending administrative update */
+  if (digitalRead(7) == LOW) {
+    digitalWrite(8, HIGH); // Path Blocked
+  } else {
+    digitalWrite(8, LOW);  // Path Clear
+  }
+}`,advantages:"Low cost, small form factor, high speed detection.",disadvantages:"Range limited to ~30cm; accuracy depends on object color/material.",usage:"Avoid direct sunlight on sensor; adjust range screw for desired proximity.",components:["1x Microcontroller","1x IR Obstacle Module","1x Buzzer/LED","Jumper Wires"],circuit_diagram:"IR Module Out -> Pin 7 | LED -> Pin 8",status:"Published",industrial_use:"Object counting on fast-moving conveyor belts and proximity safety in handheld power tools.",bom_cost:"$5"},{id:15,title:"Capacitive HMI: Touch Sensor Lamp",level:"Beginner",description:"Construct a solid-state Human-Machine Interface (HMI) that replaces mechanical switches with capacitive touch tech.",category:"IoT & Systems",estimatedTime:"25 mins",tech:["Arduino","ESP32","Capacitive Sensing"],concept:"Capacitive sensing measures the change in electrical charge when a human finger (conductive) approaches the sensor pad. It creates a seamless, wear-proof switching mechanism.",working_principle:`1. Charge the conductive pad to a specific voltage.
+2. Use 'touchRead' (ESP32) or a library (Arduino) to monitor discharge time.
+3. Discharge time increases when a finger is present due to added capacitance.
+4. Microcontroller interprets this timing change as a 'Touch Event'.
+5. Implement a latching state to toggle the load (on/off).`,pin_config:{arduino:[{pin:"D4",component:"TTP223 Out",note:"Digital Touch Input"},{pin:"D13",component:"LED Load",note:"Output"}],esp32:[{pin:"T0 (GPIO 4)",component:"Capacitive Pad",note:"Native Touch Support"},{pin:"GPIO 2",component:"Status LED",note:"HMI Feedback"}]},code:`// Capacitive Touch Toggle
+int bulbState = 0;
+
 void setup() {
-  // Init
+  pinMode(4, INPUT);
+  pinMode(13, OUTPUT);
 }
+
 void loop() {
-  // Logic
-}`,advantages:"Scalable, Educational, Practical.",disadvantages:"Requires specific hardware components.",usage:"Follow the connection diagram and upload the firmware.",components:"1x Controller, Necessary Sensors, Jumper Wires.",circuit_diagram:"",status:"Published"},{id:16,title:"Gas Leakage Alert System",level:"Beginner",description:"A comprehensive Beginner project: Gas Leakage Alert System. Explore the architecture and firmware below.",category:"IoT & Systems",estimatedTime:"45 mins",tech:["Arduino"],concept:"Learning the fundamentals of Gas Leakage Alert System.",working_principle:"This section details how the electronics and logic interact to achieve the goal.",pin_config:"Pin mapping will be updated by administrative command.",code:`/* Code block pending administrative update */
+  if (digitalRead(4) == HIGH) {
+    bulbState = !bulbState;
+    digitalWrite(13, bulbState);
+    delay(500); // Prevent double-trigger
+  }
+}`,advantages:"No moving parts (durable), aesthetic design, through-material sensing (glass/plastic).",disadvantages:"Affected by moisture/high humidity; requires careful HMI design.",usage:"Connect the TTP223 module; it works through wooden or plastic surfaces up to 3mm.",components:["1x Microcontroller","1x TTP223 Touch Module","1x High Power LED","Jumper Wires"],circuit_diagram:"Touch Module I/O -> Pin 4 | LED Anode -> Pin 13",status:"Published",industrial_use:"Ruggedized touch panels for heavy machinery and sterile interfaces in food processing.",bom_cost:"$4"},{id:16,title:"Industrial Hazard Audit: Gas Leakage System",level:"Beginner",description:"Deploy an industrial-grade gas detection node capable of identifying hazardous LPG, Butane, and Smoke concentrations.",category:"IoT & Systems",estimatedTime:"45 mins",tech:["Arduino","ESP32","Analog Sensing"],concept:"Chemical sensing and calibration. The MQ-2 sensor uses a heating element to detect change in conductivity on a tin dioxide layer when combustible gas particles are present. It requires a preheating phase for stable readings.",working_principle:`1. Initialize the sensor heating element (requires 24h for full burn-in, 60s for runtime warmup).
+2. Acquire analog voltage representing gas concentration (0-5V).
+3. Map voltage to PPM (Parts Per Million) using the sensor's logarithmic sensitivity curve.
+4. Trigger an audible alarm and visual red alert if concentration exceeds the safe threshold (e.g., 200 PPM).
+5. Implement a digital safety interlock for emergency shutdowns.`,pin_config:{arduino:[{pin:"A0",component:"MQ-2 Analog Out",note:"Gas Level"},{pin:"D8",component:"Alarm Buzzer",note:"Audio Alert"},{pin:"5V",component:"VCC",note:"High Current Rail"}],esp32:[{pin:"GPIO 32",component:"MQ-2 Signal",note:"ADC1 Channel"},{pin:"GPIO 25",component:"Piezo Buzzer",note:"Alarm"}]},code:`// Industrial Gas Auditor
+const int gasPin = A0;
+const int alertThreshold = 300;
+
 void setup() {
-  // Init
+  pinMode(8, OUTPUT);
+  Serial.begin(9600);
+  Serial.println("Warming up sensor...");
+  delay(20000); // 20s initial warmup
 }
+
 void loop() {
-  // Logic
-}`,advantages:"Scalable, Educational, Practical.",disadvantages:"Requires specific hardware components.",usage:"Follow the connection diagram and upload the firmware.",components:"1x Controller, Necessary Sensors, Jumper Wires.",circuit_diagram:"",status:"Published"},{id:17,title:"Rain Detection Alarm",level:"Beginner",description:"A comprehensive Beginner project: Rain Detection Alarm. Explore the architecture and firmware below.",category:"IoT & Systems",estimatedTime:"45 mins",tech:["Arduino"],concept:"Learning the fundamentals of Rain Detection Alarm.",working_principle:"This section details how the electronics and logic interact to achieve the goal.",pin_config:"Pin mapping will be updated by administrative command.",code:`/* Code block pending administrative update */
+  int val = analogRead(gasPin);
+  if (val > alertThreshold) {
+    digitalWrite(8, HIGH); // GAS DETECTED
+    Serial.println("CRITICAL: Gas Detected!");
+  } else {
+    digitalWrite(8, LOW);
+  }
+  delay(500);
+}`,advantages:"Reliable chemical detection, long sensor life, adjustable sensitivity.",disadvantages:"High power consumption (~800mW for heater); requires manual calibration.",usage:"Allow 1 minute for the sensor to heat up before trusting readings. Test with a lighter's gas (don't ignite).",components:["1x Microcontroller","1x MQ-2 Gas Sensor Module","1x High-Decibel Buzzer","Jumper Wires"],circuit_diagram:"Sensor AO -> Pin A0 | Sensor VCC -> 5V | Buzzer (+) -> Pin 8",status:"Published",industrial_use:"Critical gas leakage detection in commercial kitchens and boiler rooms.",bom_cost:"$15"},{id:17,title:"Hydro-Sensing Weather Terminal: Rain Alert",level:"Beginner",description:"Develop a localized weather station node that detects precipitation and manages sensor longevity through power management.",category:"IoT & Systems",estimatedTime:"30 mins",tech:["Arduino","ESP32"],concept:"Electrolytic corrosion avoidance. Rain sensors use a series of conductive tracks. If power is constantly applied in wet conditions, the tracks will corrode. This project teaches how to use a digital pin to 'gate' power only when taking a measurement.",working_principle:`1. Connect the sensor's VCC to a digital pin on the microcontroller.
+2. In the code, set the pin HIGH to power the sensor.
+3. Read the moisture level through an analog input (A0).
+4. Set the power pin LOW to stop current flow and prevent oxidation.
+5. Trigger an alert if the moisture level exceeds 10% (Precipitation detect).`,pin_config:{arduino:[{pin:"D4",component:"Sensor VCC",note:"Power Gate"},{pin:"A0",component:"Sensor SIG",note:"Moisture Level"},{pin:"D13",component:"Rain LED",note:"Visual Alert"}],esp32:[{pin:"GPIO 23",component:"Power Gate",note:"Digital Power Pin"},{pin:"GPIO 34",component:"Data Pin",note:"ADC"}]},code:`// Corrosion-Resistant Rain Sensor
 void setup() {
-  // Init
+  pinMode(4, OUTPUT); 
+  pinMode(13, OUTPUT);
 }
+
 void loop() {
-  // Logic
-}`,advantages:"Scalable, Educational, Practical.",disadvantages:"Requires specific hardware components.",usage:"Follow the connection diagram and upload the firmware.",components:"1x Controller, Necessary Sensors, Jumper Wires.",circuit_diagram:"",status:"Published"},{id:18,title:"Ultrasonic Distance Measurement",level:"Beginner",description:"A comprehensive Beginner project: Ultrasonic Distance Measurement. Explore the architecture and firmware below.",category:"IoT & Systems",estimatedTime:"45 mins",tech:["Arduino"],concept:"Learning the fundamentals of Ultrasonic Distance Measurement.",working_principle:"This section details how the electronics and logic interact to achieve the goal.",pin_config:"Pin mapping will be updated by administrative command.",code:`/* Code block pending administrative update */
+  digitalWrite(4, HIGH); // Power ON
+  delay(10);             // Stabilize
+  int rain = analogRead(A0);
+  digitalWrite(4, LOW);  // Power OFF
+  
+  if (rain < 800) digitalWrite(13, HIGH); // Detected
+  else digitalWrite(13, LOW);
+  delay(5000); // Sample every 5s
+}`,advantages:"Significantly increases sensor lifespan, low power, accurate.",disadvantages:"Sensor surface requires periodic cleaning to remove dust/residue.",usage:"Install at a 45-degree angle to allow water to run off after the rain stops.",components:["1x Arduino Uno","1x Rain Sensor Module","1x High-Brightness LED","Jumper Wires"],circuit_diagram:"Sensor SIG -> Pin A0 | Sensor VCC -> Pin 4",status:"Published",industrial_use:"Automated greenhouse closure systems and smart wipers in automotive HMI.",bom_cost:"$7"},{id:18,title:"Ultrasonic Rangefinder & Spatial Analysis",level:"Beginner",description:"Utilize Time-of-Flight (ToF) calculations with ultrasonic transducers to measure distance with centimeter accuracy.",category:"IoT & Systems",estimatedTime:"40 mins",tech:["Arduino","ESP32","Ultrasonic"],concept:"Acoustic telemetry. By measuring the time it takes for an ultrasonic 'ping' to return to the sensor, we can calculate distance using the constant speed of sound (~343m/s). This is the foundation of robotic vision and navigation.",working_principle:`1. Trigger an ultrasonic pulse by setting the 'Trig' pin HIGH for 10us.
+2. The sensor emits an 8-cycle 40KHz sound wave.
+3. The 'Echo' pin goes HIGH until the reflected wave returns.
+4. Microcontroller measures the pulse duration using 'pulseIn()'.
+5. Calculate distance: Distance = (Time * 0.0343) / 2.`,pin_config:{arduino:[{pin:"D9",component:"Trig Pin",note:"Output Pulse"},{pin:"D10",component:"Echo Pin",note:"Input timing"},{pin:"5V",component:"VCC",note:"-"}],esp32:[{pin:"GPIO 5",component:"Trig",note:"Digital Out"},{pin:"GPIO 18",component:"Echo",note:"Digital In"}]},code:`// Precision SONAR Script
+long duration; int distance;
+
 void setup() {
-  // Init
+  pinMode(9, OUTPUT); pinMode(10, INPUT);
+  Serial.begin(9600);
 }
+
 void loop() {
-  // Logic
-}`,advantages:"Scalable, Educational, Practical.",disadvantages:"Requires specific hardware components.",usage:"Follow the connection diagram and upload the firmware.",components:"1x Controller, Necessary Sensors, Jumper Wires.",circuit_diagram:"",status:"Published"},{id:19,title:"Water Level Indicator",level:"Beginner",description:"A comprehensive Beginner project: Water Level Indicator. Explore the architecture and firmware below.",category:"IoT & Systems",estimatedTime:"45 mins",tech:["Arduino"],concept:"Learning the fundamentals of Water Level Indicator.",working_principle:"This section details how the electronics and logic interact to achieve the goal.",pin_config:"Pin mapping will be updated by administrative command.",code:`/* Code block pending administrative update */
+  digitalWrite(9, LOW); delayMicroseconds(2);
+  digitalWrite(9, HIGH); delayMicroseconds(10);
+  digitalWrite(9, LOW);
+  duration = pulseIn(10, HIGH);
+  distance = duration * 0.034 / 2;
+  Serial.print("Distance: "); Serial.println(distance);
+  delay(100);
+}`,advantages:"Non-contact measurement, high resolution (1cm), cost-effective.",disadvantages:"Struggles with sound-absorbing materials (foam, fabric); range limited to ~4m.",usage:"Keep the sensor perpendicular to the target object for maximum accuracy.",components:["1x Microcontroller","1x HC-SR04 Ultrasonic Sensor","1x I2C LCD (Optional)","Jumper Wires"],circuit_diagram:"Trig -> Pin 9 | Echo -> Pin 10 | VCC -> 5V | GND -> GND",status:"Published",industrial_use:"Liquid level measurement in non-corrosive tanks and collision avoidance for AGVs.",bom_cost:"$9"},{id:19,title:"Precision Fluid Dynamics: Tank Monitor",level:"Beginner",description:"Architect a tiered fluid monitoring system to track water levels in industrial silos using discrete sensing nodes.",category:"IoT & Systems",estimatedTime:"35 mins",tech:["Arduino","ESP32","Hydro-logic"],concept:"Discrete water sensing relies on the conductivity of water. By placing probes at different heights, we create a multi-bit digital representation of the tank's fill level (Low, Medium, High).",working_principle:`1. Provide a common GND probe at the bottom of the tank.
+2. Place 'sensing' probes at 25%, 50%, and 75% height levels.
+3. The microcontroller reads the digital state of each probe.
+4. When water touches a probe, the circuit completes, pulling the input pin to a known state.
+5. Use the data to trigger refilling or overflow protection alerts.`,pin_config:{arduino:[{pin:"D2, D3, D4",component:"Level Probes",note:"Discrete Inputs"},{pin:"D8",component:"Buzzer",note:"Overflow Alarm"},{pin:"GND",component:"Tank Base Probe",note:"Common Path"}],esp32:[{pin:"GPIO 4,5,18",component:"Levels",note:"Digital In"},{pin:"GPIO 2",component:"Status LED",note:"HMI"}]},code:`// Multi-Tier Tank Monitor
 void setup() {
-  // Init
+  for(int i=2; i<=4; i++) pinMode(i, INPUT_PULLUP);
+  pinMode(8, OUTPUT);
 }
+
 void loop() {
-  // Logic
-}`,advantages:"Scalable, Educational, Practical.",disadvantages:"Requires specific hardware components.",usage:"Follow the connection diagram and upload the firmware.",components:"1x Controller, Necessary Sensors, Jumper Wires.",circuit_diagram:"",status:"Published"},{id:20,title:"Automatic Water Pump",level:"Beginner",description:"A comprehensive Beginner project: Automatic Water Pump. Explore the architecture and firmware below.",category:"IoT & Systems",estimatedTime:"45 mins",tech:["Arduino"],concept:"Learning the fundamentals of Automatic Water Pump.",working_principle:"This section details how the electronics and logic interact to achieve the goal.",pin_config:"Pin mapping will be updated by administrative command.",code:`/* Code block pending administrative update */
+  if (digitalRead(4) == LOW) { // High Level
+    digitalWrite(8, HIGH); // Alert!
+  } else {
+    digitalWrite(8, LOW);
+  }
+}`,advantages:"Extremely reliable, zero moving parts, easy to troubleshoot.",disadvantages:"Potential for probe electrolysis if using DC current; requires stainless steel for longevity.",usage:"Ensure probes are made of non-corrosive material like food-grade stainless steel.",components:["1x Microcontroller","3x Stainless Steel Probes","1x Buzzer","Jumper Wires"],circuit_diagram:"Base Probe -> GND | High Probe -> Pin 4 | Mid Probe -> Pin 3 | Low Probe -> Pin 2",status:"Published",industrial_use:"Water management in municipal storage tanks and cooling tower monitoring.",bom_cost:"$14"},{id:20,title:"Intelligent Hydration: Closed-Loop Pump",level:"Beginner",description:"Construct a fully automated fluid transfer system that balances tank levels using feedback-loop control logic.",category:"IoT & Systems",estimatedTime:"45 mins",tech:["Arduino","ESP32","Automation"],concept:"Closed-loop feedback systems. The microcontroller monitors a sensor (input) and acts on a pump (output) to maintain a specific physical state (full tank). It introduces relay isolation for high-voltage motor control.",working_principle:`1. Constantly monitor the moisture or water level sensor.
+2. If level falls below threshold (Empty), the microcontroller triggers a Relay.
+3. The Relay starts the water pump (isolated high-power circuit).
+4. Once the 'Full' probe is triggered, the microcontroller deactivates the relay.
+5. Implement hysteresis (delay) to prevent rapid motor cycling (chatter).`,pin_config:{arduino:[{pin:"D7",component:"Relay Signal",note:"Pump Controller"},{pin:"A0",component:"Level Sensor",note:"Feedback In"},{pin:"5V",component:"VCC",note:"Relay VCC"}],esp32:[{pin:"GPIO 4",component:"Relay In",note:"Control Signal"},{pin:"GPIO 34",component:"Sensor In",note:"ADC"}]},code:`// Intelligent Pump Protocol
 void setup() {
-  // Init
+  pinMode(7, OUTPUT); 
+  pinMode(A0, INPUT);
 }
+
 void loop() {
-  // Logic
-}`,advantages:"Scalable, Educational, Practical.",disadvantages:"Requires specific hardware components.",usage:"Follow the connection diagram and upload the firmware.",components:"1x Controller, Necessary Sensors, Jumper Wires.",circuit_diagram:"",status:"Published"},{id:21,title:"Digital Thermometer",level:"Beginner",description:"A comprehensive Beginner project: Digital Thermometer. Explore the architecture and firmware below.",category:"IoT & Systems",estimatedTime:"45 mins",tech:["Arduino"],concept:"Learning the fundamentals of Digital Thermometer.",working_principle:"This section details how the electronics and logic interact to achieve the goal.",pin_config:"Pin mapping will be updated by administrative command.",code:`/* Code block pending administrative update */
+  int level = analogRead(A0);
+  if (level > 900) digitalWrite(7, HIGH); // START PUMP
+  if (level < 200) digitalWrite(7, LOW);  // STOP PUMP
+  delay(1000);
+}`,advantages:"End-to-end automation, prevents tank dry-running, high-power isolation.",disadvantages:"Requires careful plumbing to prevent leaks; relay maintenance needed for long-term use.",usage:"Use a 12V DC pump powered through the relay contacts for safety.",components:["1x Arduino","1x 5V Relay Module","1x 12V Water Pump","1x Level Sensor"],circuit_diagram:"Pin 7 -> Relay Signal | Relay NO -> Pump (+) | 12V Source -> Relay COM",status:"Published",industrial_use:"Automated hydroponic fertigation systems and smart home sump pump controllers.",bom_cost:"$28"},{id:21,title:"Digital Thermometer",level:"Beginner",description:"A comprehensive Beginner project: Digital Thermometer. Explore the architecture and firmware below.",category:"IoT & Systems",estimatedTime:"45 mins",tech:["Arduino"],concept:"Learning the fundamentals of Digital Thermometer.",working_principle:"This section details how the electronics and logic interact to achieve the goal.",pin_config:"Pin mapping will be updated by administrative command.",code:`/* Code block pending administrative update */
 void setup() {
   // Init
 }
