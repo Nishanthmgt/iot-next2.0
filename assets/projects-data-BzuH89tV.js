@@ -742,4 +742,276 @@ void TaskMQTT(void *pv) {
 
 void setup() {
   xTaskCreatePinnedToCore(TaskMQTT, "MQTT", 5000, NULL, 1, NULL, 0);
-}`,advantages:"Reliable data consolidation, high uptime via FreeRTOS, industry-standard protocols.",disadvantages:"High power consumption; complex firmware management; requires robust network infrastructure.",usage:"Deploy in a NEMA-rated enclosure. Ensure the power supply is isolated and surge-protected.",components:["1x ESP32 DevKit","1x RS485 Shield","1x BME280 Sensor","1x MicroSD Slot"],circuit_diagram:"Consolidated wiring of SPI, I2C, and UART interfaces.",status:"Published",industrial_use:"Central control nodes in smart factories and environmental auditing for data centers.",bom_cost:"$32"}];export{e as p};
+}`,advantages:"Reliable data consolidation, high uptime via FreeRTOS, industry-standard protocols.",disadvantages:"High power consumption; complex firmware management; requires robust network infrastructure.",usage:"Deploy in a NEMA-rated enclosure. Ensure the power supply is isolated and surge-protected.",components:["1x ESP32 DevKit","1x RS485 Shield","1x BME280 Sensor","1x MicroSD Slot"],circuit_diagram:"Consolidated wiring of SPI, I2C, and UART interfaces.",status:"Published",industrial_use:"Central control nodes in smart factories and environmental auditing for data centers.",bom_cost:"$32"},{id:41,title:"Smart Waste Auditor: Ultrasonic Depth Sensing",level:"Beginner",description:"An automated bin that monitors fill levels and opens/closes the lid automatically to ensure urban sanitation.",category:"Smart City",estimatedTime:"40 mins",tech:["Arduino","Ultrasonic","Servo"],concept:"Level detection via time-of-flight. By measuring the time it takes for an ultrasonic pulse to bounce off the trash, we calculate the remaining volume in the bin.",working_principle:`1. Emit 40kHz ultrasonic pulse via Trig pin.
+2. Measure 'Echo' return time.
+3. Calculate distance (cm = pulse * 0.034 / 2).
+4. If distance < 10cm (Lid Open) or > bin_depth (Full Notification).
+5. Drive Servo to 90 degrees to open lid when hands are detected near the bin.`,pin_config:{arduino:[{pin:"5V",component:"Sensor VCC",note:"VCC Rail"},{pin:"GND",component:"GND Rail",note:"Ground"},{pin:"D9",component:"Servo SIG",note:"PWM Out"},{pin:"D12",component:"Trig",note:"Output"},{pin:"D11",component:"Echo",note:"Input"}],esp32:[{pin:"3.3V/5V",component:"VCC Rail",note:"Power"},{pin:"GND",component:"GND Rail",note:"Shared Ground"},{pin:"GPIO 4",component:"Servo",note:"LEDC PWM"},{pin:"GPIO 5",component:"Trig",note:"Signal Out"},{pin:"GPIO 18",component:"Echo",note:"Signal In"}]},code:`// Smart Bin Logic
+#include <Servo.h>
+Servo myservo;
+void setup() {
+  myservo.attach(9);
+  pinMode(12, OUTPUT); pinMode(11, INPUT);
+}
+void loop() {
+  digitalWrite(12, HIGH); delayMicroseconds(10); digitalWrite(12, LOW);
+  long duration = pulseIn(11, HIGH);
+  if (duration < 1000) myservo.write(90);
+  else myservo.write(0);
+  delay(200);
+}`,advantages:"Touchless hygiene, efficient waste collection routing, low power.",disadvantages:"Ultrasonic sensors struggle with soft materials (foam/fabric) that absorb sound waves.",usage:"Calibrate the 'Full' threshold based on the height of your specific bin.",components:["1x Microcontroller","1x HC-SR04 Ultrasonic","1x MG90S Servo"],circuit_diagram:"Trig->D12 | Echo->D11 | Servo->D9 | Power->5V Rail",status:"Published",industrial_use:"Municipal waste management optimization and public restroom sanitation.",bom_cost:"$12"},{id:42,title:"IoT Pet Telemetry Hub: Weight-Based Feeder",level:"Intermediate",description:"Monitor your pet's eating habits and remotely dispense food based on precise weight measurements.",category:"Consumer IoT",estimatedTime:"90 mins",tech:["ESP32","HX711","Stepper"],concept:"Strain gauge integration. By mounting the pet bowl on a load cell, we can monitor the exact grams of food consumed in real-time.",working_principle:`1. Calibrate HX711 with a known weight.
+2. Monitor 'Bowl Weight' constantly via ESP32.
+3. If 'Consumption' detected, log time and amount to Cloud.
+4. Trigger Stepper Motor (Auger screw) to refill bowl to 'Target Weight'.
+5. Implement 'Anti-Jam' logic by reversing stepper briefly if torque rises.`,pin_config:{arduino:[{pin:"5V",component:"Module Power",note:"VCC Rail"},{pin:"GND",component:"GND Rail",note:"Ground"},{pin:"D3/D2",component:"HX711 DT/SCK",note:"Serial Data"},{pin:"D8-D11",component:"Stepper Unit",note:"ULN2003 Driver"}],esp32:[{pin:"5V",component:"Main Supply",note:"For Stepper"},{pin:"3.3V",component:"Logic Power",note:"For HX711/MCU"},{pin:"GPIO 18/19",component:"HX711 Port",note:"Digital Pins"},{pin:"GPIO 13,12,14,27",component:"Stepper",note:"Driver Pins"}]},code:`// Weight-Watch Pet Feeder
+#include "HX711.h"
+HX711 scale;
+void setup() {
+  scale.begin(18, 19);
+  // Dispense food logic here
+}
+void loop() {
+  float weight = scale.get_units(5);
+  if (weight < 50) dispenseFood(100); // Target 100g
+  delay(5000);
+}`,advantages:"Prevents overfeeding, remote monitoring via mobile, highly accurate sensing.",disadvantages:"Mechanical complexity (Auger design); requires stable Wi-Fi for remote logs.",usage:"Use Food-Grade plastic for the auger. Shield the HX711 from sudden impact loads.",components:["1x ESP32","1x HX711 + 5kg Load Cell","1x 28BYJ-48 Stepper + Driver"],circuit_diagram:"Stepper -> GPIO 13,12,14,27 | HX711 -> GPIO 18,19 | External 5V Power",status:"Published",industrial_use:"Livestock precision feeding and automated grain silos.",bom_cost:"$18"},{id:43,title:"Solar Efficiency Analyzer: Real-Time Power Audit",level:"Intermediate",description:"High-precision telemetry node that calculates Solar Panel efficiency by measuring Voltage, Current, and Watts.",category:"Energy & Green Tech",estimatedTime:"60 mins",tech:["Arduino/ESP32","INA219","I2C"],concept:"High-side current sensing. Using a 0.1 ohm shunt resistor and a 12-bit ADC, the INA219 measures the voltage drop across the shunt to calculate current flow up to 3.2A.",working_principle:`1. Wire INA219 between Solar Panel and Battery/Load.
+2. Read Shunt Voltage and Bus Voltage via I2C.
+3. Calculate Power (P = V * I).
+4. Log 'Energy Harvested' (Ah/Wh) over time.
+5. Detect panel 'Dirty/Shaded' state if output drops below historical average for the given time of day.`,pin_config:{arduino:[{pin:"5V",component:"INA219 VCC",note:"Logic Supply"},{pin:"GND",component:"INA219 GND",note:"Common GND"},{pin:"A4 (SDA)",component:"I2C Data",note:"SDA"},{pin:"A5 (SCL)",component:"I2C Clock",note:"SCL"}],esp32:[{pin:"3.3V",component:"MCU Power",note:"Power Rail"},{pin:"GND",component:"GND Rail",note:"Shared Ground"},{pin:"GPIO 21",component:"SDA",note:"I2C Bus"},{pin:"GPIO 22",component:"SCL",note:"I2C Bus"}]},code:`// Solar Power Audit
+#include <Wire.h>
+#include <Adafruit_INA219.h>
+Adafruit_INA219 ina219;
+void setup() {
+  ina219.begin();
+}
+void loop() {
+  float current = ina219.getCurrent_mA();
+  float voltage = ina219.getBusVoltage_V();
+  Serial.print("Watts: "); Serial.println((current * voltage)/1000.0);
+  delay(2000);
+}`,advantages:"Precise energy accounting, allows for panel performance benchmarking.",disadvantages:"Limited to 26V max; shunt resistor generates small amount of heat at max current.",usage:"Use thick gauge wires for the power path to minimize voltage drop.",components:["1x Microcontroller","1x INA219 Sensor","1x 10W Solar Panel","1x OLED Display"],circuit_diagram:"INA219 V-IN+ -> Solar + | V-IN- -> Load + | GND -> Shared GND",status:"Published",industrial_use:"Remote weather stations and UPS battery health monitoring systems.",bom_cost:"$15"},{id:44,title:"Health Link: Heart Rate & SpO2 Monitor",level:"Intermediate",description:"Wearable-grade telemedicine node that monitors blood oxygen levels and heart rate using PPG sensor technology.",category:"Medical & Health",estimatedTime:"75 mins",tech:["ESP32","MAX30102","OLED"],concept:"Photoplethysmography (PPG). Red and IR LEDs shine through tissue; the sensor measures the change in light absorption caused by arterial blood pulses to derive SpO2 levels.",working_principle:`1. Initialize MAX30102 via I2C and enable Red/IR LEDs.
+2. Sample raw data at 100Hz.
+3. Apply a DC-removal filter and Low-pass filter to find pulse peaks.
+4. Calculate Heart Rate (BPM) based on Peak-to-Peak interval.
+5. Use the 'Ratio-of-Ratios' method to calculate oxygen saturation (SpO2 %).`,pin_config:{arduino:[{pin:"3.3V/5V",component:"MCU Power",note:"Check Module"},{pin:"GND",component:"GND Rail",note:"Ground"},{pin:"A4 (SDA)",component:"MAX SDA",note:"I2C Bus"},{pin:"A5 (SCL)",component:"MAX SCL",note:"I2C Bus"}],esp32:[{pin:"3.3V",component:"Power Rail",note:"VCC"},{pin:"GND",component:"GND Rail",note:"Ground"},{pin:"GPIO 21",component:"SDA",note:"I2C Data"},{pin:"GPIO 22",component:"SCL",note:"I2C Clock"}]},code:`// Bio-Sensing Node
+#include "MAX30105.h"
+#include "heartRate.h"
+MAX30105 particleSensor;
+void setup() {
+  particleSensor.begin();
+  particleSensor.setup(); // Default IR/Red settings
+}
+void loop() {
+  long irValue = particleSensor.getIR();
+  if (checkForBeat(irValue)) Serial.println("BPM Detected!");
+}`,advantages:"Non-invasive monitoring, highly portable, integrates easily with smartphone apps.",disadvantages:"Extremely sensitive to movement (motion artifacts); requires firm finger placement.",usage:"Wrap the sensor in dark tape to prevent ambient light interference. Keep finger steady.",components:["1x Microcontroller","1x MAX30102 Sensor","1x 0.96 inch OLED","1x Li-ion Battery"],circuit_diagram:"MAX30102 SDA -> GPIO 21 | SCL -> GPIO 22 | VCC -> 3.3V",status:"Published",industrial_use:"Remote patient monitoring and fitness tracking wearables.",bom_cost:"$22"},{id:45,title:"Contactless Medical Thermometer: MLX90614",level:"Intermediate",description:"A high-precision infrared thermometer that measures body or object temperature without physical contact.",category:"Medical & Health",estimatedTime:"50 mins",tech:["Arduino","MLX90614","Infrared"],concept:"Stefan-Boltzmann Law. Every object emits IR radiation. The MLX90614 uses a thermopile to detect this radiation and converts it to a temperature reading using calibrated internal logic.",working_principle:`1. Power the MLX90614 sensor via I2C supply.
+2. Read both 'Ambient' (sensor temp) and 'Object' (target temp) via SMBus protocols.
+3. The sensor uses an 17-bit ADC to provide 0.02C resolution.
+4. If temperature > 37.5C (99.5F), trigger a Red LED and Buzzer for Fever Alert.
+5. Map data to Fahrenheit or Celsius as per user preference.`,pin_config:{arduino:[{pin:"5V",component:"VCC Rail",note:"Power Supply"},{pin:"GND",component:"GND Rail",note:"Ground"},{pin:"A4 (SDA)",component:"Sensor SDA",note:"I2C Interface"},{pin:"A5 (SCL)",component:"Sensor SCL",note:"I2C Interface"},{pin:"D3",component:"Warning Buzzer",note:"Digital Out"}],esp32:[{pin:"3.3V",component:"VCC",note:"Logic Supply"},{pin:"GND",component:"GND",note:"Return"},{pin:"GPIO 21",component:"SDA",note:"I2C Bus"},{pin:"GPIO 22",component:"SCL",note:"I2C Bus"},{pin:"GPIO 15",component:"Buzzer",note:"Tone Output"}]},code:`// Contactless Temp Gun
+#include <Adafruit_MLX90614.h>
+Adafruit_MLX90614 mlx = Adafruit_MLX90614();
+void setup() {
+  mlx.begin();
+}
+void loop() {
+  float objectTemp = mlx.readObjectTempC();
+  Serial.println(objectTemp);
+  if (objectTemp > 37.5) tone(3, 1000, 200);
+  delay(1000);
+}`,advantages:"Hygienic (zero contact), extremely fast response, industrial grade accuracy.",disadvantages:"Accuracy drops at distances > 5cm; accuracy affected by surface emissivity (e.g., shiny metal).",usage:"Hold the sensor approximately 2-4cm from the forehead for the most accurate medical-grade reading.",components:["1x Microcontroller","1x MLX90614 Sensor","1x Active Buzzer","1x Battery Case"],circuit_diagram:"Sensor SDA -> A4 | SCL -> A5 | Buzzer -> D3 | VCC -> 5V Rail",status:"Published",industrial_use:"Health screening at entry points and non-destructive industrial temperature checks.",bom_cost:"$24"},{id:46,title:"LTE Asset Tracker: Cellular IoT Node",level:"Advanced",description:"A global tracking device that uses LTE-M/NB-IoT cellular networks to report GPS position even without Wi-Fi.",category:"Industrial & Logistics",estimatedTime:"120 mins",tech:["ESP32","SIM7000G","GPS"],concept:"Wide-area cellular coverage. Unlike Wi-Fi, LTE-M (Long Term Evolution for Machines) allows for low-power, long-distance communication suitable for assets moving across cities or countries.",working_principle:`1. Interface with the SIM7000G module via Hardware Serial (UART).
+2. Power up the GPS engine and wait for a 3D Fix (satellite Lock).
+3. Establish a GPRS/LTE data session via 'AT' commands.
+4. Encode GPS coordinates (Latitude, Longitude) into a JSON payload.
+5. Push data to a cloud MQTT broker and enter 'Power Down' mode to save battery.`,pin_config:{arduino:[{pin:"5V (EXT)",component:"SIM VCC",note:"Requires 2A Burst"},{pin:"GND",component:"GND",note:"Common Ground"},{pin:"D7 (TX)",component:"SIM RX",note:"Level shifted"},{pin:"D8 (RX)",component:"SIM TX",note:"Signal In"}],esp32:[{pin:"5V (EXT)",component:"SIM7000 Power",note:"Main Supply"},{pin:"GND",component:"GND Rail",note:"Ground"},{pin:"GPIO 17 (TX)",component:"SIM RX",note:"UART2"},{pin:"GPIO 16 (RX)",component:"SIM TX",note:"UART2"}]},code:`// Global LTE Tracker
+void setup() {
+  Serial2.begin(115200, SERIAL_8N1, 16, 17);
+  sendATCommand("AT+CGNSPWR=1"); // GPS Power On
+}
+void loop() {
+  sendATCommand("AT+CGNSINF"); // Get GPS Data
+  // Parse and send via MQTT
+  delay(60000);
+}`,advantages:"Works anywhere with cellular signal; much longer range than BT/Wi-Fi; high security.",disadvantages:"Requires a SIM card and data plan; higher module cost; complex power management.",usage:"Use an active GPS antenna for faster satellite lock. Ensure the module is placed near a window or outdoors.",components:["1x ESP32","1x SIM7000G Module","1x GPS Antenna","1x LTE Antenna","1x 3.7V LiPo"],circuit_diagram:"SIM7000 TX/RX -> ESP32 RX2/TX2 | Power -> Dedicated 5V/2A Source",status:"Published",industrial_use:"Fleet management, high-value asset tracking (containers/heavy machinery), and wildlife tracking.",bom_cost:"$45"},{id:47,title:"Agri-Nervous System: NPK Soil Auditor",level:"Advanced",description:"Industrial grade soil analysis tool that measures Nitrogen (N), Phosphorus (P), and Potassium (K) using RS485 Modbus.",category:"Agri-Tech",estimatedTime:"100 mins",tech:["Arduino/ESP32","NPK Sensor","RS485"],concept:"Optical reflection spectroscopy. The industrial NPK probe uses specific light wavelengths to detect the concentration of soil nutrients, mapping the results to a Modbus register.",working_principle:`1. Connect the NPK probe to a MAX485 TTL-to-RS485 converter.
+2. Send a hex request frame (e.g., 0x01 0x03 0x00 0x00...).
+3. Receive the response frame and extract the payload bytes.
+4. Convert the hex values to mg/kg (PPM) for N, P, and K.
+5. Log data to an SD card and trigger'Fertilizer Needed' alerts if levels fall below thresholds.`,pin_config:{arduino:[{pin:"5V/12V",component:"Probe Power",note:"Check Rating"},{pin:"GND",component:"GND Rail",note:"Common GND"},{pin:"D2/D3",component:"SoftwareSerial",note:"RX/TX"},{pin:"D4",component:"RE/DE",note:"Dir Control"}],esp32:[{pin:"12V (EXT)",component:"Probe Power",note:"Required"},{pin:"3.3V",component:"MAX485 VCC",note:"Logic Supply"},{pin:"GPIO 16/17",component:"UART2",note:"Modbus Comms"},{pin:"GPIO 4",component:"RE/DE",note:"Direction"}]},code:`// Precision Agri-NPK
+byte query[] = {0x01, 0x03, 0x00, 0x1E, 0x00, 0x03, 0x65, 0xCD};
+void loop() {
+  digitalWrite(DE_RE, HIGH);
+  Serial2.write(query, 8);
+  digitalWrite(DE_RE, LOW);
+  // Wait for 7 bytes response and parse N-P-K values
+  delay(5000);
+}`,advantages:"Precise fertilizer application, increases crop yield, data-driven farming.",disadvantages:"Probes are expensive (~$30-$50); requires external 12V-24V power supply for the probe.",usage:"Insert the probe fully into the soil. Ensure the RS485 lines (A and B) are not swapped.",components:["1x ESP32","1x RS485 NPK Sensor","1x MAX485 Converter","1x 12V DC Supply"],circuit_diagram:"NPK A/B -> MAX485 A/B | MAX485 RO/DI -> ESP32 16/17 | Power -> 12V",status:"Published",industrial_use:"Large-scale automated greenhouses and precision farming consulting services.",bom_cost:"$55"},{id:48,title:"Industrial pH & Water Quality Monitor",level:"Intermediate",description:"Continuous monitoring system for hydroponics or pool management using a BNC-interface pH electrode.",category:"Environmental",estimatedTime:"70 mins",tech:["Arduino","pH Sensor","Analog"],concept:"Potentiometric measurement. The pH probe generates a small millivolt signal (-414mV to +414mV) proportional to the hydrogen ion activity, which is amplified for the MCU to read.",working_principle:`1. Connect the pH probe via its BNC connector to the amplifier board.
+2. Collect 10 analog readings and take the average to reduce noise.
+3. Implement a 2-point calibration (pH 4.0 and pH 7.0).
+4. Convert the average voltage into a pH value (0.0 to 14.0).
+5. Use an LCD to display the pH and Water Temperature for automatic compensation.`,pin_config:{arduino:[{pin:"5V",component:"VCC Rail",note:"Logic Power"},{pin:"GND",component:"GND Rail",note:"Ground"},{pin:"A0",component:"pH Signal",note:"Analog Input"}],esp32:[{pin:"3.3V",component:"MCU Power",note:"Supply"},{pin:"GND",component:"GND Rail",note:"Ground"},{pin:"GPIO 34",component:"pH Analogue",note:"ADC1 Channel"}]},code:`// pH Guardian
+void loop() {
+  int rawValue = analogRead(A0);
+  float voltage = rawValue * (5.0 / 1024.0);
+  float phValue = 3.5 * voltage + offset; // Simple calibration
+  Serial.println(phValue);
+  delay(1000);
+}`,advantages:"High accuracy with proper calibration, durable industrial probe, critical for biological life.",disadvantages:"Probes require periodic storage in KCl solution; sensor 'drifts' over time; sensitive to electrical noise.",usage:"Do not submerge the BNC connector in water. Clean the probe with distilled water after measurements.",components:["1x Microcontroller","1x Industrial pH Probe + Amp","1x DS18B20 Temp Sensor"],circuit_diagram:"pH Amp VCC/GND -> 5V Rail | pH Signal -> A0 | Temp SIG -> D2",status:"Published",industrial_use:"Aquaponics, wastewater treatment plants, and smart pool maintenance.",bom_cost:"$35"},{id:49,title:"Greenhouse Gas Auditor: CO2 & VOC Hub",level:"Intermediate",description:"Monitor indoor air safety by measuring Carbon Dioxide (CO2) and Volatile Organic Compounds (VOCs).",category:"Environmental",estimatedTime:"55 mins",tech:["ESP32","MH-Z19B","CCS811"],concept:"NDIR (Non-Dispersive Infrared). The MH-Z19B uses an IR light source and filter to count the absorption of CO2 molecules, providing much higher accuracy than simple chemical sensors.",working_principle:`1. Interface with the MH-Z19B sensor via Hardware Serial (UART).
+2. Read CO2 concentration in Parts Per Million (PPM).
+3. Initialize the CCS811 via I2C for TVOC (Total Volatile Organic Compounds) data.
+4. Log data: <1000ppm (Safe), 1000-2000ppm (Drowsy), >2000ppm (Unsafe).
+5. Trigger an Exhaust Fan via Relay if CO2 concentration exceeds 1500ppm.`,pin_config:{arduino:[{pin:"5V",component:"VCC Rail",note:"Sensor Power"},{pin:"GND",component:"GND Rail",note:"Ground"},{pin:"D10 (TX)",component:"MH-Z19 RX",note:"SoftSerial"},{pin:"D11 (RX)",component:"MH-Z19 TX",note:"SoftSerial"}],esp32:[{pin:"5V",component:"VCC",note:"Sensor Power"},{pin:"GND",component:"GND",note:"Ground"},{pin:"GPIO 17",component:"TX2 (MH-Z)",note:"UART2"},{pin:"GPIO 16",component:"RX2 (MH-Z)",note:"UART2"}]},code:`// Air Guard Pro
+#include <MHZ19.h>
+MHZ19 myMHZ19;
+void setup() {
+  Serial2.begin(9600);
+  myMHZ19.begin(Serial2);
+}
+void loop() {
+  int co2 = myMHZ19.getCO2();
+  if (co2 > 1000) digitalWrite(FAN_PIN, HIGH);
+  delay(10000);
+}`,advantages:"Industrial-grade NDIR sensor, precise health monitoring, easy integration into HVAC.",disadvantages:"Requires 3-minute 'Warm-up' time; MH-Z19B consumes significant current (up to 150mA).",usage:"Place the sensor at breathing height (approx 1.5m). Calibration is self-running after 24h of operation.",components:["1x ESP32","1x MH-Z19B NDIR Sensor","1x CCS811 VOC Sensor","1x 5V Relay"],circuit_diagram:"MH-Z19 TX/RX -> ESP32 RX2/TX2 | CCS811 SDA/SCL -> GPIO 21/22",status:"Published",industrial_use:"Smart office ventilation, greenhouse climate control, and mining safety monitoring.",bom_cost:"$28"},{id:50,title:"Seismic Guard: Early Warning System",level:"Advanced",description:"High-sensitivity vibration node designed to detect early-stage seismic activity or industrial structural failure.",category:"Industrial & Safety",estimatedTime:"85 mins",tech:["ESP32","ADXL355","Interrupts"],concept:"Digital micro-gravity sensing. Using a high-resolution accelerometer with very low noise, we can detect microscopic tremors and categorize them into seismic magnitude scales.",working_principle:`1. Initialize the ADXL355/345 via SPI or I2C in 'FIFO' mode.
+2. Sample X-Y-Z axes at 500Hz.
+3. Implement a 'Short-Time Average over Long-Time Average' (STA/LTA) detector algorithm.
+4. If ratio > 5, a 'Seismic Event' is declared.
+5. Broadcast high-priority alerts to all nearby nodes using ESP-NOW for rapid warning.`,pin_config:{arduino:[{pin:"3.3V",component:"VCC Rail",note:"Required Power"},{pin:"GND",component:"GND Rail",note:"Common Ground"},{pin:"D10",component:"SPI CS",note:"High Speed"},{pin:"D11,12,13",component:"SPI Bus",note:"MOSI/MISO/SCK"}],esp32:[{pin:"3.3V",component:"MCU Power",note:"Supply"},{pin:"GND",component:"GND Rail",note:"Ground"},{pin:"GPIO 5",component:"CS Pin",note:"VSPI CS"},{pin:"GPIO 18,19,23",component:"SPI Pins",note:"VSPI Bus"}]},code:`// Seismic Sentinel
+void loop() {
+  readAccData();
+  float lta = computeLTA();
+  float sta = computeSTA();
+  if (sta/lta > threshold) {
+    esp_now_send(broadcast_node, alert_buf, len);
+  }
+  delay(2);
+}`,advantages:"Critical for safety, ultra-fast alert propagation, industrial-grade sensitivity.",disadvantages:"Prone to 'false positives' from local foot traffic or machinery; complex signal processing.",usage:"Mount the sensor on a solid building pillar or concrete floor using industrial adhesive for best vibration transmission.",components:["1x ESP32","1x ADXL355 Accel","1x High-Decibel Buzzer","1x SPI Logic Shifter"],circuit_diagram:"ADXL SPI -> ESP32 VSPI Port | Buzzer -> GPIO 4",status:"Published",industrial_use:"Earthquake early warning, structural health monitoring for bridges, and machinery fault detection.",bom_cost:"$32"},{id:51,title:"BLE Mesh Beacon Scanner: Retail Analytics",level:"Advanced",description:"A high-speed BLE scanner that tracks asset movement and customer foot traffic by triangulation of BLE Beacons.",category:"Smart Retail",estimatedTime:"110 mins",tech:["ESP32","BLE","JSON"],concept:"RSSI-based proximity. BLE beacons emit periodic 'Advertisements'. By measuring the Received Signal Strength Indicator (RSSI), we can estimate the distance to the beacon.",working_principle:`1. Initialize the ESP32 BLE stack in 'Passive Scanning' mode.
+2. Set a 10s scan window to capture all nearby iBeacon/Eddystone packets.
+3. Filter packets by UUID to target specific assets.
+4. Map the RSSI to distance using the Log-Distance Path Loss model.
+5. Batch data into a JSON object and push to the Cloud via Wi-Fi for heat-map generation.`,pin_config:{arduino:[{pin:"N/A",component:"Hardware",note:"Requires BLE (ESP32)"}],esp32:[{pin:"3.3V",component:"VCC",note:"Power Supply"},{pin:"GND",component:"GND",note:"Ground"},{pin:"GPIO 2",component:"Scan Indicator",note:"Onboard LED"}]},code:`// BLE Proximity Scanner
+#include <BLEDevice.h>
+void setup() {
+  BLEDevice::init("");
+  pBLEScan = BLEDevice::getScan();
+  pBLEScan->setActiveScan(false);
+}
+void loop() {
+  BLEScanResults foundDevices = pBLEScan->start(10);
+  for (int i=0; i<foundDevices.getCount(); i++) {
+    if (foundDevices.getDevice(i).haveName()) Serial.println(foundDevices.getDevice(i).getRSSI());
+  }
+  pBLEScan->clearResults();
+  delay(5000);
+}`,advantages:"Low cost per trackable unit; extremely low power (beacons last years on coincells).",disadvantages:"Prone to interference from human bodies/walls (blocking 2.4GHz); ±2m accuracy limit.",usage:"Mount scanners at ceiling height (2.5m - 3m) for maximum line-of-sight coverage.",components:["1x ESP32 DevKit","Multiple BLE Beacons","1x External Wi-Fi Antenna (Optional)"],circuit_diagram:"Scanners operate autonomously via Wi-Fi; Beacons are stand-alone battery units.",status:"Published",industrial_use:"Warehouse inventory tracking and customer dwell-time analysis in shopping malls.",bom_cost:"$15"},{id:52,title:"Stratospheric Payload: LoRa Balloon Telemetry",level:"Advanced",description:"Design a lightweight telemetric node for high-altitude ballooning that survives extreme cold and low pressure.",category:"Aerospace & LoRa",estimatedTime:"180 mins",tech:["ESP32","LoRa","BME280"],concept:"Line-of-Sight transmission. In the upper atmosphere, a 100mW LoRa signal can travel over 200km due to the lack of geographical obstructions.",working_principle:`1. Initialize SPI communication with the LoRa (SX1276) chip.
+2. Collect T-P-H data from the BME280 sensor.
+3. Implement 'Low-Temperature Calibration' for the MCU clock (to prevent timing drift at -40C).
+4. Transmit data in 'long-range' LoRa mode (SF12, BW 125kHz).
+5. Enter 'Deep Sleep' between transmissions to conserve battery at altitude.`,pin_config:{arduino:[{pin:"3.3V",component:"VCC Rail",note:"From LiPo"},{pin:"GND",component:"GND Rail",note:"Common GND"},{pin:"D10",component:"LoRa NSS",note:"SPI"},{pin:"D13,11,12",component:"SPI Bus",note:"SCK/MOSI/MISO"}],esp32:[{pin:"3.3V",component:"VCC",note:"Stable Supply"},{pin:"GPIO 5",component:"LoRa CS",note:"VSPI"},{pin:"GPIO 27",component:"LoRa RST",note:"Reset"},{pin:"GPIO 26",component:"DIO0",note:"IRQ"}]},code:`// Edge-of-Space Link
+#include <LoRa.h>
+void loop() {
+  LoRa.beginPacket();
+  LoRa.print("ALT: "); LoRa.print(calculateAlt());
+  LoRa.print(" TEMP: "); LoRa.print(bme.readTemperature());
+  LoRa.endPacket();
+  esp_deep_sleep(60000000); // 1-minute interval
+}`,advantages:"Massive communication range; low hardware cost compared to satellite links.",disadvantages:"Requires thermal insulation (polystyrene box) to prevent battery failure at -50C.",usage:"Use a 1/2 wave dipole antenna pointed downwards for optimal ground coverage.",components:["1x ESP32","1x RA-02 LoRa Module","1x BME280","1x 18650 Li-ion Cell"],circuit_diagram:"LoRa SPI -> VSPI Port | BME280 SDA/SCL -> GPIO 21/22 | Antenna -> SMA Connector",status:"Published",industrial_use:"Weather research balloons and long-range wildlife migration tracking.",bom_cost:"$26"},{id:53,title:"Smart City Lighting Mesh: Reactive Grid",level:"Intermediate",description:"A node-to-node mesh network where streetlights communicate to create a 'Light Wave' that follows pedestrians/vehicles.",category:"Smart City",estimatedTime:"90 mins",tech:["ESP32","ESP-NOW","LDR"],concept:"Peer-to-peer mesh. Using ESP-NOW, nodes broadcast 'Motion Detected' messages to all neighbors instantly without needing a central router.",working_principle:`1. Initialize ESP-NOW on all lighting nodes.
+2. Use a PIR sensor to detect nearby movement.
+3. When motion occurs: Node A fades LED to 100% and sends 'Trigger' to Nodes B and C.
+4. Nodes B and C fade to 50% for 30s to provide 'anticipatory' lighting.
+5. All nodes dim to 5% power during inactivity to save energy.`,pin_config:{arduino:[{pin:"N/A",component:"Protocol",note:"Requires Wi-Fi Stack"}],esp32:[{pin:"3.3V",component:"VCC Rail",note:"Power Supply"},{pin:"GND",component:"GND Rail",note:"Common GND"},{pin:"GPIO 13",component:"PIR In",note:"Motion Sensor"},{pin:"GPIO 12",component:"LED Drive",note:"PWM Dimmer"}]},code:`// Mesh Lighting Node
+void onReceive(const uint8_t *mac, const uint8_t *data, int len) {
+  if (data[0] == 'MOTION') ledcWrite(0, 128); // 50% anticipatory
+}
+void loop() {
+  if (digitalRead(PIR_PIN)) {
+    ledcWrite(0, 255); // 100% local
+    esp_now_send(broadcast, "MOTION", 6);
+  }
+  delay(100);
+}`,advantages:"Reduces urban power consumption by 80%; decentralized (no single point of failure).",disadvantages:"Requires high-density of nodes for reliable mesh relay (max 100m spacing).",usage:"Use constant-current LED drivers if controlling actual streetlights (>10W).",components:["2x ESP32 DevKits","2x PIR Sensors","2x High-Power LEDs","1x 5V Supply"],circuit_diagram:"PIR -> GPIO 13 | LED -> GPIO 12/Logic MOSFET | VCC -> 5V rail",status:"Published",industrial_use:"Smart highway lighting and low-traffic industrial park security lighting.",bom_cost:"$20"},{id:54,title:"Urban Noise Pollution Auditor",level:"Intermediate",description:"Continuous acoustic monitoring node that calculates dB(A) levels and identifies noise ordinance violations in cities.",category:"Environmental",estimatedTime:"60 mins",tech:["Arduino/ESP32","MAX9814","Audio"],concept:"A-weighting filter. Human hearing is less sensitive to very low and high frequencies. This project implements a software filter to map raw sound pressure to the dB(A) human perception scale.",working_principle:`1. Sample the MAX9814 microphone at high frequency (10kHz).
+2. Calculate the Root Mean Square (RMS) of the audio window.
+3. Convert RMS voltage to deciBels using a logarithmic calibration curve.
+4. Implement an 'Event Log' for noises > 85dB.
+5. Upload average dB levels every 15 mins to an environmental heat-map server.`,pin_config:{arduino:[{pin:"5V",component:"Mic VCC",note:"Logic Supply"},{pin:"GND",component:"Mic GND",note:"Return"},{pin:"A0",component:"Mic Out",note:"Analog Signal"}],esp32:[{pin:"3.3V",component:"Supply",note:"Power Rail"},{pin:"GND",component:"GND",note:"Shared Ground"},{pin:"GPIO 34",component:"Audio SIG",note:"ADC1 (Very Sensitive)"}]},code:`// Urban Noise Link
+void loop() {
+  long sum = 0;
+  for(int i=0; i<500; i++) { int val = analogRead(A0); sum += val * val; }
+  float rms = sqrt(sum / 500.0);
+  float db = 20 * log10(rms/ref_v) + calibration;
+  Serial.println(db);
+  delay(100);
+}`,advantages:"Low-cost alternative to industrial decibel meters; allows for city-wide mesh deployment.",disadvantages:"Microphones degrade when exposed directly to rain/humidity; requires acoustic calibration.",usage:"Place the microphone in an 'Acoustic Shell' or wind-sock to prevent wind-noise from skewing readings.",components:["1x Microcontroller","1x MAX9814 AGC Microphone","1x Waterproof Enclosure"],circuit_diagram:"Mic VCC -> 5V | Mic Gain -> GND | Mic Out -> A0 | VCC -> 5V",status:"Published",industrial_use:"Enforcing construction site noise limits and auditing highway acoustic barriers.",bom_cost:"$14"},{id:55,title:"RFID Inventory Management System",level:"Intermediate",description:"A smart warehouse node that tracks arrival/departure of items in real-time using RFID tags.",category:"Industrial & Logistics",estimatedTime:"70 mins",tech:["Arduino","RFID-RC522","SPI"],concept:"Identity persistence. Each RFID tag has a unique 4 or 7-byte UID. By reading this UID and checking it against a local or remote Database, we verify the item's location and status.",working_principle:`1. Initialize the RC522 reader via the SPI bus.
+2. Wait for a passive RFID (13.56 MHz) tag to enter the magnetic field.
+3. Authenticate the data sectors of the card (Block 1).
+4. Update the 'Last Location' timestamp for that specific UID.
+5. Trigger a Green LED (Accepted) or Red LED (Denied/Audit Required).`,pin_config:{arduino:[{pin:"3.3V",component:"Reader VCC",note:"Do not use 5V"},{pin:"GND",component:"Reader GND",note:"Common GND"},{pin:"D10",component:"SDA (SS)",note:"SPI"},{pin:"D13,11,12",component:"SPI Bus",note:"SCK/MOSI/MISO"},{pin:"D9",component:"RST Pin",note:"Reset"}],esp32:[{pin:"3.3V",component:"RC522 VCC",note:"Must be 3.3V"},{pin:"GND",component:"GND",note:"Shared Ground"},{pin:"GPIO 5",component:"SDA",note:"VSPI SS"},{pin:"GPIO 18,19,23",component:"SPI Bus",note:"VSPI Pins"}]},code:`// Smart Logistics Link
+#include <MFRC522.h>
+MFRC522 mfrc522(10, 9); // SS, RST
+void setup() {
+  SPI.begin(); mfrc522.PCD_Init();
+}
+void loop() {
+  if (mfrc522.PICC_IsNewCardPresent() && mfrc522.PICC_ReadCardSerial()) {
+    Serial.print("Tag ID: ");
+    for (byte i=0; i<4; i++) Serial.print(mfrc522.uid.uidByte[i], HEX);
+    delay(1000);
+  }
+}`,advantages:"Contactless identification; extremely low cost per tag; durable compared to barcodes.",disadvantages:"Limited range (3-5cm); metal items interfere with the antenna field.",usage:"Mount the reader behind non-metallic panels for a clean, industrial look.",components:["1x Microcontroller","1x RC522 Module","10x RFID Keyfobs/Cards"],circuit_diagram:"RC522 VCC -> 3.3V | RC522 SPI -> MCU SPI Port | Reset -> D9",status:"Published",industrial_use:"Employee access control and real-time palette tracking in loading bays.",bom_cost:"$16"},{id:56,title:"Secure Biometric Door Logic: Wi-Fi Log",level:"Advanced",description:"An enterprise-grade door locking system that uses fingerprint biometrics and logs every entry to a secure Wi-Fi server.",category:"Security & Smart Home",estimatedTime:"90 mins",tech:["ESP32","AS608 Fingerprint","Relay"],concept:"Biometric hashing. The AS608 sensor converts a fingerprint image into a mathematical hash. If the scanned hash matches a stored template, the door is unlocked.",working_principle:`1. Enroll fingerprints into the AS608's internal lash library.
+2. In standby, the ESP32 waits for a finger to be placed on the sensor.
+3. Upon scan, the AS608 returns a 'Confidence Score' and 'ID Number'.
+4. If Score > Threshold, trigger the 12V Solenoid via a Relay/MOSFET.
+5. Log the User ID and Timestamp to a remote Google Sheet or MQTT logger via Wi-Fi.`,pin_config:{arduino:[{pin:"5V",component:"Module Power",note:"Logic Supply"},{pin:"GND",component:"GND Rail",note:"Ground"},{pin:"D2/D3",component:"AS608 TX/RX",note:"SoftSerial"},{pin:"D4",component:"Relay SIG",note:"Driver Pin"}],esp32:[{pin:"3.3V",component:"AS608 VCC",note:"Logic Supply"},{pin:"GND",component:"GND Rail",note:"Ground"},{pin:"GPIO 16/17",component:"AS608 UART2",note:"Data Links"},{pin:"GPIO 4",component:"Relay Control",note:"Active High"}]},code:`// Bio-Secure Entry
+void loop() {
+  int id = getFingerprintID();
+  if (id >= 0) {
+    digitalWrite(RELAY_PIN, HIGH); delay(3000);
+    logEntry(id);
+  }
+  delay(100);
+}`,advantages:"Cannot be picked or bypassed like traditional keys; precise audit trail of entries.",disadvantages:"Sensor performance drops if finger is wet or dirty; requires 12V supply for the lock solenoid.",usage:"Use an opto-isolated relay to protect the ESP32 from the inductive kickback of the solenoid.",components:["1x ESP32","1x AS608 Fingerprint Sensor","1x 5V Relay Module","1x 12V Solenoid Lock"],circuit_diagram:"Fingerprint RX/TX -> ESP32 17/16 | Relay -> GPIO 4 | Solenoid -> Relay Output",status:"Published",industrial_use:"Server room access control and high-security equipment lockers.",bom_cost:"$38"},{id:57,title:"Liquid Level PID Controller",level:"Advanced",description:"A precision industrial control loop that maintains a constant liquid level in a tank regardless of outflow rate.",category:"Industrial Automation",estimatedTime:"110 mins",tech:["Arduino","Ultrasonic","PWM Pump"],concept:"PID Control (Proportional-Integral-Derivative). Instead of simply turning the pump ON/OFF, we calculate a precise motor speed based on the error between current level and setpoint.",working_principle:`1. Measure the current liquid depth using an ultrasonic sensor.
+2. Calculate the 'Error' (Setpoint - Current Level).
+3. Proportional: Immediate response to error. Integral: Fixes long-term drift. Derivative: Prevents overshooting.
+4. Output the result as a PWM signal to a DC pump driver (L298N).
+5. Maintain the level within ±2mm accuracy in real-time.`,pin_config:{arduino:[{pin:"5V",component:"VCC Rail",note:"Power"},{pin:"GND",component:"GND Rail",note:"Ground"},{pin:"D9",component:"Pump PWM",note:"L298N ENA"},{pin:"D10",component:"Trig",note:"Ultrasonic"},{pin:"D11",component:"Echo",note:"Ultrasonic"}],esp32:[{pin:"12V (EXT)",component:"Pump Power",note:"Required"},{pin:"GND",component:"Common GND",note:"Return"},{pin:"GPIO 4",component:"Pump PWM",note:"Driver"},{pin:"GPIO 5/18",component:"Ultrasonic",note:"Trig/Echo"}]},code:`// PID Level Control
+#include <PID_v1.h>
+PID myPID(&Input, &Output, &Setpoint, 2, 5, 1, DIRECT);
+void loop() {
+  Input = readLevel();
+  myPID.Compute();
+  analogWrite(PUMP_PWM, Output);
+}`,advantages:"Extremely stable level control; no 'chatter' or rapid cycling of the pump motor.",disadvantages:"Requires careful 'Tuning' of Kp, Ki, and Kd values to prevent instability.",usage:"Use a check-valve on the pump outlet to prevent backflow when the pump is at low duty-cycles.",components:["1x Arduino Uno","1x HC-SR04 Sensor","1x L298N Driver","1x 12V DC Pump"],circuit_diagram:"Sensor -> D10/11 | Driver ENA -> D9 | Driver IN1 -> D8 | External 12V Supply",status:"Published",industrial_use:"Chemical mixing tanks, automated boiler systems, and water treatment filtration.",bom_cost:"$25"},{id:58,title:"Industrial Conveyor Counter: IR Beam",level:"Beginner",description:"High-speed non-contact counter for manufacturing lines using infrared break-beam technology.",category:"Industrial Automation",estimatedTime:"45 mins",tech:["Arduino","IR Beam","I2C LCD"],concept:"Optical interruption. When an object passes through the IR beam, it blocks the signal to the receiver, triggering a digital pulse that the MCU counts using an edge-triggered Interrupt.",working_principle:`1. Align the IR Transmitter and IR Receiver (Phototransistor) across the conveyor path.
+2. Receiver output is HIGH when beam is intact, LOW when blocked.
+3. Setup a Hardware Interrupt (INT0) on the MCU to detect the FALLING edge.
+4. Increment a global 'Count' variable for every interruption.
+5. Handle 'Debouncing' in software to ensure multiple objects in close proximity are counted accurately.`,pin_config:{arduino:[{pin:"5V",component:"IR Power",note:"Supply"},{pin:"GND",component:"GND Rail",note:"Ground"},{pin:"D2",component:"IR Receiver",note:"Interrupt 0"}],esp32:[{pin:"3.3V",component:"Logic Power",note:"Supply"},{pin:"GND",component:"GND Rail",note:"Ground"},{pin:"GPIO 14",component:"IR Input",note:"Any GPIO Interrupt"}]},code:`// Conveyor Break-Beam
+volatile int count = 0;
+void countISR() { count++; }
+void setup() {
+  Serial.begin(9600);
+  attachInterrupt(digitalPinToInterrupt(2), countISR, FALLING);
+}
+void loop() {
+  Serial.println(count);
+  delay(500);
+}`,advantages:"Reliable at high speeds; non-contact (works for sensitive items); cheap implementation.",disadvantages:"Dust or steam on lenses can cause false counts; requires precise physical alignment.",usage:"Mount the sensors in a sturdy metal bracket to prevent misalignment from conveyor vibration.",components:["1x Arduino Uno","1x IR Break-beam Pair","1x I2C 16x2 LCD","1x Bracket Set"],circuit_diagram:"IR RX OUT -> D2 | IR TX/RX VCC -> 5V | LCD SDA/SCL -> A4/A5",status:"Published",industrial_use:"Bottle counting in beverage plants and component verification in SMT assembly lines.",bom_cost:"$12"},{id:59,title:"Elderly Care Panic System: GPS + LTE",level:"Advanced",description:"A wearable one-button distress beacon that sends a Google Maps link and SMS with the precise location during emergencies.",category:"Medical & Safety",estimatedTime:"110 mins",tech:["ESP32","GSM/LTE","GPS"],concept:"Critical link reliability. By combining GPS (Location) and GSM (Communication), this node ensures that help is dispatched to the exact coordinates even if the person is outdoors.",working_principle:`1. Monitor a 'Panic Button' pin for a long-press (2 seconds) to avoid accidental triggers.
+2. Upon trigger, wake the GPS module to get an updated position Fix.
+3. Format an SMS message string containing the Lat/Long coordinates in a Google Maps URL.
+4. Use AT commands to send the SMS via a SIM800L or SIM7000G module.
+5. Trigger a local buzzer to confirm to the user that the SOS has been sent successfully.`,pin_config:{arduino:[{pin:"5V (EXT)",component:"GSM VCC",note:"Requires 2A Peak"},{pin:"GND",component:"GND Rail",note:"Ground"},{pin:"D3/D4",component:"GSM UART",note:"SoftSerial"},{pin:"D7",component:"Panic BTN",note:"Internal Pullup"}],esp32:[{pin:"5V (EXT)",component:"SIM Power",note:"Main Supply"},{pin:"GND",component:"GND Rail",note:"Return"},{pin:"GPIO 17/16",component:"UART2",note:"GSM Interface"},{pin:"GPIO 23",component:"SOS Button",note:"Input"}]},code:`// SOS Distress Link
+void sendSOS() {
+  getGPSPos();
+  Serial2.print("AT+CMGS=\\"+123456789\\"\\r");
+  delay(100);
+  Serial2.print("HELP! Location: "); Serial2.print(googleLink);
+  Serial2.write(26); // ASCII SUB (Ctrl+Z)
+}`,advantages:"Lifesaving potential; autonomous (no phone needed); highly portable.",disadvantages:"Requires cellular signal; battery life is limited due to GPS/GSM power consumption.",usage:"Use a latching circuit or deep-sleep mode to preserve battery life for several days/weeks.",components:["1x ESP32","1x SIM800L Module","1x GPS Module","1x LiPo Charger","1x SOS Button"],circuit_diagram:"SIM TX/RX -> ESP32 16/17 | GPS TX/RX -> ESP32 25/26 | Button -> GPIO 23",status:"Published",industrial_use:"Safety watches for lone workers in remote sites and elderly monitoring in assisted living.",bom_cost:"$42"},{id:60,title:"Unified Agri-Tech Gateway: Soil+Irr+Env",level:"Advanced",description:"The ultimate farming node that combines NPK soil analysis, automatic drip irrigation, and local weather auditing into a single dashboard.",category:"Agri-Tech",estimatedTime:"180 mins",tech:["ESP32","RS485","Relay","BME280"],concept:"Holistic ecosystem data. By monitoring everything from NPK levels to localized air pressure, this gateway makes complex irrigation and fertilization decisions automatically.",working_principle:`1. Initialize BME280 (I2C) and NPK Probe (RS485 Modbus).
+2. Read soil moisture via an analog resistive sensor.
+3. If Soil_Moisture < 30% AND Time > 6:00PM: Trigger the Solenoid Valve via Relay.
+4. Log NPK levels to a Google Sheet via Wi-Fi for seasonal yield planning.
+5. Adjust watering duration based on the BME280's Humidity and Temp readings (Evapotranspiration approximation).`,pin_config:{arduino:[{pin:"12V (EXT)",component:"Solenoid/NPK",note:"Main Power"},{pin:"GND",component:"GND Rail",note:"Common GND"},{pin:"D10",component:"Solenoid RELAY",note:"Irrigation"},{pin:"A0",component:"Moisture SENS",note:"Soil Probe"}],esp32:[{pin:"12V (EXT)",component:"System Power",note:"Power Supply"},{pin:"GPIO 16/17",component:"RS485 NPK",note:"UART2"},{pin:"GPIO 21/22",component:"BME280",note:"Weather I2C"},{pin:"GPIO 4",component:"Valve Relay",note:"Control"}]},code:`// Master Agri Gateway
+void loop() {
+  readWeather(); readNPK(); readMoisture();
+  if (needsWatering()) triggerValve(300000); // 5 mins
+  uploadToCloud();
+  delay(1800000); // 30 min sleep
+}`,advantages:"All-in-one solution; eliminates the need for separate nodes; maximizes agricultural ROI.",disadvantages:"High component cost; complex wiring; requires high-strength Wi-Fi in the field (or LoRa gateway).",usage:"Housed in an IP67 waterproof enclosure. Use solar charging to make the gateway fully autonomous.",components:["1x ESP32","1x NPK RS485 Probe","1x BME280","1x Soil Moisture Pro","2x 12V Relays"],circuit_diagram:"Gateway combines SPI, I2C, UART, and Analog circuits into a central PCB/Enclosure.",status:"Published",industrial_use:"Commercial olive/vineyard management and smart urban community gardens.",bom_cost:"$75"}];export{e as p};
