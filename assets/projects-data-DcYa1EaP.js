@@ -2681,24 +2681,76 @@ void loop() {
 }`},{id:98,title:"IoT Based Air Quality Monitor",level:"Advanced",description:"Professional PM2.5 and PM10 particulate tracker with laser scattering technology.",category:"Environmental",estimatedTime:"100 mins",tech:["ESP32","SDS011","WiFi"],concept:"Pollution Mapping. Uses laser scattering to count particles.",working_principle:`1. Uses laser scattering (SDS011) to count particulates in the air with high precision.
 2. The internal fan draws air through a laser chamber, where particles scatter the light beam.
 3. The photodetector measures the scatter intensity, converting it into PM2.5 and PM10 mass concentrations.
-4. Safety: If PM2.5 > 50ug/m3 (Unhealthy), an alert is triggered on the mobile dashboard.`,pin_config:{esp32:[{module:"SDS011 Laser",pinName:"TXD",mcuPin:"GPIO 16",direction:"Input",voltage:"5V/3.3V",description:"UART RX Pin"},{module:"SDS011 Laser",pinName:"RXD",mcuPin:"GPIO 17",direction:"Output",voltage:"5V/3.3V",description:"UART TX Pin"}]},advantages:"Professional accuracy.",disadvantages:"Fan noise.",usage:"Place in protected area.",components:["1x ESP32","1x SDS011 Laser Sensor","1x OLED"],status:"Published",bom_cost:"$45",code:`// Professional Air Particulate Monitor
+4. Safety: If PM2.5 > 50ug/m3 (Unhealthy), an alert is triggered on the mobile dashboard.`,pin_config:{esp32:[{module:"SDS011 Laser",pinName:"TXD",mcuPin:"GPIO 16",direction:"Input",voltage:"5V/3.3V",description:"UART RX Pin"},{module:"SDS011 Laser",pinName:"RXD",mcuPin:"GPIO 17",direction:"Output",voltage:"5V/3.3V",description:"UART TX Pin"},{module:"OLED Display",pinName:"SDA",mcuPin:"GPIO 21",direction:"Bidirectional",voltage:"3.3V",description:"I2C Data for Visuals"},{module:"OLED Display",pinName:"SCL",mcuPin:"GPIO 22",direction:"Output",voltage:"3.3V",description:"I2C Clock for Visuals"}]},advantages:"Professional accuracy.",disadvantages:"Fan noise.",usage:"Place in protected area.",components:["1x ESP32","1x SDS011 Laser Sensor","1x OLED"],status:"Published",bom_cost:"$45",code:`#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
 #include <SDS011.h>
-SDS011 my_sds;
+
+// -------- OLED CONFIG ----------
+#define SCREEN_WIDTH 128
+#define SCREEN_HEIGHT 64
+#define OLED_RESET -1
+#define OLED_ADDR 0x3C
+
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+
+// -------- SDS011 CONFIG --------
+#define SDS_RX 16
+#define SDS_TX 17
+
+SDS011 sds;
+HardwareSerial sdsSerial(2);
+
+// -------- VARIABLES -----------
+float pm25, pm10;
 
 void setup() {
-  Serial2.begin(9600, SERIAL_8N1, 16, 17);
-  my_sds.begin(&Serial2);
+  Serial.begin(115200);
+
+  // OLED Init
+  Wire.begin(21, 22);
+  if (!display.begin(SSD1306_SWITCHCAPVCC, OLED_ADDR)) {
+    Serial.println("OLED not found!");
+    while (1);
+  }
+
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(WHITE);
+  display.setCursor(10, 20);
+  display.println("Air Monitor");
+  display.display();
+  delay(2000);
+
+  // SDS011 Init
+  sdsSerial.begin(9600, SERIAL_8N1, SDS_RX, SDS_TX);
+  sds.begin(&sdsSerial);
 }
 
 void loop() {
-  float p10, p25;
-  int error = my_sds.read(&p25, &p10);
-  if (!error) {
-    Serial.print("PM2.5: "); Serial.println(p25);
-    Serial.print("PM10: "); Serial.println(p10);
-    // WiFi Push Logic
+  if (sds.read(&pm25, &pm10) == 0) {
+
+    Serial.printf("PM2.5: %.2f | PM10: %.2f\\n", pm25, pm10);
+
+    display.clearDisplay();
+    display.setTextSize(1);
+
+    display.setCursor(0, 0);
+    display.println("Air Quality");
+
+    display.setCursor(0, 20);
+    display.print("PM2.5: ");
+    display.print(pm25);
+    display.println(" ug/m3");
+    
+    display.setCursor(0, 40);
+    display.print("PM10: ");
+    display.print(pm10);
+    display.println(" ug/m3");
+    
+    display.display();
   }
-  delay(30000);
+  delay(1000);
 }`},{id:99,title:"Smart Waste Management",level:"Intermediate",description:"Connected trash bins that report 'Full' status to optimize garbage collection routes.",category:"Smart City",estimatedTime:"60 mins",tech:["ESP32","Ultrasonic","GPS Module"],concept:"Logistics Optimization. Reduces collection costs by only visiting bins that actually need emptying.",working_principle:`1. The bin is mapped to its GPS coordinates stored in the device's configuration memory.
 2. An ultrasonic sensor triggers every 1 hour to measure the trash depth relative to the lid.
 3. Connectivity: Uses LoRaWAN (Long Range WAN) to communicate with a gateway up to 5km away, bypassing WiFi range limits.
