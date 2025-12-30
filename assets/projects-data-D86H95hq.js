@@ -1,64 +1,190 @@
-const e=[{id:1,title:"LED Blink using Arduino",level:"Beginner",description:"A comprehensive Beginner project: LED Blink using Arduino. Explore the architecture and firmware below.",category:"IoT & Systems",estimatedTime:"45 mins",tech:["Arduino"],concept:"Learning the fundamentals of LED Blink using Arduino.",working_principle:"This section details how the electronics and logic interact to achieve the goal.",pin_config:"Pin mapping will be updated by administrative command.",code:`/* Code block pending administrative update */
+const e=[{id:1,title:"LED Blink: The Gateway to IoT",level:"Beginner",description:"Master the 'Hello World' of hardware by controlling a physical light source using digital logic and timing protocols.",category:"IoT & Systems",estimatedTime:"15 mins",tech:["Arduino","ESP32"],concept:"The LED Blink project introduces the fundamental concept of GPIO (General Purpose Input/Output). By toggling a digital signal between HIGH (5V/3.3V) and LOW (0V), we control the flow of electricity to an external component.",working_principle:`1. The microcontroller initializes the designated pin as an OUTPUT.
+2. In the main loop, it sets the pin HIGH to complete the circuit.
+3. A delay function pauses execution for a set duration (e.g., 1000ms).
+4. The pin is set LOW to break the circuit, turning the LED off.
+5. The process repeats indefinitely.`,pin_config:{arduino:[{pin:"D13",component:"LED Anode (+)",note:"Built-in LED"},{pin:"GND",component:"LED Cathode (-)",note:"Common Ground"}],esp32:[{pin:"GPIO 2",component:"LED Anode (+)",note:"Onboard Blue LED"},{pin:"GND",component:"LED Cathode (-)",note:"Ground Rail"}]},code:`// LED Blink Protocol
+const int ledPin = 13; // Use 2 for ESP32 onboard
+
 void setup() {
-  // Init
+  pinMode(ledPin, OUTPUT); // Configure pin as output
 }
+
 void loop() {
-  // Logic
-}`,advantages:"Scalable, Educational, Practical.",disadvantages:"Requires specific hardware components.",usage:"Follow the connection diagram and upload the firmware.",components:"1x Controller, Necessary Sensors, Jumper Wires.",circuit_diagram:"",status:"Published",industrial_use:"Standard diagnostic tool for firmware verification in embedded systems production.",bom_cost:"$2 - $5"},{id:2,title:"LED Fade using PWM",level:"Beginner",description:"A comprehensive Beginner project: LED Fade using PWM. Explore the architecture and firmware below.",category:"IoT & Systems",estimatedTime:"45 mins",tech:["Arduino"],concept:"Learning the fundamentals of LED Fade using PWM.",working_principle:"This section details how the electronics and logic interact to achieve the goal.",pin_config:"Pin mapping will be updated by administrative command.",code:`/* Code block pending administrative update */
+  digitalWrite(ledPin, HIGH); // Turn LED ON
+  delay(1000);              // Wait for 1 second
+  digitalWrite(ledPin, LOW);  // Turn LED OFF
+  delay(1000);              // Wait for 1 second
+}`,advantages:"Simple to implement, excellent for debugging, low power consumption.",disadvantages:"Limited application beyond basic signaling.",usage:"Connect the long leg of the LED to Pin 13 and the short leg to GND (use 220 ohm resistor).",components:["1x Arduino UNO or ESP32","1x LED (5mm)","1x 220 Ohm Resistor","Jumper Wires"],circuit_diagram:"Terminal D13 -> Resistor -> LED Anode | LED Cathode -> Terminal GND",status:"Published",industrial_use:"Critical for heartbeat indicators in industrial PLC units and system status LEDs.",bom_cost:"$2"},{id:2,title:"LED Fade: Pulse Width Modulation",level:"Beginner",description:"Learn how to simulate analog output with digital signals to create breathing light effects using PWM technology.",category:"IoT & Systems",estimatedTime:"20 mins",tech:["Arduino","ESP32"],concept:"Digital pins only output 0 or 1. To achieve varying brightness, we use PWM (Pulse Width Modulation), which rapidly flickers the LED. The longer the 'ON' period compared to 'OFF', the brighter the LED appears.",working_principle:`1. A PWM-capable pin is defined as output.
+2. The code iterates through brightness levels (0-255).
+3. 'analogWrite()' sets the duty cycle based on the current value.
+4. A small delay creates the smooth transition effect.`,pin_config:{arduino:[{pin:"D9",component:"LED Anode (+)",note:"PWM Enabled Pin"},{pin:"GND",component:"LED Cathode (-)",note:"Ground"}],esp32:[{pin:"GPIO 4",component:"LED Anode (+)",note:"PWM capable GPIO"},{pin:"GND",component:"LED Cathode (-)",note:"Ground Rail"}]},code:`// PWM Fading Logic
+int led = 9;           // PWM pin for Arduino
+int brightness = 0;    // Current brightness level
+int fadeAmount = 5;    // Step size for fading
+
 void setup() {
-  // Init
+  pinMode(led, OUTPUT);
 }
+
 void loop() {
-  // Logic
-}`,advantages:"Scalable, Educational, Practical.",disadvantages:"Requires specific hardware components.",usage:"Follow the connection diagram and upload the firmware.",components:"1x Controller, Necessary Sensors, Jumper Wires.",circuit_diagram:"",status:"Published",industrial_use:"Used in status indicators for low-power HMIs and architectural lighting control.",bom_cost:"$3 - $6"},{id:3,title:"Push Button LED Control",level:"Beginner",description:"A comprehensive Beginner project: Push Button LED Control. Explore the architecture and firmware below.",category:"IoT & Systems",estimatedTime:"45 mins",tech:["Arduino"],concept:"Learning the fundamentals of Push Button LED Control.",working_principle:"This section details how the electronics and logic interact to achieve the goal.",pin_config:"Pin mapping will be updated by administrative command.",code:`/* Code block pending administrative update */
+  analogWrite(led, brightness);
+  brightness = brightness + fadeAmount;
+  if (brightness <= 0 || brightness >= 255) {
+    fadeAmount = -fadeAmount;
+  }
+  delay(30);
+}`,advantages:"Smooth transitions, power efficient, works with most microcontrollers.",disadvantages:"Requires specific PWM hardware pins.",usage:"Connect the LED to Pin 9 (Arduino) or Pin 4 (ESP32) through a resistor.",components:["1x Controller","1x LED","1x 220 Ohm Resistor","Breadboard"],circuit_diagram:"Digital Pin (PWM) -> Resistor -> LED Anode | LED Cathode -> GND",status:"Published",industrial_use:"Used in smart dimming systems and variable speed motor controls.",bom_cost:"$3"},{id:3,title:"Interactive Control: Push Button LED",level:"Beginner",description:"Bridge the gap between hardware and software interaction by using a physical switch to control a digital output.",category:"IoT & Systems",estimatedTime:"25 mins",tech:["Arduino","ESP32"],concept:"This project covers the use of digital inputs. A push button acts as a momentary switch. When pressed, it completes a circuit, sending a HIGH signal to a microcontroller pin.",working_principle:`1. Initialize one pin as OUTPUT (LED) and another as INPUT (Button).
+2. Use an internal/external pull-up resistor to ensure a stable state.
+3. The code reads the digital state of the button pin.
+4. If state is HIGH (pressed), the LED pin is set HIGH.`,pin_config:{arduino:[{pin:"D2",component:"Push Button",note:"Input Pin"},{pin:"D13",component:"LED",note:"Output Pin"},{pin:"5V",component:"Button VCC",note:"Power Supply"}],esp32:[{pin:"GPIO 15",component:"Push Button",note:"Input Pin"},{pin:"GPIO 2",component:"LED",note:"Onboard LED"},{pin:"3.3V",component:"Button VCC",note:"Power Supply"}]},code:`// Interactive Button Logic
+const int buttonPin = 2; 
+const int ledPin = 13;
+int buttonState = 0;
+
 void setup() {
-  // Init
+  pinMode(ledPin, OUTPUT);
+  pinMode(buttonPin, INPUT_PULLUP); 
 }
+
 void loop() {
-  // Logic
-}`,advantages:"Scalable, Educational, Practical.",disadvantages:"Requires specific hardware components.",usage:"Follow the connection diagram and upload the firmware.",components:"1x Controller, Necessary Sensors, Jumper Wires.",circuit_diagram:"",status:"Published",industrial_use:"Critical for manual reset logic and user-interrupt triggers in industrial control panels.",bom_cost:"$2 - $4"},{id:4,title:"Traffic Light System",level:"Beginner",description:"A comprehensive Beginner project: Traffic Light System. Explore the architecture and firmware below.",category:"IoT & Systems",estimatedTime:"45 mins",tech:["Arduino"],concept:"Learning the fundamentals of Traffic Light System.",working_principle:"This section details how the electronics and logic interact to achieve the goal.",pin_config:"Pin mapping will be updated by administrative command.",code:`/* Code block pending administrative update */
+  buttonState = digitalRead(buttonPin);
+  if (buttonState == LOW) {
+    digitalWrite(ledPin, HIGH);
+  } else {
+    digitalWrite(ledPin, LOW);
+  }
+}`,advantages:"Real-time user feedback, essential for user interfaces.",disadvantages:"Requires debouncing for stable production use.",usage:"Connect button to Pin 2 and GND (using internal pullup). LED to Pin 13.",components:["1x Microcontroller","1x LED","1x Push Button","1x 10k Resistor (optional)"],circuit_diagram:"Button Pin -> Switch -> GND | LED Pin -> Resistor -> LED -> GND",status:"Published",industrial_use:"Emergency stop buttons and tactile user inputs in ruggedized terminals.",bom_cost:"$4"},{id:4,title:"Smart Traffic Signaling System",level:"Beginner",description:"Simulate a real-world infrastructure system using sequential logic and multi-component synchronization.",category:"IoT & Systems",estimatedTime:"35 mins",tech:["Arduino","ESP32"],concept:"The Traffic Light System demonstrates complex timing sequences and multiple digital outputs. It's a foundational project for understanding state-based programming logic.",working_principle:`1. Three LEDs (Red, Yellow, Green) are initialized as outputs.
+2. A sequence is programmed: Green stays on for X seconds.
+3. Green turns off, Yellow turns on for a short period.
+4. Yellow turns off, Red turns on for Y seconds.
+5. The cycle loops to simulate intersection management.`,pin_config:{arduino:[{pin:"D10",component:"Red LED",note:"Stop Signal"},{pin:"D11",component:"Yellow LED",note:"Caution Signal"},{pin:"D12",component:"Green LED",note:"Go Signal"}],esp32:[{pin:"GPIO 4",component:"Red LED",note:"Stop Signal"},{pin:"GPIO 16",component:"Yellow LED",note:"Caution Signal"},{pin:"GPIO 17",component:"Green LED",note:"Go Signal"}]},code:`// Traffic Light Machine
+int red = 10; int yellow = 11; int green = 12;
+
 void setup() {
-  // Init
+  pinMode(red, OUTPUT); pinMode(yellow, OUTPUT); pinMode(green, OUTPUT);
 }
+
 void loop() {
-  // Logic
-}`,advantages:"Scalable, Educational, Practical.",disadvantages:"Requires specific hardware components.",usage:"Follow the connection diagram and upload the firmware.",components:"1x Controller, Necessary Sensors, Jumper Wires.",circuit_diagram:"",status:"Published",industrial_use:"Applied in logistics automation and automated conveyor sorting systems for status signaling.",bom_cost:"$8 - $12"},{id:5,title:"Buzzer Control using Arduino",level:"Beginner",description:"A comprehensive Beginner project: Buzzer Control using Arduino. Explore the architecture and firmware below.",category:"IoT & Systems",estimatedTime:"45 mins",tech:["Arduino"],concept:"Learning the fundamentals of Buzzer Control using Arduino.",working_principle:"This section details how the electronics and logic interact to achieve the goal.",pin_config:"Pin mapping will be updated by administrative command.",code:`/* Code block pending administrative update */
+  digitalWrite(green, HIGH); delay(5000);
+  digitalWrite(green, LOW); digitalWrite(yellow, HIGH); delay(2000);
+  digitalWrite(yellow, LOW); digitalWrite(red, HIGH); delay(5000);
+  digitalWrite(red, LOW);
+}`,advantages:"Excellent for learning logic flow, visually intuitive results.",disadvantages:"Higher power draw with multiple LEDs.",usage:"Connect Red (10), Yellow (11), Green (12) to designated pins with resistors.",components:["1x Arduino/ESP32","3x LEDs (R,Y,G)","3x 220 Ohm Resistors","Jumper Wires"],circuit_diagram:"Pin 10 -> Resistor -> Red LED | Pin 11 -> Resistor -> Yellow | Pin 12 -> Resistor -> Green",status:"Published",industrial_use:"Applied in logistics automation and automated conveyor sorting systems for status signaling.",bom_cost:"$9"},{id:5,title:"Audio Alerts: Buzzer Frequency Control",level:"Beginner",description:"Integrate audio feedback into your projects using piezoelectric buzzers and frequency generation logic.",category:"IoT & Systems",estimatedTime:"20 mins",tech:["Arduino","ESP32"],concept:"Piezo buzzers generate sound by vibrating a crystal at high speeds. By changing the frequency of the electrical pulses sent to the buzzer, we can create different musical notes or alarm tones.",working_principle:`1. Set the designated pin as an output for the buzzer.
+2. Use 'tone()' function (Arduino) to send a specific frequency.
+3. The frequency determines the pitch, while duration determines the length.
+4. Switching frequencies in a loop creates a melody or siren effect.`,pin_config:{arduino:[{pin:"D8",component:"Piezo Buzzer (+)",note:"Signal Output"},{pin:"GND",component:"Buzzer (-)",note:"Ground"}],esp32:[{pin:"GPIO 25",component:"Piezo Buzzer (+)",note:"DAC capable GPIO"},{pin:"GND",component:"Buzzer (-)",note:"Common Ground"}]},code:`// Audible Alarm Script
+const int buzzer = 8;
+
 void setup() {
-  // Init
+  pinMode(buzzer, OUTPUT);
 }
+
 void loop() {
-  // Logic
-}`,advantages:"Scalable, Educational, Practical.",disadvantages:"Requires specific hardware components.",usage:"Follow the connection diagram and upload the firmware.",components:"1x Controller, Necessary Sensors, Jumper Wires.",circuit_diagram:"",status:"Published",industrial_use:"Audio-alert subsystem for critical fail-states in data center server racks.",bom_cost:"$4 - $7"},{id:6,title:"Digital Dice using LEDs",level:"Beginner",description:"A comprehensive Beginner project: Digital Dice using LEDs. Explore the architecture and firmware below.",category:"IoT & Systems",estimatedTime:"45 mins",tech:["Arduino"],concept:"Learning the fundamentals of Digital Dice using LEDs.",working_principle:"This section details how the electronics and logic interact to achieve the goal.",pin_config:"Pin mapping will be updated by administrative command.",code:`/* Code block pending administrative update */
+  tone(buzzer, 1000); // 1KHz tone
+  delay(500);
+  noTone(buzzer);     // Silence
+  delay(500);
+}`,advantages:"Compact audible feedback, low cost, easy to integrate.",disadvantages:"Can be noisy; requires transistor for high-volume passive buzzers.",usage:"Connect the positive leg of the buzzer to Pin 8 and negative to GND.",components:["1x Arduino Uno","1x Piezo Buzzer","Jumper Wires","Breadboard"],circuit_diagram:"Pin 8 -> Buzzer (+) | Buzzer (-) -> GND",status:"Published",industrial_use:"Critical error alarms in medical equipment and proximity alerts in warehouse robots.",bom_cost:"$5"},{id:6,title:"Digital Dice: Probability & Randomness",level:"Beginner",description:"Construct a digital random number generator using LEDs and the pseudo-random logic of microcontrollers.",category:"IoT & Systems",estimatedTime:"40 mins",tech:["Arduino","ESP32"],concept:"The Digital Dice project focuses on 'randomSeed' and 'random' functions. It teaches how to map a single input (button press) to multiple outputs (LED patterns) to represent dice faces.",working_principle:`1. 7 LEDs are arranged in a dice pattern and set as outputs.
+2. A push button is set as an input with a pull-up resistor.
+3. Upon button press, a random number between 1 and 6 is generated.
+4. A 'switch-case' statement validates the number and lights up the corresponding LEDs.
+5. An animation effect is added to simulate rolling.`,pin_config:{arduino:[{pin:"D2 to D8",component:"7x LED Anodes",note:"Output Group"},{pin:"D9",component:"Push Button",note:"Trigger"},{pin:"GND",component:"Common Ground",note:"Cathode Rail"}],esp32:[{pin:"GPIO 4,5,18,19,21,22,23",component:"LED Array",note:"High Power Outputs"},{pin:"GPIO 15",component:"Push Button",note:"Input"}]},code:`// Random Dice Generator
+long randNumber;
+
 void setup() {
-  // Init
+  for(int i=2; i<=8; i++) pinMode(i, OUTPUT);
+  pinMode(9, INPUT_PULLUP);
+  randomSeed(analogRead(0)); // Noise for true randomness
 }
+
 void loop() {
-  // Logic
-}`,advantages:"Scalable, Educational, Practical.",disadvantages:"Requires specific hardware components.",usage:"Follow the connection diagram and upload the firmware.",components:"1x Controller, Necessary Sensors, Jumper Wires.",circuit_diagram:"",status:"Published",industrial_use:"Pseudo-random generator logic for cryptographic testing and Monte Carlo simulations.",bom_cost:"$5 - $9"},{id:7,title:"RGB LED Color Mixer",level:"Beginner",description:"A comprehensive Beginner project: RGB LED Color Mixer. Explore the architecture and firmware below.",category:"IoT & Systems",estimatedTime:"45 mins",tech:["Arduino"],concept:"Learning the fundamentals of RGB LED Color Mixer.",working_principle:"This section details how the electronics and logic interact to achieve the goal.",pin_config:"Pin mapping will be updated by administrative command.",code:`/* Code block pending administrative update */
+  if(digitalRead(9) == LOW) {
+    randNumber = random(1, 7);
+    displayDice(randNumber);
+    delay(1000);
+  }
+}
+
+void displayDice(int num) {
+  // Logic to light up LEDs based on num
+}`,advantages:"Interactive, teaches array-like logic, durable compared to mechanical dice.",disadvantages:"High component count (7 LEDs).",usage:"Arrange LEDs in a 3x3 grid pattern and connect to Pins 2-8.",components:["1x Microcontroller","7x LEDs","7x 220 Ohm Resistors","1x Push Button"],circuit_diagram:"Pins 2-8 -> Resistors -> LEDs -> GND | Pin 9 -> Button -> GND",status:"Published",industrial_use:"Pseudo-random generator logic for cryptographic testing and Monte Carlo simulations.",bom_cost:"$9"},{id:7,title:"RGB Spectrum: Color Mixing Protocol",level:"Beginner",description:"Unlock the visual spectrum by controlling a single multi-color LED through three independent PWM channels.",category:"IoT & Systems",estimatedTime:"25 mins",tech:["Arduino","ESP32"],concept:"Additive color theory. By mixing Red, Green, and Blue light at different intensities, we can create any color in the visible spectrum. This project uses 3 PWM pins to control these intensities.",working_principle:`1. Define pins for R, G, and B as outputs.
+2. In a loop, vary the duty cycle of each pin using 'analogWrite()'.
+3. Cycling through combinations (e.g., R=255, G=0, B=255 for Purple).
+4. A common cathode RGB LED is typically used.`,pin_config:{arduino:[{pin:"D9",component:"Red Anode",note:"PWM Channel 1"},{pin:"D10",component:"Green Anode",note:"PWM Channel 2"},{pin:"D11",component:"Blue Anode",note:"PWM Channel 3"},{pin:"GND",component:"Common Cathode",note:"Ground"}],esp32:[{pin:"GPIO 4",component:"Red",note:"LEDC Channel 0"},{pin:"GPIO 16",component:"Green",note:"LEDC Channel 1"},{pin:"GPIO 17",component:"Blue",note:"LEDC Channel 2"}]},code:`// RGB Color Mixer
+int r = 9; int g = 10; int b = 11;
+
 void setup() {
-  // Init
+  pinMode(r, OUTPUT); pinMode(g, OUTPUT); pinMode(b, OUTPUT);
 }
+
 void loop() {
-  // Logic
-}`,advantages:"Scalable, Educational, Practical.",disadvantages:"Requires specific hardware components.",usage:"Follow the connection diagram and upload the firmware.",components:"1x Controller, Necessary Sensors, Jumper Wires.",circuit_diagram:"",status:"Published",industrial_use:"Calibration tool for visual color sensors and spectrometer testing rigs.",bom_cost:"$6 - $10"},{id:8,title:"Automatic Night Lamp",level:"Beginner",description:"A comprehensive Beginner project: Automatic Night Lamp. Explore the architecture and firmware below.",category:"IoT & Systems",estimatedTime:"45 mins",tech:["Arduino"],concept:"Learning the fundamentals of Automatic Night Lamp.",working_principle:"This section details how the electronics and logic interact to achieve the goal.",pin_config:"Pin mapping will be updated by administrative command.",code:`/* Code block pending administrative update */
+  setColor(255, 0, 0); // Red
+  delay(1000);
+  setColor(0, 255, 0); // Green
+  delay(1000);
+  setColor(0, 0, 255); // Blue
+  delay(1000);
+}
+
+void setColor(int rv, int gv, int bv) {
+  analogWrite(r, rv); analogWrite(g, gv); analogWrite(b, bv);
+}`,advantages:"Thousands of colors from one LED, compact, widely used in HMIs.",disadvantages:"Requires careful resistor selection to balance color brightness.",usage:"Connect R, G, B pins to 220 ohm resistors then to the LED anodes.",components:["1x Arduino/ESP32","1x RGB LED (Common Cathode)","3x 220 Ohm Resistors","Breadboard"],circuit_diagram:"D9 -> R_Res -> RGB_R | D10 -> G_Res -> RGB_G | D11 -> B_Res -> RGB_B | Cathode -> GND",status:"Published",industrial_use:"Calibration tool for visual color sensors and spectrometer testing rigs.",bom_cost:"$6"},{id:8,title:"Autonomous Infrastructure: Smart Night Lamp",level:"Beginner",description:"Create an automated lighting system that activates based on environmental illumination levels using LDR sensors.",category:"IoT & Systems",estimatedTime:"30 mins",tech:["Arduino","ESP32"],concept:"Introduction to analog sensors. An LDR (Light Dependent Resistor) changes its resistance based on light exposure. We use this in a voltage divider circuit to read ambient light as an analog value.",working_principle:`1. The LDR is connected to an analog input (A0).
+2. The microcontroller reads values (0-1023).
+3. When light level drops below a calibrated threshold (darkness),
+4. The microcontroller sets a digital output pin HIGH to turn on a lamp.
+5. Hysteresis logic is added to prevent flickering during sunset.`,pin_config:{arduino:[{pin:"A0",component:"LDR + 10k Resistor",note:"Analog Input"},{pin:"D13",component:"Lamp / LED",note:"Load Output"},{pin:"5V",component:"VCC",note:"Sensor Power"}],esp32:[{pin:"GPIO 34",component:"LDR Input",note:"ADC1 Channel"},{pin:"GPIO 2",component:"Status LED",note:"Onboard"}]},code:`// Smart Night Lamp Logic
+const int ldrPin = A0;
+const int relayPin = 13;
+int threshold = 500;
+
 void setup() {
-  // Init
+  pinMode(relayPin, OUTPUT);
+  Serial.begin(9600);
 }
+
 void loop() {
-  // Logic
-}`,advantages:"Scalable, Educational, Practical.",disadvantages:"Requires specific hardware components.",usage:"Follow the connection diagram and upload the firmware.",components:"1x Controller, Necessary Sensors, Jumper Wires.",circuit_diagram:"",status:"Published",industrial_use:"Automated security lighting and light-harvesting solar tracker optimization.",bom_cost:"$4 - $8"},{id:9,title:"LDR Light Intensity Monitor",level:"Beginner",description:"A comprehensive Beginner project: LDR Light Intensity Monitor. Explore the architecture and firmware below.",category:"IoT & Systems",estimatedTime:"45 mins",tech:["Arduino"],concept:"Learning the fundamentals of LDR Light Intensity Monitor.",working_principle:"This section details how the electronics and logic interact to achieve the goal.",pin_config:"Pin mapping will be updated by administrative command.",code:`/* Code block pending administrative update */
+  int val = analogRead(ldrPin);
+  if (val < threshold) {
+    digitalWrite(relayPin, HIGH);
+  } else {
+    digitalWrite(relayPin, LOW);
+  }
+  delay(100);
+}`,advantages:"Energy saving, fully autonomous, easy calibration.",disadvantages:"LDR is sensitive to artificial light interference.",usage:"Connect LDR and 10k resistor in series. Connect junction to A0.",components:["1x Microcontroller","1x LDR (Photoresistor)","1x 10k Resistor","1x LED/Relay"],circuit_diagram:"VCC -> LDR -> (Pin A0) -> 10k Resistor -> GND | Pin 13 -> LED -> GND",status:"Published",industrial_use:"Automated security lighting and light-harvesting solar tracker optimization.",bom_cost:"$7"},{id:9,title:"Environment Insight: Light intensity Monitor",level:"Beginner",description:"Visualize real-time environmental data by mapping analog sensor readings to human-readable scales.",category:"IoT & Systems",estimatedTime:"20 mins",tech:["Arduino","ESP32"],concept:"Data acquisition and visualization. This project focuses on refining raw sensor data and presenting it via the Serial terminal or a visual scale (like a progress bar).",working_principle:`1. Analog voltage is read from the LDR circuit.
+2. Raw values (0-1023) are converted to percentages (0-100%).
+3. Data is formatted into strings and sent via UART (Serial).
+4. A visual indicator on a breadboard (LED bar graph) can also be used.`,pin_config:{arduino:[{pin:"A0",component:"LDR Sensor",note:"Primary Input"},{pin:"USB",component:"Serial Monitor",note:"Data Out"}],esp32:[{pin:"GPIO 34",component:"LDR",note:"ADC Input"},{pin:"TX/RX",component:"USB-UART",note:"Terminal"}]},code:`// Light Monitor Protocol
 void setup() {
-  // Init
+  Serial.begin(9600);
 }
+
 void loop() {
-  // Logic
-}`,advantages:"Scalable, Educational, Practical.",disadvantages:"Requires specific hardware components.",usage:"Follow the connection diagram and upload the firmware.",components:"1x Controller, Necessary Sensors, Jumper Wires.",circuit_diagram:"",status:"Published",industrial_use:"Precision light-exposure monitoring for pharmaceutical lab environments.",bom_cost:"$3 - $5"},{id:10,title:"Fire Alarm using Buzzer",level:"Beginner",description:"A comprehensive Beginner project: Fire Alarm using Buzzer. Explore the architecture and firmware below.",category:"IoT & Systems",estimatedTime:"45 mins",tech:["Arduino"],concept:"Learning the fundamentals of Fire Alarm using Buzzer.",working_principle:"This section details how the electronics and logic interact to achieve the goal.",pin_config:"Pin mapping will be updated by administrative command.",code:`/* Code block pending administrative update */
+  int raw = analogRead(A0);
+  int percent = map(raw, 0, 1023, 0, 100);
+  Serial.print("Illumination: ");
+  Serial.print(percent);
+  Serial.println("%");
+  delay(500);
+}`,advantages:"Precise data tracking, essential for multi-sensor IoT nodes.",disadvantages:"Requires a computer connection to view data without dedicated display.",usage:"Open the Serial Monitor (Tools -> Serial Monitor) at 9600 baud to see readings.",components:["1x Microcontroller","1x LDR","1x 10k Resistor","Jumper Wires"],circuit_diagram:"Standard LDR Voltage Divider connected to Analog Pin 0.",status:"Published",industrial_use:"Precision light-exposure monitoring for pharmaceutical lab environments.",bom_cost:"$4"},{id:10,title:"Safety Protocols: Smart Fire Alarm",level:"Beginner",description:"Build a critical safety subsystem that uses IR detection to identify the presence of fire and triggers immediate alerts.",category:"IoT & Systems",estimatedTime:"35 mins",tech:["Arduino","ESP32"],concept:"Flame sensors typically use an IR receiver to detect the specific light radiation emitted by a fire. This project integrates this critical detection with audible and visual alarm signals.",working_principle:`1. A Flame Sensor is connected as a digital or analog input.
+2. The code constantly polls the sensor for 'FLAME DETECTED' signal.
+3. If detected, it triggers a PWM tone for the buzzer and flashes a Red LED.
+4. It includes a reset condition once the flame is no longer detected.`,pin_config:{arduino:[{pin:"D7",component:"Flame Sensor (D0)",note:"Sensitive Input"},{pin:"D8",component:"Buzzer (+)",note:"Alarm Signal"},{pin:"D13",component:"Red LED",note:"Visual Alert"}],esp32:[{pin:"GPIO 4",component:"Flame Sensor",note:"Digital In"},{pin:"GPIO 25",component:"Piezo Buzzer",note:"DAC Alarm"}]},code:`// Fire Alarm Logic
+const int flame = 7; 
+const int buzzer = 8;
+
 void setup() {
-  // Init
+  pinMode(flame, INPUT);
+  pinMode(buzzer, OUTPUT);
 }
+
 void loop() {
-  // Logic
-}`,advantages:"Scalable, Educational, Practical.",disadvantages:"Requires specific hardware components.",usage:"Follow the connection diagram and upload the firmware.",components:"1x Controller, Necessary Sensors, Jumper Wires.",circuit_diagram:"",status:"Published",industrial_use:"Early-warning system for electrical fire detection in localized control gear.",bom_cost:"$7 - $11"},{id:11,title:"Temperature Display using LCD",level:"Beginner",description:"A comprehensive Beginner project: Temperature Display using LCD. Explore the architecture and firmware below.",category:"IoT & Systems",estimatedTime:"45 mins",tech:["Arduino"],concept:"Learning the fundamentals of Temperature Display using LCD.",working_principle:"This section details how the electronics and logic interact to achieve the goal.",pin_config:"Pin mapping will be updated by administrative command.",code:`/* Code block pending administrative update */
+  if (digitalRead(flame) == LOW) { // IR detected
+    tone(buzzer, 2000);
+    delay(100);
+  } else {
+    noTone(buzzer);
+  }
+}`,advantages:"Rapid detection speed, robust safety application.",disadvantages:"Susceptible to sunlight IR (false positives in direct sun).",usage:"Adjust the sensitivity potentiometer on the flame sensor module for best results.",components:["1x Microcontroller","1x Flame Sensor Module","1x Piezo Buzzer","1x LED"],circuit_diagram:"Sensor D0 -> Pin 7 | Buzzer (+) -> Pin 8 | Sensor VCC -> 5V | Sensor GND -> GND",status:"Published",industrial_use:"Early-warning system for electrical fire detection in localized control gear.",bom_cost:"$10"},{id:11,title:"Temperature Display using LCD",level:"Beginner",description:"A comprehensive Beginner project: Temperature Display using LCD. Explore the architecture and firmware below.",category:"IoT & Systems",estimatedTime:"45 mins",tech:["Arduino"],concept:"Learning the fundamentals of Temperature Display using LCD.",working_principle:"This section details how the electronics and logic interact to achieve the goal.",pin_config:"Pin mapping will be updated by administrative command.",code:`/* Code block pending administrative update */
 void setup() {
   // Init
 }
