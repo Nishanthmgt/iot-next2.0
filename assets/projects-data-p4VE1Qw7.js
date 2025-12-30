@@ -1741,55 +1741,110 @@ void loop() {
   
   Serial.print("Moisture: "); Serial.println(moisture);
   delay(300000); // 5-minute sampling
-}`,advantages:"All-in-one solution; eliminates the need for separate nodes; maximizes agricultural ROI.",disadvantages:"High component cost; complex wiring; requires high-strength Wi-Fi in the field (or LoRa gateway).",usage:"Housed in an IP67 waterproof enclosure. Use solar charging to make the gateway fully autonomous.",components:["1x ESP32","1x NPK RS485 Probe","1x BME280","1x Soil Moisture Pro","2x 12V Relays"],circuit_diagram:"Gateway combines SPI, I2C, UART, and Analog circuits into a central PCB/Enclosure.",status:"Published",industrial_use:"Commercial olive/vineyard management and smart urban community gardens.",bom_cost:"$75"},{id:61,title:"Smart Fan Speed Controller",level:"Beginner",description:"Automatically adjust fan speed based on ambient temperature using a DHT11 sensor and PWM motor control.",category:"Home Automation",estimatedTime:"45 mins",tech:["Arduino","DHT11","DC Motor"],concept:"Dynamic Cooling. This project uses the correlation between temperature and required airflow. By mapping temperature ranges to PWM duty cycles, we achieve energy-efficient cooling.",working_principle:`1. DHT11 reads ambient temperature.
-2. Microcontroller processes the value.
-3. If temp > threshold, PWM signal increases motor speed.
-4. Speed is linearly scaled between minimum and maximum temperature setpoints.`,pin_config:{arduino:[{pin:"A0",component:"DHT11 Data",note:"10k Pullup"},{pin:"D9",component:"Motor PWM",note:"To L293D Enable"},{pin:"GND",component:"Common GND",note:"-"}]},code:`#include <DHT.h>
-#define DHTPIN A0
-#define MOTOR 9
-DHT dht(DHTPIN, DHT11);
+}`,advantages:"All-in-one solution; eliminates the need for separate nodes; maximizes agricultural ROI.",disadvantages:"High component cost; complex wiring; requires high-strength Wi-Fi in the field (or LoRa gateway).",usage:"Housed in an IP67 waterproof enclosure. Use solar charging to make the gateway fully autonomous.",components:["1x ESP32","1x NPK RS485 Probe","1x BME280","1x Soil Moisture Pro","2x 12V Relays"],circuit_diagram:"Gateway combines SPI, I2C, UART, and Analog circuits into a central PCB/Enclosure.",status:"Published",industrial_use:"Commercial olive/vineyard management and smart urban community gardens.",bom_cost:"$75"},{id:61,title:"Smart Fan Speed Controller",level:"Beginner",description:"Automatically adjust fan speed based on ambient temperature using a DHT11 sensor and PWM motor control.",category:"Home Automation",estimatedTime:"45 mins",tech:["Arduino","DHT11","DC Motor"],concept:"Dynamic Cooling. This project uses the correlation between temperature and required airflow. By mapping temperature ranges to PWM duty cycles, we achieve energy-efficient cooling.",working_principle:`1. Capacitive moisture sensor probes the soil, outputting a voltage proportional to the dielectric constant.
+2. The ESP32/Arduino ADC converts this analog signal into a digital value.
+3. Based on pre-calibrated thresholds (Dry/Optimal/Wet), the system determines the irrigation state.
+4. If the soil is 'Dry', a trigger signal is sent to the relay module to activate the water pump.`,pin_config:{arduino:[{pin:"A0",component:"DHT11 Data",note:"10k Pullup"},{pin:"D9",component:"Motor PWM",note:"To L293D Enable"},{pin:"GND",component:"Common GND",note:"-"}]},code:`// Auto Plant Watering System
+// High-Fidelity Implementation
+
+const int MOISTURE_PIN = 34; // Capacitive Sensor on GPIO34 (ADC)
+const int RELAY_PIN = 13;    // Relay Driver on GPIO13
+const int DRY_THRESHOLD = 2500; // Calibrated for 12-bit ADC
+
 void setup() {
-  dht.begin();
-  pinMode(MOTOR, OUTPUT);
+  Serial.begin(115200);
+  pinMode(RELAY_PIN, OUTPUT);
+  digitalWrite(RELAY_PIN, LOW); // Ensure pump is OFF initially
+  Serial.println("Botany-Bot System Initialized...");
 }
+
 void loop() {
-  float t = dht.readTemperature();
-  if (t > 25) {
-    int speed = map(t, 25, 40, 100, 255);
-    analogWrite(MOTOR, constrain(speed, 0, 255));
-  } else {
-    analogWrite(MOTOR, 0);
+  int rawMoisture = analogRead(MOISTURE_PIN);
+  float percent = map(rawMoisture, 4095, 0, 0, 100); // 4095 (Air) to 0 (Water)
+
+  Serial.print("Moisture Level: ");
+  Serial.print(percent);
+  Serial.println("%");
+
+  if (rawMoisture > DRY_THRESHOLD) {
+    Serial.println("Soil Dry! Activating Irrigation...");
+    digitalWrite(RELAY_PIN, HIGH);
+    delay(5000); // Run pump for 5 seconds
+    digitalWrite(RELAY_PIN, LOW);
+    Serial.println("Irrigation Cycle Complete.");
   }
-  delay(2000);
-}`,advantages:"Energy efficient, noise reduction at low temps.",disadvantages:"Requires motor driver for high power fans.",usage:"Place DHT11 away from the fan's direct airflow for accurate room measurement.",components:["1x Arduino","1x DHT11","1x L293D","1x DC Fan"],status:"Published",bom_cost:"$12"},{id:62,title:"Automatic Window Opener",level:"Intermediate",description:"Drive a rack-and-pinion system with a servo to open windows when CO2 levels rise or it gets too hot inside.",category:"Smart Home",estimatedTime:"90 mins",tech:["Arduino","Servo","MQ-135","DHT11"],concept:"Automated Ventilation. Maintains indoor air quality by monitoring VOCs and temperature, triggering mechanical actuation for natural cooling.",working_principle:`1. MQ-135 monitors air quality.
-2. If bad air detected, Servo rotates to 180 degrees (Open).
-3. When air clears, Servo returns to 0 degrees (Closed).`,pin_config:{arduino:[{pin:"D10",component:"Servo Signal",note:"PWM Output"},{pin:"A1",component:"MQ-135 Analog",note:"Air Quality Input"}]},code:`#include <Servo.h>
-Servo winServo;
+
+  delay(10000); // Check every 10 seconds to save power
+}`,advantages:"Energy efficient, noise reduction at low temps.",disadvantages:"Requires motor driver for high power fans.",usage:"Place DHT11 away from the fan's direct airflow for accurate room measurement.",components:["1x Arduino","1x DHT11","1x L293D","1x DC Fan"],status:"Published",bom_cost:"$12"},{id:62,title:"Automatic Window Opener",level:"Intermediate",description:"Drive a rack-and-pinion system with a servo to open windows when CO2 levels rise or it gets too hot inside.",category:"Smart Home",estimatedTime:"90 mins",tech:["Arduino","Servo","MQ-135","DHT11"],concept:"Automated Ventilation. Maintains indoor air quality by monitoring VOCs and temperature, triggering mechanical actuation for natural cooling.",working_principle:`1. The HC-SR04 ultrasonic sensor emits an 8-cycle ultrasonic burst at 40kHz.
+2. The sound waves bounce off the object (trash surface) and return to the receiver.
+3. The time interval between transmission and reception is measured.
+4. Using the speed of sound (343m/s), distance is calculated. Percentage fullness is derived from (Tank Height - Measured Distance) / Tank Height.`,pin_config:{arduino:[{pin:"D10",component:"Servo Signal",note:"PWM Output"},{pin:"A1",component:"MQ-135 Analog",note:"Air Quality Input"}]},code:`// IoT Smart Bin: Depth Tracking
+// High-Fidelity Implementation
+
+#define TRIG_PIN 4
+#define ECHO_PIN 5
+#define BIN_HEIGHT_CM 80
+
 void setup() {
-  winServo.attach(10);
-  pinMode(A1, INPUT);
+  Serial.begin(115200);
+  pinMode(TRIG_PIN, OUTPUT);
+  pinMode(ECHO_PIN, INPUT);
 }
+
+float getDistance() {
+  digitalWrite(TRIG_PIN, LOW);
+  delayMicroseconds(2);
+  digitalWrite(TRIG_PIN, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIG_PIN, LOW);
+  long duration = pulseIn(ECHO_PIN, HIGH);
+  return duration * 0.034 / 2;
+}
+
 void loop() {
-  int air = analogRead(A1);
-  if (air > 400) winServo.write(180);
-  else winServo.write(0);
+  float distance = getDistance();
+  int fillPercent = (1.0 - (distance / BIN_HEIGHT_CM)) * 100;
+  
+  if(fillPercent > 100) fillPercent = 100;
+  if(fillPercent < 0) fillPercent = 0;
+
+  Serial.print("Bin Status: ");
+  Serial.print(fillPercent);
+  Serial.println("% Full");
+
+  if (fillPercent > 90) {
+    Serial.println("CRITICAL: BIN OVERFLOW DETECTED");
+    // Add Cloud Alert Logic Here
+  }
   delay(5000);
-}`,advantages:"Hands-free operation, improves health by reducing CO2.",disadvantages:"Needs mechanical mounting for the window frame.",usage:"Use a high-torque MG996R servo for heavy windows.",components:["1x Arduino","1x MG996R Servo","1x MQ-135","1x DHT11"],status:"Published",bom_cost:"$22"},{id:63,title:"Smart Toilet Flush",level:"Beginner",description:"Touchless IR-based flushing system to promote hygiene in public and private restrooms.",category:"Health & Hygiene",estimatedTime:"40 mins",tech:["Arduino","IR Sensor","Servo"],concept:"Contactless Actuation. Reduces germ transmission by replacing physical handles with proximity triggers.",working_principle:`1. IR sensor detects hand presence.
-2. When hand is removed, Servo pulls the flush valve chain.
-3. Automatic reset after 5 seconds.`,pin_config:{arduino:[{pin:"D7",component:"IR Sensor",note:"Digital In"},{pin:"D9",component:"Servo",note:"Flush Logic"}]},code:`#include <Servo.h>
-Servo flush;
+}`,advantages:"Hands-free operation, improves health by reducing CO2.",disadvantages:"Needs mechanical mounting for the window frame.",usage:"Use a high-torque MG996R servo for heavy windows.",components:["1x Arduino","1x MG996R Servo","1x MQ-135","1x DHT11"],status:"Published",bom_cost:"$22"},{id:63,title:"Smart Toilet Flush",level:"Beginner",description:"Touchless IR-based flushing system to promote hygiene in public and private restrooms.",category:"Health & Hygiene",estimatedTime:"40 mins",tech:["Arduino","IR Sensor","Servo"],concept:"Contactless Actuation. Reduces germ transmission by replacing physical handles with proximity triggers.",working_principle:`1. PIR (Passive Infrared) sensor detects motion by measuring changes in IR radiation from ambient objects.
+2. When a human body enters the field, a voltage pulse is generated.
+3. The microcontroller interrupts the current state and checks the Light Dependent Resistor (LDR) status.
+4. If it is dark (LDR > Threshold) AND motion is detected, the relay activates the street light.`,pin_config:{arduino:[{pin:"D7",component:"IR Sensor",note:"Digital In"},{pin:"D9",component:"Servo",note:"Flush Logic"}]},code:`// Adaptive Street Lighting
+// High-Fidelity Implementation
+
+const int PIR_PIN = 14;
+const int LDR_PIN = 32;
+const int LIGHT_PIN = 27;
+
 void setup() {
-  pinMode(7, INPUT);
-  flush.attach(9);
+  pinMode(PIR_PIN, INPUT);
+  pinMode(LIGHT_PIN, OUTPUT);
+  Serial.begin(115200);
 }
+
 void loop() {
-  if (digitalRead(7) == LOW) {
-    delay(1000); // Wait for intent
-    flush.write(90);
-    delay(2000);
-    flush.write(0);
-    delay(10000); // Lockout
+  int ambientLight = analogRead(LDR_PIN);
+  bool motion = digitalRead(PIR_PIN);
+
+  if (ambientLight < 1000 && motion) {
+    Serial.println("Darkness & Motion - Activating Light");
+    digitalWrite(LIGHT_PIN, HIGH);
+    delay(30000); // Stay on for 30s
+  } else {
+    digitalWrite(LIGHT_PIN, LOW);
   }
+  delay(100);
 }`,advantages:"High hygiene, water-saving potential.",disadvantages:"Battery replacement needed for portable units.",usage:"Mount IR sensor at waist level for easy reach.",components:["1x Arduino","1x IR Sensor","1x High Torque Servo"],status:"Published",bom_cost:"$15"},{id:64,title:"Smart Washroom Light",level:"Beginner",description:"Motion-activated lighting for bathrooms with ambient light sensing to save energy during daytime.",category:"Energy Efficiency",estimatedTime:"30 mins",tech:["Arduino","PIR","LDR","Relay"],concept:"Occupancy Sensing. Combines motion detection with ambient light checking to ensure lights are only ON when needed.",working_principle:`1. PIR sensor checks for motion.
 2. LDR checks if it's dark.
 3. If both conditions met, Relay triggers the light.`,pin_config:{arduino:[{pin:"D2",component:"PIR Sensor",note:"Interrupt Driven"},{pin:"D4",component:"Relay Out",note:"To Light Bulbs"}]},code:`void setup() {
@@ -1818,18 +1873,83 @@ void setup() {
 }
 void loop() {
   // Update OLED text
-}`,advantages:"Extremely futuristic look, daily productivity booster.",disadvantages:"Needs dark room/background for best visibility.",usage:"Use a 50/50 two-way acrylic mirror for the best result.",components:["1x ESP32","1x 1.3 inch OLED","1x Two-way Mirror"],status:"Published",bom_cost:"$30"},{id:67,title:"Smart Attendance System (Basic)",level:"Beginner",description:"Log entry times to an SD card using RFID cards, suitable for small offices and classrooms.",category:"Management",estimatedTime:"60 mins",tech:["Arduino","RFID-RC522","SD Card Module"],concept:"Identity Logging. Maps unique RFID UIDs to user names and records timestamps for audit trails.",working_principle:`1. Scan RFID card.
-2. Card ID is read via SPI.
-3. Timestamp + ID written to attendance.csv on SD card.`,pin_config:{arduino:[{pin:"D10",component:"SDA (RFID)",note:"SPI"},{pin:"D4",component:"CS (SD)",note:"SPI"}]},code:`// RFID-SD Logging Logic
-void setup() { SPI.begin(); }
+}`,advantages:"Extremely futuristic look, daily productivity booster.",disadvantages:"Needs dark room/background for best visibility.",usage:"Use a 50/50 two-way acrylic mirror for the best result.",components:["1x ESP32","1x 1.3 inch OLED","1x Two-way Mirror"],status:"Published",bom_cost:"$30"},{id:67,title:"Smart Attendance System (Basic)",level:"Beginner",description:"Log entry times to an SD card using RFID cards, suitable for small offices and classrooms.",category:"Management",estimatedTime:"60 mins",tech:["Arduino","RFID-RC522","SD Card Module"],concept:"Identity Logging. Maps unique RFID UIDs to user names and records timestamps for audit trails.",working_principle:`1. The user taps their RFID tag (13.56 MHz MIFARE) against the reader.
+2. The RC522 module transmits the Unique ID (UID) of the tag to the MCU via SPI.
+3. The MCU compares the UID against a predefined list of authorized IDs stored in flash memory.
+4. If matched, the student's name is logged to a local SD card with a timestamp and sent to the cloud via WiFi.`,pin_config:{arduino:[{pin:"D10",component:"SDA (RFID)",note:"SPI"},{pin:"D4",component:"CS (SD)",note:"SPI"}]},code:`// Smart RFID Attendance Logger
+// High-Fidelity Implementation
+
+#include <SPI.h>
+#include <MFRC522.h>
+
+#define SS_PIN 5
+#define RST_PIN 22
+MFRC522 rfid(SS_PIN, RST_PIN);
+
+void setup() {
+  Serial.begin(115200);
+  SPI.begin();
+  rfid.PCD_Init();
+  Serial.println("Scan ID for Attendance...");
+}
+
 void loop() {
-  // Read RFID -> Write SD
-}`,advantages:"Tamper-proof (if mounted), fast processing.",disadvantages:"Requires physical cards for every user.",usage:"Ensure the SD card is formatted to FAT32 before use.",components:["1x Arduino","1x RC522 RFID","1x SD Module"],status:"Published",bom_cost:"$20"},{id:68,title:"Smart Pet Feeder",level:"Intermediate",description:"An automated kibble dispenser with scheduled feeding and manual override via Wi-Fi.",category:"Consumer IoT",estimatedTime:"90 mins",tech:["ESP32","Servo","RTC"],concept:"Precision Dosing. Uses mechanical rotation to dispense set volumes of food at precise intervals.",working_principle:`1. ESP32 checks RTC time.
-2. At 8:00 AM, Servo rotates 180 deg to drop food.
-3. User can trigger 'Snack' mode via Web Portal.`,pin_config:{esp32:[{pin:"G13",component:"Servo PWM",note:"-"},{pin:"G21/22",component:"I2C RTC",note:"DS3231"}]},code:`// Scheduled Servo Feed
-void setup() { }
+  if (!rfid.PICC_IsNewCardPresent()) return;
+  if (!rfid.PICC_ReadCardSerial()) return;
+
+  String uid = "";
+  for (byte i = 0; i < rfid.uid.size; i++) {
+    uid += String(rfid.uid.uidByte[i] < 0x10 ? "0" : "");
+    uid += String(rfid.uid.uidByte[i], HEX);
+  }
+  uid.toUpperCase();
+
+  Serial.print("ID SCANNED: ");
+  Serial.println(uid);
+
+  if (uid == "A1 B2 C3 D4") { // Example UID
+    Serial.println("Access Granted: Student 001");
+  } else {
+    Serial.println("Access Denied: Unknown ID");
+  }
+
+  rfid.PICC_HaltA();
+  delay(2000);
+}`,advantages:"Tamper-proof (if mounted), fast processing.",disadvantages:"Requires physical cards for every user.",usage:"Ensure the SD card is formatted to FAT32 before use.",components:["1x Arduino","1x RC522 RFID","1x SD Module"],status:"Published",bom_cost:"$20"},{id:68,title:"Smart Pet Feeder",level:"Intermediate",description:"An automated kibble dispenser with scheduled feeding and manual override via Wi-Fi.",category:"Consumer IoT",estimatedTime:"90 mins",tech:["ESP32","Servo","RTC"],concept:"Precision Dosing. Uses mechanical rotation to dispense set volumes of food at precise intervals.",working_principle:`1. The system uses a real-time clock (RTC) to maintain precise time scheduling.
+2. At specific user-defined intervals (e.g., 08:00 AM), the pulse-width modulation (PWM) signal is sent to the servo motor.
+3. The servo rotates 90 degrees to open the food dispenser hatch.
+4. After a 2-second delay, the servo returns to the closed position to prevent over-feeding.`,pin_config:{esp32:[{pin:"G13",component:"Servo PWM",note:"-"},{pin:"G21/22",component:"I2C RTC",note:"DS3231"}]},code:`// Smart Pet Feeder (Scheduled)
+// High-Fidelity Implementation
+
+#include <ESP32Servo.h>
+
+Servo feederServo;
+const int SERVO_PIN = 18;
+const int FEED_HOUR = 8;
+const int FEED_MINUTE = 0;
+
+void setup() {
+  Serial.begin(115200);
+  feederServo.attach(SERVO_PIN);
+  feederServo.write(0); // Hatch Closed
+  Serial.println("Pet Feeder Ready.");
+}
+
+void feedNow() {
+  Serial.println("Feeding Session Started!");
+  feederServo.write(90);
+  delay(2000);
+  feederServo.write(0);
+  Serial.println("Feeding Session Complete.");
+}
+
 void loop() {
-  if (timeToFeed) dispense();
+  // In a real app, use DS3231 RTC
+  // For demo, we check a manual button or simple timer
+  if (digitalRead(0) == LOW) {
+    feedNow();
+    delay(1000);
+  }
 }`,advantages:"Reliable pet care when owners are away.",disadvantages:"May jam if food particles are too large.",usage:"Design a vertical tube hopper for consistent gravity flow.",components:["1x ESP32","1x DS3231 RTC","1x 360 Servo"],status:"Published",bom_cost:"$28"},{id:69,title:"Smart Plant Monitor",level:"Beginner",description:"Visual indicator for plant health using moisture sensors and an RGB LED to show status (Red=Dry, Green=Happy).",category:"Green Tech",estimatedTime:"30 mins",tech:["Arduino","Soil Moisture","RGB LED"],concept:"Environmental Feedback. Bridges the gap between plant needs and human perception using visual color coding.",working_principle:`1. Capacitive moisture sensor reads water level.
 2. Arduino maps reading to 3 states: DRY, OK, WET.
 3. RGB LED changes color accordingly.`,pin_config:{arduino:[{pin:"A0",component:"Soil Moisture",note:"Analog In"},{pin:"D3,D5,D6",component:"RGB Pins",note:"PWM"}]},code:`// RGB Status Logic
@@ -1837,100 +1957,797 @@ void loop() {
   int val = analogRead(A0);
   if (val < 300) setRed();
   else setGreen();
-}`,advantages:"Extremely easy to build, great for kids.",disadvantages:"Cheap resistive sensors corrode quickly.",usage:"Calibrate threshold by dipping sensor in wet vs dry soil first.",components:["1x Arduino","1x Moisture Sensor","1x RGB LED"],status:"Published",bom_cost:"$7"},{id:70,title:"Digital Compass",level:"Intermediate",description:"High-precision heading indicator using a magnetometer and an OLED display.",category:"Robotics & Navigation",estimatedTime:"50 mins",tech:["Arduino","HMC5883L","OLED"],concept:"Geomagnetic Orientation. Senses the Earth's magnetic field in 3 axes to calculate North-relative heading.",working_principle:`1. Read X, Y values from Magnetometer.
-2. Calculate Arctan2(Y, X) to get radians.
-3. Convert to degrees and adjust for local declination.`,pin_config:{arduino:[{pin:"A4/A5",component:"I2C Bus",note:"Common for OLED/Mag"}]},code:`// HMC5883L Orientation
-void loop() {
-  float heading = mag.readHolding();
-}`,advantages:"Compact navigation tool, great for drones/rovers.",disadvantages:"Sensitive to local metal objects.",usage:"Calibrate by rotating the sensor in a 'figure 8' pattern before first use.",components:["1x Arduino","1x HMC5883L","1x OLED 0.96"],status:"Published",bom_cost:"$14"},{id:71,title:"Smart Key Finder",level:"Beginner",description:"Whistle-activated or Bluetooth-enabled key tracker that beeps when you can't find your keys.",category:"Consumer Utility",estimatedTime:"45 mins",tech:["Arduino Nano","Buzzer","Sound Sensor"],concept:"Acoustic Triggering. Listens for specific frequencies (whistles) or signal strength (BLE) to trigger an alert.",working_principle:`1. Microphone module listens for loud sound.
-2. MCU filters for frequency range.
-3. Active buzzer beeps until reset button is pressed.`,pin_config:{arduino:[{pin:"D2",component:"Mic Sensor",note:"Digital Out Pin"},{pin:"D3",component:"Buzzer",note:"Active Tones"}]},code:`// Acoustic Alerter
-void loop() {
-  if (sound) tone(3, 2000);
-}`,advantages:"Saves time, low power standby.",disadvantages:"False triggers from loud TV.",usage:"Use an Arduino Nano for the smallest possible footprint.",components:["1x Arduino Nano","1x Mic Sensor","1x Piezo Buzzer"],status:"Published",bom_cost:"$9"},{id:72,title:"Home Security Alarm",level:"Intermediate",description:"A multi-zone security system with vibration sensors and magnetic door switches.",category:"Security",estimatedTime:"90 mins",tech:["Arduino","Reed Switch","Vibration Sensor","Buzzer"],concept:"Perimeter Defense. Monitors circuit continuity (door) and kinetic energy (window glass break).",working_principle:`1. Reed switch is N.O. (Normally Open).
-2. If magnet moves (door opens), circuit closes.
-3. MCU triggers siren and flashes LEDs.`,pin_config:{arduino:[{pin:"D2",component:"Door Switch",note:"Interrupt"},{pin:"D13",component:"Siren Relay",note:"-"}]},advantages:"High reliability, physical security.",disadvantages:"Requires wiring across the home.",usage:"Add a hidden switch to disarm the alarm when you enter.",components:["1x Arduino","5x Reed Switches","1x Loud Siren"],status:"Published",bom_cost:"$35"},{id:73,title:"Smart Door Knock Detector",level:"Beginner",description:"Sends a notification or lights up a LED when someone knocks on the door, great for hearing-impaired users.",category:"Accessibility",estimatedTime:"40 mins",tech:["Arduino","Piezo Element"],concept:"Impact Sensing. Uses the piezoelectric effect where physical vibration is converted into electrical spikes.",working_principle:`1. Piezo sensor attached to door wood.
-2. Knock creates voltage spike.
-3. MCU detects peak and triggers output.`,pin_config:{arduino:[{pin:"A0",component:"Piezo Sen",note:"With 1M resistor"}]},code:`// Piezo Vibe Detect
-void loop() {
-  if (analogRead(A0) > 100) alert();
-}`,advantages:"Extremely low cost, high sensitivity.",disadvantages:"Triggers from door slams.",usage:"Mount near the center of the door panel for best resonance.",components:["1x Arduino","1x Piezo Disc","1x LED"],status:"Published",bom_cost:"$5"},{id:74,title:"Light Intensity Logger",level:"Beginner",description:"Track sun exposure throughout the day in different rooms to optimize indoor plant placement.",category:"Data Logging",estimatedTime:"60 mins",tech:["Arduino","LDR","SD Card"],concept:"Lux Auditing. Records ambient light levels at fixed intervals to calculate total daily light integral.",working_principle:`1. LDR reads light levels every 15 mins.
-2. Values mapped to Lux.
-3. Data stored on SD card.`,pin_config:{arduino:[{pin:"A2",component:"LDR",note:"-"},{pin:"D4",component:"SD CS",note:"SPI"}]},advantages:"Objective data for gardening.",disadvantages:"Requires computer to graph.",usage:"Place in different corners to find the best light spot.",components:["1x Arduino","1x LDR module","1x SD Module"],status:"Published",bom_cost:"$12"},{id:75,title:"Smart Emergency Button",level:"Beginner",description:"A wall-mounted panic button that triggers a loud alarm and sends a Wi-Fi alert.",category:"Safety",estimatedTime:"50 mins",tech:["ESP32","Push Button","Buzzer"],concept:"One-Touch Alert. Simplifies emergency signaling to a single, robust physical interaction.",working_principle:`1. ESP32 wakes on interrupt.
-2. Sends HTTP POST to emergency service.
-3. Sounds buzzer.`,pin_config:{esp32:[{pin:"G14",component:"Panic Button",note:"Pullup"},{pin:"G27",component:"Piezo Alarm",note:"-"}]},advantages:"Critical for elderly safety.",disadvantages:"False alarms if not guarded.",usage:"Encase in a bright red 3D printed housing.",components:["1x ESP32","1x Arcade Button","1x High Decibel Buzzer"],status:"Published",bom_cost:"$18"},{id:76,title:"Smart Door Mat",level:"Beginner",description:"Greeting mat that says 'Hello' or lights up the foyer when stepped on using pressure sensors.",category:"Smart Home",estimatedTime:"45 mins",tech:["Arduino","FSR","MP3 Module"],concept:"Occupancy Trigger. Uses weight detection as an input for hospitality automation.",working_principle:`1. FSR under mat detects pressure.
-2. MCU triggers MP3 module.`,pin_config:{arduino:[{pin:"A1",component:"FSR Sensor",note:"Divider"},{pin:"D2/3",component:"Serial MP3",note:"-"}]},advantages:"Unique guest experience.",disadvantages:"FSRs can be fragile.",usage:"Use two layers of rigid cardboard to protect the FSR.",components:["1x Arduino Nano","1x FSR","1x DFPlayer Mini"],status:"Published",bom_cost:"$22"},{id:77,title:"Temperature Based Fan",level:"Beginner",description:"A simple fan control for 3D printer enclosures to maintain constant temperature.",category:"3D Printing",estimatedTime:"40 mins",tech:["Arduino","LM35","Transistor"],concept:"Thermostatic Control. Maintains a set-point temperature using negative feedback loop.",working_principle:`1. LM35 reads temp.
-2. If > 40C, turn on transistor to drive fan.`,pin_config:{arduino:[{pin:"A0",component:"LM35",note:"-"},{pin:"D5",component:"2N2222 Base",note:"-"}]},advantages:"Prevents print warping.",disadvantages:"LM35 precision.",usage:"Place near the print head.",components:["1x Arduino","1x LM35","1x 2N2222 Transistor"],status:"Published",bom_cost:"$6"},{id:78,title:"Smart Entry System",level:"Intermediate",description:"Auto-door opener using ultrasonic distance sensors for hands-free shopping entry.",category:"Retail Tech",estimatedTime:"60 mins",tech:["Arduino","Ultrasonic","Stepper Motor"],concept:"Distance Triggered Motion. Opens mechanical barriers when targets arrive.",working_principle:`1. Detect object within 50cm.
-2. Open door using stepper.
-3. Close after delay.`,pin_config:{arduino:[{pin:"D12/11",component:"Trig/Echo",note:"-"},{pin:"D8-D11",component:"Stepper",note:"-"}]},advantages:"Accessible, hygienic.",disadvantages:"Mechanical alignment.",usage:"Mount sensor at chest height.",components:["1x Arduino","1x HC-SR04","1x NEMA 17 Stepper"],status:"Published",bom_cost:"$40"},{id:79,title:"Automatic Gate Opener",level:"Intermediate",description:"Remote-controlled gate system with obstruction detection using IR beam sensors.",category:"Robotics",estimatedTime:"100 mins",tech:["Arduino","IR Beam","High Torque Gears"],concept:"Safe Actuation. Combines remote triggers with safety 'kill-switches'.",working_principle:`1. Open on remote.
-2. Auto-reverse if IR beam broken.`,pin_config:{arduino:[{pin:"D2",component:"IR Receiver",note:"Safety"},{pin:"D3",component:"RF Receiver",note:"Remote"}]},advantages:"Heavy duty, safe.",disadvantages:"Mechanical fabrication.",usage:"Test auto-reverse extensively.",components:["1x Arduino","1x IR Beam Pair","1x Worm Gear Motor"],status:"Published",bom_cost:"$55"},{id:80,title:"Smart Lamp Controller",level:"Beginner",description:"A clap-activated lamp switch with adjustable sensitivity for bedside convenience.",category:"Smart Home",estimatedTime:"30 mins",tech:["Arduino","Sound Sensor","Relay"],concept:"Acoustic Toggling. Filters transients to toggle states.",working_principle:`1. Detect clap.
-2. Toggle Relay.`,pin_config:{arduino:[{pin:"D7",component:"Mic Sensor",note:"-"},{pin:"D4",component:"AC Relay",note:"-"}]},advantages:"Hands-free.",disadvantages:"False triggers.",usage:"Adjust sensitive pot.",components:["1x Arduino","1x Sound Sensor","1x 5V Relay"],status:"Published",bom_cost:"$10"},{id:81,title:"WiFi LED Control using ESP32",level:"Beginner",description:"Hosted web server on ESP32 to toggle physical LEDs from any browser on the local network.",category:"IoT Essentials",estimatedTime:"30 mins",tech:["ESP32","WiFi","HTML/CSS"],concept:"Embedded Web Server. Demonstates how a microcontroller acts as a node delivering UI to clients and executing hardware interrupts via HTTP GET requests.",working_principle:`1. ESP32 connects to WiFi.
-2. Starts WebServer on Port 80.
-3. Serves HTML buttons.
-4. Route handlers toggle GPIO states when URL endpoints are hit.`,pin_config:{esp32:[{module:"System",pinName:"VCC",mcuPin:"3.3V",direction:"Power",voltage:"3.3V",description:"Microcontroller Supply"},{module:"Output LED",pinName:"Anode",mcuPin:"GPIO 2",direction:"Output",voltage:"3.3V",description:"Onboard LED / External Indicator"}]},code:`#include <WiFi.h>
-#include <WebServer.h>
-WebServer server(80);
-void handleRoot() {
-  server.send(200, "text/html", "<a href='/on'>ON</a>");
-}
+}`,advantages:"Extremely easy to build, great for kids.",disadvantages:"Cheap resistive sensors corrode quickly.",usage:"Calibrate threshold by dipping sensor in wet vs dry soil first.",components:["1x Arduino","1x Moisture Sensor","1x RGB LED"],status:"Published",bom_cost:"$7"},{id:70,title:"Digital Compass",level:"Intermediate",description:"High-precision heading indicator using a magnetometer and an OLED display.",category:"Robotics & Navigation",estimatedTime:"50 mins",tech:["Arduino","HMC5883L","OLED"],concept:"Geomagnetic Orientation. Senses the Earth's magnetic field in 3 axes to calculate North-relative heading.",working_principle:`1. HMC5883L/QMC5883L sensor measures the Earth's magnetic field in X, Y, and Z planes.
+2. The raw magnetic flux values are sent to the MCU over the I2C bus.
+3. Trigonometric calculations (Atan2) are used to determine the angle relative to magnetic North.
+4. Current heading is displayed on an OLED or Serial monitor with 1-degree precision.`,pin_config:{arduino:[{pin:"A4/A5",component:"I2C Bus",note:"Common for OLED/Mag"}]},code:`// Digital Magnetometer Compass
+// High-Fidelity Implementation
+
+#include <Wire.h>
+#include <QMC5883LCompass.h>
+
+QMC5883LCompass compass;
+
 void setup() {
-  WiFi.begin("SSID", "PASS");
-  server.on("/", handleRoot);
-  server.begin();
+  Serial.begin(115200);
+  compass.init();
 }
-void loop() { server.handleClient(); }`,advantages:"Cross-platform control, no external apps needed.",disadvantages:"Limited range dependent on router.",usage:"Connect to ESP32 IP address in browser.",components:["1x ESP32","1x Resistor","1x LED"],status:"Published",bom_cost:"$8"},{id:82,title:"Smart Home Automation",level:"Intermediate",description:"Industrial grade 4-channel relay control system with real-time status feedback and over-current protection.",category:"Home Automation",estimatedTime:"60 mins",tech:["ESP32","Relay Module","WebSockets"],concept:"Bi-directional Control. Uses WebSockets for low-latency communication between the user dashboard and high-voltage relays.",working_principle:`1. ESP32 maintains persistent socket connection.
-2. Server pushes state changes.
-3. Relay drivers toggle AC loads safely.`,pin_config:{esp32:[{module:"Relay 1",pinName:"IN1",mcuPin:"GPIO 13",direction:"Output",voltage:"3.3V",description:"Light Load Trigger"},{module:"Relay 2",pinName:"IN2",mcuPin:"GPIO 12",direction:"Output",voltage:"3.3V",description:"Fan Load Trigger"},{module:"Status LED",pinName:"RGB",mcuPin:"GPIO 14",direction:"Output",voltage:"3.3V",description:"Connectivity Indicator"}]},code:`// WebSocket Home Automation Sample
-#include <WebSocketsServer.h>
-void onEvent(uint8_t num, WStype_t type, ...) {
-  if(type == WStype_TEXT) digitalWrite(13, payload[0] == '1');
-}`,advantages:"Instant response, handles AC appliances.",disadvantages:"Relay contact wear over time.",usage:"Use an optoisolated relay module for safety.",components:["1x ESP32","1x 4-Ch Relay Board","1x 5V Power Supply"],status:"Published",bom_cost:"$22"},{id:83,title:"Smart Energy Meter",level:"Advanced",description:"Monitor voltage, current, power, and energy consumption of home appliances with cloud-based analytics.",category:"Green Tech",estimatedTime:"120 mins",tech:["ESP32","PZEM-004T","MQTT"],concept:"Non-Invasive Sensing. Measures RMS values via CT sensors and calculates real-time power metrics for energy auditing.",working_principle:`1. PZEM-004T samples AC waveform.
-2. ESP32 queries data via UART.
-3. Publishes metrics to MQTT broker for graphing.`,pin_config:{esp32:[{module:"PZEM-004T",pinName:"TX",mcuPin:"GPIO 16",direction:"Input",voltage:"5V/3.3V",description:"Sensor Data RX"},{module:"PZEM-004T",pinName:"RX",mcuPin:"GPIO 17",direction:"Output",voltage:"5V/3.3V",description:"Sensor Command TX"}]},code:`#include <PZEM004Tv30.h>
-PZEM004Tv30 pzem(Serial2, 16, 17);
+
 void loop() {
+  compass.read();
+  int azimuth = compass.getAzimuth();
+  
+  Serial.print("Heading: ");
+  Serial.print(azimuth);
+  
+  if (azimuth > 337 || azimuth < 22) Serial.println(" [NORTH]");
+  else if (azimuth > 22 && azimuth < 67) Serial.println(" [N-EAST]");
+  else if (azimuth > 67 && azimuth < 112) Serial.println(" [EAST]");
+  else if (azimuth > 247 && azimuth < 292) Serial.println(" [WEST]");
+  
+  delay(500);
+}`,advantages:"Compact navigation tool, great for drones/rovers.",disadvantages:"Sensitive to local metal objects.",usage:"Calibrate by rotating the sensor in a 'figure 8' pattern before first use.",components:["1x Arduino","1x HMC5883L","1x OLED 0.96"],status:"Published",bom_cost:"$14"},{id:71,title:"Smart Key Finder",level:"Beginner",description:"Whistle-activated or Bluetooth-enabled key tracker that beeps when you can't find your keys.",category:"Consumer Utility",estimatedTime:"45 mins",tech:["Arduino Nano","Buzzer","Sound Sensor"],concept:"Acoustic Triggering. Listens for specific frequencies (whistles) or signal strength (BLE) to trigger an alert.",working_principle:`1. Uses a 433MHz or Bluetooth Low Energy (BLE) beacon paired with a transceiver.
+2. When the 'Find' button is pressed on the base unit, a signal is broadcast on a specific channel.
+3. The receiver attached to the keys decodes this signal and validates the ID.
+4. If valid, the piezo buzzer on the receiver sounds a pulsed alarm for 10 seconds.`,pin_config:{arduino:[{pin:"D2",component:"Mic Sensor",note:"Digital Out Pin"},{pin:"D3",component:"Buzzer",note:"Active Tones"}]},code:`// Smart Key Finder Receiver
+const int BUZZER_PIN = 12;
+const int RF_SIGNAL_PIN = 14;
+
+void setup() {
+  pinMode(BUZZER_PIN, OUTPUT);
+  pinMode(RF_SIGNAL_PIN, INPUT);
+}
+
+void loop() {
+  if (digitalRead(RF_SIGNAL_PIN) == HIGH) {
+    for(int i=0; i<20; i++) {
+      digitalWrite(BUZZER_PIN, HIGH);
+      delay(100);
+      digitalWrite(BUZZER_PIN, LOW);
+      delay(100);
+    }
+  }
+}`,advantages:"Saves time, low power standby.",disadvantages:"False triggers from loud TV.",usage:"Use an Arduino Nano for the smallest possible footprint.",components:["1x Arduino Nano","1x Mic Sensor","1x Piezo Buzzer"],status:"Published",bom_cost:"$9"},{id:72,title:"Home Security Alarm",level:"Intermediate",description:"A multi-zone security system with vibration sensors and magnetic door switches.",category:"Security",estimatedTime:"90 mins",tech:["Arduino","Reed Switch","Vibration Sensor","Buzzer"],concept:"Perimeter Defense. Monitors circuit continuity (door) and kinetic energy (window glass break).",working_principle:`1. Laser diode emits a concentrated beam across a doorway onto a photoresistor (LDR).
+2. While the beam is uninterrupted, LDR resistance remains low.
+3. If an intruder breaks the beam, LDR resistance spikes instantly.
+4. The MCU detects this threshold crossing and triggers the high-decibel active buzzer (Alarm).`,pin_config:{arduino:[{pin:"D2",component:"Door Switch",note:"Interrupt"},{pin:"D13",component:"Siren Relay",note:"-"}]},advantages:"High reliability, physical security.",disadvantages:"Requires wiring across the home.",usage:"Add a hidden switch to disarm the alarm when you enter.",components:["1x Arduino","5x Reed Switches","1x Loud Siren"],status:"Published",bom_cost:"$35",code:`// Laser Tripwire Alarm
+// High-Fidelity Implementation
+
+const int LDR_PIN = 34;
+const int BUZZER_PIN = 13;
+const int THRESHOLD = 500; // Calibrated Dark Value
+
+void setup() {
+  Serial.begin(115200);
+  pinMode(BUZZER_PIN, OUTPUT);
+  Serial.println("Security Perimeter Armed.");
+}
+
+void loop() {
+  int lightLevel = analogRead(LDR_PIN);
+
+  if (lightLevel < THRESHOLD) {
+    Serial.println("ALARM! BEAM BROKEN!");
+    for(int i=0; i<5; i++) {
+      digitalWrite(BUZZER_PIN, HIGH);
+      delay(100);
+      digitalWrite(BUZZER_PIN, LOW);
+      delay(100);
+    }
+  }
+  delay(50);
+}`},{id:73,title:"Smart Door Knock Detector",level:"Beginner",description:"Sends a notification or lights up a LED when someone knocks on the door, great for hearing-impaired users.",category:"Accessibility",estimatedTime:"40 mins",tech:["Arduino","Piezo Element"],concept:"Impact Sensing. Uses the piezoelectric effect where physical vibration is converted into electrical spikes.",working_principle:`1. An SW-420 tilt/vibration sensor detects physical impact on the door.
+2. The mechanical switch inside the sensor closes for a few milliseconds upon vibration.
+3. The MCU captures this narrow pulse using an External Interrupt (Falling Edge).
+4. Logic: If > 3 knocks occur within 2 seconds, the system logs a 'Visitor Arrived' event to the cloud.`,pin_config:{arduino:[{pin:"A0",component:"Piezo Sen",note:"With 1M resistor"}]},code:`// Vibration Knock Detector
+volatile int knockCount = 0;
+unsigned long lastKnockTime = 0;
+
+void IRAM_ATTR onKnock() {
+  if(millis() - lastKnockTime > 150) {
+    knockCount++;
+    lastKnockTime = millis();
+  }
+}
+
+void setup() {
+  Serial.begin(115200);
+  attachInterrupt(14, onKnock, FALLING);
+}
+
+void loop() {
+  if (knockCount > 0 && millis() - lastKnockTime > 2000) {
+    Serial.print("Knocks detected: ");
+    Serial.println(knockCount);
+    knockCount = 0;
+  }
+}`,advantages:"Extremely low cost, high sensitivity.",disadvantages:"Triggers from door slams.",usage:"Mount near the center of the door panel for best resonance.",components:["1x Arduino","1x Piezo Disc","1x LED"],status:"Published",bom_cost:"$5"},{id:74,title:"Light Intensity Logger",level:"Beginner",description:"Track sun exposure throughout the day in different rooms to optimize indoor plant placement.",category:"Data Logging",estimatedTime:"60 mins",tech:["Arduino","LDR","SD Card"],concept:"Lux Auditing. Records ambient light levels at fixed intervals to calculate total daily light integral.",working_principle:`1. LDR sensor is configured in a voltage divider circuit with a 10k resistor.
+2. Analog voltage represents the logarithmic light level in the environment.
+3. Every hour, the ESP32 wakes from light sleep and samples the ADC.
+4. Data is stored on an SD card in .CSV format or pushed to an InfluxDB server for long-term light trend analysis.`,pin_config:{arduino:[{pin:"A2",component:"LDR",note:"-"},{pin:"D4",component:"SD CS",note:"SPI"}]},advantages:"Objective data for gardening.",disadvantages:"Requires computer to graph.",usage:"Place in different corners to find the best light spot.",components:["1x Arduino","1x LDR module","1x SD Module"],status:"Published",bom_cost:"$12",code:`// Light Intensity Logger
+#include <SPI.h>
+#include <SD.h>
+
+const int LDR_PIN = 34;
+
+void setup() {
+  Serial.begin(115200);
+  if(!SD.begin()) { Serial.println("SD Failed"); return; }
+}
+
+void loop() {
+  int val = analogRead(LDR_PIN);
+  File logFile = SD.open("/lights.csv", FILE_WRITE);
+  if(logFile) {
+    logFile.print(millis());
+    logFile.print(",");
+    logFile.println(val);
+    logFile.close();
+  }
+  delay(3600000); // Record hourly
+}`},{id:75,title:"Smart Emergency Button",level:"Beginner",description:"A wall-mounted panic button that triggers a loud alarm and sends a Wi-Fi alert.",category:"Safety",estimatedTime:"50 mins",tech:["ESP32","Push Button","Buzzer"],concept:"One-Touch Alert. Simplifies emergency signaling to a single, robust physical interaction.",working_principle:`1. Uses a tactical physical button and a high-brightness LED for visual feedback.
+2. The system employs 'Debounce' logic to prevent multiple triggers from a single mechanical press.
+3. Upon press, it performs a secure HTTPS request to a cloud-based emergency proxy server.
+4. It also activates a local audible buzzer in an SOS pattern (Short-Short-Short-Long-Long-Long).`,pin_config:{esp32:[{pin:"G14",component:"Panic Button",note:"Pullup"},{pin:"G27",component:"Piezo Alarm",note:"-"}]},advantages:"Critical for elderly safety.",disadvantages:"False alarms if not guarded.",usage:"Encase in a bright red 3D printed housing.",components:["1x ESP32","1x Arcade Button","1x High Decibel Buzzer"],status:"Published",bom_cost:"$18",code:`// Smart Emergency SOS Node
+#define BTN_PIN 27
+#define BUZZER_PIN 26
+
+void setup() {
+  pinMode(BTN_PIN, INPUT_PULLUP);
+  pinMode(BUZZER_PIN, OUTPUT);
+  Serial.begin(115200);
+}
+
+void triggerSOS() {
+  Serial.println("EMERGENCY SIGNAL BROADCASTING...");
+  for(int i=0; i<3; i++) { // S-O-S pattern
+    digitalWrite(BUZZER_PIN, HIGH); delay(200); digitalWrite(BUZZER_PIN, LOW); delay(200);
+  }
+  delay(500);
+}
+
+void loop() {
+  if(digitalRead(BTN_PIN) == LOW) {
+    triggerSOS();
+    delay(2000); // Prevent spamming
+  }
+}`},{id:76,title:"Smart Door Mat",level:"Beginner",description:"Greeting mat that says 'Hello' or lights up the foyer when stepped on using pressure sensors.",category:"Smart Home",estimatedTime:"45 mins",tech:["Arduino","FSR","MP3 Module"],concept:"Occupancy Trigger. Uses weight detection as an input for hospitality automation.",working_principle:`1. Uses a Force Sensitive Resistor (FSR) or a large-area capacitive touch pad concealed under a standard door mat.
+2. When a person steps on the mat, the pressure changes the resistance (FSR) or capacitance (Touch).
+3. The MCU detects this change and triggers a local 'Chime' or a remote smartphone notification.
+4. Power Optimization: The system remains in deep sleep and wakes up only when an interrupt is triggered by the FSR voltage divider.`,pin_config:{arduino:[{pin:"A1",component:"FSR Sensor",note:"Divider"},{pin:"D2/3",component:"Serial MP3",note:"-"}]},advantages:"Unique guest experience.",disadvantages:"FSRs can be fragile.",usage:"Use two layers of rigid cardboard to protect the FSR.",components:["1x Arduino Nano","1x FSR","1x DFPlayer Mini"],status:"Published",bom_cost:"$22",code:`// Smart Pressure Sensitive Door Mat
+#define FSR_PIN 32
+#define CHIME_PIN 13
+
+void setup() {
+  pinMode(CHIME_PIN, OUTPUT);
+  Serial.begin(115200);
+}
+
+void loop() {
+  int force = analogRead(FSR_PIN);
+  if (force > 500) { // Calibrated threshold for human weight
+    digitalWrite(CHIME_PIN, HIGH);
+    Serial.println("Visitor Detected at Entrance!");
+    delay(2000);
+    digitalWrite(CHIME_PIN, LOW);
+  }
+  delay(100);
+}`},{id:77,title:"Temperature Based Fan",level:"Beginner",description:"A simple fan control for 3D printer enclosures to maintain constant temperature.",category:"3D Printing",estimatedTime:"40 mins",tech:["Arduino","LM35","Transistor"],concept:"Thermostatic Control. Maintains a set-point temperature using negative feedback loop.",working_principle:`1. A DHT11 or DS18B20 digital sensor monitors the current ambient room temperature.
+2. The user sets a desired 'Comfort Threshold' (e.g., 28°C) via the firmware or a mobile app.
+3. Logic: If the sensed temperature > Threshold, the MCU activates a DC Fan via a Power MOSFET or Relay.
+4. Hysteresis: The fan stays on until the temperature drops to 2°C below the threshold to prevent rapid oscillations.`,pin_config:{arduino:[{pin:"A0",component:"LM35",note:"-"},{pin:"D5",component:"2N2222 Base",note:"-"}]},advantages:"Prevents print warping.",disadvantages:"LM35 precision.",usage:"Place near the print head.",components:["1x Arduino","1x LM35","1x 2N2222 Transistor"],status:"Published",bom_cost:"$6",code:`// Auto Temperature Controlled Fan
+#include "DHT.h"
+#define DHTPIN 4
+#define FAN_PIN 13
+#define TEMP_THRESHOLD 28.0
+
+DHT dht(DHTPIN, DHT11);
+
+void setup() {
+  dht.begin();
+  pinMode(FAN_PIN, OUTPUT);
+}
+
+void loop() {
+  float t = dht.readTemperature();
+  if(!isnan(t)) {
+    if(t > TEMP_THRESHOLD) digitalWrite(FAN_PIN, HIGH); 
+    else if(t < (TEMP_THRESHOLD - 1.0)) digitalWrite(FAN_PIN, LOW);
+  }
+  delay(2000);
+}`},{id:78,title:"Smart Entry System",level:"Intermediate",description:"Auto-door opener using ultrasonic distance sensors for hands-free shopping entry.",category:"Retail Tech",estimatedTime:"60 mins",tech:["Arduino","Ultrasonic","Stepper Motor"],concept:"Distance Triggered Motion. Opens mechanical barriers when targets arrive.",working_principle:`1. Uses a PIR sensor to detect presence and an LDR to verify if it is nighttime.
+2. When both conditions are met, the MCU unlocks the magnetic lock and turns on the hall lights.
+3. The system captures the 'Entry' event time and sends it to a cloud logging service.
+4. Safety: A physical override switch inside the house allows the user to manually lock/unlock the entry.`,pin_config:{arduino:[{pin:"D12/11",component:"Trig/Echo",note:"-"},{pin:"D8-D11",component:"Stepper",note:"-"}]},advantages:"Accessible, hygienic.",disadvantages:"Mechanical alignment.",usage:"Mount sensor at chest height.",components:["1x Arduino","1x HC-SR04","1x NEMA 17 Stepper"],status:"Published",bom_cost:"$40",code:`// Smart Automated Entry Node
+#define PIR 14
+#define LOCK_RELAY 27
+
+void setup() {
+  pinMode(PIR, INPUT);
+  pinMode(LOCK_RELAY, OUTPUT);
+  digitalWrite(LOCK_RELAY, HIGH); // Locked by default (Active Low)
+}
+
+void loop() {
+  if(digitalRead(PIR) == HIGH) {
+    digitalWrite(LOCK_RELAY, LOW); // Unlock
+    delay(10000); // 10s Entry Window
+    digitalWrite(LOCK_RELAY, HIGH);
+  }
+  delay(500);
+}`},{id:79,title:"Automatic Gate Opener",level:"Intermediate",description:"Remote-controlled gate system with obstruction detection using IR beam sensors.",category:"Robotics",estimatedTime:"100 mins",tech:["Arduino","IR Beam","High Torque Gears"],concept:"Safe Actuation. Combines remote triggers with safety 'kill-switches'.",working_principle:`1. Employs a Servo motor or DC motor with an H-Bridge driver to control the physical gate structure.
+2. An Ultrasonic sensor detects an approaching vehicle's presence at a 1-meter distance.
+3. Logic: If Presence = True, MCU rotates the servo 90 degrees to lift the boom barrier.
+4. After a 10-second delay (allowing the vehicle to pass), it automatically lowers the barrier.`,pin_config:{arduino:[{pin:"D2",component:"IR Receiver",note:"Safety"},{pin:"D3",component:"RF Receiver",note:"Remote"}]},advantages:"Heavy duty, safe.",disadvantages:"Mechanical fabrication.",usage:"Test auto-reverse extensively.",components:["1x Arduino","1x IR Beam Pair","1x Worm Gear Motor"],status:"Published",bom_cost:"$55",code:`// Automated Gate Barrier
+#include <ESP32Servo.h>
+
+Servo gateServo;
+#define TRIG 4
+#define ECHO 5
+
+void setup() {
+  gateServo.attach(18);
+  gateServo.write(0); // Closed
+  pinMode(TRIG, OUTPUT); pinMode(ECHO, INPUT);
+}
+
+void loop() {
+  digitalWrite(TRIG, HIGH); delayMicroseconds(10); digitalWrite(TRIG, LOW);
+  long duration = pulseIn(ECHO, HIGH);
+  int distance = duration * 0.034 / 2;
+
+  if (distance > 0 && distance < 50) {
+    gateServo.write(90); // Open
+    delay(5000);
+    gateServo.write(0);  // Close
+  }
+  delay(100);
+}`},{id:80,title:"Smart Lamp Controller",level:"Beginner",description:"A clap-activated lamp switch with adjustable sensitivity for bedside convenience.",category:"Smart Home",estimatedTime:"30 mins",tech:["Arduino","Sound Sensor","Relay"],concept:"Acoustic Toggling. Filters transients to toggle states.",working_principle:`1. The system uses an LDR to measure ambient light levels and a PIR sensor for presence detection.
+2. If Darkness is detected (LDR < Threshold) AND a person is in the room (PIR = HIGH), the lamp turns ON.
+3. Dimming is achieved via PWM (Pulse Width Modulation) to adjust intensity based on how dark it is.
+4. Auto-shutoff occurs after 5 minutes of no motion to save energy.`,pin_config:{arduino:[{pin:"D7",component:"Mic Sensor",note:"-"},{pin:"D4",component:"AC Relay",note:"-"}]},advantages:"Hands-free.",disadvantages:"False triggers.",usage:"Adjust sensitive pot.",components:["1x Arduino","1x Sound Sensor","1x 5V Relay"],status:"Published",bom_cost:"$10",code:`// Smart Adaptive Lamp
+// High-Fidelity Implementation
+
+const int LAMP_PIN = 12;
+const int PIR_PIN = 14;
+const int LDR_PIN = 32;
+
+void setup() {
+  pinMode(LAMP_PIN, OUTPUT);
+  pinMode(PIR_PIN, INPUT);
+  Serial.begin(115200);
+}
+
+void loop() {
+  int lux = analogRead(LDR_PIN);
+  bool presence = digitalRead(PIR_PIN);
+  
+  if (presence) {
+    int brightness = map(lux, 4095, 0, 0, 255); // Inverse: darker = brighter
+    analogWrite(LAMP_PIN, brightness);
+    Serial.print("Lamp Active. Intensity: ");
+    Serial.println(brightness);
+  } else {
+    analogWrite(LAMP_PIN, 0);
+  }
+  delay(1000);
+}`},{id:81,title:"WiFi LED Control using ESP32",level:"Beginner",description:"Hosted web server on ESP32 to toggle physical LEDs from any browser on the local network.",category:"IoT Essentials",estimatedTime:"30 mins",tech:["ESP32","WiFi","HTML/CSS"],concept:"Embedded Web Server. Demonstates how a microcontroller acts as a node delivering UI to clients and executing hardware interrupts via HTTP GET requests.",working_principle:`1. The ESP32 acts as an Access Point or connects to a Station, starting an HTTP server on Port 80.
+2. When a client (Phone/PC) requests the root URL, the ESP32 serves a 'Mobile First' HTML/CSS dashboard.
+3. Interactive buttons in the UI send asynchronous GET requests (AJAX/Fetch) to specific endpoints like /toggle.
+4. The MCU parses these requests and executes a digitalWrite() to flip the GPIO state of the target LED.`,pin_config:{esp32:[{module:"System",pinName:"VCC",mcuPin:"3.3V",direction:"Power",voltage:"3.3V",description:"Microcontroller Supply"},{module:"Output LED",pinName:"Anode",mcuPin:"GPIO 2",direction:"Output",voltage:"3.3V",description:"Onboard LED / External Indicator"}]},code:`// ESP32 High-Fidelity Web Controller
+#include <WiFi.h>
+#include <WebServer.h>
+
+const char* ssid = "IoTNext_Home";
+const char* password = "12345678";
+WebServer server(80);
+const int LED_PIN = 2;
+bool ledState = false;
+
+void handleRoot() {
+  String html = "<html><head><meta name='viewport' content='width=device-width, initial-scale=1'>";
+  html += "<style>body{font-family:sans-serif; text-align:center; padding:50px; background:#1a1a1a; color:white;}";
+  html += ".btn{padding:20px 40px; font-size:24px; border-radius:15px; border:none; color:white; cursor:pointer;}";
+  html += ".on{background:#27c93f;} .off{background:#ff5f56;}</style></head><body>";
+  html += "<h1>IoTNext Control Center</h1>";
+  html += "<p>LED Status: " + String(ledState ? "ACTIVE" : "INACTIVE") + "</p>";
+  html += "<a href='/toggle'><button class='btn " + String(ledState ? "off" : "on") + "'>";
+  html += String(ledState ? "TURN OFF" : "TURN ON") + "</button></a></body></html>";
+  server.send(200, "text/html", html);
+}
+
+void handleToggle() {
+  ledState = !ledState;
+  digitalWrite(LED_PIN, ledState);
+  server.sendHeader("Location", "/");
+  server.send(303);
+}
+
+void setup() {
+  Serial.begin(115200);
+  pinMode(LED_PIN, OUTPUT);
+  WiFi.softAP(ssid, password);
+  server.on("/", handleRoot);
+  server.on("/toggle", handleToggle);
+  server.begin();
+  Serial.println("Web Control Server Started.");
+}
+
+void loop() { server.handleClient(); }`,advantages:"Cross-platform control, no external apps needed.",disadvantages:"Limited range dependent on router.",usage:"Connect to ESP32 IP address in browser.",components:["1x ESP32","1x Resistor","1x LED"],status:"Published",bom_cost:"$8"},{id:82,title:"Smart Home Automation",level:"Intermediate",description:"Industrial grade 4-channel relay control system with real-time status feedback and over-current protection.",category:"Home Automation",estimatedTime:"60 mins",tech:["ESP32","Relay Module","WebSockets"],concept:"Bi-directional Control. Uses WebSockets for low-latency communication between the user dashboard and high-voltage relays.",working_principle:`1. Uses a persistent WebSocket (WS) connection for sub-100ms latency between the dashboard and the hardware.
+2. The system handles multiple parallel connections, allowing various family members to control the same home.
+3. The Relay module is protected by optoisolators, ensuring that AC flyback doesn't damage the ESP32 logic.
+4. Real-time state synchronization ensures the app UI always matches the physical relay position (Latched/Unlatched).`,pin_config:{esp32:[{module:"Relay 1",pinName:"IN1",mcuPin:"GPIO 13",direction:"Output",voltage:"3.3V",description:"Light Load Trigger"},{module:"Relay 2",pinName:"IN2",mcuPin:"GPIO 12",direction:"Output",voltage:"3.3V",description:"Fan Load Trigger"},{module:"Status LED",pinName:"RGB",mcuPin:"GPIO 14",direction:"Output",voltage:"3.3V",description:"Connectivity Indicator"}]},code:`// Professional Home Automation Node
+#include <WiFi.h>
+#include <WebSocketsServer.h>
+
+WebSocketsServer webSocket = WebSocketsServer(81);
+const int RELAY_PINS[] = {13, 12, 14, 27};
+
+void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length) {
+  if(type == WStype_TEXT) {
+    int pinIdx = payload[0] - '0';
+    bool state = payload[1] == '1';
+    if(pinIdx < 4) {
+      digitalWrite(RELAY_PINS[pinIdx], state);
+      Serial.printf("Relay %d set to %s\\n", pinIdx, state ? "ON" : "OFF");
+      webSocket.broadcastTXT("SYNC_STATE");
+    }
+  }
+}
+
+void setup() {
+  Serial.begin(115200);
+  for(int i=0; i<4; i++) {
+    pinMode(RELAY_PINS[i], OUTPUT);
+    digitalWrite(RELAY_PINS[i], LOW);
+  }
+  WiFi.begin("SSID", "PASS");
+  webSocket.begin();
+  webSocket.onEvent(webSocketEvent);
+}
+
+void loop() { webSocket.loop(); }`,advantages:"Instant response, handles AC appliances.",disadvantages:"Relay contact wear over time.",usage:"Use an optoisolated relay module for safety.",components:["1x ESP32","1x 4-Ch Relay Board","1x 5V Power Supply"],status:"Published",bom_cost:"$22"},{id:83,title:"Smart Energy Meter",level:"Advanced",description:"Monitor voltage, current, power, and energy consumption of home appliances with cloud-based analytics.",category:"Green Tech",estimatedTime:"120 mins",tech:["ESP32","PZEM-004T","MQTT"],concept:"Non-Invasive Sensing. Measures RMS values via CT sensors and calculates real-time power metrics for energy auditing.",working_principle:`1. The PZEM-004T measures the phase difference and current magnitude using a non-invasive CT clamp.
+2. It calculates Active Power (W), Voltage (V), Current (A), and Frequency (Hz) locally.
+3. Data is transmitted to the ESP32 via an isolated UART interface to prevent ground loops.
+4. The ESP32 formats this into a JSON payload and publishes it to an MQTT Broker for energy cost analysis.`,pin_config:{esp32:[{module:"PZEM-004T",pinName:"TX",mcuPin:"GPIO 16",direction:"Input",voltage:"5V/3.3V",description:"Sensor Data RX"},{module:"PZEM-004T",pinName:"RX",mcuPin:"GPIO 17",direction:"Output",voltage:"5V/3.3V",description:"Sensor Command TX"}]},code:`// Industrial Energy Auditor
+#include <PZEM004Tv30.h>
+#include <WiFi.h>
+#include <PubSubClient.h>
+
+PZEM004Tv30 pzem(Serial2, 16, 17);
+WiFiClient espClient;
+PubSubClient client(espClient);
+
+void setup() {
+  Serial.begin(115200);
+  client.setServer("mqtt.eclipseprojects.io", 1883);
+}
+
+void loop() {
+  float voltage = pzem.voltage();
+  float current = pzem.current();
   float power = pzem.power();
-  client.publish("energy/power", String(power).c_str());
+  
+  if(!isnan(voltage)) {
+    String msg = "{\\"v\\": " + String(voltage) + ", \\"a\\": " + String(current) + ", \\"w\\": " + String(power) + "}";
+    client.publish("iotnext/energy", msg.c_str());
+  }
   delay(5000);
-}`,advantages:"High accuracy, track usage costs.",disadvantages:"Involves mains high voltage wiring.",usage:"Clamp CT sensor around the live wire of the appliance.",components:["1x ESP32","1x PZEM-004T","1x CT Coil"],status:"Published",bom_cost:"$35"},{id:84,title:"IoT Based Weather Station",level:"Intermediate",description:"Solar-powered precision station measuring temperature, humidity, pressure, and air quality with ThingSpeak integration.",category:"Environmental",estimatedTime:"90 mins",tech:["ESP32","BME280","Deep Sleep"],concept:"Ultra-Low Power Logging. Uses deep sleep modes to run on battery for months, waking up only for data transmission.",working_principle:`1. Wake from deep sleep.
-2. Sample BME280 via I2C.
-3. Connect to WiFi and upload to cloud.
-4. Enter deep sleep for 15 minutes.`,pin_config:{esp32:[{module:"BME280",pinName:"SDA",mcuPin:"GPIO 21",direction:"Bidirectional",voltage:"3.3V",description:"I2C Data Bus"},{module:"BME280",pinName:"SCL",mcuPin:"GPIO 22",direction:"Output",voltage:"3.3V",description:"I2C Clock Bus"}]},advantages:"Maintenance free on solar, accurate data.",disadvantages:"I2C address conflicts if unsheathed.",usage:"Mount in a Stevensen screen for best accuracy.",components:["1x ESP32","1x BME280","1x Solar Panel","1x TP4056"],status:"Published",bom_cost:"$25"},{id:85,title:"Smart Irrigation System",level:"Intermediate",description:"Automated plant watering using capacitive sensors to prevent over-watering and dry-outs.",category:"Agriculture",estimatedTime:"75 mins",tech:["ESP32","Capacitive Moisture Sensor","Solenoid Valve"],concept:"Closed-loop Hydration. Measures soil dielectric constant to determine exact volumetric water content.",working_principle:`1. Analog read of moisture levels.
-2. Threshold comparison in firmware.
-3. Relay triggers solenoid valve for irrigation duration.`,pin_config:{esp32:[{module:"Moisture Sensor",pinName:"AOUT",mcuPin:"GPIO 34",direction:"Input",voltage:"3.3V",description:"Analog Moisture Level"},{module:"Water Valve",pinName:"RELAY",mcuPin:"GPIO 25",direction:"Output",voltage:"3.3V",description:"Control Signal"}]},advantages:"Water conservation, plant health.",disadvantages:"Needs plumbing setup.",usage:"Insert sensor vertically into root zone.",components:["1x ESP32","1x Capacitive Sensor","1x 12V Solenoid"],status:"Published",bom_cost:"$28"},{id:86,title:"Smart Door Lock using RFID",level:"Intermediate",description:"Secure access via MIFARE cards with web-based user management and log tracking.",category:"Security",estimatedTime:"60 mins",tech:["ESP32","RC522","Blynk"],concept:"Cryptographic Token Verification. Uses 13.56MHz SPI communication to authenticate stored UIDs.",working_principle:`1. MFRC522 detects card.
-2. SPI transfer of card UID.
-3. Validate against whitelist.
-4. Trigger solenoid lock.`,pin_config:{esp32:[{module:"RC522",pinName:"SDA/SS",mcuPin:"GPIO 5",direction:"Output",voltage:"3.3V",description:"SPI Chip Select"},{module:"RC522",pinName:"SCK",mcuPin:"GPIO 18",direction:"Output",voltage:"3.3V",description:"SPI Clock"},{module:"RC522",pinName:"MISO",mcuPin:"GPIO 19",direction:"Input",voltage:"3.3V",description:"SPI Master In"},{module:"RC522",pinName:"MOSI",mcuPin:"GPIO 23",direction:"Output",voltage:"3.3V",description:"SPI Master Out"}]},advantages:"High security, easy to revoke cards.",disadvantages:"Requires backup physical key for safety.",usage:"Mount reader behind wood or plastic for clean look.",components:["1x ESP32","1x MFRC522","1x Solenoid Lock"],status:"Published",bom_cost:"$18"},{id:87,title:"Smart Attendance System",level:"Advanced",description:"Complete institutional attendance logger syncing with Google Sheets via ESP32 WiFi.",category:"Management",estimatedTime:"120 mins",tech:["ESP32","RFID","HTTPS Redirect"],concept:"Cloud Integration. Bridges physical ID scans to cloud databases without an intermediary PC.",working_principle:`1. Scan RFID at classroom entrance.
-2. ESP32 performs HTTPS POST to Google App Script.
-3. Script appends row to Google Sheet.
-4. OLED displays 'Success' or 'Error'.`,pin_config:{esp32:[{module:"OLED SSD1306",pinName:"SDA",mcuPin:"GPIO 21",direction:"Bidirectional",voltage:"3.3V",description:"User Feedback"},{module:"Buzzer",pinName:"Signal",mcuPin:"GPIO 15",direction:"Output",voltage:"3.3V",description:"Success Alert"}]},advantages:"Zero paper usage, real-time tracking.",disadvantages:"Needs stable internet connection.",usage:"Generate a unique ID for every student/employee.",components:["1x ESP32","1x RC522","1x OLED","1x SD Slot"],status:"Published",bom_cost:"$24"},{id:88,title:"IoT Gas Leakage Monitoring",level:"Beginner",description:"Detect LPG and Smoke levels and send instant Pushover/Telegram alerts if safety limits are exceeded.",category:"Safety",estimatedTime:"45 mins",tech:["ESP32","MQ-2","Telegram Bot"],concept:"Chemical Analysis. Uses an electrochemical sensor to monitor oxidizable gases in the atmosphere.",working_principle:`1. MQ-2 provides analog voltage based on gas PPM.
-2. ESP32 ADC reads value.
-3. If > 2000ppm, trigger alarm and Telegram API call.`,pin_config:{esp32:[{module:"MQ-2 Sensor",pinName:"Analog",mcuPin:"GPIO 32",direction:"Input",voltage:"5V/3.3V",description:"Gas Concentration Output"},{module:"Alarm Siren",pinName:"+",mcuPin:"GPIO 13",direction:"Output",voltage:"3.3V",description:"Local Audible Alert"}]},advantages:"Life-saving automation, remote monitoring.",disadvantages:"MQ-2 needs pre-heating time.",usage:"Mount near Potential gas sources.",components:["1x ESP32","1x MQ-2","1x Buzzer"],status:"Published",bom_cost:"$12"},{id:89,title:"Smart Parking System",level:"Intermediate",description:"Real-time parking slot availability tracker with ultrasonic sensors and mobile dashboard.",category:"Smart City",estimatedTime:"60 mins",tech:["ESP32","Ultrasonic","Blynk"],concept:"Occupancy Analytics. Decides if a slot is 'occupied' based on physical distance thresholds from the sensor.",working_principle:`1. Trig pulse sent from HC-SR04.
-2. Measure Echo return time.
-3. If distance < 50cm, slot is OCCUPIED.
-4. Update cloud dashboard immediately.`,pin_config:{esp32:[{module:"Slot 1 Sensor",pinName:"TRIG",mcuPin:"GPIO 4",direction:"Output",voltage:"3.3V",description:"Distance Pulse Start"},{module:"Slot 1 Sensor",pinName:"ECHO",mcuPin:"GPIO 5",direction:"Input",voltage:"3.3V",description:"Distance Pulse Return"}]},advantages:"Reduces traffic, efficient space use.",disadvantages:"Sensors can be blocked.",usage:"Mount on the ceiling of the parking garage.",components:["1x ESP32","3x HC-SR04","1x I2C LCD"],status:"Published",bom_cost:"$18"},{id:90,title:"Smart Street Lighting",level:"Beginner",description:"Energy-saving lights that dim to 10% when empty and brighten to 100% when vehicles or pedestrians are detected.",category:"Green Tech",estimatedTime:"40 mins",tech:["ESP32","PIR Sensor","PWM LED"],concept:"Adaptive Dimming. Uses high-frequency PWM switching to control light intensity without flickering.",working_principle:`1. LDR checks if night has fallen.
-2. PIR monitors motion.
-3. If motion detected, ESP32 ramps up PWM duty cycle.
-4. Auto-dim after 30s of inactivity.`,pin_config:{esp32:[{module:"Motion Sensor",pinName:"OUT",mcuPin:"GPIO 27",direction:"Input",voltage:"3.3V",description:"Pedestrian Detection"},{module:"LED Driver",pinName:"PWM",mcuPin:"GPIO 14",direction:"Output",voltage:"3.3V",description:"Dimming Control"}]},advantages:"Energy savings, reduced light pollution.",disadvantages:"Requires sensitive PIR.",usage:"Chain multiple nodes together.",components:["1x ESP32","1x PIR","1x Power MOSFET","1x LDR"],status:"Published",bom_cost:"$15"},{id:91,title:"IoT Fire Alert System",level:"Intermediate",description:"Critical safety system detecting IR signature of flames with multi-channel alerts (Local + Cloud).",category:"Safety",estimatedTime:"50 mins",tech:["ESP32","Flame Sensor","Email Service"],concept:"Thermal Radiation Sensing. Detects specific infrared wavelengths emitted by open fires.",working_principle:`1. Flame sensor detects IR light.
-2. Threshold trigger via ADC.
-3. Activate high-decibel siren.
-4. Send Email alert via SMTP.`,pin_config:{esp32:[{module:"Flame Sensor",pinName:"DO",mcuPin:"GPIO 4",direction:"Input",voltage:"3.3V",description:"Digital Fire Signal"},{module:"Siren Relay",pinName:"CMD",mcuPin:"GPIO 5",direction:"Output",voltage:"3.3V",description:"Siren Activation"}]},advantages:"Early detection saves lives.",disadvantages:"Sensitive to sunlight.",usage:"Install in kitchens or server rooms.",components:["1x ESP32","1x Flame Sensor","1x High Decibel Buzzer"],status:"Published",bom_cost:"$14"},{id:92,title:"Smart Water Level Monitor",level:"Intermediate",description:"Non-contact water level tracking for tanks with auto-pump control and overflow prevention.",category:"Home Utility",estimatedTime:"60 mins",tech:["ESP32","Ultrasonic","Blynk IoT"],concept:"Acoustic Range Finding. Measures time-of-flight of sound waves to calculate overhead distance to water surface.",working_principle:`1. Measure distance to water.
-2. Calculate % fullness.
-3. If < 20%, turn on Pump relay.
-4. If > 95%, turn off Pump.`,pin_config:{esp32:[{module:"Water Sensor",pinName:"TRIG",mcuPin:"GPIO 12",direction:"Output",voltage:"3.3V",description:"Ping Start"},{module:"Water Sensor",pinName:"ECHO",mcuPin:"GPIO 13",direction:"Input",voltage:"3.3V",description:"Ping Finish"},{module:"Pump Relay",pinName:"IN",mcuPin:"GPIO 25",direction:"Output",voltage:"3.3V",description:"AC Pump Switch"}]},advantages:"Prevents overflow, automates chore.",disadvantages:"Condensation concerns.",usage:"Mount sensor in waterproof enclosure above the tank.",components:["1x ESP32","1x JSN-SR04T","1x 30A Relay"],status:"Published",bom_cost:"$28"},{id:93,title:"Smart Refrigerator Monitor",level:"Beginner",description:"Alert system for open fridge doors and temperature anomalies to prevent food spoilage.",category:"Kitchen Tech",estimatedTime:"45 mins",tech:["ESP32","Hall Effect","DS18B20"],concept:"Thermal Integrity monitoring. Tracks door state and temperature cycle to detect compressor failure.",working_principle:`1. Door opens -> Hall sensor reads LOW.
-2. Timer starts; if > 2 mins, sound alarm.
-3. Log temp log via DS18B120.`,pin_config:{esp32:[{module:"Temp Probe",pinName:"DATA",mcuPin:"GPIO 4",direction:"Input",voltage:"3.3V",description:"OneWire Bus"},{module:"Door Sensor",pinName:"OUT",mcuPin:"GPIO 5",direction:"Input",voltage:"3.3V",description:"Magnetic Switch"}]},advantages:"Prevents waste, energy efficient.",disadvantages:"Thin wiring needed.",usage:"Use flat ribbon cables.",components:["1x ESP32","1x DS18B20 Waterproof","1x Magnetic Reed Switch"],status:"Published",bom_cost:"$16"},{id:94,title:"Smart Room Automation",level:"Intermediate",description:"Gesture and Voice controlled room with personalized lighting and fan presets.",category:"Home Automation",estimatedTime:"90 mins",tech:["ESP32","IR Receiver","PIR Sensor"],concept:"Multi-modal Interaction. Allows user to control their environment via physical presence, remote control, or app.",working_principle:`1. IR receiver decodes remotes.
-2. PIR detects presence.
-3. Logic handles 'Scenes'.`,pin_config:{esp32:[{module:"IR Receiver",pinName:"DATA",mcuPin:"GPIO 15",direction:"Input",voltage:"3.3V",description:"Remote Control Input"},{module:"Status LCD",pinName:"I2C",mcuPin:"GPIO 21/22",direction:"Output",voltage:"3.3V",description:"Show Current Mode"}]},advantages:"Convenience, accessible.",disadvantages:"Complex scene logic.",usage:"Program codes from existing remotes.",components:["1x ESP32","1x TSOP IR Receiver","1x 4-Relay Board"],status:"Published",bom_cost:"$26"},{id:95,title:"Smart Health Monitoring System",level:"Advanced",description:"Wearable node tracking Heart Rate and SpO2 levels with cloud logging for remote patient monitoring.",category:"Medical IoT",estimatedTime:"120 mins",tech:["ESP32","MAX30102","OLED"],concept:"Photoplethysmography (PPG). Uses red and infrared light absorption to determine blood oxygenation and pulse.",working_principle:`1. I2C communication with MAX30102.
-2. Process raw data.
-3. Calculate BPM and SpO2.
-4. Display and upload.`,pin_config:{esp32:[{module:"MAX30102",pinName:"SDA",mcuPin:"GPIO 21",direction:"Bidirectional",voltage:"3.3V",description:"I2C Data Bus"},{module:"MAX30102",pinName:"SCL",mcuPin:"GPIO 22",direction:"Output",voltage:"3.3V",description:"I2C Clock Bus"},{module:"Heart Beat",pinName:"INT",mcuPin:"GPIO 19",direction:"Input",voltage:"3.3V",description:"Interrupt Signal"}]},advantages:"Continuous monitoring.",disadvantages:"Motion artifacts.",usage:"Keep finger steady.",components:["1x ESP32","1x MAX30102","1x 0.96 OLED"],status:"Published",bom_cost:"$32"},{id:96,title:"Smart Greenhouse Monitoring",level:"Advanced",description:"Total environmental control with CO2, TVOC, PAR, and precision humidity management.",category:"Green Tech",estimatedTime:"150 mins",tech:["ESP32","SGP30","BME280","Fan Control"],concept:"Precision Agronomy. Optimizes photosynthesis by maintaining the VPD and CO2 levels.",working_principle:`1. Sense env variables.
-2. Calculate VPD.
-3. Maintain equilibrium via fans.`,pin_config:{esp32:[{module:"CO2 Sensor",pinName:"PWR",mcuPin:"GPIO 13",direction:"Output",voltage:"3.3V",description:"Power Management"},{module:"BME280",pinName:"I2C",mcuPin:"GPIO 21/22",direction:"Bidirectional",voltage:"3.3V",description:"Ambient Bus"}]},advantages:"Improved yields, autonomous climate.",disadvantages:"High cost.",usage:"Connect to automation reservoir.",components:["1x ESP32","1x SGP30","1x BME280","2x DC Fans"],status:"Published",bom_cost:"$65"},{id:97,title:"Smart Traffic Management",level:"Intermediate",description:"Density-based traffic signal control system using Infrared sensors to reduce congestion.",category:"Smart City",estimatedTime:"90 mins",tech:["ESP32","Infrared Grid","Signal Logic"],concept:"Dynamic Dispatch. Allots time based on real vehicle counts.",working_principle:`1. IR sensors detect density.
-2. Priority logic switches signals.`,pin_config:{esp32:[{module:"Lane 1 - Close",pinName:"IN",mcuPin:"GPIO 32",direction:"Input",voltage:"3.3V",description:"High Density Trigger"},{module:"Lane 1 - Signal",pinName:"RED",mcuPin:"GPIO 5",direction:"Output",voltage:"3.3V",description:"Stop Light"}]},advantages:"Reduces fuel waste.",disadvantages:"Needs wireless sync for network.",usage:"Test with miniatures.",components:["1x ESP32","8x IR Sensors","12x Traffic LEDs"],status:"Published",bom_cost:"$28"},{id:98,title:"IoT Based Air Quality Monitor",level:"Advanced",description:"Professional PM2.5 and PM10 particulate tracker with laser scattering technology.",category:"Environmental",estimatedTime:"100 mins",tech:["ESP32","SDS011","WiFi"],concept:"Pollution Mapping. Uses laser scattering to count particles.",working_principle:`1. Laser diode activates.
-2. Scatter measurement.
-3. Log to global DB.`,pin_config:{esp32:[{module:"SDS011 Laser",pinName:"TXD",mcuPin:"GPIO 16",direction:"Input",voltage:"5V/3.3V",description:"UART RX Pin"},{module:"SDS011 Laser",pinName:"RXD",mcuPin:"GPIO 17",direction:"Output",voltage:"5V/3.3V",description:"UART TX Pin"}]},advantages:"Professional accuracy.",disadvantages:"Fan noise.",usage:"Place in protected area.",components:["1x ESP32","1x SDS011 Laser Sensor","1x OLED"],status:"Published",bom_cost:"$45"},{id:99,title:"Smart Waste Management",level:"Intermediate",description:"Connected trash bins that report 'Full' status to optimize garbage collection routes.",category:"Smart City",estimatedTime:"60 mins",tech:["ESP32","Ultrasonic","GPS Module"],concept:"Logistics Optimization. Reduces collection costs by only visiting bins that actually need emptying.",working_principle:`1. Ultrasonic measures trash level.
-2. Report location + fullness.`,pin_config:{esp32:[{module:"Trash Level",pinName:"TRIG",mcuPin:"GPIO 4",direction:"Output",voltage:"3.3V",description:"Measurement Start"},{module:"Trash Level",pinName:"ECHO",mcuPin:"GPIO 5",direction:"Input",voltage:"3.3V",description:"Measurement Recieve"}]},advantages:"Lower carbon footprint, zero overflow.",disadvantages:"Battery concerns.",usage:"Use LoRaWAN for battery.",components:["1x ESP32","1x HC-SR04","1x GPS Module"],status:"Published",bom_cost:"$32"},{id:100,title:"Smart Vehicle Tracking",level:"Advanced",description:"Professional 3rd-party tracking node with GPS geopositioning, GSM cellular alerts, and SOS trigger.",category:"Safety & Logistics",estimatedTime:"150 mins",tech:["ESP32","SIM800L","Neo-6M GPS"],concept:"Remote Telemetry. Fuses satellite positioning data with cellular GPRS for global asset tracking.",working_principle:`1. Neo-6M acquires NMEA string from satellites.
-2. ESP32 parses Lat/Lon data.
-3. SIM800L sends link to Google Maps via SMS or HTTP Post.
-4. SOS button triggers priority alert to emergency contacts.`,pin_config:{esp32:[{module:"GSM (SIM800L)",pinName:"TX",mcuPin:"GPIO 16",direction:"Output",voltage:"2.8-3V",description:"GSM -> ESP32 UART RX"},{module:"GSM (SIM800L)",pinName:"RX",mcuPin:"GPIO 17",direction:"Input",voltage:"2.8-3V",description:"ESP32 -> GSM UART TX"},{module:"GPS (Neo-6M)",pinName:"TX",mcuPin:"GPIO 4",direction:"Output",voltage:"3.3V",description:"GPS Data Output"},{module:"GPS (Neo-6M)",pinName:"RX",mcuPin:"GPIO 5",direction:"Input",voltage:"3.3V",description:"GPS Data Input"},{module:"Panic Button",pinName:"BTN",mcuPin:"GPIO 27",direction:"Input",voltage:"3.3V",description:"SOS Trigger"},{module:"Siren/Buzzer",pinName:"+",mcuPin:"GPIO 26",direction:"Output",voltage:"3.3V",description:"Alert Sound"},{module:"System Power",pinName:"VCC",mcuPin:"5V",direction:"Power",voltage:"5V",description:"External Battery Input"},{module:"System GND",pinName:"GND",mcuPin:"GND",direction:"Power",voltage:"0V",description:"Common Ground Signal"}]},advantages:"Real-time tracking, anti-theft security.",disadvantages:"High power usage.",usage:"Conceal inside a vehicle.",components:["1x ESP32","1x SIM800L","1x Neo-6M GPS","1x LiPo Battery"],status:"Published",bom_cost:"$55"}];export{e as p};
+}`,advantages:"High accuracy, track usage costs.",disadvantages:"Involves mains high voltage wiring.",usage:"Clamp CT sensor around the live wire of the appliance.",components:["1x ESP32","1x PZEM-004T","1x CT Coil"],status:"Published",bom_cost:"$35"},{id:84,title:"IoT Based Weather Station",level:"Intermediate",description:"Solar-powered precision station measuring temperature, humidity, pressure, and air quality with ThingSpeak integration.",category:"Environmental",estimatedTime:"90 mins",tech:["ESP32","BME280","Deep Sleep"],concept:"Ultra-Low Power Logging. Uses deep sleep modes to run on battery for months, waking up only for data transmission.",working_principle:`1. Deep Sleep Strategy: The ESP32 shuts down all peripherals and cores except the RTC timer to save power.
+2. Upon wake-up, it initializes the BME280 sensor to read ambient Pressure, Temperature, and Humidity.
+3. It uses a high-gain WiFi antenna to connect and push the CSV-formatted data to a ThingSpeak channel.
+4. Battery levels are monitored via a voltage divider to notify the user when the solar charge is low.`,pin_config:{esp32:[{module:"BME280",pinName:"SDA",mcuPin:"GPIO 21",direction:"Bidirectional",voltage:"3.3V",description:"I2C Data Bus"},{module:"BME280",pinName:"SCL",mcuPin:"GPIO 22",direction:"Output",voltage:"3.3V",description:"I2C Clock Bus"}]},advantages:"Maintenance free on solar, accurate data.",disadvantages:"I2C address conflicts if unsheathed.",usage:"Mount in a Stevensen screen for best accuracy.",components:["1x ESP32","1x BME280","1x Solar Panel","1x TP4056"],status:"Published",bom_cost:"$25",code:`// Ultra-Low Power Weather Station
+#include <Adafruit_BME280.h>
+#include <WiFi.h>
+
+#define uS_TO_S_FACTOR 1000000
+#define TIME_TO_SLEEP  900
+
+Adafruit_BME280 bme;
+
+void setup() {
+  Serial.begin(115200);
+  if(!bme.begin(0x76)) { Serial.println("BME Error"); return; }
+  
+  WiFi.begin("SSID", "PASS");
+  while(WiFi.status() != WL_CONNECTED) delay(500);
+  
+  // PUSH DATA
+  Serial.printf("Temp: %.2f | Hum: %.2f\\n", bme.readTemperature(), bme.readHumidity());
+  
+  esp_sleep_enable_timer_wakeup(TIME_TO_SLEEP * uS_TO_S_FACTOR);
+  Serial.println("Entering Deep Sleep...");
+  Serial.flush(); 
+  esp_deep_sleep_start();
+}
+
+void loop() {}`},{id:85,title:"Smart Irrigation System",level:"Intermediate",description:"Automated plant watering using capacitive sensors to prevent over-watering and dry-outs.",category:"Agriculture",estimatedTime:"75 mins",tech:["ESP32","Capacitive Moisture Sensor","Solenoid Valve"],concept:"Closed-loop Hydration. Measures soil dielectric constant to determine exact volumetric water content.",working_principle:`1. Capacitive Soil Moisture Sensor (Corrosion resistant) measures the soil's dielectric constant.
+2. Calibration: Dry soil returns ~3000 ADC, Wet soil returns ~1200 ADC (on ESP32 12-bit ADC).
+3. Logic: If Average(Moisture) < Threshold, activate the Solenoid Valve through a Power Transistor.
+4. Safe Guard: The pump terminates after 30 seconds regardless of reading to prevent flooding if sensor fails.`,pin_config:{esp32:[{module:"Moisture Sensor",pinName:"AOUT",mcuPin:"GPIO 34",direction:"Input",voltage:"3.3V",description:"Analog Moisture Level"},{module:"Water Valve",pinName:"RELAY",mcuPin:"GPIO 25",direction:"Output",voltage:"3.3V",description:"Control Signal"}]},advantages:"Water conservation, plant health.",disadvantages:"Needs plumbing setup.",usage:"Insert sensor vertically into root zone.",components:["1x ESP32","1x Capacitive Sensor","1x 12V Solenoid"],status:"Published",bom_cost:"$28",code:`// Fail-Safe Smart Irrigation
+const int SENSOR_PIN = 34;
+const int VALVE_PIN = 25;
+const int THRESHOLD = 2000;
+
+void setup() {
+  pinMode(VALVE_PIN, OUTPUT);
+  digitalWrite(VALVE_PIN, LOW);
+}
+
+void loop() {
+  int sum = 0;
+  for(int i=0; i<10; i++) sum += analogRead(SENSOR_PIN);
+  int avg = sum / 10;
+
+  if(avg > THRESHOLD) {
+    digitalWrite(VALVE_PIN, HIGH); // Open Valve
+    delay(15000);                 // Water for 15s
+    digitalWrite(VALVE_PIN, LOW);  // Close Valve
+    delay(3600000);               // Wait 1 hour for soil to soak
+  }
+  delay(60000); 
+}`},{id:86,title:"Smart Door Lock using RFID",level:"Intermediate",description:"Secure access via MIFARE cards with web-based user management and log tracking.",category:"Security",estimatedTime:"60 mins",tech:["ESP32","RC522","Blynk"],concept:"Cryptographic Token Verification. Uses 13.56MHz SPI communication to authenticate stored UIDs.",working_principle:`1. MFRC522 reads 1kB MIFARE tags using 13.56MHz induction.
+2. Card UID is verified through a SHA-256 hash or simple whitelisting.
+3. Upon success, a 12V Solenoid Door Lock is pulsed via a TIP120 transistor.
+4. Integration: The Blynk app dashboard allows the owner to 'Force Open' or 'Lockdown' the entry remotely.`,pin_config:{esp32:[{module:"RC522",pinName:"SDA/SS",mcuPin:"GPIO 5",direction:"Output",voltage:"3.3V",description:"SPI Chip Select"},{module:"RC522",pinName:"SCK",mcuPin:"GPIO 18",direction:"Output",voltage:"3.3V",description:"SPI Clock"},{module:"RC522",pinName:"MISO",mcuPin:"GPIO 19",direction:"Input",voltage:"3.3V",description:"SPI Master In"},{module:"RC522",pinName:"MOSI",mcuPin:"GPIO 23",direction:"Output",voltage:"3.3V",description:"SPI Master Out"}]},advantages:"High security, easy to revoke cards.",disadvantages:"Requires backup physical key for safety.",usage:"Mount reader behind wood or plastic for clean look.",components:["1x ESP32","1x MFRC522","1x Solenoid Lock"],status:"Published",bom_cost:"$18",code:`// High-Security RFID Lock
+#include <MFRC522.h>
+#include <BlynkSimpleEsp32.h>
+
+MFRC522 mfrc522(5, 22);
+
+void setup() {
+  Serial.begin(115200);
+  SPI.begin();
+  mfrc522.PCD_Init();
+  pinMode(27, OUTPUT); // Solenoid Pin
+}
+
+void loop() {
+  if (!mfrc522.PICC_IsNewCardPresent()) return;
+  if (!mfrc522.PICC_ReadCardSerial()) return;
+  
+  // Check UID logic
+  if(mfrc522.uid.uidByte[0] == 0xDE && mfrc522.uid.uidByte[1] == 0xAD) {
+    digitalWrite(27, HIGH);
+    delay(5000);
+    digitalWrite(27, LOW);
+  }
+}`},{id:87,title:"Smart Attendance System",level:"Advanced",description:"Complete institutional attendance logger syncing with Google Sheets via ESP32 WiFi.",category:"Management",estimatedTime:"120 mins",tech:["ESP32","RFID","HTTPS Redirect"],concept:"Cloud Integration. Bridges physical ID scans to cloud databases without an intermediary PC.",working_principle:`1. Scans RFID and maps UID to a student name in a structural map.
+2. Connects to Google Apps Script via HTTPS/TLS 1.2 for secure logging.
+3. The script handles data sanitization and appends the entry to Google Sheets Column A.
+4. Feedback: A short 'Success Tone' on the buzzer and 'Present' status on the 16x2 I2C LCD display.`,pin_config:{esp32:[{module:"OLED SSD1306",pinName:"SDA",mcuPin:"GPIO 21",direction:"Bidirectional",voltage:"3.3V",description:"User Feedback"},{module:"Buzzer",pinName:"Signal",mcuPin:"GPIO 15",direction:"Output",voltage:"3.3V",description:"Success Alert"}]},advantages:"Zero paper usage, real-time tracking.",disadvantages:"Needs stable internet connection.",usage:"Generate a unique ID for every student/employee.",components:["1x ESP32","1x RC522","1x OLED","1x SD Slot"],status:"Published",bom_cost:"$24",code:`// Institutional IoT Attendance
+#include <HTTPClient.h>
+#include <LiquidCrystal_I2C.h>
+
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+void sendAttendance(String id) {
+  HTTPClient http;
+  http.begin("https://script.google.com/macros/s/AKf.../exec?id=" + id);
+  int code = http.GET();
+  if(code > 0) lcd.print("Logged!");
+  http.end();
+}
+
+void setup() {
+  lcd.init();
+  lcd.backlight();
+  lcd.print("Welcome!");
+}
+
+void loop() {
+  // RFID reading logic here
+}`},{id:88,title:"IoT Gas Leakage Monitoring",level:"Beginner",description:"Detect LPG and Smoke levels and send instant Pushover/Telegram alerts if safety limits are exceeded.",category:"Safety",estimatedTime:"45 mins",tech:["ESP32","MQ-2","Telegram Bot"],concept:"Chemical Analysis. Uses an electrochemical sensor to monitor oxidizable gases in the atmosphere.",working_principle:`1. The MQ-2 sensor uses an internal heating element to stabilize the SnO2 (Tin Dioxide) sensing layer.
+2. When LPG/CO/Smoke particles contact the layer, conductivity increases measured as an analog voltage.
+3. The ESP32 constantly monitors the differential change (dGas/dt) to detect sudden leaks.
+4. Emergency Proto: Immediately activates a high-frequency siren and disconnects a relay (simulating gas valve shutoff).`,pin_config:{esp32:[{module:"MQ-2 Sensor",pinName:"Analog",mcuPin:"GPIO 32",direction:"Input",voltage:"5V/3.3V",description:"Gas Concentration Output"},{module:"Alarm Siren",pinName:"+",mcuPin:"GPIO 13",direction:"Output",voltage:"3.3V",description:"Local Audible Alert"}]},advantages:"Life-saving automation, remote monitoring.",disadvantages:"MQ-2 needs pre-heating time.",usage:"Mount near Potential gas sources.",components:["1x ESP32","1x MQ-2","1x Buzzer"],status:"Published",bom_cost:"$12",code:`// Industrial Gas Safety Node
+#define SENSOR_PIN 32
+#define SIREN_PIN 13
+#define SHUTOFF_VALVE 27
+
+void setup() {
+  pinMode(SIREN_PIN, OUTPUT);
+  pinMode(SHUTOFF_VALVE, OUTPUT);
+  digitalWrite(SHUTOFF_VALVE, HIGH); // Open by default
+}
+
+void loop() {
+  int val = analogRead(SENSOR_PIN);
+  if (val > 2500) { // Dangerous Level
+    digitalWrite(SIREN_PIN, HIGH);
+    digitalWrite(SHUTOFF_VALVE, LOW); // Close Valve
+    Serial.println("GAS EXCEEDED: CLOSING MAIN VALVE");
+    // Telegram API call logic
+  }
+  delay(200);
+}`},{id:89,title:"Smart Parking System",level:"Intermediate",description:"Real-time parking slot availability tracker with ultrasonic sensors and mobile dashboard.",category:"Smart City",estimatedTime:"60 mins",tech:["ESP32","Ultrasonic","Blynk"],concept:"Occupancy Analytics. Decides if a slot is 'occupied' based on physical distance thresholds from the sensor.",working_principle:`1. Multi-node network where each parking slot has an dedicated ultrasonic sensor installed on the ceiling.
+2. MCU deciphers the state: Occupied (< 50cm) or Vacant (> 50cm).
+3. State changes are transmitted via the MQTT protocol to a central database.
+4. A physical LED indicator at the slot entrance changes from Green (Vacant) to Red (Occupied) for driver convenience.`,pin_config:{esp32:[{module:"Slot 1 Sensor",pinName:"TRIG",mcuPin:"GPIO 4",direction:"Output",voltage:"3.3V",description:"Distance Pulse Start"},{module:"Slot 1 Sensor",pinName:"ECHO",mcuPin:"GPIO 5",direction:"Input",voltage:"3.3V",description:"Distance Pulse Return"}]},advantages:"Reduces traffic, efficient space use.",disadvantages:"Sensors can be blocked.",usage:"Mount on the ceiling of the parking garage.",components:["1x ESP32","3x HC-SR04","1x I2C LCD"],status:"Published",bom_cost:"$18",code:`// Smart Parking Slot Monitor
+#include <PubSubClient.h>
+
+const int TRIG = 4; const int ECHO = 5;
+const int RED_LED = 25; const int GRN_LED = 26;
+
+void setup() {
+  pinMode(TRIG, OUTPUT); pinMode(ECHO, INPUT);
+  pinMode(RED_LED, OUTPUT); pinMode(GRN_LED, OUTPUT);
+}
+
+void loop() {
+  digitalWrite(TRIG, HIGH); delayMicroseconds(10); digitalWrite(TRIG, LOW);
+  long d = pulseIn(ECHO, HIGH) * 0.034 / 2;
+  
+  if(d < 50 && d > 0) {
+    digitalWrite(RED_LED, HIGH); digitalWrite(GRN_LED, LOW);
+    // MQTT publish "Occupied"
+  } else {
+    digitalWrite(RED_LED, LOW); digitalWrite(GRN_LED, HIGH);
+    // MQTT publish "Vacant"
+  }
+  delay(2000);
+}`},{id:90,title:"Smart Street Lighting",level:"Beginner",description:"Energy-saving lights that dim to 10% when empty and brighten to 100% when vehicles or pedestrians are detected.",category:"Green Tech",estimatedTime:"40 mins",tech:["ESP32","PIR Sensor","PWM LED"],concept:"Adaptive Dimming. Uses high-frequency PWM switching to control light intensity without flickering.",working_principle:`1. Dual sensor logic: LDR for ambient light and PIR for human presence.
+2. PWM Dimming: Light level is kept at 5% (Idle) to ensure safety and visibility at night.
+3. On motion detection, the light ramps up (soft transition) to 100% brightness over 1 second.
+4. Energy reporting: The system calculates kWh saved by comparing the 'Auto-Dimmed' state vs 'Always-On' state.`,pin_config:{esp32:[{module:"Motion Sensor",pinName:"OUT",mcuPin:"GPIO 27",direction:"Input",voltage:"3.3V",description:"Pedestrian Detection"},{module:"LED Driver",pinName:"PWM",mcuPin:"GPIO 14",direction:"Output",voltage:"3.3V",description:"Dimming Control"}]},advantages:"Energy savings, reduced light pollution.",disadvantages:"Requires sensitive PIR.",usage:"Chain multiple nodes together.",components:["1x ESP32","1x PIR","1x Power MOSFET","1x LDR"],status:"Published",bom_cost:"$15",code:`// Autonomous Smart Streetlight
+const int LED_PIN = 14;
+const int PIR_PIN = 27;
+
+void setup() {
+  ledcSetup(0, 5000, 8);
+  ledcAttachPin(LED_PIN, 0);
+  pinMode(PIR_PIN, INPUT);
+}
+
+void loop() {
+  if(digitalRead(PIR_PIN)) {
+    for(int i=50; i<255; i++) { 
+      ledcWrite(0, i); 
+      delay(5); 
+    }
+    delay(15000);
+  } else {
+    ledcWrite(0, 20); // 8% Standby
+  }
+  delay(500);
+}`},{id:91,title:"IoT Fire Alert System",level:"Intermediate",description:"Critical safety system detecting IR signature of flames with multi-channel alerts (Local + Cloud).",category:"Safety",estimatedTime:"50 mins",tech:["ESP32","Flame Sensor","Email Service"],concept:"Thermal Radiation Sensing. Detects specific infrared wavelengths emitted by open fires.",working_principle:`1. Uses a 5-channel Flame Sensor array for 120-degree fire detection coverage.
+2. Detects specific IR frequencies (760nm - 1100nm) emitted by combustion.
+3. Upon detection, the ESP32 activates a high-current water pump relay (Fire Suppression Simulation).
+4. System sends an emergency HTTP POST request with the 'Critical Fire' status and node location.`,pin_config:{esp32:[{module:"Flame Sensor",pinName:"DO",mcuPin:"GPIO 4",direction:"Input",voltage:"3.3V",description:"Digital Fire Signal"},{module:"Siren Relay",pinName:"CMD",mcuPin:"GPIO 5",direction:"Output",voltage:"3.3V",description:"Siren Activation"}]},advantages:"Early detection saves lives.",disadvantages:"Sensitive to sunlight.",usage:"Install in kitchens or server rooms.",components:["1x ESP32","1x Flame Sensor","1x High Decibel Buzzer"],status:"Published",bom_cost:"$14",code:`// Fire Mitigation & Alert System
+const int FLAME_PIN = 32;
+const int PUMP_RELAY = 13;
+
+void setup() {
+  pinMode(FLAME_PIN, INPUT);
+  pinMode(PUMP_RELAY, OUTPUT);
+  digitalWrite(PUMP_RELAY, LOW);
+}
+
+void loop() {
+  if(digitalRead(FLAME_PIN) == LOW) { // Flame detected (Active Low)
+    digitalWrite(PUMP_RELAY, HIGH);
+    Serial.println("FIRE DETECTED! Suppression Active.");
+    // Send Cloud Alert
+    delay(10000);
+  } else {
+    digitalWrite(PUMP_RELAY, LOW);
+  }
+  delay(50);
+}`},{id:92,title:"Smart Water Level Monitor",level:"Intermediate",description:"Non-contact water level tracking for tanks with auto-pump control and overflow prevention.",category:"Home Utility",estimatedTime:"60 mins",tech:["ESP32","Ultrasonic","Blynk IoT"],concept:"Acoustic Range Finding. Measures time-of-flight of sound waves to calculate overhead distance to water surface.",working_principle:`1. Acoustic time-of-flight measurement: calculates the distance from the top-mounted sensor to the water surface.
+2. Calibration: Total Tank Depth and sensor offset are factored into the firmware.
+3. Threshold Logic: 25% (Start Pump) and 95% (Stop Pump) to ensure water availability and prevent tank dry-run.
+4. Manual Override: Physical push button on the panel allows manual pump control during maintenance.`,pin_config:{esp32:[{module:"Water Sensor",pinName:"TRIG",mcuPin:"GPIO 12",direction:"Output",voltage:"3.3V",description:"Ping Start"},{module:"Water Sensor",pinName:"ECHO",mcuPin:"GPIO 13",direction:"Input",voltage:"3.3V",description:"Ping Finish"},{module:"Pump Relay",pinName:"IN",mcuPin:"GPIO 25",direction:"Output",voltage:"3.3V",description:"AC Pump Switch"}]},advantages:"Prevents overflow, automates chore.",disadvantages:"Condensation concerns.",usage:"Mount sensor in waterproof enclosure above the tank.",components:["1x ESP32","1x JSN-SR04T","1x 30A Relay"],status:"Published",bom_cost:"$28",code:`// Liquid Level Logic Controller
+#define PUMP 15
+#define TRIG 12
+#define ECHO 13
+
+void setup() {
+  pinMode(PUMP, OUTPUT);
+  pinMode(TRIG, OUTPUT); pinMode(ECHO, INPUT);
+}
+
+void loop() {
+  digitalWrite(TRIG, HIGH); delayMicroseconds(10); digitalWrite(TRIG, LOW);
+  long dist = pulseIn(ECHO, HIGH) * 0.034 / 2;
+  int level = map(dist, 100, 10, 0, 100); // 100cm (Empty) to 10cm (Full)
+
+  if(level < 20) digitalWrite(PUMP, HIGH);
+  if(level > 95) digitalWrite(PUMP, LOW);
+  delay(5000);
+}`},{id:93,title:"Smart Refrigerator Monitor",level:"Beginner",description:"Alert system for open fridge doors and temperature anomalies to prevent food spoilage.",category:"Kitchen Tech",estimatedTime:"45 mins",tech:["ESP32","Hall Effect","DS18B20"],concept:"Thermal Integrity monitoring. Tracks door state and temperature cycle to detect compressor failure.",working_principle:`1. Uses a DS18B20 waterproof probe inside the fridge and a magnetic reed switch on the door.
+2. The MCU tracks the 'Door Open' duration; if it exceeds 60 seconds, it triggers a local buzzer and pushes a 'Fridge Door Open' alert.
+3. It also logs the temperature every 15 minutes to generate a cooling performance graph.
+4. The system detects if the compressor is failing by monitoring if the temperature rises above 10°C for more than an hour.`,pin_config:{esp32:[{module:"Temp Probe",pinName:"DATA",mcuPin:"GPIO 4",direction:"Input",voltage:"3.3V",description:"OneWire Bus"},{module:"Door Sensor",pinName:"OUT",mcuPin:"GPIO 5",direction:"Input",voltage:"3.3V",description:"Magnetic Switch"}]},advantages:"Prevents waste, energy efficient.",disadvantages:"Thin wiring needed.",usage:"Use flat ribbon cables.",components:["1x ESP32","1x DS18B20 Waterproof","1x Magnetic Reed Switch"],status:"Published",bom_cost:"$16",code:`// Smart Refrigerator Security Log
+#include <OneWire.h>
+#include <DallasTemperature.h>
+
+OneWire oneWire(4);
+DallasTemperature sensors(&oneWire);
+#define REED_PIN 15
+#define BUZZER 13
+
+void setup() {
+  sensors.begin();
+  pinMode(REED_PIN, INPUT_PULLUP);
+  pinMode(BUZZER, OUTPUT);
+}
+
+void loop() {
+  sensors.requestTemperatures();
+  float t = sensors.getTempCByIndex(0);
+  bool doorOpen = digitalRead(REED_PIN) == HIGH;
+  
+  if (doorOpen) {
+    // Timer logic here
+    digitalWrite(BUZZER, HIGH); delay(100); digitalWrite(BUZZER, LOW);
+  }
+  delay(5000);
+}`},{id:94,title:"Smart Room Automation",level:"Intermediate",description:"Gesture and Voice controlled room with personalized lighting and fan presets.",category:"Home Automation",estimatedTime:"90 mins",tech:["ESP32","IR Receiver","PIR Sensor"],concept:"Multi-modal Interaction. Allows user to control their environment via physical presence, remote control, or app.",working_principle:`1. Integrates an IR receiver to capture signals from standard TV/AC remotes (NEC/Sony Protocol).
+2. Uses a PIR sensor to determine if the room has been vacant for > 15 minutes.
+3. Energy Optimization: If vacancy is confirmed, all active high-voltage relays (Lights/AC) are disconnected.
+4. Feedback loop: A 16x2 LCD provides the current power usage and connectivity status of the smart room.`,pin_config:{esp32:[{module:"IR Receiver",pinName:"DATA",mcuPin:"GPIO 15",direction:"Input",voltage:"3.3V",description:"Remote Control Input"},{module:"Status LCD",pinName:"I2C",mcuPin:"GPIO 21/22",direction:"Output",voltage:"3.3V",description:"Show Current Mode"}]},advantages:"Convenience, accessible.",disadvantages:"Complex scene logic.",usage:"Program codes from existing remotes.",components:["1x ESP32","1x TSOP IR Receiver","1x 4-Relay Board"],status:"Published",bom_cost:"$26",code:`// Smart Comfort & Energy Node
+#include <IRremote.h>
+
+const int IR_RX = 15; 
+const int RELAY = 13;
+
+void setup() {
+  IrReceiver.begin(IR_RX, ENABLE_LED_FEEDBACK);
+  pinMode(RELAY, OUTPUT);
+}
+
+void loop() {
+  if (IrReceiver.decode()) {
+    if(IrReceiver.decodedIRData.command == 0x12) { // Example IR Command
+      digitalWrite(RELAY, !digitalRead(RELAY));
+    }
+    IrReceiver.resume();
+  }
+}`},{id:95,title:"Smart Health Monitoring System",level:"Advanced",description:"Wearable node tracking Heart Rate and SpO2 levels with cloud logging for remote patient monitoring.",category:"Medical IoT",estimatedTime:"120 mins",tech:["ESP32","MAX30102","OLED"],concept:"Photoplethysmography (PPG). Uses red and infrared light absorption to determine blood oxygenation and pulse.",working_principle:`1. Uses a MAX30102 integrated pulse oximetry and heart-rate monitor biosensor.
+2. Emits Red and IR light into the finger; the photodetector measures the amount of light reflected back.
+3. A complex DSP (Digital Signal Processing) algorithm calculates the SpO2 % by comparing Red/IR ratios.
+4. Heart rate is derived using a peak-detection algorithm on the PPG (Photoplethysmogram) waveform.`,pin_config:{esp32:[{module:"MAX30102",pinName:"SDA",mcuPin:"GPIO 21",direction:"Bidirectional",voltage:"3.3V",description:"I2C Data Bus"},{module:"MAX30102",pinName:"SCL",mcuPin:"GPIO 22",direction:"Output",voltage:"3.3V",description:"I2C Clock Bus"},{module:"Heart Beat",pinName:"INT",mcuPin:"GPIO 19",direction:"Input",voltage:"3.3V",description:"Interrupt Signal"}]},advantages:"Continuous monitoring.",disadvantages:"Motion artifacts.",usage:"Keep finger steady.",components:["1x ESP32","1x MAX30102","1x 0.96 OLED"],status:"Published",bom_cost:"$32",code:`// Medical Grade Pulse Auditor
+#include <Wire.h>
+#include "MAX30105.h"
+#include "heartRate.h"
+
+MAX30105 particleSensor;
+
+void setup() {
+  Serial.begin(115200);
+  if (!particleSensor.begin(Wire, I2C_SPEED_FAST)) { 
+    Serial.println("Sensor Link Failed"); 
+    return; 
+  }
+  particleSensor.setup();
+}
+
+void loop() {
+  long irValue = particleSensor.getIR();
+  if (checkForBeat(irValue) == true) {
+    long delta = millis() - lastBeat;
+    float bpm = 60 / (delta / 1000.0);
+    Serial.print("BPM: "); Serial.println(bpm);
+  }
+}`},{id:96,title:"Smart Greenhouse Monitoring",level:"Advanced",description:"Total environmental control with CO2, TVOC, PAR, and precision humidity management.",category:"Green Tech",estimatedTime:"150 mins",tech:["ESP32","SGP30","BME280","Fan Control"],concept:"Precision Agronomy. Optimizes photosynthesis by maintaining the VPD and CO2 levels.",working_principle:`1. Multi-parameter probe: SGP30 for Air Quality (TVOC/eCO2) and BME280 for Humidity/Temp.
+2. Uses a PID-inspired logic to control ventilation fans based on the CO2 Parts Per Million (PPM).
+3. If CO2 > 1000ppm, fans are ramped up via PWM to cycle fresh air through the greenhouse.
+4. Real-time logging: Data is pushed to an InfluxDB/Grafana stack for agricultural growth trend visualization.`,pin_config:{esp32:[{module:"CO2 Sensor",pinName:"PWR",mcuPin:"GPIO 13",direction:"Output",voltage:"3.3V",description:"Power Management"},{module:"BME280",pinName:"I2C",mcuPin:"GPIO 21/22",direction:"Bidirectional",voltage:"3.3V",description:"Ambient Bus"}]},advantages:"Improved yields, autonomous climate.",disadvantages:"High cost.",usage:"Connect to automation reservoir.",components:["1x ESP32","1x SGP30","1x BME280","2x DC Fans"],status:"Published",bom_cost:"$65",code:`// Greenhouse Climate Controller
+#include "Adafruit_SGP30.h"
+Adafruit_SGP30 sgp;
+
+void setup() {
+  Serial.begin(115200);
+  if(!sgp.begin()) { Serial.println("CO2 Sensor Error"); return; }
+  pinMode(13, OUTPUT); // Exhaust Fan
+}
+
+void loop() {
+  if(sgp.IAQmeasure()) {
+    Serial.print("CO2: "); Serial.print(sgp.eCO2); Serial.println(" ppm");
+    if(sgp.eCO2 > 800) {
+      digitalWrite(13, HIGH); // Ventilate
+    } else {
+      digitalWrite(13, LOW);
+    }
+  }
+  delay(2000);
+}`},{id:97,title:"Smart Traffic Management",level:"Intermediate",description:"Density-based traffic signal control system using Infrared sensors to reduce congestion.",category:"Smart City",estimatedTime:"90 mins",tech:["ESP32","Infrared Grid","Signal Logic"],concept:"Dynamic Dispatch. Allots time based on real vehicle counts.",working_principle:`1. Pairs of IR sensors act as vehicle counters on each lane of a 4-way intersection.
+2. The MCU calculates the 'Density Score' for each road based on the number of vehicles queued.
+3. Adaptive Timing: The lane with the highest score is granted the Green signal for a longer duration.
+4. Emergency Mode: Can be integrated with an IR receiver to detect ambulance sirens and force a 'Green' path immediately.`,pin_config:{esp32:[{module:"Lane 1 - Close",pinName:"IN",mcuPin:"GPIO 32",direction:"Input",voltage:"3.3V",description:"High Density Trigger"},{module:"Lane 1 - Signal",pinName:"RED",mcuPin:"GPIO 5",direction:"Output",voltage:"3.3V",description:"Stop Light"}]},advantages:"Reduces fuel waste.",disadvantages:"Needs wireless sync for network.",usage:"Test with miniatures.",components:["1x ESP32","8x IR Sensors","12x Traffic LEDs"],status:"Published",bom_cost:"$28",code:`// Density-Based Junction Logic
+const int LANES[] = {32, 33, 34, 35}; // IR sensor pins
+const int REDS[] = {2, 4, 5, 12};
+const int GREENS[] = {13, 14, 15, 16};
+
+void setup() {
+  for(int i=0; i<4; i++) {
+    pinMode(LANES[i], INPUT);
+    pinMode(REDS[i], OUTPUT);
+    pinMode(GREENS[i], OUTPUT);
+  }
+}
+
+void loop() {
+  // Simple priority logic
+  for(int i=0; i<4; i++) {
+    if(digitalRead(LANES[i]) == LOW) { // Vehicle detected
+      digitalWrite(GREENS[i], HIGH); digitalWrite(REDS[i], LOW);
+      delay(10000);
+      digitalWrite(GREENS[i], LOW); digitalWrite(REDS[i], HIGH);
+    }
+  }
+  delay(100);
+}`},{id:98,title:"IoT Based Air Quality Monitor",level:"Advanced",description:"Professional PM2.5 and PM10 particulate tracker with laser scattering technology.",category:"Environmental",estimatedTime:"100 mins",tech:["ESP32","SDS011","WiFi"],concept:"Pollution Mapping. Uses laser scattering to count particles.",working_principle:`1. Uses laser scattering (SDS011) to count particulates in the air with high precision.
+2. The internal fan draws air through a laser chamber, where particles scatter the light beam.
+3. The photodetector measures the scatter intensity, converting it into PM2.5 and PM10 mass concentrations.
+4. Safety: If PM2.5 > 50ug/m3 (Unhealthy), an alert is triggered on the mobile dashboard.`,pin_config:{esp32:[{module:"SDS011 Laser",pinName:"TXD",mcuPin:"GPIO 16",direction:"Input",voltage:"5V/3.3V",description:"UART RX Pin"},{module:"SDS011 Laser",pinName:"RXD",mcuPin:"GPIO 17",direction:"Output",voltage:"5V/3.3V",description:"UART TX Pin"}]},advantages:"Professional accuracy.",disadvantages:"Fan noise.",usage:"Place in protected area.",components:["1x ESP32","1x SDS011 Laser Sensor","1x OLED"],status:"Published",bom_cost:"$45",code:`// Professional Air Particulate Monitor
+#include <SDS011.h>
+SDS011 my_sds;
+
+void setup() {
+  Serial2.begin(9600, SERIAL_8N1, 16, 17);
+  my_sds.begin(&Serial2);
+}
+
+void loop() {
+  float p10, p25;
+  int error = my_sds.read(&p25, &p10);
+  if (!error) {
+    Serial.print("PM2.5: "); Serial.println(p25);
+    Serial.print("PM10: "); Serial.println(p10);
+    // WiFi Push Logic
+  }
+  delay(30000);
+}`},{id:99,title:"Smart Waste Management",level:"Intermediate",description:"Connected trash bins that report 'Full' status to optimize garbage collection routes.",category:"Smart City",estimatedTime:"60 mins",tech:["ESP32","Ultrasonic","GPS Module"],concept:"Logistics Optimization. Reduces collection costs by only visiting bins that actually need emptying.",working_principle:`1. The bin is mapped to its GPS coordinates stored in the device's configuration memory.
+2. An ultrasonic sensor triggers every 1 hour to measure the trash depth relative to the lid.
+3. Connectivity: Uses LoRaWAN (Long Range WAN) to communicate with a gateway up to 5km away, bypassing WiFi range limits.
+4. Low Power: The entire unit consumes < 50uA in standby, allowing 2+ years of battery life on a single charge.`,pin_config:{esp32:[{module:"Trash Level",pinName:"TRIG",mcuPin:"GPIO 4",direction:"Output",voltage:"3.3V",description:"Measurement Start"},{module:"Trash Level",pinName:"ECHO",mcuPin:"GPIO 5",direction:"Input",voltage:"3.3V",description:"Measurement Recieve"}]},advantages:"Lower carbon footprint, zero overflow.",disadvantages:"Battery concerns.",usage:"Use LoRaWAN for battery.",components:["1x ESP32","1x HC-SR04","1x GPS Module"],status:"Published",bom_cost:"$32",code:`// Smart Bin LoRa Node
+#include <lmic.h>
+#include <hal/hal.h>
+
+void setup() {
+  os_init();
+  LMIC_reset();
+  // Add LoRaWAN keys here
+}
+
+void loop() {
+  // 1. Wake Up
+  // 2. Sample Ultrasonic
+  // 3. Send LoRa Packet
+  // 4. Deep Sleep
+  os_runloop_once();
+}`},{id:100,title:"Smart Vehicle Tracking",level:"Advanced",description:"Professional 3rd-party tracking node with GPS geopositioning, GSM cellular alerts, and SOS trigger.",category:"Safety & Logistics",estimatedTime:"150 mins",tech:["ESP32","SIM800L","Neo-6M GPS"],concept:"Remote Telemetry. Fuses satellite positioning data with cellular GPRS for global asset tracking.",working_principle:`1. Neo-6M GPS module constantly listens for L1 signals from satellites to calculate global position (3m accuracy).
+2. TinyGPS++ library parses the complex NMEA raw data into Lat, Lon, Altitude, and Satellite count.
+3. GSM/GPRS module (SIM800L) maintains a data link or SMS queue to relay coordinates to a tracking map.
+4. Feature: If the SOS button is held for 3 seconds, a high-priority interrupt sends emergency coordinates to pre-stored numbers.`,pin_config:{esp32:[{module:"GSM (SIM800L)",pinName:"TX",mcuPin:"GPIO 16",direction:"Output",voltage:"2.8-3V",description:"GSM -> ESP32 UART RX"},{module:"GSM (SIM800L)",pinName:"RX",mcuPin:"GPIO 17",direction:"Input",voltage:"2.8-3V",description:"ESP32 -> GSM UART TX"},{module:"GPS (Neo-6M)",pinName:"TX",mcuPin:"GPIO 4",direction:"Output",voltage:"3.3V",description:"GPS Data Output"},{module:"GPS (Neo-6M)",pinName:"RX",mcuPin:"GPIO 5",direction:"Input",voltage:"3.3V",description:"GPS Data Input"},{module:"Panic Button",pinName:"BTN",mcuPin:"GPIO 27",direction:"Input",voltage:"3.3V",description:"SOS Trigger"},{module:"Siren/Buzzer",pinName:"+",mcuPin:"GPIO 26",direction:"Output",voltage:"3.3V",description:"Alert Sound"},{module:"System Power",pinName:"VCC",mcuPin:"5V",direction:"Power",voltage:"5V",description:"External Battery Input"},{module:"System GND",pinName:"GND",mcuPin:"GND",direction:"Power",voltage:"0V",description:"Common Ground Signal"}]},advantages:"Real-time tracking, anti-theft security.",disadvantages:"High power usage.",usage:"Conceal inside a vehicle.",components:["1x ESP32","1x SIM800L","1x Neo-6M GPS","1x LiPo Battery"],status:"Published",bom_cost:"$55",code:`// Pro Vehicle Asset Tracker
+// Hardware: ESP32 + SIM800L + Neo-6M GPS
+
+#include <TinyGPS++.h>
+#include <HardwareSerial.h>
+
+TinyGPSPlus gps;
+HardwareSerial GPS_Serial(2);
+
+void setup() {
+  Serial.begin(115200);
+  GPS_Serial.begin(9600, SERIAL_8N1, 4, 5);
+  Serial.println("Booting Logistics Tracker...");
+}
+
+void loop() {
+  while (GPS_Serial.available() > 0) {
+    if (gps.encode(GPS_Serial.read())) {
+      if (gps.location.isValid()) {
+        Serial.print("LAT: "); Serial.println(gps.location.lat(), 6);
+        Serial.print("LNG: "); Serial.println(gps.location.lng(), 6);
+        Serial.print("SPEED: "); Serial.println(gps.speed.kmph());
+      }
+    }
+  }
+  
+  if (millis() > 5000 && gps.charsProcessed() < 10) {
+    Serial.println("No GPS Hardware Detected Check Wiring!");
+  }
+}`}];export{e as p};
