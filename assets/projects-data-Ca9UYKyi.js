@@ -1627,7 +1627,7 @@ void loop() {
 4. PID algorithm calculates optimal control output.
 5. Pump speed or ON/OFF state is adjusted automatically via motor driver/relay.
 6. Level stabilizes at the precise desired height.
-7. Data is visualized on an OLED display.`,pin_config:{arduino:[{module:"Ultrasonic",pinName:"TRIG",mcuPin:"D5"},{module:"Ultrasonic",pinName:"ECHO",mcuPin:"D6"},{module:"Pump Relay",pinName:"IN",mcuPin:"D7"},{module:"OLED",pinName:"SDA",mcuPin:"A4"},{module:"OLED",pinName:"SCL",mcuPin:"A5"},{module:"Potentiometer",pinName:"OUT",mcuPin:"A0"}],esp32:[{module:"Ultrasonic",pinName:"TRIG",mcuPin:"GPIO 5"},{module:"Ultrasonic",pinName:"ECHO",mcuPin:"GPIO 18"},{module:"Pump Relay",pinName:"IN",mcuPin:"GPIO 26"},{module:"OLED",pinName:"SDA",mcuPin:"GPIO 21"},{module:"OLED",pinName:"SCL",mcuPin:"GPIO 22"},{module:"Potentiometer",pinName:"OUT",mcuPin:"GPIO 34"}]},code:`#include <PID_v1.h>
+7. Data is visualized on an OLED display.`,pin_config:{arduino:[{module:"Ultrasonic",pinName:"TRIG",mcuPin:"D5",direction:"Output",voltage:"5V",description:"Trigger signal"},{module:"Ultrasonic",pinName:"ECHO",mcuPin:"D6",direction:"Input",voltage:"5V",description:"Echo response"},{module:"Pump Relay",pinName:"IN",mcuPin:"D7",direction:"Output",voltage:"5V",description:"Pump control"},{module:"OLED",pinName:"SDA",mcuPin:"A4",direction:"I2C",voltage:"5V",description:"Data line"},{module:"OLED",pinName:"SCL",mcuPin:"A5",direction:"I2C",voltage:"5V",description:"Clock line"},{module:"Potentiometer",pinName:"OUT",mcuPin:"A0",direction:"Input",voltage:"5V",description:"Setpoint"}],esp32:[{module:"Ultrasonic",pinName:"TRIG",mcuPin:"GPIO 5",direction:"Output",voltage:"3.3V",description:"Trigger signal"},{module:"Ultrasonic",pinName:"ECHO",mcuPin:"GPIO 18",direction:"Input",voltage:"3.3V",description:"Echo response"},{module:"Pump Relay",pinName:"IN",mcuPin:"GPIO 26",direction:"Output",voltage:"3.3V",description:"Motor control"},{module:"OLED",pinName:"SDA",mcuPin:"GPIO 21",direction:"I2C",voltage:"3.3V",description:"Data line"},{module:"OLED",pinName:"SCL",mcuPin:"GPIO 22",direction:"I2C",voltage:"3.3V",description:"Clock line"},{module:"Potentiometer",pinName:"OUT",mcuPin:"GPIO 34",direction:"Input",voltage:"3.3V",description:"Setpoint"}]},code:`#include <PID_v1.h>
 #include <Wire.h>
 #include <Adafruit_SSD1306.h>
 
@@ -1720,7 +1720,7 @@ void loop() {
 }`,advantages:"Reliable at high speeds; non-contact (works for sensitive items); cheap implementation.",disadvantages:"Dust or steam on lenses can cause false counts; requires precise physical alignment.",usage:"Mount the sensors in a sturdy metal bracket to prevent misalignment from conveyor vibration.",components:["1x Arduino Uno","1x IR Break-beam Pair","1x I2C 16x2 LCD","1x Bracket Set"],circuit_diagram:"IR RX OUT -> D2 | IR TX/RX VCC -> 5V | LCD SDA/SCL -> A4/A5",status:"Published",industrial_use:"Bottle counting in beverage plants and component verification in SMT assembly lines.",bom_cost:"$12"},{id:59,title:"Elderly Care Panic System",level:"Advanced",description:"The Elderly Care Panic System is an advanced IoT-based safety solution designed to protect elderly people. The system monitors the user’s location using GPS and features a panic button that instantly transmits real-time coordinates via LTE (4G) to caregivers.",category:"Medical & Safety",estimatedTime:"110 mins",tech:["ESP32","GSM/LTE","GPS"],concept:"Critical link reliability. By combining GPS (Location) and GSM (Communication), this node ensures that help is dispatched to the exact coordinates even if the person is outdoors.",working_principle:`1. GPS module tracks location.
 2. Emergency panic button is triggered.
 3. ESP32 parses NMEA coordinates.
-4. LTE module sends distress SMS with Google Maps link.`,pin_config:{esp32:[{module:"GPS",pinName:"TX",mcuPin:"16"},{module:"GPS",pinName:"RX",mcuPin:"17"},{module:"LTE",pinName:"TX",mcuPin:"26"},{module:"LTE",pinName:"RX",mcuPin:"27"},{module:"Panic Button",pinName:"BTN",mcuPin:"14"},{module:"Buzzer",pinName:"+",mcuPin:"25"}]},code:`#include <TinyGPS++.h>
+4. LTE module sends distress SMS with Google Maps link.`,pin_config:{esp32:[{module:"GPS",pinName:"TX",mcuPin:"GPIO 16",direction:"Output",voltage:"3.3V",description:"GPS data"},{module:"GPS",pinName:"RX",mcuPin:"GPIO 17",direction:"Input",voltage:"3.3V",description:"GPS control"},{module:"LTE",pinName:"TX",mcuPin:"GPIO 26",direction:"Output",voltage:"3.3V",description:"LTE UART"},{module:"LTE",pinName:"RX",mcuPin:"GPIO 27",direction:"Input",voltage:"3.3V",description:"LTE UART"},{module:"Panic Button",pinName:"BTN",mcuPin:"GPIO 14",direction:"Input",voltage:"3.3V",description:"Emergency trigger"},{module:"OLED",pinName:"SDA",mcuPin:"GPIO 21",direction:"I2C",voltage:"3.3V",description:"Display data"},{module:"OLED",pinName:"SCL",mcuPin:"GPIO 22",direction:"I2C",voltage:"3.3V",description:"Display clock"},{module:"Buzzer",pinName:"+",mcuPin:"GPIO 25",direction:"Output",voltage:"3.3V",description:"Emergency alert"}]},code:`#include <TinyGPS++.h>
 #include <Wire.h>
 #include <Adafruit_SSD1306.h>
 
@@ -1770,8 +1770,9 @@ void sendAlert(float lat, float lon) {
 }`,advantages:"Wide coverage via LTE, precision geolocation, independent of local WiFi.",disadvantages:"Requires active SIM subscription, GPS needs clear sky.",usage:"Use a latching circuit or deep-sleep mode to preserve battery life for several days/weeks.",components:["1x ESP32","1x SIM800L Module","1x GPS Module","1x LiPo Charger","1x SOS Button"],circuit_diagram:"SIM TX/RX -> ESP32 16/17 | GPS TX/RX -> ESP32 25/26 | Button -> GPIO 23",status:"Published",industrial_use:"Home healthcare, senior living, patient safety monitoring, and personal security.",bom_cost:"$42"},{id:60,title:"Unified Agri-Tech Gateway",level:"Advanced",description:"The Unified Agri-Tech Gateway integrates soil monitoring, irrigation control, and environmental sensing into a single platform. It optimizes crop conditions by automating irrigation based on real-time multi-sensor data.",category:"Agri-Tech",estimatedTime:"180 mins",tech:["ESP32","RS485","Relay","BME280"],concept:"Holistic ecosystem data. By monitoring everything from NPK levels to localized air pressure, this gateway makes complex irrigation and fertilization decisions automatically.",working_principle:`1. Soil moisture, temp, hum, and light sensors capture data.
 2. ESP32 evaluates irrigation logic.
 3. Automatic pump activation if moisture is low.
-4. Real-time telemetry displayed and uploaded to cloud.`,pin_config:{esp32:[{module:"Soil",pinName:"AO",mcuPin:"34"},{module:"DHT22",pinName:"DATA",mcuPin:"4"},{module:"LDR",pinName:"AO",mcuPin:"35"},{module:"Relay",pinName:"IN",mcuPin:"26"},{module:"Buzzer",pinName:"+",mcuPin:"27"}]},code:`#include <DHT.h>
+4. Real-time telemetry displayed and uploaded to cloud.`,pin_config:{esp32:[{module:"Soil Sensor",pinName:"AO",mcuPin:"GPIO 34",direction:"Input",voltage:"3.3V",description:"Soil moisture"},{module:"DHT22",pinName:"DATA",mcuPin:"GPIO 4",direction:"Input",voltage:"3.3V",description:"Temperature & humidity"},{module:"LDR",pinName:"AO",mcuPin:"GPIO 35",direction:"Input",voltage:"3.3V",description:"Light intensity"},{module:"Relay",pinName:"IN",mcuPin:"GPIO 26",direction:"Output",voltage:"3.3V",description:"Pump control"},{module:"OLED",pinName:"SDA",mcuPin:"GPIO 21",direction:"I2C",voltage:"3.3V",description:"Display data"},{module:"OLED",pinName:"SCL",mcuPin:"GPIO 22",direction:"I2C",voltage:"3.3V",description:"Display clock"},{module:"Buzzer",pinName:"+",mcuPin:"GPIO 27",direction:"Output",voltage:"3.3V",description:"Alert"}]},code:`#include <DHT.h>
 #include <Wire.h>
+#include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 
 #define DHTPIN 4
@@ -1782,7 +1783,9 @@ void sendAlert(float lat, float lon) {
 #define BUZZER 27
 
 DHT dht(DHTPIN, DHTTYPE);
-Adafruit_SSD1306 display(128, 64, &Wire, -1);
+#define SCREEN_WIDTH 128
+#define SCREEN_HEIGHT 64
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
 void setup() {
   Serial.begin(115200);
@@ -1791,6 +1794,13 @@ void setup() {
   dht.begin();
   Wire.begin(21, 22);
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(WHITE);
+  display.setCursor(10, 20);
+  display.println("Agri-Tech Gateway");
+  display.display();
+  delay(2000);
 }
 
 void loop() {
@@ -1799,21 +1809,30 @@ void loop() {
   int soil = analogRead(SOIL_PIN);
   int light = analogRead(LDR_PIN);
 
-  if (soil < 2000) {
-    digitalWrite(RELAY, HIGH);
-    digitalWrite(BUZZER, HIGH);
-  } else {
-    digitalWrite(RELAY, LOW);
-    digitalWrite(BUZZER, LOW);
-  }
-
   display.clearDisplay();
   display.setCursor(0, 0);
   display.print("Temp: "); display.print(temp); display.println(" C");
+  display.setCursor(0, 12);
+  display.print("Humidity: "); display.print(hum); display.println(" %");
+  display.setCursor(0, 24);
   display.print("Soil: "); display.println(soil);
+  display.setCursor(0, 36);
+  display.print("Light: "); display.println(light);
+
+  if (soil < 2000) {
+    digitalWrite(RELAY, HIGH);
+    digitalWrite(BUZZER, HIGH);
+    display.setCursor(0, 50);
+    display.print("Pump: ON");
+  } else {
+    digitalWrite(RELAY, LOW);
+    digitalWrite(BUZZER, LOW);
+    display.setCursor(0, 50);
+    display.print("Pump: OFF");
+  }
   display.display();
   delay(3000);
-}`,advantages:"Water conservation, improved yields, 24/7 autonomous monitoring.",disadvantages:"Sensors require periodic cleaning/calibration.",usage:"Housed in an IP67 waterproof enclosure. Use solar charging to make the gateway fully autonomous.",components:["1x ESP32","1x NPK RS485 Probe","1x BME280","1x Soil Moisture Pro","2x 12V Relays"],circuit_diagram:"Gateway combines SPI, I2C, UART, and Analog circuits into a central PCB/Enclosure.",status:"Published",industrial_use:"Smart greenhouses, commercial farming, hydro-resource management, and enviro-stations.",bom_cost:"$75",Pin_config:{esp32:[{module:"Soil",pinName:"AO",mcuPin:"GPIO 34"},{module:"DHT22",pinName:"DATA",mcuPin:"GPIO 4"}]}},{id:61,title:"Smart Fan Speed Controller",level:"Beginner",description:"Automatically adjust fan speed based on ambient temperature using a DHT11 sensor and PWM motor control.",category:"Home Automation",estimatedTime:"45 mins",tech:["Arduino","DHT11","DC Motor"],concept:"Dynamic Cooling. This project uses the correlation between temperature and required airflow. By mapping temperature ranges to PWM duty cycles, we achieve energy-efficient cooling.",working_principle:`1. Capacitive moisture sensor probes the soil, outputting a voltage proportional to the dielectric constant.
+}`,advantages:"Saves water, improves crop yield, automated irrigation, IoT-enabled, low maintenance.",disadvantages:"Requires stable power, sensors need calibration, internet required for cloud features.",usage:"Housed in an IP67 waterproof enclosure. Use solar charging to make the gateway fully autonomous.",components:["1x ESP32","1x Soil Moisture Sensor","1x DHT22 (Temp & Humidity)","1x LDR (Light Sensor)","1x Relay Module","1x Water Pump / Solenoid Valve","1x OLED Display","1x Buzzer","Jumper Wires","Power Supply 5V"],circuit_diagram:"Soil (34), DHT22 (4), LDR (35), Relay (26), OLED (21, 22), Buzzer (27).",status:"Published",industrial_use:"Smart agriculture, precision farming, greenhouse automation, water resource management.",bom_cost:"$25"},{id:61,title:"Smart Fan Speed Controller",level:"Beginner",description:"Automatically adjust fan speed based on ambient temperature using a DHT11 sensor and PWM motor control.",category:"Home Automation",estimatedTime:"45 mins",tech:["Arduino","DHT11","DC Motor"],concept:"Dynamic Cooling. This project uses the correlation between temperature and required airflow. By mapping temperature ranges to PWM duty cycles, we achieve energy-efficient cooling.",working_principle:`1. Capacitive moisture sensor probes the soil, outputting a voltage proportional to the dielectric constant.
 2. The ESP32/Arduino ADC converts this analog signal into a digital value.
 3. Based on pre-calibrated thresholds (Dry/Optimal/Wet), the system determines the irrigation state.
 4. If the soil is 'Dry', a trigger signal is sent to the relay module to activate the water pump.`,pin_config:{arduino:[{module:"DHT11/22 Sensor",pinName:"DHT11 Data",mcuPin:"A0",direction:"Output",voltage:"5V",description:"10k Pullup"},{module:"DHT11/22 Sensor",pinName:"Motor PWM",mcuPin:"D9",direction:"Output",voltage:"5V",description:"To L293D Enable"},{module:"System Ground",pinName:"Common GND",mcuPin:"GND",direction:"Power",voltage:"0V",description:"-"}],esp32:[{module:"System Power",pinName:"VCC",mcuPin:"5V / 3.3V",direction:"Power",voltage:"5V",description:"Primary Supply"},{module:"System Ground",pinName:"GND",mcuPin:"GND",direction:"Power",voltage:"0V",description:"Common Ground"}]},code:`// Auto Plant Watering System
@@ -2381,30 +2400,46 @@ void setup() {
 void loop() { webSocket.loop(); }`,advantages:"Instant response, handles AC appliances.",disadvantages:"Relay contact wear over time.",usage:"Use an optoisolated relay module for safety.",components:["1x ESP32","1x 4-Ch Relay Board","1x 5V Power Supply"],status:"Published",bom_cost:"$22"},{id:83,title:"Smart Energy Meter",level:"Advanced",description:"Advanced IoT system monitoring real-time voltage, current, and power using a digital energy meter sensor. Features cost calculation and overload protection logic.",category:"Green Tech",estimatedTime:"120 mins",tech:["ESP32","PZEM-004T","MQTT"],concept:"Non-Invasive Sensing. Measures RMS values via CT sensors and calculates real-time power metrics for energy auditing.",working_principle:`1. PZEM-004T measures RMS metrics.
 2. ESP32 reads data via UART.
 3. Cost/kWh calculated locally.
-4. Automatic load-shedding if power exceeds limit.`,pin_config:{esp32:[{module:"PZEM-004T",pinName:"TX",mcuPin:"16"},{module:"PZEM-004T",pinName:"RX",mcuPin:"17"},{module:"Relay",pinName:"IN",mcuPin:"26"},{module:"Buzzer",pinName:"+",mcuPin:"27"}]},code:`// Industrial Energy Auditor
-#include <PZEM004Tv30.h>
-#include <WiFi.h>
-#include <PubSubClient.h>
+4. Automatic load-shedding if power exceeds limit.`,pin_config:{esp32:[{module:"PZEM-004T",pinName:"TX",mcuPin:"GPIO 16",direction:"Output",voltage:"5V",description:"Energy data"},{module:"PZEM-004T",pinName:"RX",mcuPin:"GPIO 17",direction:"Input",voltage:"5V",description:"Data link"},{module:"Relay",pinName:"IN",mcuPin:"GPIO 26",direction:"Output",voltage:"3.3V",description:"Load control"},{module:"OLED",pinName:"SDA",mcuPin:"GPIO 21",direction:"I2C",voltage:"3.3V",description:"Display data"},{module:"OLED",pinName:"SCL",mcuPin:"GPIO 22",direction:"I2C",voltage:"3.3V",description:"Display clock"},{module:"Buzzer",pinName:"+",mcuPin:"GPIO 27",direction:"Output",voltage:"3.3V",description:"Alert"}]},code:`#include <PZEM004Tv30.h>
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
 
+#define SCREEN_WIDTH 128
+#define SCREEN_HEIGHT 64
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 PZEM004Tv30 pzem(Serial2, 16, 17);
-WiFiClient espClient;
-PubSubClient client(espClient);
 
 void setup() {
   Serial.begin(115200);
-  client.setServer("mqtt.eclipseprojects.io", 1883);
+  Wire.begin(21, 22);
+  if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) return;
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(WHITE);
+  display.setCursor(10, 20);
+  display.println("Energy Meter");
+  display.display();
+  delay(2000);
 }
 
 void loop() {
   float voltage = pzem.voltage();
   float current = pzem.current();
   float power = pzem.power();
-  
-  if(!isnan(voltage)) {
-    String msg = "{\\"v\\": " + String(voltage) + ", \\"a\\": " + String(current) + ", \\"w\\": " + String(power) + "}";
-    client.publish("iotnext/energy", msg.c_str());
-  }
-  delay(5000);
+  float energy = pzem.energy();
+
+  display.clearDisplay();
+  display.setCursor(0, 0);
+  display.print("V: "); display.print(voltage); display.println(" V");
+  display.print("A: "); display.print(current); display.println(" A");
+  display.print("W: "); display.print(power); display.println(" W");
+  display.print("kWh: "); display.println(energy);
+  display.display();
+
+  if(power > 2000) digitalWrite(27, HIGH); // Overload alert
+  else digitalWrite(27, LOW);
+  delay(2000);
 }`,advantages:"High-precision measurement, automatic protection, cloud analytics.",disadvantages:"Mains high-voltage safety critical.",usage:"Clamp CT sensor around the live wire of the appliance.",components:["1x ESP32","1x PZEM-004T","1x CT Coil"],status:"Published",bom_cost:"$35",industrial_use:"Smart grids, industrial sub-metering, energy audits, and billing systems."},{id:84,title:"IoT Based Weather Station",level:"Intermediate",description:"Solar-powered precision station measuring temperature, humidity, pressure, and air quality with ThingSpeak integration.",category:"Environmental",estimatedTime:"90 mins",tech:["ESP32","BME280","Deep Sleep"],concept:"Ultra-Low Power Logging. Uses deep sleep modes to run on battery for months, waking up only for data transmission.",working_principle:`1. Deep Sleep Strategy: The ESP32 shuts down all peripherals and cores except the RTC timer to save power.
 2. Upon wake-up, it initializes the BME280 sensor to read ambient Pressure, Temperature, and Humidity.
 3. It uses a high-gain WiFi antenna to connect and push the CSV-formatted data to a ThingSpeak channel.
@@ -2486,7 +2521,7 @@ void loop() {
   }
 }`},{id:87,title:"Smart Attendance System",level:"Advanced",description:"Multi-factor authentication system combining RFID and Face Recognition. Logs attendance to the cloud and provides real-time verification status.",category:"Management",estimatedTime:"120 mins",tech:["ESP32","RFID","HTTPS Redirect"],concept:"Cloud Integration. Bridges physical ID scans to cloud databases without an intermediary PC.",working_principle:`1. RFID tag scan initiates check-in.
 2. ESP32-CAM captures face image.
-3. Successful match triggers cloud log and status OLED display.`,pin_config:{esp32:[{module:"RFID",pinName:"SDA",mcuPin:"5"},{module:"RFID",pinName:"SCK",mcuPin:"18"},{module:"RFID",pinName:"MOSI",mcuPin:"23"},{module:"RFID",pinName:"MISO",mcuPin:"19"},{module:"Buzzer",pinName:"+",mcuPin:"26"}]},advantages:"Prevents proxy attendance, cloud logs, automated reporting.",disadvantages:"Needs stable internet connection.",usage:"Generate a unique ID for every student/employee.",components:["1x ESP32","1x RC522","1x OLED","1x SD Slot"],status:"Published",bom_cost:"$24",code:`// Institutional IoT Attendance
+3. Successful match triggers cloud log and status OLED display.`,pin_config:{esp32:[{module:"RFID",pinName:"SDA",mcuPin:"GPIO 5",direction:"Input",voltage:"3.3V",description:"RFID Select"},{module:"RFID",pinName:"SCK",mcuPin:"GPIO 18",direction:"Input",voltage:"3.3V",description:"SPI Clock"},{module:"RFID",pinName:"MOSI",mcuPin:"GPIO 23",direction:"Input",voltage:"3.3V",description:"SPI Data"},{module:"RFID",pinName:"MISO",mcuPin:"GPIO 19",direction:"Output",voltage:"3.3V",description:"SPI Data"},{module:"RFID",pinName:"RST",mcuPin:"GPIO 22",direction:"Input",voltage:"3.3V",description:"Reset"},{module:"OLED",pinName:"SDA",mcuPin:"GPIO 21",direction:"I2C",voltage:"3.3V",description:"Display Data"},{module:"OLED",pinName:"SCL",mcuPin:"GPIO 22",direction:"I2C",voltage:"3.3V",description:"Display Clock"},{module:"Buzzer",pinName:"+",mcuPin:"GPIO 26",direction:"Output",voltage:"3.3V",description:"Alert"}]},advantages:"Prevents proxy attendance, cloud logs, automated reporting.",disadvantages:"Needs stable internet connection.",usage:"Generate a unique ID for every student/employee.",components:["1x ESP32","1x RC522","1x OLED","1x SD Slot"],status:"Published",bom_cost:"$24",code:`// Institutional IoT Attendance
 #include <HTTPClient.h>
 #include <LiquidCrystal_I2C.h>
 
@@ -2676,7 +2711,7 @@ void loop() {
   }
 }`},{id:95,title:"Smart Health Monitoring System",level:"Advanced",description:"Portable IoT health kit measuring HR, SpO2, and Temperature for remote clinical tracking and emergency detection.",category:"Medical IoT",estimatedTime:"120 mins",tech:["ESP32","MAX30102","OLED"],concept:"Photoplethysmography (PPG). Uses red and infrared light absorption to determine blood oxygenation and pulse.",working_principle:`1. Optical and thermal sensors capture biometrics.
 2. ESP32 filters signal and evaluates safe ranges.
-3. Abnormal biometrics trigger buzzer and doctor alerts via IoT cloud.`,pin_config:{esp32:[{module:"MAX30102",pinName:"SDA",mcuPin:"21"},{module:"MAX30102",pinName:"SCL",mcuPin:"22"},{module:"DS18B20",pinName:"DATA",mcuPin:"4"},{module:"Buzzer",pinName:"+",mcuPin:"26"}]},advantages:"Early warning system, portable, continuous monitoring.",disadvantages:"Motion artifacts.",usage:"Keep finger steady.",components:["1x ESP32","1x MAX30102","1x 0.96 OLED"],status:"Published",bom_cost:"$32",code:`// Medical Grade Pulse Auditor
+3. Abnormal biometrics trigger buzzer and doctor alerts via IoT cloud.`,pin_config:{esp32:[{module:"MAX30102",pinName:"SDA",mcuPin:"GPIO 21",direction:"I2C",voltage:"3.3V",description:"Data Line"},{module:"MAX30102",pinName:"SCL",mcuPin:"GPIO 22",direction:"I2C",voltage:"3.3V",description:"Clock Line"},{module:"Temperature Sensor",pinName:"DATA",mcuPin:"GPIO 4",direction:"Input",voltage:"3.3V",description:"Body temperature"},{module:"OLED",pinName:"SDA",mcuPin:"GPIO 21",direction:"I2C",voltage:"3.3V",description:"Display data"},{module:"OLED",pinName:"SCL",mcuPin:"GPIO 22",direction:"I2C",voltage:"3.3V",description:"Display clock"},{module:"Buzzer",pinName:"+",mcuPin:"GPIO 26",direction:"Output",voltage:"3.3V",description:"Alert"}]},advantages:"Early warning system, portable, continuous monitoring.",disadvantages:"Motion artifacts.",usage:"Keep finger steady.",components:["1x ESP32","1x MAX30102","1x 0.96 OLED"],status:"Published",bom_cost:"$32",code:`// Medical Grade Pulse Auditor
 #include <Wire.h>
 #include "MAX30105.h"
 #include "heartRate.h"
@@ -2701,7 +2736,7 @@ void loop() {
   }
 }`,industrial_use:"Telemedicine, nursing homes, fitness tracking."},{id:96,title:"Smart Greenhouse Monitoring System",level:"Advanced",description:"Automated environment control for greenhouses, managing temperature, light, and soil moisture to maximize crop vitality.",category:"Green Tech",estimatedTime:"150 mins",tech:["ESP32","SGP30","BME280","Fan Control"],concept:"Precision Agronomy. Optimizes photosynthesis by maintaining the VPD and CO2 levels.",working_principle:`1. Ambient and soil sensors track environment.
 2. Control loops manage ventilation fans and irrigation pumps.
-3. Optimized growth conditions maintained 24/7.`,pin_config:{esp32:[{module:"DHT22",pinName:"DATA",mcuPin:"4"},{module:"Soil",pinName:"AO",mcuPin:"34"},{module:"Relay",pinName:"IN",mcuPin:"26"}]},advantages:"Labor reduction, resource efficiency, autonomous operation.",disadvantages:"High cost.",usage:"Connect to automation reservoir.",components:["1x ESP32","1x SGP30","1x BME280","2x DC Fans"],status:"Published",bom_cost:"$65",code:`// Greenhouse Climate Controller
+3. Optimized growth conditions maintained 24/7.`,pin_config:{esp32:[{module:"BME280 / DHT22",pinName:"SDA/DATA",mcuPin:"GPIO 21",direction:"I2C/Input",voltage:"3.3V",description:"Env data"},{module:"BME280 / DHT22",pinName:"SCL",mcuPin:"GPIO 22",direction:"I2C",voltage:"3.3V",description:"Env data"},{module:"Soil Sensor",pinName:"AO",mcuPin:"GPIO 34",direction:"Input",voltage:"3.3V",description:"Soil moisture"},{module:"LDR",pinName:"AO",mcuPin:"GPIO 35",direction:"Input",voltage:"3.3V",description:"Light level"},{module:"Relay 1",pinName:"IN",mcuPin:"GPIO 25",direction:"Output",voltage:"3.3V",description:"Fan control"},{module:"Relay 2",pinName:"IN",mcuPin:"GPIO 26",direction:"Output",voltage:"3.3V",description:"Pump control"},{module:"OLED",pinName:"SDA",mcuPin:"GPIO 21",direction:"I2C",voltage:"3.3V",description:"Display data"},{module:"OLED",pinName:"SCL",mcuPin:"GPIO 22",direction:"I2C",voltage:"3.3V",description:"Display clock"},{module:"Buzzer",pinName:"+",mcuPin:"GPIO 27",direction:"Output",voltage:"3.3V",description:"Limit alert"}]},advantages:"Labor reduction, resource efficiency, autonomous operation.",disadvantages:"High cost.",usage:"Connect to automation reservoir.",components:["1x ESP32","1x SGP30","1x BME280","2x DC Fans"],status:"Published",bom_cost:"$65",code:`// Greenhouse Climate Controller
 #include "Adafruit_SGP30.h"
 Adafruit_SGP30 sgp;
 
@@ -2749,7 +2784,7 @@ void loop() {
   delay(100);
 }`},{id:98,title:"IoT Air Quality Monitoring System",level:"Advanced",description:"Professional PM2.5 and PM10 analysis using laser scattering technology (SDS011) for high-accuracy air pollution monitoring.",category:"Environmental",estimatedTime:"100 mins",tech:["ESP32","SDS011","WiFi"],concept:"Pollution Mapping. Uses laser scattering to count particles.",working_principle:`1. Laser sensor samples atmospheric particulates.
 2. ESP32 calculates AQI metrics.
-3. Pollution thresholds trigger safety alerts and cloud mapping.`,pin_config:{esp32:[{module:"SDS011",pinName:"TX",mcuPin:"16"},{module:"SDS011",pinName:"RX",mcuPin:"17"},{module:"Buzzer",pinName:"+",mcuPin:"26"}]},advantages:"Industrial-grade precision, dual particle detection.",disadvantages:"Fan noise.",usage:"Place in protected area.",components:["1x ESP32","1x SDS011 Laser Sensor","1x OLED"],status:"Published",bom_cost:"$45",code:`#include <Wire.h>
+3. Pollution thresholds trigger safety alerts and cloud mapping.`,pin_config:{esp32:[{module:"SDS011",pinName:"TX",mcuPin:"GPIO 16",direction:"Output",voltage:"5V",description:"Laser data"},{module:"SDS011",pinName:"RX",mcuPin:"GPIO 17",direction:"Input",voltage:"5V",description:"Serial link"},{module:"OLED",pinName:"SDA",mcuPin:"GPIO 21",direction:"I2C",voltage:"3.3V",description:"Display data"},{module:"OLED",pinName:"SCL",mcuPin:"GPIO 22",direction:"I2C",voltage:"3.3V",description:"Display clock"},{module:"Buzzer",pinName:"+",mcuPin:"GPIO 26",direction:"Output",voltage:"3.3V",description:"Pollution alert"}]},advantages:"Industrial-grade precision, dual particle detection.",disadvantages:"Fan noise.",usage:"Place in protected area.",components:["1x ESP32","1x SDS011 Laser Sensor","1x OLED"],status:"Published",bom_cost:"$45",code:`#include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 #include <SDS011.h>
@@ -2821,25 +2856,59 @@ void loop() {
   delay(1000);
 }`,industrial_use:"Smart city pollution mapping, HVAC optimization, industrial safety."},{id:99,title:"Smart Waste Management System",level:"Intermediate",description:"Futuristic sanitation solution monitors bin fill levels using ultrasonic sensing to optimize collection routes and prevent overflow.",category:"Smart City",estimatedTime:"60 mins",tech:["ESP32","Ultrasonic","GPS Module"],concept:"Logistics Optimization. Reduces collection costs by only visiting bins that actually need emptying.",working_principle:`1. Non-contact level sensing tracks capacity.
 2. Local OLED and status buzzer provide fill alerts.
-3. Fleet-wide data transmitted for smart sanitation management.`,pin_config:{esp32:[{module:"Ultrasonic",pinName:"TRIG",mcuPin:"5"},{module:"Ultrasonic",pinName:"ECHO",mcuPin:"18"},{module:"Buzzer",pinName:"+",mcuPin:"26"}]},advantages:"Route optimization, overflow prevention, cost efficiency.",disadvantages:"Ultrasonic affected by moisture, needs stable power.",usage:"Use LoRaWAN for battery.",components:["1x ESP32","1x HC-SR04","1x GPS Module"],status:"Published",bom_cost:"$32",code:`// Smart Bin LoRa Node
-#include <lmic.h>
-#include <hal/hal.h>
+3. Fleet-wide data transmitted for smart sanitation management.`,pin_config:{esp32:[{module:"Ultrasonic",pinName:"TRIG",mcuPin:"GPIO 5",direction:"Output",voltage:"3.3V",description:"Trigger pulse"},{module:"Ultrasonic",pinName:"ECHO",mcuPin:"GPIO 18",direction:"Input",voltage:"3.3V",description:"Echo return"},{module:"OLED",pinName:"SDA",mcuPin:"GPIO 21",direction:"I2C",voltage:"3.3V",description:"Display data"},{module:"OLED",pinName:"SCL",mcuPin:"GPIO 22",direction:"I2C",voltage:"3.3V",description:"Display clock"},{module:"Buzzer",pinName:"+",mcuPin:"GPIO 26",direction:"Output",voltage:"3.3V",description:"Full level alert"}]},advantages:"Route optimization, overflow prevention, cost efficiency.",disadvantages:"Ultrasonic affected by moisture, needs stable power.",usage:"Deploy in smart bins for municipal waste collection.",components:["1x ESP32","1x HC-SR04 Ultrasonic","1x 0.96 OLED Display","1x GPS/GSM Module (Optional)","1x Buzzer","Power Supply"],status:"Published",bom_cost:"$28",code:`#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+
+#define TRIG 5
+#define ECHO 18
+#define BUZZER 26
+#define SCREEN_WIDTH 128
+#define SCREEN_HEIGHT 64
+
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
 void setup() {
-  os_init();
-  LMIC_reset();
-  // Add LoRaWAN keys here
+  Serial.begin(115200);
+  pinMode(TRIG, OUTPUT);
+  pinMode(ECHO, INPUT);
+  pinMode(BUZZER, OUTPUT);
+  Wire.begin(21, 22);
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+  display.clearDisplay();
+  display.setCursor(10, 20);
+  display.setTextColor(WHITE);
+  display.println("Smart Bin System");
+  display.display();
+  delay(2000);
 }
 
 void loop() {
-  // 1. Wake Up
-  // 2. Sample Ultrasonic
-  // 3. Send LoRa Packet
-  // 4. Deep Sleep
-  os_runloop_once();
+  digitalWrite(TRIG, LOW);
+  delayMicroseconds(2);
+  digitalWrite(TRIG, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIG, LOW);
+  long duration = pulseIn(ECHO, HIGH);
+  int distance = duration * 0.034 / 2;
+
+  display.clearDisplay();
+  display.setCursor(0, 0);
+  display.print("Fill Level: ");
+  display.print(distance);
+  display.println(" cm");
+
+  if (distance < 10) {
+    display.println("BIN FULL!");
+    digitalWrite(BUZZER, HIGH);
+  } else {
+    digitalWrite(BUZZER, LOW);
+  }
+  display.display();
+  delay(2000);
 }`,industrial_use:"Smart city sanitation, industrial waste compliance, institutional management."},{id:100,title:"Smart Vehicle Tracking System",level:"Advanced",description:"Robust fleet management solution using GPS/GSM for real-time tracking, SOS alerting, and historical route logging.",category:"Safety & Logistics",estimatedTime:"150 mins",tech:["ESP32","SIM800L","Neo-6M GPS"],concept:"Remote Telemetry. Fuses satellite positioning data with cellular GPRS for global asset tracking.",working_principle:`1. GPS constellation provides geographic fix.
 2. ESP32 handles coordinate transmission via GSM/GPRS.
-3. SMS and HTTP links provide real-time mapping for users.`,pin_config:{esp32:[{module:"GPS",pinName:"TX",mcuPin:"4"},{module:"GPS",pinName:"RX",mcuPin:"5"},{module:"GSM",pinName:"TX",mcuPin:"16"},{module:"GSM",pinName:"RX",mcuPin:"17"},{module:"SOS BTN",pinName:"BTN",mcuPin:"27"}]},advantages:"Wide cellular range, precise geolocation, automatic SOS alerting.",disadvantages:"High power usage.",usage:"Conceal inside a vehicle.",components:["1x ESP32","1x SIM800L","1x Neo-6M GPS","1x LiPo Battery"],status:"Published",bom_cost:"$55",code:`// Pro Vehicle Asset Tracker
+3. SMS and HTTP links provide real-time mapping for users.`,pin_config:{esp32:[{module:"GPS",pinName:"TX",mcuPin:"GPIO 4",direction:"Output",voltage:"3.3V",description:"Satellite data"},{module:"GPS",pinName:"RX",mcuPin:"GPIO 5",direction:"Input",voltage:"3.3V",description:"GPS command"},{module:"GSM/GPRS",pinName:"TX",mcuPin:"GPIO 16",direction:"Output",voltage:"3.3V",description:"Cellular link"},{module:"GSM/GPRS",pinName:"RX",mcuPin:"GPIO 17",direction:"Input",voltage:"3.3V",description:"Cellular link"},{module:"SOS BTN",pinName:"BTN",mcuPin:"GPIO 14",direction:"Input",voltage:"3.3V",description:"Panic trigger"},{module:"OLED",pinName:"SDA",mcuPin:"GPIO 21",direction:"I2C",voltage:"3.3V",description:"Map coordinates"},{module:"OLED",pinName:"SCL",mcuPin:"GPIO 22",direction:"I2C",voltage:"3.3V",description:"Map coordinates"},{module:"Buzzer",pinName:"+",mcuPin:"GPIO 25",direction:"Output",voltage:"3.3V",description:"SOS Alert"}]},advantages:"Wide cellular range, precise geolocation, automatic SOS alerting.",disadvantages:"High power usage.",usage:"Conceal inside a vehicle.",components:["1x ESP32","1x SIM800L","1x Neo-6M GPS","1x LiPo Battery"],status:"Published",bom_cost:"$55",code:`// Pro Vehicle Asset Tracker
 // Hardware: ESP32 + SIM800L + Neo-6M GPS
 
 #include <TinyGPS++.h>
