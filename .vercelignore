@@ -1,0 +1,11 @@
+node_modules
+dist
+*.txt
+*.mjs
+*.py
+*.log
+sync_log.txt
+build_error.txt
+build_error_final.txt
+.env
+.env.local
