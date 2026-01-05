@@ -10,6 +10,8 @@ import Footer from './components/Footer';
 import IntroAnimation from './components/IntroAnimation';
 import OnboardingTour from './components/OnboardingTour';
 import BackToTop from './components/BackToTop';
+import { SpeedInsights } from "@vercel/speed-insights/react";
+import { Analytics } from "@vercel/analytics/react";
 
 // Lazy Loaded Components
 const Roadmap = lazy(() => import('./components/Roadmap'));
@@ -349,6 +351,8 @@ function App() {
           />
 
           <BackToTop />
+          <SpeedInsights />
+          <Analytics />
         </Suspense>
       </div>
     </ToastProvider>
