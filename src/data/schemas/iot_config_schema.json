@@ -1,0 +1,78 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "IoT Configuration",
+    "type": "object",
+    "properties": {
+        "boardId": {
+            "type": "string",
+            "description": "Identifier of the microcontroller board"
+        },
+        "sensors": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "sensorId": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "pinMapping": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        },
+                        "description": "Mapping from sensor labels (e.g., VCC, GND, DATA) to board pins (e.g., 5V, GND, GPIO4)"
+                    }
+                },
+                "required": [
+                    "sensorId",
+                    "pinMapping"
+                ]
+            }
+        },
+        "widgets": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "enum": [
+                            "gauge",
+                            "line",
+                            "chart",
+                            "toggle",
+                            "display"
+                        ]
+                    },
+                    "label": {
+                        "type": "string"
+                    },
+                    "dataSource": {
+                        "type": "string",
+                        "description": "Reference to a sensorId or pin data"
+                    },
+                    "unit": {
+                        "type": "string"
+                    },
+                    "x": {
+                        "type": "number"
+                    },
+                    "y": {
+                        "type": "number"
+                    }
+                },
+                "required": [
+                    "type",
+                    "dataSource"
+                ]
+            }
+        }
+    },
+    "required": [
+        "boardId",
+        "sensors",
+        "widgets"
+    ]
+}

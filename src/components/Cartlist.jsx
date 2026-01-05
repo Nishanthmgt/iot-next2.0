@@ -1,11 +1,99 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { kits } from '../data/sensors';
-import { ShoppingBag, ChevronRight, Check, ListChecks, ArrowRight } from 'lucide-react';
+import { projects } from '../data/projects';
+import { ShoppingBag, Check, ListChecks, ArrowRight, Trash2, Cpu, ExternalLink } from 'lucide-react';
 
-export default function Cartlist() {
+export default function Cartlist({ buildList = [], onRemoveFromBuild }) {
+    // Aggregate parts from buildList
+    const selectedProjects = projects.filter(p => buildList.includes(p.id));
+
+    const aggregatedParts = selectedProjects.reduce((acc, project) => {
+        if (project.components && Array.isArray(project.components)) {
+            project.components.forEach(compName => {
+                if (!acc.find(p => p.name === compName)) {
+                    acc.push({ name: compName, buyLink: 'https://robu.in' });
+                }
+            });
+        }
+        return acc;
+    }, []);
+
     return (
-        <section className="container" id="kits" style={{ padding: '0 0 6rem' }}>
+        <section className="container" id="kits" style={{ padding: '0 0 6rem', marginTop: '4rem' }}>
+            {/* Dynamic Build List */}
+            <AnimatePresence>
+                {buildList.length > 0 && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0 }}
+                        style={{ marginBottom: '6rem' }}
+                    >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2rem' }}>
+                            <div>
+                                <h2 style={{ fontSize: '2.5rem', fontWeight: '900', marginBottom: '0.5rem' }}>Your Custom Build BOM</h2>
+                                <p style={{ color: 'var(--text-muted)' }}>Automatically aggregated component list for your selected projects</p>
+                            </div>
+                            <div className="badge badge-beginner" style={{ padding: '0.5rem 1rem' }}>
+                                {selectedProjects.length} Projects Selected
+                            </div>
+                        </div>
+
+                        <div className="grid grid-2" style={{ gap: '3rem' }}>
+                            {/* Selected Projects */}
+                            <div className="glass" style={{ padding: '2rem', borderRadius: '1.5rem', border: '1px solid var(--border)' }}>
+                                <h3 style={{ fontSize: '1.2rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                    <Cpu size={20} className="text-primary" /> Active Projects
+                                </h3>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                    {selectedProjects.map(p => (
+                                        <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', background: 'var(--surface)', borderRadius: '1rem', border: '1px solid var(--border)' }}>
+                                            <div>
+                                                <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>{p.title}</div>
+                                                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{p.level} • {p.category}</div>
+                                            </div>
+                                            <button
+                                                onClick={() => onRemoveFromBuild(p.id)}
+                                                style={{ background: 'none', border: 'none', color: '#ff5f56', cursor: 'pointer', padding: '0.5rem' }}
+                                            >
+                                                <Trash2 size={18} />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Aggregated Shopping List */}
+                            <div className="glass" style={{ padding: '2rem', borderRadius: '1.5rem', border: '1px solid var(--border)', background: 'var(--surface-hover)' }}>
+                                <h3 style={{ fontSize: '1.2rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                    <ShoppingBag size={20} className="text-secondary" /> Unified Parts List
+                                </h3>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem' }}>
+                                    {aggregatedParts.map((part, i) => (
+                                        <div key={i} style={{ padding: '0.75rem 1rem', background: 'var(--surface)', borderRadius: '0.75rem', border: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>{part.name}</span>
+                                            <a href={part.buyLink} target="_blank" rel="noreferrer" style={{ color: 'var(--primary)' }}>
+                                                <ExternalLink size={14} />
+                                            </a>
+                                        </div>
+                                    ))}
+                                </div>
+                                <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border)' }}>
+                                    <button
+                                        className="btn btn-secondary"
+                                        style={{ width: '100%', justifyContent: 'center' }}
+                                        onClick={() => window.open('https://robu.in', '_blank')}
+                                    >
+                                        Order All on Robu.in <ArrowRight size={20} />
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
                 <h2 style={{ fontSize: '3rem', fontWeight: '900', marginBottom: '1rem' }}>Essential Lab BOMs</h2>
                 <p style={{ color: 'var(--text-muted)', fontSize: '1.2rem' }}>Curated hardware checklists to kickstart your journey at any level</p>

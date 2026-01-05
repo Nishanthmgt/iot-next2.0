@@ -1,159 +1,248 @@
+// IoTNext v2.1 - Hero Refinement
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Play, Cpu, Wifi, Zap, Globe } from 'lucide-react';
+import { Zap, Target, Layers, ArrowRight, CheckCircle2, GraduationCap, Binary, Cpu, Check, Terminal, Activity, Code2, Cog } from 'lucide-react';
+import heroMobileBg from '../assets/hero_mobile_bg.jpg';
 
-export default function Hero({ setView }) {
-    const floatingIcons = [
-        { Icon: Wifi, x: '-15%', y: '10%', delay: 0 },
-        { Icon: Cpu, x: '20%', y: '-15%', delay: 0.5 },
-        { Icon: Zap, x: '-20%', y: '-20%', delay: 1 },
-        { Icon: Globe, x: '15%', y: '20%', delay: 1.5 }
-    ];
-
+const Hero = ({ setView }) => {
+    // Determine if we should show the mobile background via window width
+    // But we'll mostly rely on CSS to toggle the actual visibility for SSR compatibility
     return (
-        <section className="container" style={{ minHeight: '90vh', display: 'flex', alignItems: 'center', position: 'relative', overflow: 'hidden' }}>
-            {/* Background Decorative Elements */}
-            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: -1, overflow: 'hidden' }}>
-                <motion.div
-                    animate={{
-                        scale: [1, 1.2, 1],
-                        rotate: [0, 90, 0],
-                        opacity: [0.1, 0.15, 0.1]
-                    }}
-                    transition={{ duration: 20, repeat: Infinity }}
-                    style={{
-                        position: 'absolute',
-                        top: '-10%',
-                        right: '-10%',
-                        width: '600px',
-                        height: '600px',
-                        background: 'radial-gradient(circle, var(--primary) 0%, transparent 70%)',
-                        filter: 'blur(80px)',
-                        borderRadius: '50%'
-                    }}
-                />
-                <motion.div
-                    animate={{
-                        scale: [1, 1.3, 1],
-                        rotate: [0, -45, 0],
-                        opacity: [0.05, 0.1, 0.05]
-                    }}
-                    transition={{ duration: 25, repeat: Infinity }}
-                    style={{
-                        position: 'absolute',
-                        bottom: '-10%',
-                        left: '-10%',
-                        width: '500px',
-                        height: '500px',
-                        background: 'radial-gradient(circle, var(--accent) 0%, transparent 70%)',
-                        filter: 'blur(80px)',
-                        borderRadius: '50%'
-                    }}
-                />
-            </div>
+        <section
+            className="hero hero-mobile-v2"
+            style={{
+                minHeight: 'auto',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                position: 'relative',
+                overflow: 'hidden',
+                paddingTop: '2.5rem',
+                paddingBottom: '2.5rem',
+            }}
+        >
 
-            <div style={{ maxWidth: '850px', position: 'relative', zIndex: 1 }}>
-                <motion.div
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, ease: "easeOut" }}
-                >
-                    <motion.span
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="badge badge-beginner"
-                        style={{ marginBottom: '1.5rem', display: 'inline-block', padding: '0.5rem 1.2rem', fontSize: '0.9rem', background: 'var(--surface-hover)', border: '1px solid var(--primary)' }}
-                    >
-                        🚀 Empowering 10,000+ IoT Students
-                    </motion.span>
-
-                    <h1 style={{ fontSize: 'clamp(3.5rem, 10vw, 5.5rem)', lineHeight: 1, fontWeight: '800', marginBottom: '2rem', letterSpacing: '-2px' }}>
-                        The Future of <br />
-                        <span style={{
-                            background: 'linear-gradient(to right, var(--primary), var(--accent))',
-                            WebkitBackgroundClip: 'text',
-                            WebkitTextFillColor: 'transparent',
-                            display: 'inline-block'
-                        }}>
-                            IoT Education
-                        </span>
-                    </h1>
-
-                    <p style={{ fontSize: '1.35rem', color: 'var(--text-muted)', marginBottom: '3rem', maxWidth: '650px', lineHeight: '1.6' }}>
-                        Build everything from a simple blinking LED to high-performance AI Edge systems.
-                        <strong> 200+ projects</strong>, <strong>75+ sensors</strong>, and a <strong>zero-to-hero roadmap</strong>.
-                    </p>
-
-                    <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
-                        <button className="btn btn-primary" style={{ padding: '1rem 2.5rem', fontSize: '1.1rem', borderRadius: '1rem' }} onClick={() => setView('roadmap')}>
-                            Start Learning Path <ArrowRight size={22} />
-                        </button>
-                        <button className="btn btn-outline" style={{ padding: '1rem 2.5rem', fontSize: '1.1rem', borderRadius: '1rem' }} onClick={() => setView('projects')}>
-                            Explore Projects <Play size={22} />
-                        </button>
-                    </div>
-                </motion.div>
-            </div>
-
-            {/* Floating Tech Nodes */}
-            <div className="hero-visual" style={{ flex: 1, position: 'relative', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                {floatingIcons.map((item, i) => (
+            <div className="container" style={{ position: 'relative', zIndex: 10, width: '100%', maxWidth: '1200px', padding: '0 1.5rem' }}>
+                <div style={{
+                    textAlign: 'center',
+                    maxWidth: '1000px',
+                    margin: '0 auto'
+                }}>
+                    {/* Badge */}
                     <motion.div
-                        key={i}
-                        initial={{ opacity: 0 }}
-                        animate={{
-                            opacity: 1,
-                            y: [0, -30, 0],
-                            x: [0, 10, 0],
-                            rotate: [0, 10, 0]
-                        }}
-                        transition={{
-                            duration: 6,
-                            repeat: Infinity,
-                            delay: item.delay,
-                            ease: "easeInOut"
-                        }}
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.6 }}
                         style={{
-                            position: 'absolute',
-                            left: `calc(50% + ${item.x})`,
-                            top: `calc(50% + ${item.y})`,
-                            padding: '1.5rem',
-                            background: 'var(--surface)',
-                            border: '1px solid var(--border)',
-                            borderRadius: '1.5rem',
-                            boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
-                            backdropFilter: 'blur(10px)',
-                            zIndex: 2
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            padding: '0.4rem 1.25rem',
+                            background: 'rgba(var(--primary-rgb), 0.1)',
+                            border: '1px solid rgba(var(--primary-rgb), 0.3)',
+                            borderRadius: '50px',
+                            marginBottom: '1.5rem',
+                            fontSize: '0.75rem',
+                            color: 'var(--primary)',
+                            letterSpacing: '0.05em',
+                            textTransform: 'uppercase',
+                            fontWeight: '700',
+                            backdropFilter: 'blur(10px)'
                         }}
                     >
-                        <item.Icon size={32} className="text-primary" />
+                        <div style={{ width: '6px', height: '6px', background: '#6366f1', borderRadius: '50%' }}></div>
+                        <span>🚀 INDUSTRIAL ECOSYSTEM V2.0 LIVE</span>
                     </motion.div>
-                ))}
 
-                <motion.div
-                    animate={{ scale: [1, 1.05, 1] }}
-                    transition={{ duration: 4, repeat: Infinity }}
-                    style={{
-                        width: '300px',
-                        height: '300px',
-                        borderRadius: '2rem',
-                        border: '2px dashed var(--primary)',
-                        opacity: 0.2,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                    }}
-                >
-                    <Cpu size={120} style={{ opacity: 0.3 }} />
-                </motion.div>
+                    {/* Main Heading */}
+                    <motion.h1
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.8, delay: 0.1 }}
+                        className="hero-title"
+                        style={{
+                            fontSize: 'clamp(2.5rem, 8vw, 5rem)',
+                            fontWeight: '900',
+                            letterSpacing: '-0.02em',
+                            marginBottom: '1rem',
+                            lineHeight: 1.1,
+                        }}
+                    >
+                        The Complete <span className="text-gradient">IoT</span> <br />
+                        Engineering Hub.
+                    </motion.h1>
+
+                    {/* Subtitle */}
+                    <motion.p
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.8, delay: 0.2 }}
+                        className="hero-subtitle"
+                        style={{
+                            fontSize: 'clamp(1rem, 3vw, 1.25rem)',
+                            lineHeight: '1.6',
+                            marginBottom: '2.5rem',
+                            maxWidth: '700px',
+                            margin: '0 auto 2.5rem auto',
+                            fontWeight: '500'
+                        }}
+                    >
+                        Build real-world IoT systems with industry-grade guidance.
+                    </motion.p>
+
+                    {/* Audience Filters */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.8, delay: 0.3 }}
+                        style={{
+                            display: 'flex',
+                            gap: '0.75rem',
+                            justifyContent: 'center',
+                            flexWrap: 'wrap',
+                            marginBottom: '3.5rem'
+                        }}
+                    >
+                        {[
+                            { icon: <GraduationCap size={18} />, label: "Students" },
+                            { icon: <Code2 size={18} />, label: "Developers" },
+                            { icon: <Cog size={18} />, label: "IoT Engineers" }
+                        ].map((item, idx) => (
+                            <div key={idx} className="hero-audience-pill" style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                padding: '0.6rem 1.25rem',
+                                borderRadius: '12px',
+                                fontWeight: '600',
+                                fontSize: '0.95rem',
+                                backdropFilter: 'blur(10px)'
+                            }}>
+                                <span className="pill-icon" style={{ color: 'var(--primary)' }}>{item.icon}</span>
+                                {item.label}
+                            </div>
+                        ))}
+                    </motion.div>
+
+                    {/* Spacer for background visibility on mobile */}
+                    <div className="mobile-bg-spacer" style={{ height: '0' }}></div>
+
+                    {/* Feature Checkmarks */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.8, delay: 0.4 }}
+                        className="hero-feature-grid"
+                        style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(2, 1fr)',
+                            gap: '1rem 2rem',
+                            maxWidth: '600px',
+                            margin: '0 auto 3rem auto',
+                            textAlign: 'left',
+                            paddingLeft: 'clamp(0rem, 5vw, 2rem)'
+                        }}
+                    >
+                        {[
+                            "500+ Projects", "Beginner to Advanced",
+                            "Free Learning Platform", "Community Driven"
+                        ].map((feature, idx) => (
+                            <div key={idx} className="hero-feature-item" style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.75rem',
+                                fontSize: '1rem',
+                                fontWeight: '600'
+                            }}>
+                                <Check size={20} className="check-icon" strokeWidth={3} style={{ color: 'var(--primary)' }} />
+                                <span style={{ color: 'var(--text)' }}>{feature}</span>
+                            </div>
+                        ))}
+                    </motion.div>
+
+                    {/* CTA Buttons */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.8, delay: 0.5 }}
+                        className="hero-cta-container"
+                        style={{
+                            display: 'flex',
+                            gap: '1rem',
+                            flexWrap: 'wrap',
+                            justifyContent: 'center',
+                        }}
+                    >
+                        <button
+                            onClick={() => setView('projects')}
+                            style={{
+                                padding: '0.75rem 1.5rem',
+                                fontSize: '0.9rem',
+                                fontWeight: '700',
+                                background: 'linear-gradient(135deg, #a855f7 0%, #6366f1 100%)',
+                                color: 'white',
+                                border: '1px solid rgba(255, 255, 255, 0.2)',
+                                borderRadius: '12px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                transition: 'all 0.3s ease',
+                                backdropFilter: 'blur(10px)',
+                                boxShadow: '0 4px 15px rgba(139, 92, 246, 0.2)'
+                            }}
+                            className="premium-btn"
+                        >
+                            <Zap size={16} fill="currentColor" />
+                            Explore Projects
+                        </button>
+                        <button
+                            onClick={() => setView('roadmap')}
+                            style={{
+                                padding: '0.75rem 1.5rem',
+                                fontSize: '0.9rem',
+                                fontWeight: '700',
+                                background: 'linear-gradient(135deg, #3b82f6 0%, #2dd4bf 100%)',
+                                color: 'white',
+                                border: '1px solid rgba(255, 255, 255, 0.2)',
+                                borderRadius: '12px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                transition: 'all 0.3s ease',
+                                backdropFilter: 'blur(10px)',
+                                boxShadow: '0 4px 15px rgba(59, 130, 246, 0.2)'
+                            }}
+                            className="premium-btn-secondary"
+                        >
+                            <Target size={16} />
+                            Start Learning (Free)
+                        </button>
+                    </motion.div>
+                </div>
             </div>
 
-            <style dangerouslySetInnerHTML={{
-                __html: `
-        @media (max-width: 1100px) {
-          .hero-visual { display: none !important; }
-        }
-      `}} />
+            <style>{`
+                    .hero-cta-container {
+                        gap: 0.75rem !important;
+                    }
+                    .hero-cta-container button {
+                        width: auto !important;
+                        min-width: 160px;
+                        padding: 0.6rem 1.25rem !important;
+                        font-size: 0.85rem !important;
+                    }
+                }
+            `}</style>
         </section>
     );
-}
+};
+
+export default Hero;

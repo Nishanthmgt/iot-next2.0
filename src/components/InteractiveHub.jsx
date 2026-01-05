@@ -1,11 +1,16 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bot, Lightbulb, Send, MessageCircle, Sparkles, CheckCircle2, ArrowRight } from 'lucide-react';
+import { Bot, Lightbulb, Send, MessageCircle, Sparkles, CheckCircle2, ArrowRight, Activity } from 'lucide-react';
+import { roadmapExpanded } from '../data/roadmapExpanded';
 
 export default function InteractiveHub() {
     const [idea, setIdea] = useState("");
     const [botMessage, setBotMessage] = useState("");
-    const [chat, setChat] = useState([{ type: 'bot', text: 'Hi! I am the IoTnext Aide. How can I help you today?' }]);
+    const [isTyping, setIsTyping] = useState(false);
+    const [chat, setChat] = useState([{
+        type: 'bot',
+        text: 'Hi! I am the IoTnext Aide. I have been updated with the full 12-level roadmap knowledge. How can I help you with your IoT journey today?'
+    }]);
 
     const handleSendIdea = (e) => {
         e.preventDefault();
@@ -15,14 +20,45 @@ export default function InteractiveHub() {
         }
     };
 
+    const generateResponse = (input) => {
+        const lowerInput = input.toLowerCase();
+
+        // Find relevant level or topic from roadmap
+        for (const level of roadmapExpanded) {
+            if (lowerInput.includes(level.title.toLowerCase()) || lowerInput.includes(`level ${level.level}`)) {
+                return `That's part of our ${level.title} module! ${level.explanation} What specifically would you like to know about it?`;
+            }
+            for (const step of level.steps) {
+                if (lowerInput.includes(step.name.toLowerCase())) {
+                    return `Great question about ${step.name}! ${step.fullExplanation.substring(0, 150)}... You can find more details in Level ${level.level} of the roadmap!`;
+                }
+            }
+        }
+
+        if (lowerInput.includes("hello") || lowerInput.includes("hi")) {
+            return "Hello! I'm your IoT assistant. I can help you navigate the roadmap, explain sensors, or give you advice on microcontroller programming. What's on your mind?";
+        }
+
+        if (lowerInput.includes("arduino") || lowerInput.includes("esp32")) {
+            return "Microcontrollers are the heart of IoT! I'd recommend checking out Level 2: Microcontroller Basics to learn about GPIO, power management, and different boards.";
+        }
+
+        return "That's an interesting topic! While I'm still learning some advanced details, I can tell you that it sounds like it might fit into our roadmap. Try asking about specific sensors, protocols, or roadmap levels!";
+    };
+
     const handleBotChat = (e) => {
         e.preventDefault();
         if (botMessage.trim()) {
-            setChat([...chat, { type: 'user', text: botMessage }]);
-            setTimeout(() => {
-                setChat(prev => [...prev, { type: 'bot', text: "I'm currently in 'UI-Preview' mode, but soon I'll be able to help you debug your code and suggest circuits!" }]);
-            }, 1000);
+            const userMsg = botMessage;
+            setChat([...chat, { type: 'user', text: userMsg }]);
             setBotMessage("");
+            setIsTyping(true);
+
+            setTimeout(() => {
+                const response = generateResponse(userMsg);
+                setChat(prev => [...prev, { type: 'bot', text: response }]);
+                setIsTyping(false);
+            }, 1000);
         }
     };
 
@@ -38,13 +74,40 @@ export default function InteractiveHub() {
                     className="glass"
                     style={{ padding: '2.5rem', borderRadius: '2.5rem', display: 'flex', flexDirection: 'column', height: '500px' }}
                 >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
-                        <div style={{ padding: '0.8rem', background: 'var(--primary)', borderRadius: '1rem', color: 'white' }}>
-                            <Bot size={28} />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem', justifyContent: 'space-between' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                            <div style={{ padding: '0.8rem', background: 'var(--primary)', borderRadius: '1rem', color: 'white', position: 'relative' }}>
+                                <Bot size={28} />
+                                <div style={{
+                                    position: 'absolute',
+                                    bottom: '-2px',
+                                    right: '-2px',
+                                    width: '12px',
+                                    height: '12px',
+                                    background: '#22c55e',
+                                    borderRadius: '50%',
+                                    border: '2px solid var(--surface)',
+                                    boxShadow: '0 0 8px rgba(34, 197, 94, 0.5)'
+                                }}></div>
+                            </div>
+                            <div>
+                                <h3 style={{ fontSize: '1.5rem', fontWeight: '800' }}>IoTnext Assist Bot</h3>
+                                <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>AI Data Engine: <span style={{ color: 'var(--primary)', fontWeight: '700' }}>ONLINE</span></p>
+                            </div>
                         </div>
-                        <div>
-                            <h3 style={{ fontSize: '1.5rem', fontWeight: '800' }}>IoTnext Assist Bot</h3>
-                            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>AI-Powered Hardware Debugger</p>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            background: 'rgba(34, 197, 94, 0.1)',
+                            padding: '0.4rem 0.8rem',
+                            borderRadius: '2rem',
+                            color: '#22c55e',
+                            fontSize: '0.75rem',
+                            fontWeight: '700',
+                            border: '1px solid rgba(34, 197, 94, 0.2)'
+                        }}>
+                            <Activity size={14} /> LIVE MODE
                         </div>
                     </div>
 
@@ -69,6 +132,24 @@ export default function InteractiveHub() {
                                     {msg.text}
                                 </motion.div>
                             ))}
+                            {isTyping && (
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0.8 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    style={{
+                                        alignSelf: 'flex-start',
+                                        background: 'var(--surface-hover)',
+                                        padding: '0.8rem 1.2rem',
+                                        borderRadius: '1.2rem 1.2rem 1.2rem 0.2rem',
+                                        display: 'flex',
+                                        gap: '0.3rem'
+                                    }}
+                                >
+                                    <motion.div animate={{ opacity: [0.4, 1, 0.4] }} transition={{ repeat: Infinity, duration: 1 }} style={{ width: '6px', height: '6px', background: 'var(--primary)', borderRadius: '50%' }} />
+                                    <motion.div animate={{ opacity: [0.4, 1, 0.4] }} transition={{ repeat: Infinity, duration: 1, delay: 0.2 }} style={{ width: '6px', height: '6px', background: 'var(--primary)', borderRadius: '50%' }} />
+                                    <motion.div animate={{ opacity: [0.4, 1, 0.4] }} transition={{ repeat: Infinity, duration: 1, delay: 0.4 }} style={{ width: '6px', height: '6px', background: 'var(--primary)', borderRadius: '50%' }} />
+                                </motion.div>
+                            )}
                         </AnimatePresence>
                     </div>
 
