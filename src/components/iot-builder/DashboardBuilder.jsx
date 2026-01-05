@@ -30,7 +30,7 @@ export default function DashboardBuilder() {
 
     useEffect(() => {
         // Dynamic check if the secure proxy is actually reachable (Vercel vs GitHub)
-        fetch('/api/ai/generate', {
+        fetch('/api/generate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ ping: true })

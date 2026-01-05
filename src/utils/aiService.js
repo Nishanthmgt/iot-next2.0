@@ -85,7 +85,7 @@ const callGemini = async (prompt, systemInstruction) => {
 
     // 2. Otherwise, use the secure platform proxy (Hides the owner's key)
     console.log("[AI] Using Platform Secure Proxy...");
-    const response = await fetch('/api/ai/generate', {
+    const response = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt, systemInstruction })
