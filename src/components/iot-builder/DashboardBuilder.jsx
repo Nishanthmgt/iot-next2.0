@@ -26,10 +26,25 @@ export default function DashboardBuilder() {
         } catch (e) { return ''; }
     });
 
+    const [isPlatformAiAvailable, setIsPlatformAiAvailable] = useState(false);
+
+    useEffect(() => {
+        // Dynamic check if the secure proxy is actually reachable (Vercel vs GitHub)
+        fetch('/api/ai/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ping: true })
+        })
+            .then(res => setIsPlatformAiAvailable(res.status !== 404))
+            .catch(() => setIsPlatformAiAvailable(false));
+    }, []);
+
     const saveKeys = () => {
         localStorage.setItem('IOT_AI_KEYS', JSON.stringify({ geminiKey }));
         setShowSettings(false);
     };
+
+    const isAiHealthy = geminiKey || isPlatformAiAvailable;
 
     const handleAIPrompt = async () => {
         if (!prompt.trim()) return;
@@ -85,11 +100,11 @@ export default function DashboardBuilder() {
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                background: 'rgba(34, 197, 94, 0.1)',
-                                border: '1px solid rgba(34, 197, 94, 0.2)'
+                                background: isAiHealthy ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                                border: `1px solid ${isAiHealthy ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)'}`
                             }}
                         >
-                            <Settings size={20} color="#22c55e" />
+                            <Settings size={20} color={isAiHealthy ? '#22c55e' : '#ef4444'} />
                         </button>
                     </div>
                     <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>Transform your vision into hardware through Natural Language.</p>

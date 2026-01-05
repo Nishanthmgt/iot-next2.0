@@ -32,6 +32,43 @@ OUTPUT RULES:
 `;
 
 /**
+ * The core logic for calling Gemini via Google API with fallback versions
+ */
+const callGoogleDirect = async (prompt, systemInstruction, key) => {
+    const modelsToTry = [
+        { name: "gemini-2.0-flash", version: "v1beta" },
+        { name: "gemini-1.5-flash", version: "v1" },
+        { name: "gemini-pro", version: "v1" }
+    ];
+
+    let lastError = null;
+    for (const model of modelsToTry) {
+        try {
+            console.log(`[AI] Attempting direct call with ${model.name}...`);
+            const response = await fetch(`https://generativelanguage.googleapis.com/${model.version}/models/${model.name}:generateContent?key=${key}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: `${systemInstruction}\n\nUSER REQUEST: ${prompt}` }] }]
+                })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (text) return text;
+            }
+
+            const err = await response.json();
+            lastError = new Error(err.error?.message || `Model ${model.name} failed`);
+        } catch (e) {
+            lastError = e;
+        }
+    }
+    throw lastError;
+};
+
+/**
  * Hybrid AI Caller: Checks local key first, then tries platform proxy
  */
 const callGemini = async (prompt, systemInstruction) => {
@@ -39,22 +76,11 @@ const callGemini = async (prompt, systemInstruction) => {
 
     // 1. If user has their own key, use it directly (saves platform costs)
     if (geminiKey) {
-        console.log("[AI] Using User API Key (Browser Direct)...");
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [{ parts: [{ text: `${systemInstruction}\n\nUSER REQUEST: ${prompt}` }] }]
-            })
-        });
-
-        if (response.ok) {
-            const data = await response.json();
-            return data.candidates[0].content.parts[0].text;
+        try {
+            return await callGoogleDirect(prompt, systemInstruction, geminiKey);
+        } catch (e) {
+            console.warn("[AI] User key failed. Falling back to platform proxy...", e.message);
         }
-
-        const err = await response.json();
-        console.warn(`Local Key failed: ${err.error?.message || 'Error'}. Trying platform proxy...`);
     }
 
     // 2. Otherwise, use the secure platform proxy (Hides the owner's key)
@@ -65,9 +91,17 @@ const callGemini = async (prompt, systemInstruction) => {
         body: JSON.stringify({ prompt, systemInstruction })
     });
 
+    if (response.status === 404) {
+        throw new Error("Backend not found. The 'Magic Build' proxy only works on Vercel. If you are on GitHub, please enter your own Gemini API key in Settings.");
+    }
+
     if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.error || 'The AI service is currently unavailable. Please try again later.');
+        let errMsg = "AI Service Unavailable";
+        try {
+            const err = await response.json();
+            errMsg = err.error || errMsg;
+        } catch (je) { }
+        throw new Error(errMsg);
     }
 
     const data = await response.json();
@@ -79,7 +113,6 @@ const callGemini = async (prompt, systemInstruction) => {
  */
 export const generateProjectFromPrompt = async (prompt, boardData, sensorData) => {
     const systemPrompt = getConfigSystemPrompt(boardData, sensorData);
-
     const text = await callGemini(prompt, systemPrompt);
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     return jsonMatch ? JSON.parse(jsonMatch[0]) : null;
