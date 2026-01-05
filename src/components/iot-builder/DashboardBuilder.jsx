@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Gauge, Activity, ToggleLeft, Layout, Cpu, Plus, Save, Download, Sparkles, Code, Cable, Wand2, Send, Loader2, Settings, Key, ShieldCheck, X } from 'lucide-react';
 import { generateProjectFromPrompt, generateFirmwareWithAI } from '../../utils/aiService';
