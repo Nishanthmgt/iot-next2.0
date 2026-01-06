@@ -1,12 +1,12 @@
 /**
- * Retrieval helper for AI Keys (Gemini Only)
+ * Retrieval helper for AI Keys (DeepSeek Only)
  */
 const getKeys = () => {
     try {
         const keys = JSON.parse(localStorage.getItem('IOT_AI_KEYS')) || {};
-        return { geminiKey: keys.geminiKey || '' };
+        return { deepseekKey: keys.deepseekKey || '' };
     } catch (e) {
-        return { geminiKey: '' };
+        return { deepseekKey: '' };
     }
 };
 
@@ -29,61 +29,55 @@ OUTPUT RULES:
 2. Ensure pin mappings are electrically valid for the chosen board.
 3. Do not use the same physical pin for two sensors.
 4. Provide logical dashboard widgets for the sensors requested.
+5. NO EXPLANATION TEXT. ONLY JSON.
 `;
 
 /**
- * The core logic for calling Gemini via Google API with fallback versions
+ * Direct call with DeepSeek (used if user provides their own key)
  */
-const callGoogleDirect = async (prompt, systemInstruction, key) => {
-    const modelsToTry = [
-        { name: "gemini-2.0-flash", version: "v1beta" },
-        { name: "gemini-1.5-flash", version: "v1" },
-        { name: "gemini-pro", version: "v1" }
-    ];
+const callDeepSeekDirect = async (prompt, systemInstruction, key) => {
+    console.log(`[AI] Attempting direct call with DeepSeek...`);
+    const response = await fetch(`https://api.deepseek.com/chat/completions`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${key}`
+        },
+        body: JSON.stringify({
+            model: "deepseek-chat",
+            messages: [
+                { role: "system", content: systemInstruction },
+                { role: "user", content: prompt }
+            ],
+            temperature: 0.7
+        })
+    });
 
-    let lastError = null;
-    for (const model of modelsToTry) {
-        try {
-            console.log(`[AI] Attempting direct call with ${model.name}...`);
-            const response = await fetch(`https://generativelanguage.googleapis.com/${model.version}/models/${model.name}:generateContent?key=${key}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [{ parts: [{ text: `${systemInstruction}\n\nUSER REQUEST: ${prompt}` }] }]
-                })
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-                if (text) return text;
-            }
-
-            const err = await response.json();
-            lastError = new Error(err.error?.message || `Model ${model.name} failed`);
-        } catch (e) {
-            lastError = e;
-        }
+    if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error?.message || `DeepSeek failed with status ${response.status}`);
     }
-    throw lastError;
+
+    const data = await response.json();
+    return data.choices?.[0]?.message?.content;
 };
 
 /**
  * Hybrid AI Caller: Checks local key first, then tries platform proxy
  */
-const callGemini = async (prompt, systemInstruction) => {
-    const { geminiKey } = getKeys();
+const callAI = async (prompt, systemInstruction) => {
+    const { deepseekKey } = getKeys();
 
     // 1. If user has their own key, use it directly (saves platform costs)
-    if (geminiKey) {
+    if (deepseekKey) {
         try {
-            return await callGoogleDirect(prompt, systemInstruction, geminiKey);
+            return await callDeepSeekDirect(prompt, systemInstruction, deepseekKey);
         } catch (e) {
             console.warn("[AI] User key failed. Falling back to platform proxy...", e.message);
         }
     }
 
-    // 2. Otherwise, use the secure platform proxy (Hides the owner's key)
+    // 2. Otherwise, use the secure platform proxy (Already DeepSeek based)
     console.log("[AI] Using Platform Secure Proxy...");
     const response = await fetch('/api/generate', {
         method: 'POST',
@@ -92,7 +86,7 @@ const callGemini = async (prompt, systemInstruction) => {
     });
 
     if (response.status === 404) {
-        throw new Error("Backend not found. The 'Magic Build' proxy only works on Vercel. If you are on GitHub, please enter your own Gemini API key in Settings.");
+        throw new Error("Backend not found. The 'Magic Build' proxy only works on Vercel. If you are on GitHub, please enter your own DeepSeek API key in Settings.");
     }
 
     if (!response.ok) {
@@ -113,7 +107,7 @@ const callGemini = async (prompt, systemInstruction) => {
  */
 export const generateProjectFromPrompt = async (prompt, boardData, sensorData) => {
     const systemPrompt = getConfigSystemPrompt(boardData, sensorData);
-    const text = await callGemini(prompt, systemPrompt);
+    const text = await callAI(prompt, systemPrompt);
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     return jsonMatch ? JSON.parse(jsonMatch[0]) : null;
 };
@@ -133,6 +127,6 @@ export const generateFirmwareWithAI = async (config) => {
     OUTPUT ONLY THE CODE. NO EXPLANATIONS.
     `;
 
-    const code = await callGemini("Generate code.", systemPrompt);
+    const code = await callAI("Generate code.", systemPrompt);
     return code.replace(/```cpp|```arduino|```/g, "").trim();
 };

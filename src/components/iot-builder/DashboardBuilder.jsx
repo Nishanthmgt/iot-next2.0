@@ -19,10 +19,10 @@ export default function DashboardBuilder() {
 
     // API Key Management
     const [showSettings, setShowSettings] = useState(false);
-    const [geminiKey, setGeminiKey] = useState(() => {
+    const [deepseekKey, setDeepseekKey] = useState(() => {
         try {
             const saved = JSON.parse(localStorage.getItem('IOT_AI_KEYS'));
-            return saved?.geminiKey || '';
+            return saved?.deepseekKey || '';
         } catch (e) { return ''; }
     });
 
@@ -40,11 +40,11 @@ export default function DashboardBuilder() {
     }, []);
 
     const saveKeys = () => {
-        localStorage.setItem('IOT_AI_KEYS', JSON.stringify({ geminiKey }));
+        localStorage.setItem('IOT_AI_KEYS', JSON.stringify({ deepseekKey }));
         setShowSettings(false);
     };
 
-    const isAiHealthy = geminiKey || isPlatformAiAvailable;
+    const isAiHealthy = deepseekKey || isPlatformAiAvailable;
 
     const handleAIPrompt = async () => {
         if (!prompt.trim()) return;
@@ -60,7 +60,7 @@ export default function DashboardBuilder() {
             }
         } catch (error) {
             console.error("AI Generation Error:", error);
-            alert(`AI Error: ${error.message}. Please check your Gemini API key in Settings.`);
+            alert(`AI Error: ${error.message}. Please check your DeepSeek API key in Settings.`);
         } finally {
             setIsGenerating(false);
         }
@@ -390,14 +390,14 @@ export default function DashboardBuilder() {
                             </div>
 
                             <div style={{ marginBottom: '1.5rem' }}>
-                                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#a855f7', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Gemini API Key (2.0 Flash)</label>
+                                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#a855f7', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>DeepSeek API Key</label>
                                 <div style={{ position: 'relative' }}>
                                     <Sparkles size={18} color="#a855f7" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', opacity: 0.5 }} />
                                     <input
                                         type="password"
                                         placeholder="Optional: Enter own Key..."
-                                        value={geminiKey}
-                                        onChange={(e) => setGeminiKey(e.target.value)}
+                                        value={deepseekKey}
+                                        onChange={(e) => setDeepseekKey(e.target.value)}
                                         style={{ width: '100%', padding: '1rem 1rem 1rem 3rem', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(168, 85, 247, 0.2)', borderRadius: '1rem', color: 'white', outline: 'none' }}
                                     />
                                 </div>
