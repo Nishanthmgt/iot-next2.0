@@ -1,6 +1,6 @@
 import {
-    Wrench, Rocket, Share2, AlertTriangle, Cpu, Battery,
-    Lightbulb, BarChart, Code, Target, BookOpen, GraduationCap, Users
+    Settings, Rocket, ExternalLink, ShieldAlert, Cpu, Battery,
+    Lightbulb, Activity, Code, Target, BookOpen, GraduationCap, Users
 } from 'lucide-react';
 
 export const masteryPhases = [
@@ -14,7 +14,7 @@ export const masteryPhases = [
                 id: 'troubleshooting',
                 title: "Troubleshooting & Debugging",
                 desc: "Master the art of fixing broken circuits and firmware errors.",
-                icon: Wrench,
+                icon: Settings,
                 level: "Essential"
             },
             {
@@ -28,7 +28,7 @@ export const masteryPhases = [
                 id: 'protocols',
                 title: "Protocols Explained",
                 desc: "UART, I2C, SPI - simplified for real-world use.",
-                icon: Share2,
+                icon: ExternalLink,
                 level: "Core"
             }
         ]
@@ -43,7 +43,7 @@ export const masteryPhases = [
                 id: 'common-mistakes',
                 title: "Common Mistakes in IoT",
                 desc: "Learn from others' failures to save your hardware.",
-                icon: AlertTriangle,
+                icon: ShieldAlert,
                 level: "Survival"
             },
             {
@@ -79,7 +79,7 @@ export const masteryPhases = [
                 id: 'board-comparison',
                 title: "Board Comparison Guide",
                 desc: "Choosing the perfect MCU for your specific needs.",
-                icon: BarChart,
+                icon: Activity,
                 level: "Architect"
             },
             {
