@@ -68,9 +68,9 @@ export default function MasteryGuide({ content, onBack }) {
                     </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: '3rem' }}>
+                <div className="mastery-guide-layout" style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: '3rem' }}>
                     {/* Sidebar Navigation */}
-                    <div style={{ position: 'sticky', top: '100px', height: 'fit-content' }}>
+                    <div className="mastery-sidebar" style={{ position: 'sticky', top: '100px', height: 'fit-content' }}>
                         <h3 style={{ fontSize: '0.9rem', fontWeight: '900', color: 'var(--text-muted)', marginBottom: '1rem', letterSpacing: '0.05em' }}>
                             TABLE OF CONTENTS
                         </h3>
@@ -181,8 +181,19 @@ export default function MasteryGuide({ content, onBack }) {
                                         <li style={{ marginBottom: '0.5rem', fontSize: '1.05rem' }}>{children}</li>
                                     ),
                                     table: ({ children }) => (
-                                        <div style={{ overflowX: 'auto', marginTop: '1.5rem', marginBottom: '1.5rem' }}>
-                                            <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid var(--border)' }}>
+                                        <div style={{
+                                            overflowX: 'auto',
+                                            marginTop: '1.5rem',
+                                            marginBottom: '1.5rem',
+                                            WebkitOverflowScrolling: 'touch',
+                                            border: '1px solid var(--border)',
+                                            borderRadius: '0.5rem'
+                                        }}>
+                                            <table style={{
+                                                width: '100%',
+                                                minWidth: '500px',
+                                                borderCollapse: 'collapse'
+                                            }}>
                                                 {children}
                                             </table>
                                         </div>
@@ -191,12 +202,24 @@ export default function MasteryGuide({ content, onBack }) {
                                         <thead style={{ background: 'rgba(var(--primary-rgb), 0.1)' }}>{children}</thead>
                                     ),
                                     th: ({ children }) => (
-                                        <th style={{ padding: '1rem', textAlign: 'left', borderBottom: '2px solid var(--border)', fontWeight: '800' }}>
+                                        <th style={{
+                                            padding: '0.75rem',
+                                            textAlign: 'left',
+                                            borderBottom: '2px solid var(--border)',
+                                            fontWeight: '800',
+                                            fontSize: '0.9rem',
+                                            whiteSpace: 'nowrap'
+                                        }}>
                                             {children}
                                         </th>
                                     ),
                                     td: ({ children }) => (
-                                        <td style={{ padding: '1rem', borderBottom: '1px solid var(--border)' }}>
+                                        <td style={{
+                                            padding: '0.75rem',
+                                            borderBottom: '1px solid var(--border)',
+                                            fontSize: '0.95rem',
+                                            lineHeight: '1.5'
+                                        }}>
                                             {children}
                                         </td>
                                     ),
