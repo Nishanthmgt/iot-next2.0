@@ -58,7 +58,10 @@ const SearchPalette = ({ isOpen, onClose, setView, onSelectProject }) => {
     return (
         <AnimatePresence>
             {isOpen && (
-                <div style={{ position: 'fixed', inset: 0, zIndex: 1000, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', paddingTop: '15vh' }}>
+                <div
+                    onClick={onClose}
+                    style={{ position: 'fixed', inset: 0, zIndex: 1000, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', paddingTop: '15vh' }}>
+
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -71,6 +74,7 @@ const SearchPalette = ({ isOpen, onClose, setView, onSelectProject }) => {
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.95 }}
+                        onClick={(e) => e.stopPropagation()}
                         style={{
                             width: '90%',
                             maxWidth: '650px',

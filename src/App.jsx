@@ -215,9 +215,6 @@ function App() {
   };
 
   const handleViewChange = (newView) => {
-    if (newView === 'pinout') {
-      localStorage.removeItem('selectedBoardId');
-    }
     setView(newView);
     window.location.hash = newView;
     window.scrollTo({ top: 0, behavior: 'instant' });
