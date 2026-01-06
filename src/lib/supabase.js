@@ -9,7 +9,9 @@ export const supabase = (supabaseUrl && supabaseAnonKey)
     : {
         auth: {
             getSession: async () => ({ data: { session: null }, error: null }),
-            onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => { } } } })
+            onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => { } } } }),
+            signInWithPassword: async () => ({ data: { user: null }, error: new Error('Supabase NOT configured. Please add VITE_SUPABASE_URL to Vercel.') }),
+            signOut: async () => ({ error: null })
         },
         from: () => ({
             select: () => ({ order: () => ({ data: [], error: null }) }),
