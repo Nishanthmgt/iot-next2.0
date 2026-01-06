@@ -54,7 +54,42 @@ export default async function handler(req, res) {
         }
     }
 
+    // --- ULTIMATE FALLBACK: DEEPSEEK ---
+    const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
+    if (DEEPSEEK_API_KEY) {
+        try {
+            console.log(`[Backend] Attempting DeepSeek fallback...`);
+            const dsResponse = await fetch("https://api.deepseek.com/chat/completions", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${DEEPSEEK_API_KEY}`
+                },
+                body: JSON.stringify({
+                    model: "deepseek-chat",
+                    messages: [
+                        { role: "system", content: systemInstruction },
+                        { role: "user", content: prompt }
+                    ],
+                    temperature: 0.7
+                })
+            });
+
+            if (dsResponse.ok) {
+                const dsData = await dsResponse.json();
+                const dsText = dsData.choices?.[0]?.message?.content;
+                if (dsText) {
+                    console.log(`[Backend] Success with DeepSeek`);
+                    return res.status(200).json({ text: dsText, modelUsed: 'deepseek-chat' });
+                }
+            }
+            console.warn(`[Backend] DeepSeek failed or returned empty.`);
+        } catch (dsError) {
+            console.error(`[Backend] DeepSeek Error:`, dsError.message);
+        }
+    }
+
     return res.status(429).json({
-        error: `AI Service Busy. All models (2.0, 1.5, Pro) exhausted their free quota. Please wait 60 seconds and try again. Latest Error: ${lastError}`
+        error: `AI Service Busy. All Gemini models and DeepSeek fallback were exhausted. Please wait 60 seconds. Latest Error: ${lastError}`
     });
 }
