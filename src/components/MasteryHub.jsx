@@ -2,9 +2,31 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { masteryPhases } from '../data/masteryData';
 import { ChevronRight, ArrowRight, Sparkles, BookOpen } from 'lucide-react';
+import MasteryGuide from './MasteryGuide';
+import { troubleshootingContent } from '../data/mastery/troubleshootingContent';
+import { miniProjectsContent } from '../data/mastery/miniProjectsContent';
+import { protocolsContent } from '../data/mastery/protocolsContent';
+
+const contentMap = {
+    'troubleshooting': troubleshootingContent,
+    'mini-projects': miniProjectsContent,
+    'protocols': protocolsContent
+};
 
 export default function MasteryHub() {
     const [activePhase, setActivePhase] = useState(masteryPhases[0]);
+    const [selectedGuide, setSelectedGuide] = useState(null);
+
+    const handleGuideClick = (guideId) => {
+        const content = contentMap[guideId];
+        if (content) {
+            setSelectedGuide(content);
+        }
+    };
+
+    if (selectedGuide) {
+        return <MasteryGuide content={selectedGuide} onBack={() => setSelectedGuide(null)} />;
+    }
 
     return (
         <section className="section-mesh bg-dots" style={{ padding: '4rem 1rem' }}>
@@ -93,6 +115,7 @@ export default function MasteryHub() {
                                     transition={{ delay: idx * 0.1 }}
                                     whileHover={{ y: -8 }}
                                     className="glass-plus"
+                                    onClick={() => handleGuideClick(item.id)}
                                     style={{
                                         padding: '2.5rem',
                                         borderRadius: '2rem',
