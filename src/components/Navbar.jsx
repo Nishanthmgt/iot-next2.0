@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Home, Map, Zap, Cpu, Search, Moon, Sun, ShoppingCart, Menu, X, PlusCircle, BookOpen, HelpCircle, Info, Activity, Shield, Layers, Github, Twitter, Linkedin, Mail, GraduationCap, Binary, Sparkles } from 'lucide-react';
+import {
+    Home, Map, Zap, Cpu, Search, Moon, Sun, ShoppingCart, Menu, X, PlusCircle, BookOpen, HelpCircle, Info, Activity, Shield, Layers,
+    Sparkles
+} from 'lucide-react';
 
 const Navbar = ({ setView, currentView, theme, toggleTheme, setIsSearchOpen, buildList = [] }) => {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -26,7 +29,9 @@ const Navbar = ({ setView, currentView, theme, toggleTheme, setIsSearchOpen, bui
         { id: 'roadmap', label: 'Roadmap', icon: <Map size={20} /> },
         { id: 'projects', label: 'Projects', icon: <Layers size={20} /> },
         { id: 'sensors', label: 'Sensors', icon: <Cpu size={20} /> },
-        { id: 'pinout', label: 'Pinout Lab', icon: <Activity size={20} /> }
+        { id: 'mastery', label: 'Mastery Hub', icon: <Sparkles size={20} /> },
+        { id: 'pinout', label: 'Pinout Lab', icon: <Activity size={20} /> },
+
     ];
 
     const handleNavClick = (id) => {

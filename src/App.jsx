@@ -42,6 +42,7 @@ const AdminLogin = lazy(() => import('./components/admin/AdminLogin'));
 const ProjectForm = lazy(() => import('./components/admin/ProjectForm'));
 const SensorForm = lazy(() => import('./components/admin/SensorForm'));
 const BoardForm = lazy(() => import('./components/admin/BoardForm'));
+const MasteryHub = lazy(() => import('./components/MasteryHub'));
 import { projects as localProjects } from './data/projects';
 import { ToastProvider } from './context/ToastContext';
 
@@ -255,6 +256,8 @@ function App() {
               </>
             )}
             {view === 'roadmap' && <Roadmap setView={handleViewChange} />}
+            {view === 'mastery' && <MasteryHub />}
+
             {view === 'c-course' && <CProgrammingCourse onBack={() => handleViewChange('roadmap')} />}
             {view === 'projects' && (
               <Projects
