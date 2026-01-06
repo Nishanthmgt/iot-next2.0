@@ -12,6 +12,8 @@ import OnboardingTour from './components/OnboardingTour';
 import BackToTop from './components/BackToTop';
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Analytics } from "@vercel/analytics/react";
+import { projects as localProjects } from './data/projects';
+import { ToastProvider } from './context/ToastContext';
 
 // Lazy Loaded Components
 const Roadmap = lazy(() => import('./components/Roadmap'));
@@ -43,8 +45,6 @@ const ProjectForm = lazy(() => import('./components/admin/ProjectForm'));
 const SensorForm = lazy(() => import('./components/admin/SensorForm'));
 const BoardForm = lazy(() => import('./components/admin/BoardForm'));
 const MasteryHub = lazy(() => import('./components/MasteryHub'));
-import { projects as localProjects } from './data/projects';
-import { ToastProvider } from './context/ToastContext';
 
 const LoadingFallback = () => (
   <div style={{

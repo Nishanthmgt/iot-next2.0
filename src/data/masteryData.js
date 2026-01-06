@@ -1,6 +1,6 @@
 import {
     Wrench, Rocket, Share2, AlertTriangle, Cpu, Battery,
-    Lightbulb, BarChart3, Code2, Target, BookOpen, GraduationCap, Users
+    Lightbulb, BarChart, Code, Target, BookOpen, GraduationCap, Users
 } from 'lucide-react';
 
 export const masteryPhases = [
@@ -79,14 +79,14 @@ export const masteryPhases = [
                 id: 'board-comparison',
                 title: "Board Comparison Guide",
                 desc: "Choosing the perfect MCU for your specific needs.",
-                icon: BarChart3,
+                icon: BarChart,
                 level: "Architect"
             },
             {
                 id: 'code-hub',
                 title: "Code Explanation Hub",
                 desc: "Breaking down complex firmware patterns into plain English.",
-                icon: Code2,
+                icon: Code,
                 level: "Professional"
             }
         ]
