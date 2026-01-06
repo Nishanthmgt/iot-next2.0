@@ -1,4 +1,4 @@
-import{r as m,j as e,m as s,A as p}from"./vendor-framer-Dt7LSxLG.js";import{ab as x,E as n,_ as h,A as l,N as y,O as g,ai as u,Z as v,C as j,ah as b,J as f,b as k}from"./vendor-icons-PacoQzKZ.js";const w=()=>{const[i,o]=m.useState("getting-started"),d=[{id:"getting-started",label:"1. Getting Started",icon:e.jsx(j,{size:18})},{id:"console-setup",label:"2. Console Setup",icon:e.jsx(b,{size:18})},{id:"app-config",label:"3. Mobile App",icon:e.jsx(f,{size:18})},{id:"sample-code",label:"4. Sample Code",icon:e.jsx(k,{size:18})}],a=`
+import{r as m,j as e,m as s,A as p}from"./vendor-framer-Dt7LSxLG.js";import{ab as x,E as n,_ as h,A as l,N as y,O as g,ai as u,Z as v,C as j,ah as b,J as f,b as k}from"./vendor-icons-DGzstwFU.js";const w=()=>{const[i,o]=m.useState("getting-started"),d=[{id:"getting-started",label:"1. Getting Started",icon:e.jsx(j,{size:18})},{id:"console-setup",label:"2. Console Setup",icon:e.jsx(b,{size:18})},{id:"app-config",label:"3. Mobile App",icon:e.jsx(f,{size:18})},{id:"sample-code",label:"4. Sample Code",icon:e.jsx(k,{size:18})}],a=`
 #define BLYNK_TEMPLATE_ID "TMPLxxxxxx"
 #define BLYNK_DEVICE_NAME "Device"
 #define BLYNK_AUTH_TOKEN "YourAuthToken"
