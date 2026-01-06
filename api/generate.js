@@ -18,7 +18,9 @@ export default async function handler(req, res) {
     const modelsToTry = [
         { name: "gemini-2.0-flash", version: "v1beta" },
         { name: "gemini-1.5-flash", version: "v1" },
-        { name: "gemini-1.5-pro", version: "v1beta" }
+        { name: "gemini-1.5-flash-latest", version: "v1beta" },
+        { name: "gemini-1.5-pro", version: "v1" },
+        { name: "gemini-1.5-pro-latest", version: "v1beta" }
     ];
 
     let lastError = null;
