@@ -12,6 +12,10 @@ import { powerBatteryContent } from '../data/mastery/powerBatteryContent';
 import { sensorPrinciplesContent } from '../data/mastery/sensorPrinciplesContent';
 import { boardComparisonContent } from '../data/mastery/boardComparisonContent';
 import { codeExplanationContent } from '../data/mastery/codeExplanationContent';
+import { projectSelectionContent } from '../data/mastery/projectSelectionContent';
+import { miniProjectIdeasContent } from '../data/mastery/miniProjectIdeasContent';
+import { fypIdeasContent } from '../data/mastery/fypIdeasContent';
+import { interviewPrepContent } from '../data/mastery/interviewPrepContent';
 
 const contentMap = {
     'troubleshooting': troubleshootingContent,
@@ -22,7 +26,11 @@ const contentMap = {
     'power-guide': powerBatteryContent,
     'sensor-principles': sensorPrinciplesContent,
     'board-comparison': boardComparisonContent,
-    'code-hub': codeExplanationContent
+    'code-hub': codeExplanationContent,
+    'project-selection': projectSelectionContent,
+    'mini-project-ideas': miniProjectIdeasContent,
+    'fyp-ideas': fypIdeasContent,
+    'interview-prep': interviewPrepContent
 };
 
 export default function MasteryHub() {
