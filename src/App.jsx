@@ -35,7 +35,6 @@ const BoardFamilySelector = lazy(() => import('./components/BoardFamilySelector'
 const QA = lazy(() => import('./components/QA'));
 const CProgrammingCourse = React.lazy(() => import('./components/CProgrammingCourse'));
 const Cartlist = lazy(() => import('./components/Cartlist'));
-const DashboardBuilder = lazy(() => import('./components/iot-builder/DashboardBuilder'));
 
 // Admin Components (Lazy Loaded)
 const AdminDashboard = lazy(() => import('./components/admin/AdminDashboard'));
@@ -296,7 +295,6 @@ function App() {
               </>
             )}
             {view === 'blynk-iot' && <BlynkIoT />}
-            {view === 'iot-builder' && <DashboardBuilder />}
             {view === 'pinout' && <PinoutLab initialFamily={activeFamily} />}
             {view === 'cartlist' && <Cartlist buildList={buildList} onRemoveFromBuild={removeFromBuild} />}
             {view === 'blog' && <Blog />}

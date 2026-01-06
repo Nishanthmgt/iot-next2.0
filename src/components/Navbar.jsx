@@ -26,8 +26,7 @@ const Navbar = ({ setView, currentView, theme, toggleTheme, setIsSearchOpen, bui
         { id: 'roadmap', label: 'Roadmap', icon: <Map size={20} /> },
         { id: 'projects', label: 'Projects', icon: <Layers size={20} /> },
         { id: 'sensors', label: 'Sensors', icon: <Cpu size={20} /> },
-        { id: 'pinout', label: 'Pinout Lab', icon: <Activity size={20} /> },
-        { id: 'iot-builder', label: 'IoT Builder', icon: <Sparkles size={20} /> }
+        { id: 'pinout', label: 'Pinout Lab', icon: <Activity size={20} /> }
     ];
 
     const handleNavClick = (id) => {
