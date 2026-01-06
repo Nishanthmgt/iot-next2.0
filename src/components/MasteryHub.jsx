@@ -6,11 +6,17 @@ import MasteryGuide from './MasteryGuide';
 import { troubleshootingContent } from '../data/mastery/troubleshootingContent';
 import { miniProjectsContent } from '../data/mastery/miniProjectsContent';
 import { protocolsContent } from '../data/mastery/protocolsContent';
+import { commonMistakesContent } from '../data/mastery/commonMistakesContent';
+import { pinSelectionContent } from '../data/mastery/pinSelectionContent';
+import { powerBatteryContent } from '../data/mastery/powerBatteryContent';
 
 const contentMap = {
     'troubleshooting': troubleshootingContent,
     'mini-projects': miniProjectsContent,
-    'protocols': protocolsContent
+    'protocols': protocolsContent,
+    'common-mistakes': commonMistakesContent,
+    'pin-selection': pinSelectionContent,
+    'power-guide': powerBatteryContent
 };
 
 export default function MasteryHub() {
