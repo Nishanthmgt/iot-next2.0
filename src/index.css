@@ -1182,3 +1182,57 @@ body {
     gap: 3rem !important;
   }
 }
+/* Mastery Guide Mobile Responsiveness */
+@media (max-width: 768px) {
+  .mastery-guide-layout {
+    grid-template-columns: 1fr !important;
+    gap: 2rem !important;
+  }
+
+  .mastery-sidebar {
+    position: static !important;
+    margin-bottom: 2rem;
+  }
+
+  .mastery-guide-layout > div:last-child {
+    padding: 1.5rem !important;
+  }
+
+  .markdown-content table {
+    font-size: 0.85rem !important;
+  }
+
+  .markdown-content th,
+  .markdown-content td {
+    padding: 0.5rem !important;
+    font-size: 0.85rem !important;
+  }
+
+  .markdown-content th {
+    font-size: 0.8rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .mastery-guide-layout > div:last-child {
+    padding: 1rem !important;
+  }
+
+  .markdown-content h2 {
+    font-size: 1.5rem !important;
+  }
+
+  .markdown-content h3 {
+    font-size: 1.2rem !important;
+  }
+
+  .markdown-content table {
+    font-size: 0.8rem !important;
+  }
+
+  .markdown-content th,
+  .markdown-content td {
+    padding: 0.4rem !important;
+    font-size: 0.8rem !important;
+  }
+}

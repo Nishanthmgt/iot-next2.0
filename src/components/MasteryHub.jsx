@@ -9,6 +9,9 @@ import { protocolsContent } from '../data/mastery/protocolsContent';
 import { commonMistakesContent } from '../data/mastery/commonMistakesContent';
 import { pinSelectionContent } from '../data/mastery/pinSelectionContent';
 import { powerBatteryContent } from '../data/mastery/powerBatteryContent';
+import { sensorPrinciplesContent } from '../data/mastery/sensorPrinciplesContent';
+import { boardComparisonContent } from '../data/mastery/boardComparisonContent';
+import { codeExplanationContent } from '../data/mastery/codeExplanationContent';
 
 const contentMap = {
     'troubleshooting': troubleshootingContent,
@@ -16,7 +19,10 @@ const contentMap = {
     'protocols': protocolsContent,
     'common-mistakes': commonMistakesContent,
     'pin-selection': pinSelectionContent,
-    'power-guide': powerBatteryContent
+    'power-guide': powerBatteryContent,
+    'sensor-principles': sensorPrinciplesContent,
+    'board-comparison': boardComparisonContent,
+    'code-hub': codeExplanationContent
 };
 
 export default function MasteryHub() {
