@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-    Home, Map, Zap, Cpu, Search, Moon, Sun, ShoppingCart, Menu, X, PlusCircle, BookOpen, HelpCircle, Info, Activity, Shield, Layers, Mail,
+    Home, Map, Zap, Cpu, Search, Moon, Sun, ShoppingCart, Menu, X, PlusCircle, BookOpen, HelpCircle, Info, Activity, Shield, Layers, Mail, Github, Linkedin,
     Sparkles
 } from 'lucide-react';
 
@@ -135,7 +135,7 @@ const Navbar = ({ setView, currentView, theme, toggleTheme, setIsSearchOpen, bui
                             {navItems.map((item) => (
                                 <li
                                     key={item.id}
-                                    id={`tour - nav - ${item.id} `}
+                                    id={`tour-nav-${item.id}`}
                                     onClick={() => handleNavClick(item.id)}
                                     style={{
                                         fontSize: '0.85rem',
@@ -342,8 +342,8 @@ const Navbar = ({ setView, currentView, theme, toggleTheme, setIsSearchOpen, bui
                 {navItems.map((item) => (
                     <div
                         key={item.id}
-                        id={`tour - mobile - nav - ${item.id} `}
-                        className={`bottom - nav - item ${safeCurrentView === item.id ? 'active' : ''} `}
+                        id={`tour-mobile-nav-${item.id}`}
+                        className={`bottom-nav-item ${safeCurrentView === item.id ? 'active' : ''}`}
                         onClick={() => handleNavClick(item.id)}
                     >
                         <div className="nav-icon-wrapper" style={{ height: '40px' }}>
@@ -356,11 +356,11 @@ const Navbar = ({ setView, currentView, theme, toggleTheme, setIsSearchOpen, bui
 
             {/* Mobile Menu Drawer Overlay */}
             <div
-                className={`mobile - menu - overlay ${mobileMenuOpen ? 'open' : ''} `}
+                className={`mobile-menu-overlay ${mobileMenuOpen ? 'open' : ''}`}
                 onClick={() => setMobileMenuOpen(false)}
             />
 
-            <div className={`mobile - drawer ${mobileMenuOpen ? 'open' : ''} `} style={{ paddingBottom: 'calc(2rem + 70px)' }}>
+            <div className={`mobile-drawer ${mobileMenuOpen ? 'open' : ''}`} style={{ paddingBottom: 'calc(2rem + 70px)' }}>
                 <div className="drawer-handle" />
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
