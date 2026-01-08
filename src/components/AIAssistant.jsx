@@ -1,3 +1,6 @@
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { MessageSquare, X, Send, Bot, User, Sparkles } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { BOARDS } from '../data/boards';
 import { callAI } from '../utils/aiService';
