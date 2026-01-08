@@ -1,26 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageSquare, X, Send, Bot, User, Sparkles } from 'lucide-react';
+import { sensors } from '../data/sensors';
+import { BOARDS } from '../data/boards';
 import { callAI } from '../utils/aiService';
 
-const NEXUS_SYSTEM_PROMPT = `
-You are Nexus AI, the Senior IoT Architect for the IoTNext platform. 
-Your tone is professional, technical, elite, and encouraging. 
-You specialize in:
-1. System architecture (ESP32, Arduino, ARM Cortex, Industrial PLC).
-2. Firmware optimization (Deep Sleep, RTOS, memory management).
-3. Connectivity protocols (MQTT, HTTP, LoRaWAN, NB-IoT, Modbus).
-4. Hardware troubleshooting (Ground loops, signal interference, pin mappings).
+// Prepare condensed website content for the AI context
+const WEBSITE_CONTENT = `
+SENSORS CATALOG:
+${sensors.map(s => `- ${s.name}: ${s.description} (Pins: ${s.pins})`).join('\n')}
 
-Your goal is to provide high-fidelity technical advice. When asked about specific hardware (like DHT11, OLED, LED), provide exact technical details, pinout advice, and expert tips.
-Always reference the IoTNext Roadmap or Pinout Lab where relevant.
-Keep responses concise but value-packed.
+HARDWARE BOARDS:
+${Object.values(BOARDS).map(b => `- ${b.name}: ${b.description} (Architecture: ${b.specs?.Architecture}, Power: ${b.specs?.Operating_Voltage})`).join('\n')}
 `;
 
 const AIAssistant = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState([
-        { role: 'bot', text: 'Greetings! I am Nexus AI, your expert IoT Engineering Assistant. How can I help you architect or build today?' }
+        { role: 'bot', text: 'How can I help you today? I have access to all the technical specs of iotnext.store.' }
     ]);
     const [input, setInput] = useState('');
     const [showGreeting, setShowGreeting] = useState(false);
@@ -49,8 +46,32 @@ const AIAssistant = () => {
         setInput('');
         setIsGenerating(true);
 
+        // Build the strict prompt requested by the user
+        const strictPrompt = `
+You are an AI assistant for the website "iotnext.store".
+
+STRICT RULES:
+1. Answer ONLY using the content provided below.
+2. Do NOT use any external or general knowledge.
+3. Do NOT make assumptions or guesses.
+4. If the answer is not found in the content, reply EXACTLY:
+   "This information is not available on iotnext.store."
+
+STYLE:
+- Simple English
+- Short and clear answers
+- Beginner friendly
+
+WEBSITE CONTENT:
+${WEBSITE_CONTENT}
+
+USER QUESTION:
+${userMsgText}
+`;
+
         try {
-            const botResponse = await callAI(userMsgText, NEXUS_SYSTEM_PROMPT);
+            // We pass the strict prompt as the message, and a basic identity as systemInstruction
+            const botResponse = await callAI(strictPrompt, "You are a helpful assistant for iotnext.store. Follow strict rules provided in the prompt.");
             setMessages(prev => [...prev, { role: 'bot', text: botResponse }]);
         } catch (error) {
             console.error("Nexus AI Error:", error);
@@ -62,6 +83,7 @@ const AIAssistant = () => {
             setIsGenerating(false);
         }
     };
+
 
     return (
         <div className="ai-assistant-wrapper" style={{ position: 'fixed', bottom: '2rem', right: '2rem', zIndex: 1000 }}>
