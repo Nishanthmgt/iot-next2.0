@@ -1,18 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { MessageSquare, X, Send, Bot, User, Sparkles } from 'lucide-react';
-import { sensors } from '../data/sensors';
+import { supabase } from '../lib/supabase';
 import { BOARDS } from '../data/boards';
 import { callAI } from '../utils/aiService';
-
-// Prepare condensed website content for the AI context
-const WEBSITE_CONTENT = `
-SENSORS CATALOG:
-${sensors.map(s => `- ${s.name}: ${s.description} (Pins: ${s.pins})`).join('\n')}
-
-HARDWARE BOARDS:
-${Object.values(BOARDS).map(b => `- ${b.name}: ${b.description} (Architecture: ${b.specs?.Architecture}, Power: ${b.specs?.Operating_Voltage})`).join('\n')}
-`;
 
 const AIAssistant = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -22,6 +10,19 @@ const AIAssistant = () => {
     const [input, setInput] = useState('');
     const [showGreeting, setShowGreeting] = useState(false);
     const [isGenerating, setIsGenerating] = useState(false);
+    const [dbSensors, setDbSensors] = useState([]);
+
+    useEffect(() => {
+        const fetchSensors = async () => {
+            try {
+                const { data } = await supabase.from('sensors').select('name, description, pins');
+                if (data) setDbSensors(data);
+            } catch (e) {
+                console.warn("[AI] Failed to fetch live sensor data, using internal fallback.");
+            }
+        };
+        fetchSensors();
+    }, []);
 
     useEffect(() => {
         if (isOpen) return;
@@ -46,6 +47,15 @@ const AIAssistant = () => {
         setInput('');
         setIsGenerating(true);
 
+        // Build dynamic content context
+        const context = `
+SENSORS CATALOG:
+${dbSensors.map(s => `- ${s.name}: ${s.description} (Pins: ${s.pins})`).join('\n')}
+
+HARDWARE BOARDS:
+${Object.values(BOARDS).map(b => `- ${b.name}: ${b.description} (Architecture: ${b.specs?.Architecture}, Power: ${b.specs?.Operating_Voltage})`).join('\n')}
+        `.trim();
+
         // Build the strict prompt requested by the user
         const strictPrompt = `
 You are an AI assistant for the website "iotnext.store".
@@ -63,15 +73,14 @@ STYLE:
 - Beginner friendly
 
 WEBSITE CONTENT:
-${WEBSITE_CONTENT}
+${context}
 
 USER QUESTION:
 ${userMsgText}
 `;
 
         try {
-            // We pass the strict prompt as the message, and a basic identity as systemInstruction
-            const botResponse = await callAI(strictPrompt, "You are a helpful assistant for iotnext.store. Follow strict rules provided in the prompt.");
+            const botResponse = await callAI(strictPrompt, "Nexus AI Technical Engine");
             setMessages(prev => [...prev, { role: 'bot', text: botResponse }]);
         } catch (error) {
             console.error("Nexus AI Error:", error);

@@ -47,23 +47,50 @@ Buy Link: ${matchedSensor.buyLink}
 };
 
 /**
- * Hybrid AI Caller: Optimized for local lookup as per user requirements
+ * Hybrid AI Caller: Optimized for local lookup as per user requirements.
+ * Now prioritized searching within the provided context (which contains live Supabase data).
  */
 export const callAI = async (prompt, systemInstruction) => {
-    console.log("[AI] Using Local Knowledge Engine (Zero API)...");
+    console.log("[AI] Using Local Knowledge Engine (Dynamic Content)...");
 
     // We simulate a small delay for "thinking" effect
     await new Promise(resolve => setTimeout(resolve, 600));
 
-    // Extract query from prompt (if it's the strict prompt structure)
-    let query = prompt;
-    if (prompt.includes("USER QUESTION:")) {
-        const parts = prompt.split("USER QUESTION:");
-        query = parts[parts.length - 1].trim();
+    const q = prompt.toLowerCase();
+
+    // 1. Try to find the answer in the provided WEBSITE CONTENT (Dynamic Supabase Data)
+    if (prompt.includes("WEBSITE CONTENT:")) {
+        const contentSection = prompt.split("WEBSITE CONTENT:")[1].split("USER QUESTION:")[0];
+        const lines = contentSection.split('\n');
+
+        // Extract the actual user question
+        let userQuestion = prompt;
+        if (prompt.includes("USER QUESTION:")) {
+            userQuestion = prompt.split("USER QUESTION:")[1].trim().toLowerCase();
+        }
+
+        // Simple keyword matcher within the context
+        const matchedLine = lines.find(line => {
+            const l = line.toLowerCase();
+            // Match name or description keywords
+            return userQuestion.split(' ').some(word => word.length > 3 && l.includes(word));
+        });
+
+        if (matchedLine) {
+            return matchedLine.replace(/^- /, '').trim();
+        }
     }
 
-    return localTechnicalLookup(query);
+    // 2. Fallback to Static Technical Lookup (Boards etc)
+    const staticResult = localTechnicalLookup(q);
+    if (staticResult !== "This information is not available on iotnext.store.") {
+        return staticResult;
+    }
+
+    // 3. Final Fallback
+    return "This information is not available on iotnext.store.";
 };
+
 
 
 
