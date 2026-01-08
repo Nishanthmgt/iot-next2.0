@@ -4,17 +4,41 @@ import { projects as localProjects } from '../data/projects';
 import { roadmapSteps } from '../data/roadmap';
 import { masteryIndex } from '../data/masteryIndex';
 
+const fuzzyMatch = (query, target) => {
+    if (!target) return false;
+    const q = query.toLowerCase().trim();
+    const t = target.toLowerCase().trim();
+    if (t.includes(q) || q.includes(t)) return true;
+
+    // Split into words and match all words if query is long
+    const words = q.split(/\s+/).filter(w => w.length > 2);
+    if (words.length > 1) {
+        return words.every(w => t.includes(w));
+    }
+    return false;
+};
+
 /**
  * Multi-Domain Technical Lookup Engine (Local - Zero API)
- * Searches through sensors, boards, projects, roadmap, and mastery paths.
  */
 const localTechnicalLookup = (query) => {
     const q = query.toLowerCase().trim();
 
+    // 0. Handle General Aggregate Queries
+    if (q.includes("project") && q.length < 15) {
+        return `We have ${localProjects.length} projects on iotnext.store, ranging from LED Blink (Beginner) to Smart Agriculture (Advanced). You can find them in the 'Projects' section.`;
+    }
+    if (q.includes("roadmap") && q.length < 15) {
+        return "Our IoT Roadmap consists of 12 levels, from C Programming (Level 0) and Electronics Basics to Advanced IIO and Security. Check the 'Technical Mastery Path' for the full guide.";
+    }
+    if ((q.includes("mastery") || q.includes("learn")) && q.length < 15) {
+        const guides = masteryIndex.map(m => m.title).slice(0, 5).join(', ');
+        return `Our Mastery Path includes guides on: ${guides}, and many more. Visit the 'Mastery' tab to start learning.`;
+    }
+
     // 1. Check Boards
     const matchedBoard = Object.values(BOARDS).find(b =>
-        q.includes(b.name.toLowerCase()) ||
-        q.includes(b.id.toLowerCase())
+        fuzzyMatch(q, b.name) || fuzzyMatch(q, b.id)
     );
     if (matchedBoard) {
         return `
@@ -27,8 +51,7 @@ Voltage: ${matchedBoard.specs?.Operating_Voltage || 'N/A'}
 
     // 2. Check Sensors
     const matchedSensor = sensors.find(s =>
-        q.includes(s.name.toLowerCase()) ||
-        (s.id && q.includes(s.id.toString()))
+        fuzzyMatch(q, s.name) || (s.id && q.split(' ').includes(s.id.toString()))
     );
     if (matchedSensor) {
         return `
@@ -40,8 +63,7 @@ Pins: ${matchedSensor.pins}
 
     // 3. Check Projects
     const matchedProject = localProjects.find(p =>
-        q.includes(p.title.toLowerCase()) ||
-        (p.id && q.includes(p.id.toString()))
+        fuzzyMatch(q, p.title) || (p.id && q.split(' ').includes(p.id.toString()))
     );
     if (matchedProject) {
         return `
@@ -54,9 +76,9 @@ Usage: ${matchedProject.usage || 'Refer to project page.'}
 
     // 4. Check Roadmap
     const matchedRoadmap = roadmapSteps.find(step =>
-        q.includes(step.title.toLowerCase()) ||
+        fuzzyMatch(q, step.title) ||
         q.includes(`level ${step.level}`) ||
-        step.steps.some(s => q.includes(s.name.toLowerCase()))
+        step.steps.some(s => fuzzyMatch(q, s.name))
     );
     if (matchedRoadmap) {
         return `
@@ -68,7 +90,7 @@ Includes: ${matchedRoadmap.steps.map(s => s.name).join(', ')}
 
     // 5. Check Mastery Path
     const matchedMastery = masteryIndex.find(m =>
-        q.includes(m.title.toLowerCase())
+        fuzzyMatch(q, m.title)
     );
     if (matchedMastery) {
         return `
@@ -87,7 +109,7 @@ Search for this in the Technical Mastery section of the site.
  * Now prioritized searching within the provided context (which contains live Supabase data).
  */
 export const callAI = async (prompt, systemInstruction) => {
-    console.log("[AI] Using Local Knowledge Engine (Refined Context)...");
+    console.log("[AI] Using Local Knowledge Engine (Unified)...");
 
     // We simulate a small delay for "thinking" effect
     await new Promise(resolve => setTimeout(resolve, 600));
@@ -102,38 +124,43 @@ export const callAI = async (prompt, systemInstruction) => {
     // 0. Handle basic greetings
     const greetings = ['hi', 'hello', 'hey', 'greetings', 'help', 'hi!', 'hello!'];
     if (greetings.includes(q)) {
-        return "Hello! I am Nexus AI, your Senior IoT Architect. How can I help you with hardware specifications or technical guidelines today?";
+        return "Hello! I am Nexus AI, your Senior IoT Architect. How can I help you with hardware specifications, roadmaps, or projects today?";
     }
 
-    // 1. Try to find the answer in the provided WEBSITE CONTENT (Dynamic Supabase Data)
-    if (prompt.includes("WEBSITE CONTENT:")) {
-        const contentSection = prompt.split("WEBSITE CONTENT:")[1].split("USER QUESTION:")[0];
+    // 1. PRIMARY: High-Precision Multi-Domain Lookup
+    const technicalResult = localTechnicalLookup(q);
+    if (technicalResult !== "This information is not available on iotnext.store.") {
+        return technicalResult;
+    }
+
+    // 2. SECONDARY: Context-Aware Fallback (from the prompt provided context)
+    if (prompt.includes("WEBSITE CONTEXT:")) {
+        const contentSection = prompt.split("WEBSITE CONTEXT:")[1].split("USER QUESTION:")[0];
         const lines = contentSection.split('\n');
 
-        // Professional matcher: requires keyword match on sensor names
+        // Look for any line that contains the keywords
+        const keywords = q.split(' ').filter(w => w.length > 3);
         const matchedLine = lines.find(line => {
             const l = line.toLowerCase();
-            // Don't match if it's just a category header
-            if (l.includes("catalog:") || l.includes("boards:")) return false;
-
-            // Check if any word in the query (longer than 2 chars) matches a word in the line
-            return q.split(' ').some(word => word.length > 2 && l.includes(word));
+            return keywords.some(word => l.includes(word));
         });
 
-        if (matchedLine && matchedLine.trim().startsWith('-')) {
-            return matchedLine.replace(/^- /, '').trim();
+        if (matchedLine) {
+            const cleaned = matchedLine.replace(/^[A-Z\s]+:\s*/i, '').trim();
+            // If it's a long list, find the specific item
+            if (cleaned.includes(',')) {
+                const items = cleaned.split(',').map(i => i.trim());
+                const specificItem = items.find(i => fuzzyMatch(q, i));
+                if (specificItem) return `I found "${specificItem}" in our database. Ask for more details if needed!`;
+            }
+            return cleaned;
         }
-    }
-
-    // 2. Fallback to Static Technical Lookup (Boards etc) - Use q (user question) only!
-    const staticResult = localTechnicalLookup(q);
-    if (staticResult !== "This information is not available on iotnext.store.") {
-        return staticResult;
     }
 
     // 3. Final Fallback
     return "This information is not available on iotnext.store.";
 };
+
 
 
 
