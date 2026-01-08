@@ -22,7 +22,7 @@ Description: ${matchedBoard.description}
 MCU: ${matchedBoard.specs?.MCU || 'N/A'}
 Voltage: ${matchedBoard.specs?.Operating_Voltage || 'N/A'}
 Pins Summary: ${matchedBoard.pins?.length || 0} pins available.
-Guidelines: ${matchedBoard.guidelines?.voltage || matchedBord.description}
+Guidelines: ${matchedBoard.guidelines?.voltage || matchedBoard.description}
         `.trim();
     }
 
@@ -51,37 +51,45 @@ Buy Link: ${matchedSensor.buyLink}
  * Now prioritized searching within the provided context (which contains live Supabase data).
  */
 export const callAI = async (prompt, systemInstruction) => {
-    console.log("[AI] Using Local Knowledge Engine (Dynamic Content)...");
+    console.log("[AI] Using Local Knowledge Engine (Refined Context)...");
 
     // We simulate a small delay for "thinking" effect
     await new Promise(resolve => setTimeout(resolve, 600));
 
-    const q = prompt.toLowerCase();
+    // Extract the actual user question
+    let userQuestion = prompt;
+    if (prompt.includes("USER QUESTION:")) {
+        userQuestion = prompt.split("USER QUESTION:")[1].trim().toLowerCase();
+    }
+    const q = userQuestion;
+
+    // 0. Handle basic greetings
+    const greetings = ['hi', 'hello', 'hey', 'greetings', 'help', 'hi!', 'hello!'];
+    if (greetings.includes(q)) {
+        return "Hello! I am Nexus AI, your Senior IoT Architect. How can I help you with hardware specifications or technical guidelines today?";
+    }
 
     // 1. Try to find the answer in the provided WEBSITE CONTENT (Dynamic Supabase Data)
     if (prompt.includes("WEBSITE CONTENT:")) {
         const contentSection = prompt.split("WEBSITE CONTENT:")[1].split("USER QUESTION:")[0];
         const lines = contentSection.split('\n');
 
-        // Extract the actual user question
-        let userQuestion = prompt;
-        if (prompt.includes("USER QUESTION:")) {
-            userQuestion = prompt.split("USER QUESTION:")[1].trim().toLowerCase();
-        }
-
-        // Simple keyword matcher within the context
+        // Professional matcher: requires keyword match on sensor names
         const matchedLine = lines.find(line => {
             const l = line.toLowerCase();
-            // Match name or description keywords
-            return userQuestion.split(' ').some(word => word.length > 3 && l.includes(word));
+            // Don't match if it's just a category header
+            if (l.includes("catalog:") || l.includes("boards:")) return false;
+
+            // Check if any word in the query (longer than 2 chars) matches a word in the line
+            return q.split(' ').some(word => word.length > 2 && l.includes(word));
         });
 
-        if (matchedLine) {
+        if (matchedLine && matchedLine.trim().startsWith('-')) {
             return matchedLine.replace(/^- /, '').trim();
         }
     }
 
-    // 2. Fallback to Static Technical Lookup (Boards etc)
+    // 2. Fallback to Static Technical Lookup (Boards etc) - Use q (user question) only!
     const staticResult = localTechnicalLookup(q);
     if (staticResult !== "This information is not available on iotnext.store.") {
         return staticResult;
@@ -90,6 +98,7 @@ export const callAI = async (prompt, systemInstruction) => {
     // 3. Final Fallback
     return "This information is not available on iotnext.store.";
 };
+
 
 
 
