@@ -37,6 +37,7 @@ const BoardFamilySelector = lazy(() => import('./components/BoardFamilySelector'
 const QA = lazy(() => import('./components/QA'));
 const CProgrammingCourse = React.lazy(() => import('./components/CProgrammingCourse'));
 const Cartlist = lazy(() => import('./components/Cartlist'));
+import Simulator from './components/simulator/Simulator';
 
 // Admin Components (Lazy Loaded)
 const AdminDashboard = lazy(() => import('./components/admin/AdminDashboard'));
@@ -303,6 +304,7 @@ function App() {
             {view === 'terms' && <TermsOfService setView={handleViewChange} />}
             {view === 'about' && <About setView={handleViewChange} />}
             {view === 'reviews-page' && <ReviewsPage setView={handleViewChange} isAdmin={isAdmin} />}
+            {view === 'simulator' && <Simulator setView={handleViewChange} />}
 
 
             {/* Admin Routes */}

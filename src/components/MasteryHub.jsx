@@ -2,47 +2,72 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { masteryPhases } from '../data/masteryData';
 import { ChevronRight, ArrowRight, Sparkles, BookOpen } from 'lucide-react';
-import MasteryGuide from './MasteryGuide';
-import { troubleshootingContent } from '../data/mastery/troubleshootingContent';
-import { miniProjectsContent } from '../data/mastery/miniProjectsContent';
-import { protocolsContent } from '../data/mastery/protocolsContent';
-import { commonMistakesContent } from '../data/mastery/commonMistakesContent';
-import { pinSelectionContent } from '../data/mastery/pinSelectionContent';
-import { powerBatteryContent } from '../data/mastery/powerBatteryContent';
-import { sensorPrinciplesContent } from '../data/mastery/sensorPrinciplesContent';
-import { boardComparisonContent } from '../data/mastery/boardComparisonContent';
-import { codeExplanationContent } from '../data/mastery/codeExplanationContent';
-import { projectSelectionContent } from '../data/mastery/projectSelectionContent';
-import { miniProjectIdeasContent } from '../data/mastery/miniProjectIdeasContent';
-import { fypIdeasContent } from '../data/mastery/fypIdeasContent';
-import { interviewPrepContent } from '../data/mastery/interviewPrepContent';
+const MasteryGuide = React.lazy(() => import('./MasteryGuide'));
 
+// Dynamic imports for code splitting - content loads only when needed
 const contentMap = {
-    'troubleshooting': troubleshootingContent,
-    'mini-projects': miniProjectsContent,
-    'protocols': protocolsContent,
-    'common-mistakes': commonMistakesContent,
-    'pin-selection': pinSelectionContent,
-    'power-guide': powerBatteryContent,
-    'sensor-principles': sensorPrinciplesContent,
-    'board-comparison': boardComparisonContent,
-    'code-hub': codeExplanationContent,
-    'project-selection': projectSelectionContent,
-    'mini-project-ideas': miniProjectIdeasContent,
-    'fyp-ideas': fypIdeasContent,
-    'interview-prep': interviewPrepContent
+    'troubleshooting': () => import('../data/mastery/troubleshootingContent').then(m => m.troubleshootingContent),
+    'mini-projects': () => import('../data/mastery/miniProjectsContent').then(m => m.miniProjectsContent),
+    'protocols': () => import('../data/mastery/protocolsContent').then(m => m.protocolsContent),
+    'common-mistakes': () => import('../data/mastery/commonMistakesContent').then(m => m.commonMistakesContent),
+    'pin-selection': () => import('../data/mastery/pinSelectionContent').then(m => m.pinSelectionContent),
+    'power-guide': () => import('../data/mastery/powerBatteryContent').then(m => m.powerBatteryContent),
+    'sensor-principles': () => import('../data/mastery/sensorPrinciplesContent').then(m => m.sensorPrinciplesContent),
+    'board-comparison': () => import('../data/mastery/boardComparisonContent').then(m => m.boardComparisonContent),
+    'code-hub': () => import('../data/mastery/codeExplanationContent').then(m => m.codeExplanationContent),
+    'project-selection': () => import('../data/mastery/projectSelectionContent').then(m => m.projectSelectionContent),
+    'mini-project-ideas': () => import('../data/mastery/miniProjectIdeasContent').then(m => m.miniProjectIdeasContent),
+    'fyp-ideas': () => import('../data/mastery/fypIdeasContent').then(m => m.fypIdeasContent),
+    'interview-prep': () => import('../data/mastery/interviewPrepContent').then(m => m.interviewPrepContent)
 };
 
 export default function MasteryHub() {
     const [activePhase, setActivePhase] = useState(masteryPhases[0]);
     const [selectedGuide, setSelectedGuide] = useState(null);
+    const [isLoadingContent, setIsLoadingContent] = useState(false);
 
-    const handleGuideClick = (guideId) => {
-        const content = contentMap[guideId];
-        if (content) {
-            setSelectedGuide(content);
+    const handleGuideClick = async (guideId) => {
+        const contentLoader = contentMap[guideId];
+        if (contentLoader) {
+            setIsLoadingContent(true);
+            try {
+                const content = await contentLoader();
+                setSelectedGuide(content);
+            } catch (error) {
+                console.error('Failed to load content:', error);
+            } finally {
+                setIsLoadingContent(false);
+            }
         }
     };
+
+    const DynamicLoadingFallback = () => (
+        <div style={{
+            height: '100vh',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '1.5rem'
+        }}>
+            <div className="iot-loader">
+                <div className="iot-loader-inner"></div>
+            </div>
+            <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Preparing guide...</div>
+        </div>
+    );
+
+    if (isLoadingContent) {
+        return <DynamicLoadingFallback />;
+    }
+
+    if (selectedGuide) {
+        return (
+            <React.Suspense fallback={<DynamicLoadingFallback />}>
+                <MasteryGuide content={selectedGuide} onBack={() => setSelectedGuide(null)} />
+            </React.Suspense>
+        );
+    }
 
     if (selectedGuide) {
         return <MasteryGuide content={selectedGuide} onBack={() => setSelectedGuide(null)} />;

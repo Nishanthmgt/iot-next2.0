@@ -65,7 +65,7 @@ export default function AdminDashboard({ setView, setEditingProject, setEditingS
     }, [activeTab]);
 
     const importStaticSensors = async () => {
-        if (!window.confirm("This will import the 110 sensors from the extended registry into your dynamic database. Continue?")) return;
+        if (!window.confirm("This will import the 110+ sensors from the registry into your dynamic database, preserving categories and levels. Continue?")) return;
 
         setIsSyncing(true);
         let successCount = 0;
@@ -85,7 +85,12 @@ export default function AdminDashboard({ setView, setEditingProject, setEditingS
                     .insert([{
                         name: s.name,
                         pins: s.pins,
-                        image: s.image
+                        image: s.image,
+                        categoryId: s.categoryId,
+                        category: s.category, // Legacy support
+                        level: s.level,
+                        emoji: s.emoji,
+                        description: s.description
                     }]);
                 if (!error) {
                     successCount++;
@@ -94,11 +99,24 @@ export default function AdminDashboard({ setView, setEditingProject, setEditingS
                     failCount++;
                 }
             } else {
-                failCount++; // Already exists is counted as skipped/fail in current alert
+                // Update existing to fix missing metadata if needed
+                const { error } = await supabase
+                    .from('sensors')
+                    .update({
+                        categoryId: s.categoryId,
+                        category: s.category,
+                        level: s.level,
+                        emoji: s.emoji,
+                        description: s.description
+                    })
+                    .eq('name', s.name);
+
+                if (!error) successCount++;
+                else failCount++;
             }
         }
 
-        alert(`Sync Complete!\n- ${successCount} sensors imported.\n- ${failCount} skipped or failed.\n\nCheck console if there are many failures.`);
+        alert(`Sync Complete!\n- ${successCount} sensors updated/imported.\n- ${failCount} failed.`);
         fetchData();
     };
 
@@ -386,9 +404,6 @@ export default function AdminDashboard({ setView, setEditingProject, setEditingS
                             </div>
                         ) : activeTab === 'sensors' ? (
                             <>
-                                <button className="btn btn-outline" style={{ padding: '0.75rem 1.25rem', borderRadius: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem' }} onClick={importStaticSensors}>
-                                    <RefreshCw size={16} className={isSyncing ? "animate-spin" : ""} /> Sync
-                                </button>
                                 <button className="btn btn-primary btn-primary-shiny" style={{ padding: '0.75rem 1.5rem', borderRadius: '1rem', fontSize: '0.9rem' }} onClick={() => { setEditingSensor(null); setView('admin-sensor-add'); }}>
                                     <Plus size={18} /> New Sensor
                                 </button>
@@ -442,17 +457,23 @@ export default function AdminDashboard({ setView, setEditingProject, setEditingS
                                 {(activeTab === 'projects' ? projects : activeTab === 'sensors' ? sensors : boards).map((item) => (
                                     <tr key={item.id} style={{ borderTop: '1px solid var(--border)', transition: 'var(--transition)' }} className="hover-row">
                                         <td style={{ padding: '1.5rem', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                                            {(activeTab === 'sensors' || activeTab === 'boards') && <img src={item.image} style={{ width: '40px', height: '40px', objectFit: 'contain', background: 'white', borderRadius: '0.5rem', padding: '0.2rem' }} alt="" />}
-                                            {activeTab === 'projects' ? item.title : item.name}
+                                            <img src={item.image} style={{ width: '40px', height: '40px', objectFit: 'contain', background: 'white', borderRadius: '0.5rem', padding: '0.2rem' }} alt="" />
+                                            <div>
+                                                <div>{activeTab === 'projects' ? item.title : item.name}</div>
+                                                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: '500' }}>
+                                                    {activeTab === 'sensors' ? (item.categoryId || item.category?.toLowerCase()) : activeTab === 'projects' ? item.category : 'Microcontroller'}
+                                                </div>
+                                            </div>
                                         </td>
                                         <td style={{ padding: '1.5rem' }}>
-                                            {activeTab === 'projects' ? (
-                                                <span className={`badge badge-${item.level.toLowerCase()}`}>{item.level}</span>
-                                            ) : activeTab === 'sensors' ? (
-                                                <span style={{ fontSize: '0.9rem', fontWeight: '700', color: 'var(--primary)' }}>{item.pins}</span>
-                                            ) : (
-                                                <span className={`badge badge-${item.category.toLowerCase()}`}>{item.category}</span>
-                                            )}
+                                            <div style={{ display: 'grid', gap: '0.4rem' }}>
+                                                <span className={`badge badge-${(item.level || 'beginner').toLowerCase()}`}>{item.level || 'Beginner'}</span>
+                                                {activeTab === 'sensors' && (
+                                                    <div style={{ fontSize: '0.7rem', fontWeight: '800', color: 'var(--primary)' }}>
+                                                        {Object.values(item).filter(v => v && v !== '').length}/15 Fields
+                                                    </div>
+                                                )}
+                                            </div>
                                         </td>
                                         {activeTab === 'projects' && (
                                             <td style={{ padding: '1.5rem' }}>

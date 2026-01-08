@@ -65,7 +65,7 @@ const callDeepSeekDirect = async (prompt, systemInstruction, key) => {
 /**
  * Hybrid AI Caller: Checks local key first, then tries platform proxy
  */
-const callAI = async (prompt, systemInstruction) => {
+export const callAI = async (prompt, systemInstruction) => {
     const { deepseekKey } = getKeys();
 
     // 1. If user has their own key, use it directly (saves platform costs)

@@ -2179,6 +2179,8 @@
         ]
     },
     "beaglebone_black_iot_linux": {
+        "id": "beaglebone_black_iot_linux",
+        "name": "BeagleBone Black",
         "category": "Special",
         "specs": {
             "Architecture": "ARM Cortex-A8 (v7-A Architecture)",

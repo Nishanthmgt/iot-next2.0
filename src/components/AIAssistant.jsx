@@ -1,6 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageSquare, X, Send, Bot, User, Sparkles } from 'lucide-react';
+import { callAI } from '../utils/aiService';
+
+const NEXUS_SYSTEM_PROMPT = `
+You are Nexus AI, the Senior IoT Architect for the IoTNext platform. 
+Your tone is professional, technical, elite, and encouraging. 
+You specialize in:
+1. System architecture (ESP32, Arduino, ARM Cortex, Industrial PLC).
+2. Firmware optimization (Deep Sleep, RTOS, memory management).
+3. Connectivity protocols (MQTT, HTTP, LoRaWAN, NB-IoT, Modbus).
+4. Hardware troubleshooting (Ground loops, signal interference, pin mappings).
+
+Your goal is to provide high-fidelity technical advice. When asked about specific hardware (like DHT11, OLED, LED), provide exact technical details, pinout advice, and expert tips.
+Always reference the IoTNext Roadmap or Pinout Lab where relevant.
+Keep responses concise but value-packed.
+`;
 
 const AIAssistant = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -9,6 +24,7 @@ const AIAssistant = () => {
     ]);
     const [input, setInput] = useState('');
     const [showGreeting, setShowGreeting] = useState(false);
+    const [isGenerating, setIsGenerating] = useState(false);
 
     useEffect(() => {
         if (isOpen) return;
@@ -24,78 +40,27 @@ const AIAssistant = () => {
         return () => { clearTimeout(timer); clearTimeout(hideTimer); };
     }, [isOpen]);
 
-    const handleSend = () => {
-        if (!input.trim()) return;
+    const handleSend = async () => {
+        if (!input.trim() || isGenerating) return;
 
-        const userMsg = { role: 'user', text: input };
+        const userMsgText = input;
+        const userMsg = { role: 'user', text: userMsgText };
         setMessages(prev => [...prev, userMsg]);
         setInput('');
+        setIsGenerating(true);
 
-        setTimeout(() => {
-            const lowerInput = input.toLowerCase();
-            let botResponse = "";
-
-            // Nexus AI Expert Knowledge Base mapping
-            const knowledgeBase = [
-                {
-                    keywords: ['who are you', 'nexus', 'identity', 'about'],
-                    response: "I am Nexus AI, your elite IoT Engineering Assistant. I specialize in system architecture, firmware optimization, and industrial-grade hardware integration. How shall we innovate today?"
-                },
-                {
-                    keywords: ['esp32', 'dual core', 'pins', 'gpio'],
-                    response: "The ESP32 is a beast for industrial IoT! It features dual-core processing, integrated Wi-Fi + BLE, and 34 GPIOs. Expert tip: Utilize its Hall Effect sensors and capacitive touch pins for human interface projects. Check Roadmap Level 2."
-                },
-                {
-                    keywords: ['esp8266', 'budget', 'nodemcu'],
-                    response: "ESP8266 is the pioneer of affordable Wi-Fi IoT. While it has fewer GPIOs than the ESP32, its power efficiency in Deep Sleep mode (approx. 20uA) makes it perfect for battery-operated remote weather stations."
-                },
-                {
-                    keywords: ['mqtt', 'protocol', 'broker', 'pubsub'],
-                    response: "MQTT (Message Queuing Telemetry Transport) is essential for efficient M2M communication. It uses a Publish/Subscribe model. For industrial reliability, I recommend using Mosquitto or AWS IoT Core with TLS 1.3 encryption."
-                },
-                {
-                    keywords: ['security', 'tls', 'encryption', 'safe'],
-                    response: "In IoT, security isn't optional. Nexus protocol recommendation: Implement TLS 1.3 for data in transit, use secure OTA (Over-the-Air) updates, and store sensitive keys in a hardware-based 'Secure Element' like the ATECC608A."
-                },
-                {
-                    keywords: ['nb-iot', 'lte-m', 'cellular', 'sim'],
-                    response: "NB-IoT (Narrowband IoT) is the future of massive sensor deployments. It offers extreme coverage and 10-year battery life. Perfect for smart meters and underground sensors where Wi-Fi/LoRa can't reach."
-                },
-                {
-                    keywords: ['modbus', 'can bus', 'industrial', 'rs485'],
-                    response: "For factory automation, Modbus RTU (over RS485) and CAN bus are industry standards. Nexus AI advice: Use shielded twisted pair cables to prevent EMI interference in high-voltage industrial environments."
-                },
-                {
-                    keywords: ['power', 'solar', 'battery', 'deep sleep'],
-                    response: "Power management is an art. For ESP32/ESP8266, always use `ESP.deepSleep()` between transmissions. Pair with a LiFePO4 battery and a 5V/6V solar panel for a self-sustaining remote node."
-                },
-                {
-                    keywords: ['edge ai', 'tinyml', 'machine learning', 'vision'],
-                    response: "Edge AI allows microcontrollers to process data locally without the cloud. With Nexus AI guidance, you can run TensorFlow Lite models on an ESP32 for gesture recognition or anomaly detection. Check Roadmap Level 10."
-                },
-                {
-                    keywords: ['error', 'not working', 'fix', 'problem', 'troubleshoot'],
-                    response: "Nexus Diagnosis Protocol: 1) Verify 'Common Ground' between sensors and MCU. 2) Check for 'Floating Pins' (use pull-up/pull-down resistors). 3) Monitor the Serial Debugger at 115200 baud. What specific error message are you seeing?"
-                },
-                {
-                    keywords: ['hello', 'hi', 'hey'],
-                    response: "Hello! 👋 I'm Nexus AI. I'm trained across 12,000+ IoT documentation pages to help you build Arduino, ESP32, and industrial systems. What's on the workbench today?"
-                },
-                {
-                    keywords: ['thank'],
-                    response: "Glad to be of service! Keep pushing the boundaries of what's possible. 🚀"
-                }
-            ];
-
-            // Find the best matching response
-            const match = knowledgeBase.find(kb =>
-                kb.keywords.some(k => lowerInput.includes(k))
-            );
-
-            botResponse = match ? match.response : "That's an interesting technical challenge! While I analyze that specific query, let me suggest checking our Roadmap Level 8 (Cloud Systems) or Level 10 (Edge AI) for related architectural patterns. Could you provide more hardware details?";
-
+        try {
+            const botResponse = await callAI(userMsgText, NEXUS_SYSTEM_PROMPT);
             setMessages(prev => [...prev, { role: 'bot', text: botResponse }]);
-        }, 800);
+        } catch (error) {
+            console.error("Nexus AI Error:", error);
+            setMessages(prev => [...prev, {
+                role: 'bot',
+                text: "I encountered a signal interference while processing your request. Please ensure your project parameters are correct or try again in a moment. (Error: " + error.message + ")"
+            }]);
+        } finally {
+            setIsGenerating(false);
+        }
     };
 
     return (
@@ -150,6 +115,24 @@ const AIAssistant = () => {
                                     {msg.text}
                                 </div>
                             ))}
+                            {isGenerating && (
+                                <div style={{
+                                    alignSelf: 'flex-start',
+                                    padding: '1rem 1.25rem',
+                                    borderRadius: '1.5rem 1.5rem 1.5rem 0.25rem',
+                                    background: 'var(--surface)',
+                                    color: 'var(--text-muted)',
+                                    fontSize: '0.9rem',
+                                    fontWeight: '600',
+                                    display: 'flex',
+                                    gap: '0.5rem',
+                                    alignItems: 'center',
+                                    border: '1px solid var(--border)',
+                                    boxShadow: 'var(--shadow)'
+                                }}>
+                                    <Sparkles size={14} className="spinning-ai" /> Nexus AI is thinking...
+                                </div>
+                            )}
                         </div>
 
                         {/* Input */}
@@ -224,6 +207,17 @@ const AIAssistant = () => {
             >
                 {isOpen ? <X size={32} /> : <MessageSquare size={32} />}
             </motion.button>
+            <style>{`
+                @keyframes ai-spin {
+                    0% { transform: rotate(0deg) scale(1); }
+                    50% { transform: rotate(180deg) scale(1.2); }
+                    100% { transform: rotate(360deg) scale(1); }
+                }
+                .spinning-ai {
+                    animation: ai-spin 2s linear infinite;
+                    color: var(--primary);
+                }
+            `}</style>
         </div>
     );
 };

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
     Home, Map, Zap, Cpu, Search, Moon, Sun, ShoppingCart, Menu, X, PlusCircle, BookOpen, HelpCircle, Info, Activity, Shield, Layers, Mail, Github, Linkedin,
-    Sparkles
+    Sparkles, Box
 } from 'lucide-react';
 
 const Navbar = ({ setView, currentView, theme, toggleTheme, setIsSearchOpen, buildList = [] }) => {
@@ -31,7 +31,6 @@ const Navbar = ({ setView, currentView, theme, toggleTheme, setIsSearchOpen, bui
         { id: 'sensors', label: 'Sensors', icon: <Cpu size={20} /> },
         { id: 'mastery', label: 'Mastery Hub', icon: <Sparkles size={20} /> },
         { id: 'pinout', label: 'Pinout Lab', icon: <Activity size={20} /> },
-
     ];
 
     const handleNavClick = (id) => {

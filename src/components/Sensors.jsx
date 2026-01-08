@@ -1,30 +1,35 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../lib/supabase';
-import { extendedSensors as staticSensors } from '../data/sensors';
+import { sensorCategories } from '../data/sensors';
 import {
-    Search, LayoutGrid, List, Settings, Cpu, Image as ImageIcon, Box, Edit, Plus
+    Search, LayoutGrid, List, Settings, Cpu, Image as ImageIcon, Box, Edit, Plus, Filter, Info
 } from 'lucide-react';
+import SensorDetail from './SensorDetail';
 
 // Specialized Component for Fail-Safe Hardware Visuals
-function HardwareVisual({ src, name, viewMode }) {
+function HardwareVisual({ src, name, viewMode, onClick }) {
     const [error, setError] = useState(false);
 
     return (
-        <div style={{
-            width: viewMode === 'grid' ? '100%' : '240px',
-            height: viewMode === 'grid' ? '200px' : '240px',
-            background: error ? 'rgba(var(--primary-rgb), 0.03)' : 'white',
-            position: 'relative',
-            overflow: 'hidden',
-            flexShrink: 0,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            borderBottom: viewMode === 'grid' ? '1px solid var(--border)' : 'none',
-            borderRight: viewMode === 'list' ? '1px solid var(--border)' : 'none',
-            transition: 'var(--transition)'
-        }}>
+        <div
+            onClick={onClick}
+            style={{
+                width: viewMode === 'grid' ? '100%' : '240px',
+                height: viewMode === 'grid' ? '200px' : '240px',
+                background: error ? 'rgba(var(--primary-rgb), 0.03)' : 'white',
+                position: 'relative',
+                overflow: 'hidden',
+                flexShrink: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderBottom: viewMode === 'grid' ? '1px solid var(--border)' : 'none',
+                borderRight: viewMode === 'list' ? '1px solid var(--border)' : 'none',
+                transition: 'var(--transition)',
+                cursor: 'pointer'
+            }}
+        >
             {!error ? (
                 <img
                     src={src}
@@ -56,8 +61,11 @@ function HardwareVisual({ src, name, viewMode }) {
 export default function Sensors({ isAdmin, setEditingSensor, setView }) {
     const [searchQuery, setSearchQuery] = useState("");
     const [viewMode, setViewMode] = useState("grid"); // grid or list
+    const [selectedCategory, setSelectedCategory] = useState("all");
+    const [selectedLevel, setSelectedLevel] = useState("all");
     const [dbSensors, setDbSensors] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [selectedSensorForView, setSelectedSensorForView] = useState(null);
 
     useEffect(() => {
         const fetchSensors = async () => {
@@ -67,7 +75,7 @@ export default function Sensors({ isAdmin, setEditingSensor, setView }) {
                     .select('*')
                     .order('name', { ascending: true });
 
-                if (!error && data && data.length > 0) {
+                if (!error && data) {
                     setDbSensors(data);
                 }
             } catch (err) {
@@ -80,27 +88,29 @@ export default function Sensors({ isAdmin, setEditingSensor, setView }) {
     }, []);
 
     const sensors = useMemo(() => {
-        // Merge db sensors (taking precedence) with static sensors for a full catalog
-        const combined = [...dbSensors];
-        const dbNames = new Set(dbSensors.map(s => s.name.toLowerCase()));
-
-        staticSensors.forEach(s => {
-            if (!dbNames.has(s.name.toLowerCase())) {
-                combined.push(s);
-            }
-        });
-
-        return combined;
+        // App is now purely dynamic based on Supabase
+        return dbSensors;
     }, [dbSensors]);
 
     const filteredSensors = useMemo(() => {
         return sensors.filter(s => {
-            return s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                (s.pins && s.pins.toLowerCase().includes(searchQuery.toLowerCase()));
-        });
-    }, [searchQuery, sensors]);
+            const matchesSearch = s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                (s.pins && s.pins.toLowerCase().includes(searchQuery.toLowerCase())) ||
+                (s.description && s.description.toLowerCase().includes(searchQuery.toLowerCase()));
 
-    const handleEdit = (sensor) => {
+            // Improved category matching: check both categoryId and the older category name field
+            const matchesCategory = selectedCategory === "all" ||
+                s.categoryId === selectedCategory ||
+                s.category?.toLowerCase() === selectedCategory;
+
+            const matchesLevel = selectedLevel === "all" || s.level === selectedLevel;
+
+            return matchesSearch && matchesCategory && matchesLevel;
+        });
+    }, [searchQuery, selectedCategory, selectedLevel, sensors]);
+
+    const handleEdit = (sensor, e) => {
+        e.stopPropagation();
         setEditingSensor(sensor);
         setView('admin-sensor-edit');
     };
@@ -159,6 +169,49 @@ export default function Sensors({ isAdmin, setEditingSensor, setView }) {
                     </div>
                 </motion.div>
 
+                {/* Category Filter Pills */}
+                <div style={{ marginBottom: '2rem', display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'center' }}>
+                    <button
+                        onClick={() => setSelectedCategory("all")}
+                        style={{
+                            padding: '0.6rem 1.5rem',
+                            borderRadius: '2rem',
+                            border: '1px solid var(--border)',
+                            background: selectedCategory === "all" ? 'var(--primary)' : 'rgba(var(--surface-rgb), 0.6)',
+                            color: selectedCategory === "all" ? 'white' : 'var(--text)',
+                            fontWeight: '800',
+                            fontSize: '0.85rem',
+                            cursor: 'pointer',
+                            transition: 'all 0.3s ease'
+                        }}
+                    >
+                        All Categories
+                    </button>
+                    {sensorCategories.map(cat => (
+                        <button
+                            key={cat.id}
+                            onClick={() => setSelectedCategory(cat.id)}
+                            style={{
+                                padding: '0.6rem 1.5rem',
+                                borderRadius: '2rem',
+                                border: '1px solid var(--border)',
+                                background: selectedCategory === cat.id ? 'var(--primary)' : 'rgba(var(--surface-rgb), 0.6)',
+                                color: selectedCategory === cat.id ? 'white' : 'var(--text)',
+                                fontWeight: '800',
+                                fontSize: '0.85rem',
+                                cursor: 'pointer',
+                                transition: 'all 0.3s ease',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.5rem'
+                            }}
+                        >
+                            <span>{cat.emoji}</span>
+                            <span>{cat.name}</span>
+                        </button>
+                    ))}
+                </div>
+
                 {/* Streamlined Control Bar */}
                 <div className="glass-plus" style={{
                     padding: '0.6rem',
@@ -192,6 +245,29 @@ export default function Sensors({ isAdmin, setEditingSensor, setView }) {
                                 outline: 'none'
                             }}
                         />
+                    </div>
+
+                    {/* Level Filter */}
+                    <div style={{ display: 'flex', gap: '0.3rem', borderLeft: '1px solid var(--border)', paddingLeft: '0.75rem' }}>
+                        {['all', 'Beginner', 'Intermediate', 'Advanced'].map(level => (
+                            <button
+                                key={level}
+                                onClick={() => setSelectedLevel(level)}
+                                style={{
+                                    padding: '0.6rem 1rem',
+                                    borderRadius: '0.8rem',
+                                    background: selectedLevel === level ? 'rgba(var(--primary-rgb), 0.1)' : 'transparent',
+                                    color: selectedLevel === level ? 'var(--primary)' : 'var(--text-muted)',
+                                    fontSize: '0.8rem',
+                                    fontWeight: '700',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s ease'
+                                }}
+                            >
+                                {level === 'all' ? 'All' : level}
+                            </button>
+                        ))}
                     </div>
 
                     <div style={{ display: 'flex', gap: '0.3rem', marginLeft: 'auto', borderLeft: '1px solid var(--border)', paddingLeft: '0.75rem' }}>
@@ -245,23 +321,32 @@ export default function Sensors({ isAdmin, setEditingSensor, setView }) {
                                 }}
                                 whileHover={{ y: -5, boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}
                             >
-                                <HardwareVisual src={sensor.image} name={sensor.name} viewMode={viewMode} />
+                                <HardwareVisual
+                                    src={sensor.image}
+                                    name={sensor.name}
+                                    viewMode={viewMode}
+                                    onClick={() => setSelectedSensorForView(sensor)}
+                                />
 
                                 {/* Essential Info Section */}
-                                <div style={{
-                                    flex: 1,
-                                    padding: '1.5rem',
-                                    textAlign: viewMode === 'grid' ? 'center' : 'left',
-                                    position: 'relative',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    justifyContent: 'center'
-                                }}>
+                                <div
+                                    onClick={() => setSelectedSensorForView(sensor)}
+                                    style={{
+                                        flex: 1,
+                                        padding: '1.5rem',
+                                        textAlign: viewMode === 'grid' ? 'center' : 'left',
+                                        position: 'relative',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        justifyContent: 'center',
+                                        cursor: 'pointer'
+                                    }}
+                                >
                                     {isAdmin && (
                                         <button
-                                            onClick={() => handleEdit(sensor)}
+                                            onClick={(e) => handleEdit(sensor, e)}
                                             className="btn-icon hover-lift"
-                                            style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'white', borderRadius: '0.75rem', width: '36px', height: '36px', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                            style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'white', borderRadius: '0.75rem', width: '36px', height: '36px', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 5 }}
                                         >
                                             <Edit size={16} />
                                         </button>
@@ -270,6 +355,44 @@ export default function Sensors({ isAdmin, setEditingSensor, setView }) {
                                     <h3 style={{ fontSize: '1.1rem', fontWeight: '900', marginBottom: '0.4rem', letterSpacing: '-0.01em', color: 'var(--text)', paddingRight: isAdmin ? '2.5rem' : '0' }}>
                                         {sensor.name}
                                     </h3>
+
+                                    {/* Category and Level Badges */}
+                                    <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem', flexWrap: 'wrap', justifyContent: viewMode === 'grid' ? 'center' : 'flex-start' }}>
+                                        {sensor.emoji && (
+                                            <span style={{
+                                                display: 'inline-flex',
+                                                alignItems: 'center',
+                                                gap: '0.3rem',
+                                                background: 'rgba(var(--primary-rgb), 0.08)',
+                                                padding: '0.3rem 0.8rem',
+                                                borderRadius: '1.5rem',
+                                                fontSize: '0.7rem',
+                                                fontWeight: '800',
+                                                color: 'var(--primary)'
+                                            }}>
+                                                {sensor.emoji}
+                                            </span>
+                                        )}
+                                        {sensor.level && (
+                                            <span style={{
+                                                display: 'inline-flex',
+                                                alignItems: 'center',
+                                                background: sensor.level === 'Beginner' ? 'rgba(34, 197, 94, 0.1)' :
+                                                    sensor.level === 'Intermediate' ? 'rgba(59, 130, 246, 0.1)' :
+                                                        'rgba(239, 68, 68, 0.1)',
+                                                color: sensor.level === 'Beginner' ? 'rgb(34, 197, 94)' :
+                                                    sensor.level === 'Intermediate' ? 'rgb(59, 130, 246)' :
+                                                        'rgb(239, 68, 68)',
+                                                padding: '0.3rem 0.8rem',
+                                                borderRadius: '1.5rem',
+                                                fontSize: '0.7rem',
+                                                fontWeight: '800'
+                                            }}>
+                                                {sensor.level}
+                                            </span>
+                                        )}
+                                    </div>
+
                                     <div style={{
                                         display: 'inline-flex',
                                         alignItems: 'center',
@@ -297,6 +420,16 @@ export default function Sensors({ isAdmin, setEditingSensor, setView }) {
                         <p>Try searching for a different component or pin configuration.</p>
                     </div>
                 )}
+
+                {/* Detail Modal */}
+                <AnimatePresence>
+                    {selectedSensorForView && (
+                        <SensorDetail
+                            sensor={selectedSensorForView}
+                            onClose={() => setSelectedSensorForView(null)}
+                        />
+                    )}
+                </AnimatePresence>
             </div>
         </div>
     );
