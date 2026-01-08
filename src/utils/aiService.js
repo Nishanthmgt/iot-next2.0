@@ -1,9 +1,12 @@
 import { sensors } from '../data/sensors';
 import { BOARDS } from '../data/boards';
+import { projects as localProjects } from '../data/projects';
+import { roadmapSteps } from '../data/roadmap';
+import { masteryIndex } from '../data/masteryIndex';
 
 /**
- * Technical Lookup Engine (Local - No API)
- * Searches through sensors.js and boards.js for matching technical data.
+ * Multi-Domain Technical Lookup Engine (Local - Zero API)
+ * Searches through sensors, boards, projects, roadmap, and mastery paths.
  */
 const localTechnicalLookup = (query) => {
     const q = query.toLowerCase().trim();
@@ -11,38 +14,71 @@ const localTechnicalLookup = (query) => {
     // 1. Check Boards
     const matchedBoard = Object.values(BOARDS).find(b =>
         q.includes(b.name.toLowerCase()) ||
-        q.includes(b.id.toLowerCase()) ||
-        (b.specs?.MCU && q.includes(b.specs.MCU.toLowerCase()))
+        q.includes(b.id.toLowerCase())
     );
-
     if (matchedBoard) {
         return `
-HARDWARE DATA: ${matchedBoard.name}
-Description: ${matchedBoard.description}
+HARDWARE: ${matchedBoard.name}
+Spec: ${matchedBoard.description}
 MCU: ${matchedBoard.specs?.MCU || 'N/A'}
 Voltage: ${matchedBoard.specs?.Operating_Voltage || 'N/A'}
-Pins Summary: ${matchedBoard.pins?.length || 0} pins available.
-Guidelines: ${matchedBoard.guidelines?.voltage || matchedBoard.description}
         `.trim();
     }
 
     // 2. Check Sensors
     const matchedSensor = sensors.find(s =>
         q.includes(s.name.toLowerCase()) ||
-        q.includes(s.description.toLowerCase())
+        (s.id && q.includes(s.id.toString()))
     );
-
     if (matchedSensor) {
         return `
-SENSOR DATA: ${matchedSensor.name}
-Technical Spec: ${matchedSensor.description}
-Pin Configuration: ${matchedSensor.pins}
-Category: ${matchedSensor.category}
-Buy Link: ${matchedSensor.buyLink}
+SENSOR: ${matchedSensor.name}
+Spec: ${matchedSensor.description}
+Pins: ${matchedSensor.pins}
         `.trim();
     }
 
-    // 3. Fallback
+    // 3. Check Projects
+    const matchedProject = localProjects.find(p =>
+        q.includes(p.title.toLowerCase()) ||
+        (p.id && q.includes(p.id.toString()))
+    );
+    if (matchedProject) {
+        return `
+PROJECT: ${matchedProject.title}
+Goal: ${matchedProject.description}
+Difficulty: ${matchedProject.level}
+Usage: ${matchedProject.usage || 'Refer to project page.'}
+        `.trim();
+    }
+
+    // 4. Check Roadmap
+    const matchedRoadmap = roadmapSteps.find(step =>
+        q.includes(step.title.toLowerCase()) ||
+        q.includes(`level ${step.level}`) ||
+        step.steps.some(s => q.includes(s.name.toLowerCase()))
+    );
+    if (matchedRoadmap) {
+        return `
+ROADMAP LEVEL ${matchedRoadmap.level}: ${matchedRoadmap.title}
+Key Focus: ${matchedRoadmap.explanation}
+Includes: ${matchedRoadmap.steps.map(s => s.name).join(', ')}
+        `.trim();
+    }
+
+    // 5. Check Mastery Path
+    const matchedMastery = masteryIndex.find(m =>
+        q.includes(m.title.toLowerCase())
+    );
+    if (matchedMastery) {
+        return `
+MASTERY GUIDE: ${matchedMastery.title}
+Purpose: ${matchedMastery.purpose}
+Search for this in the Technical Mastery section of the site.
+        `.trim();
+    }
+
+    // Fallback
     return "This information is not available on iotnext.store.";
 };
 

@@ -3,12 +3,16 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { MessageSquare, X, Send, Bot, User, Sparkles } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { BOARDS } from '../data/boards';
+import { roadmapSteps } from '../data/roadmap';
+import { masteryIndex } from '../data/masteryIndex';
 import { callAI } from '../utils/aiService';
+import { useProjects } from '../hooks/useProjects';
 
 const AIAssistant = () => {
     const [isOpen, setIsOpen] = useState(false);
+    const { projects: dbProjects } = useProjects();
     const [messages, setMessages] = useState([
-        { role: 'bot', text: 'How can I help you today? I have access to all the technical specs of iotnext.store.' }
+        { role: 'bot', text: 'How can I help you today? I have access to all technical specs, roadmaps, and projects on iotnext.store.' }
     ]);
     const [input, setInput] = useState('');
     const [showGreeting, setShowGreeting] = useState(false);
@@ -21,7 +25,7 @@ const AIAssistant = () => {
                 const { data } = await supabase.from('sensors').select('name, description, pins');
                 if (data) setDbSensors(data);
             } catch (e) {
-                console.warn("[AI] Failed to fetch live sensor data, using internal fallback.");
+                console.warn("[AI] Failed to fetch live sensor data.");
             }
         };
         fetchSensors();
@@ -50,32 +54,25 @@ const AIAssistant = () => {
         setInput('');
         setIsGenerating(true);
 
-        // Build dynamic content context
+        // Build highly optimized dynamic context
         const context = `
-SENSORS CATALOG:
-${dbSensors.map(s => `- ${s.name}: ${s.description} (Pins: ${s.pins})`).join('\n')}
-
-HARDWARE BOARDS:
-${Object.values(BOARDS).map(b => `- ${b.name}: ${b.description} (Architecture: ${b.specs?.Architecture}, Power: ${b.specs?.Operating_Voltage})`).join('\n')}
+SENSORS: ${dbSensors.map(s => s.name).join(', ')}
+BOARDS: ${Object.values(BOARDS).map(b => b.name).join(', ')}
+PROJECTS: ${dbProjects.slice(0, 15).map(p => p.title).join(', ')}
+ROADMAP: ${roadmapSteps.map(step => `Level ${step.level}: ${step.title}`).join(' | ')}
+MASTERY GUIDES: ${masteryIndex.map(m => m.title).join(', ')}
         `.trim();
 
-        // Build the strict prompt requested by the user
+        // Build the strict prompt
         const strictPrompt = `
 You are an AI assistant for the website "iotnext.store".
 
 STRICT RULES:
-1. Answer ONLY using the content provided below.
-2. Do NOT use any external or general knowledge.
-3. Do NOT make assumptions or guesses.
-4. If the answer is not found in the content, reply EXACTLY:
-   "This information is not available on iotnext.store."
+1. Answer ONLY using the content provided below or by referencing the available sections.
+2. If asked about a project, roadmap level, or sensor, provide technical details.
+3. If the answer is not found, reply: "This information is not available on iotnext.store."
 
-STYLE:
-- Simple English
-- Short and clear answers
-- Beginner friendly
-
-WEBSITE CONTENT:
+WEBSITE CONTEXT:
 ${context}
 
 USER QUESTION:
