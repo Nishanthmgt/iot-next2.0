@@ -5913,44 +5913,42 @@ while True:
 
 cap.release()
 GPIO.cleanup()
-cv2.destroyAllWindows()`},testing_output:"When a human face appears in front of the camera, the relay activates and unlocks the door for 3 seconds.",common_errors:["Using BOARD numbering instead of BCM","Poor lighting conditions","Relay powered from GPIO pin","Incorrect camera index"],improvements:["Upgrade to face recognition for identity verification","Add access logging","Implement anti-spoof detection","Mobile alert integration"],mini_challenge:"Modify the system to unlock only between specific time intervals.",estimated_cost_india:"₹3,200 – ₹3,800",author_name:"NISHANTH",status:"Published"},{id:301,title:"Face Detection Door Lock using Raspberry Pi",level:"AI + Embedded (Foundation)",description:"A vision-based door locking system using Raspberry Pi and OpenCV that unlocks the door when a human face is detected in real time.",category:"AI + Embedded + Machine Learning",estimatedTime:"8–10 Hours",problem_statement:"Conventional door locks using keys, RFID, or PINs are vulnerable to loss, duplication, and misuse. A vision-based access system improves security by ensuring a real human presence before unlocking.",real_world_case:["Hostel laboratory access","Office cabins","Server room entry","Prototype biometric security systems"],ai_concept:{type:"Computer Vision",model:"Haar Cascade Face Detector",learning:"Pre-trained (Feature-based ML)",reason:"Lightweight, fast, and suitable for Raspberry Pi without GPU acceleration"},hardware:{processor:"Raspberry Pi 3 / 4",camera:"Pi Camera v2 / USB Webcam",actuator:"Relay Module + Solenoid Lock / Servo Lock",feedback:"Buzzer (optional)"},working_principle:["Camera captures live video frames","Frames are converted to grayscale","Haar cascade scans image for facial features","If a face is detected, GPIO output is activated","Relay unlocks the door for a fixed duration"],pin_config:{raspberry_pi:[{module:"Relay",pinName:"VCC",pin:"5V",direction:"Power"},{module:"Relay",pinName:"GND",pin:"GND",direction:"Ground"},{module:"Relay",pinName:"IN",pin:"GPIO17",direction:"Output"},{module:"Buzzer",pinName:"VCC",pin:"3.3V",direction:"Power"},{module:"Buzzer",pinName:"GND",pin:"GND",direction:"Ground"},{module:"Buzzer",pinName:"IN",pin:"GPIO27",direction:"Output"}]},software_stack:["Raspberry Pi OS","Python 3","OpenCV","RPi.GPIO"],code:{language:"Python",file:"face_lock.py",content:`import cv2
-import RPi.GPIO as GPIO
-import time
+cv2.destroyAllWindows()`},testing_output:"When a human face appears in front of the camera, the relay activates and unlocks the door for 3 seconds.",common_errors:["Using BOARD numbering instead of BCM","Poor lighting conditions","Relay powered from GPIO pin","Incorrect camera index"],improvements:["Upgrade to face recognition for identity verification","Add access logging","Implement anti-spoof detection","Mobile alert integration"],mini_challenge:"Modify the system to unlock only between specific time intervals.",estimated_cost_india:"₹3,200 – ₹3,800",author_name:"NISHANTH",status:"Published"},{id:302,title:"Voice Controlled Home Automation using ESP32",level:"AI + Embedded (Foundation)",description:"A cloud-assisted voice-controlled home automation system where voice commands are processed by Google Assistant and executed by ESP32 via HTTP requests.",category:"AI + Embedded + Machine Learning",estimatedTime:"6–7 Hours",problem_statement:"Manual switches are inconvenient for elderly and physically challenged users. Voice-controlled automation improves accessibility and user comfort.",real_world_case:["Smart homes","Assisted living environments","Home automation prototypes"],ai_concept:{type:"Speech Recognition",processing_location:"Cloud (Google Assistant)",embedded_role:"Command execution only"},system_architecture:["User speaks command","Google Assistant converts speech to text","IFTTT triggers webhook","ESP32 receives HTTP request","Relay toggles appliance"],hardware:{controller:"ESP32",output:"Relay Module",load:"Light / Fan / Appliance"},pin_config:{esp32:[{module:"Relay",pinName:"VCC",mcuPin:"5V",direction:"Power"},{module:"Relay",pinName:"GND",mcuPin:"GND",direction:"Ground"},{module:"Relay",pinName:"IN",mcuPin:"GPIO26",direction:"Output"}]},software_stack:["ESP32 Arduino Core","WiFi","WebServer","Google Assistant","IFTTT Webhooks"],code:{language:"C++ (Arduino)",file:"voice_home.ino",content:`#include <WiFi.h>
+#include <WebServer.h>
 
-LOCK_PIN = 17
-BUZZER = 27
+#define RELAY 26
+WebServer server(80);
 
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(LOCK_PIN, GPIO.OUT)
-GPIO.setup(BUZZER, GPIO.OUT)
-GPIO.output(LOCK_PIN, GPIO.LOW)
-GPIO.output(BUZZER, GPIO.LOW)
+const char* ssid = "YOUR_WIFI";
+const char* password = "YOUR_PASSWORD";
 
-face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
-cap = cv2.VideoCapture(0)
+void relayOn() {
+  digitalWrite(RELAY, HIGH);
+  server.send(200, "text/plain", "ON");
+}
 
-while True:
-    ret, frame = cap.read()
-    if not ret:
-        break
+void relayOff() {
+  digitalWrite(RELAY, LOW);
+  server.send(200, "text/plain", "OFF");
+}
 
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    faces = face_cascade.detectMultiScale(gray, 1.2, 5, minSize=(80,80))
+void setup() {
+  pinMode(RELAY, OUTPUT);
+  digitalWrite(RELAY, LOW);
 
-    if len(faces) > 0:
-        GPIO.output(LOCK_PIN, GPIO.HIGH)
-        GPIO.output(BUZZER, GPIO.HIGH)
-        time.sleep(3)
-        GPIO.output(LOCK_PIN, GPIO.LOW)
-        GPIO.output(BUZZER, GPIO.LOW)
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+  }
 
-    cv2.imshow('Face Detection', frame)
-    if cv2.waitKey(1) & 0xFF == 27:
-        break
+  server.on("/on", relayOn);
+  server.on("/off", relayOff);
+  server.begin();
+}
 
-cap.release()
-GPIO.cleanup()
-cv2.destroyAllWindows()`},testing_output:"When a human face appears in front of the camera, the relay activates and unlocks the door for 3 seconds.",common_errors:["Using BOARD numbering instead of BCM","Poor lighting conditions","Relay powered from GPIO pin","Incorrect camera index"],improvements:["Upgrade to face recognition for identity verification","Add access logging","Implement anti-spoof detection","Mobile alert integration"],mini_challenge:"Modify the system to unlock only between specific time intervals.",estimated_cost_india:"₹3,200 – ₹3,800",author_name:"NISHANTH",status:"Published"},{id:303,title:"Object Detection with OpenCV and Raspberry Pi",level:"AI + Embedded (Intermediate)",description:"A real-time object detection system using Raspberry Pi and OpenCV DNN module to identify common objects from live camera feed.",category:"AI + Embedded + Machine Learning",estimatedTime:"9–11 Hours",problem_statement:"Conventional CCTV systems only record video without understanding the scene. Object detection enables cameras to identify and react to objects such as people, vehicles, and everyday items.",real_world_case:["Smart surveillance systems","Retail analytics","Traffic monitoring","Robotic vision systems"],ai_concept:{type:"Computer Vision",model:"MobileNet-SSD",learning:"Pre-trained deep learning model",dataset:"COCO / PASCAL VOC",reason:"Lightweight CNN suitable for Raspberry Pi edge inference"},hardware:{processor:"Raspberry Pi 3 / 4",camera:"Pi Camera v2 / USB Webcam",display:"HDMI Monitor (optional)"},working_principle:["Camera captures live video frames","Frames resized and normalized","DNN model performs forward inference","Objects detected with confidence scores","Bounding boxes drawn on output frame"],pin_config:{raspberry_pi:[{module:"Camera",pinName:"CSI",pin:"CSI Port",direction:"Data"}]},software_stack:["Raspberry Pi OS","Python 3","OpenCV (with DNN module)","NumPy"],code:{language:"Python",file:"object_detection.py",content:`import cv2
+void loop() {
+  server.handleClient();
+}`},testing_output:"Voice command via Google Assistant successfully toggles the connected appliance.",common_errors:["Incorrect IFTTT webhook URL","ESP32 IP address changes after reboot","Relay powered incorrectly","Weak WiFi signal"],improvements:["MQTT-based control","Authentication tokens","Multi-device support","Offline voice processing using Edge AI"],mini_challenge:"Extend the system to control three appliances using different voice commands.",estimated_cost_india:"₹600 – ₹800",author_name:"NISHANTH",status:"Published"},{id:303,title:"Object Detection with OpenCV and Raspberry Pi",level:"AI + Embedded (Intermediate)",description:"A real-time object detection system using Raspberry Pi and OpenCV DNN module to identify common objects from live camera feed.",category:"AI + Embedded + Machine Learning",estimatedTime:"9–11 Hours",problem_statement:"Conventional CCTV systems only record video without understanding the scene. Object detection enables cameras to identify and react to objects such as people, vehicles, and everyday items.",real_world_case:["Smart surveillance systems","Retail analytics","Traffic monitoring","Robotic vision systems"],ai_concept:{type:"Computer Vision",model:"MobileNet-SSD",learning:"Pre-trained deep learning model",dataset:"COCO / PASCAL VOC",reason:"Lightweight CNN suitable for Raspberry Pi edge inference"},hardware:{processor:"Raspberry Pi 3 / 4",camera:"Pi Camera v2 / USB Webcam",display:"HDMI Monitor (optional)"},working_principle:["Camera captures live video frames","Frames resized and normalized","DNN model performs forward inference","Objects detected with confidence scores","Bounding boxes drawn on output frame"],pin_config:{raspberry_pi:[{module:"Camera",pinName:"CSI",pin:"CSI Port",direction:"Data"}]},software_stack:["Raspberry Pi OS","Python 3","OpenCV (with DNN module)","NumPy"],code:{language:"Python",file:"object_detection.py",content:`import cv2
 import numpy as np
 
 net = cv2.dnn.readNetFromCaffe('deploy.prototxt', 'mobilenet_iter_73000.caffemodel')
@@ -6084,35 +6082,41 @@ except sr.UnknownValueError:
 except sr.RequestError:
     engine.say('Speech service unavailable')
 
-engine.runAndWait()`},testing_output:"Voice commands are recognized and corresponding actions are executed with spoken feedback.",common_errors:["Microphone not detected","High background noise","Internet connectivity issues","Audio driver misconfiguration"],improvements:["Offline speech recognition using Vosk","Wake-word detection","IoT device control integration"],mini_challenge:"Use voice commands to control an ESP32-based IoT device.",estimated_cost_india:"₹3,500 – ₹4,200",author_name:"NISHANTH",status:"Published"},{id:306,title:"AI Voice Assistant using Raspberry Pi",level:"AI + Embedded (Intermediate)",description:"A Raspberry Pi-based AI voice assistant capable of understanding spoken commands and executing system-level actions with voice feedback.",category:"AI + Embedded + Machine Learning",estimatedTime:"10–12 Hours",problem_statement:"Manual interaction with computers and smart devices is inefficient. Voice assistants enable hands-free, natural interaction using speech recognition and intent processing.",real_world_case:["Smart speakers","Home automation hubs","Assistive technologies","Human–computer interaction systems"],ai_concept:{type:"Speech Recognition + NLP",speech_to_text:"Google Speech API (online)",text_to_speech:"pyttsx3 (offline)",intent_handling:"Rule-based NLP"},hardware:{processor:"Raspberry Pi 4",input:"USB Microphone",output:"Speaker"},working_principle:["Microphone captures user speech","Speech converted to text using AI","Text analyzed to identify intent","Corresponding system command executed","Voice response generated"],pin_config:{raspberry_pi:[{module:"USB Microphone",pinName:"USB",pin:"USB Port",direction:"Data"},{module:"Speaker",pinName:"Audio",pin:"Audio Jack / USB",direction:"Output"}]},software_stack:["Raspberry Pi OS","Python 3","SpeechRecognition","pyttsx3","OS Libraries"],code:{language:"Python",file:"voice_assistant.py",content:`import speech_recognition as sr
-import pyttsx3
-import os
+engine.runAndWait()`},testing_output:"Voice commands are recognized and corresponding actions are executed with spoken feedback.",common_errors:["Microphone not detected","High background noise","Internet connectivity issues","Audio driver misconfiguration"],improvements:["Offline speech recognition using Vosk","Wake-word detection","IoT device control integration"],mini_challenge:"Use voice commands to control an ESP32-based IoT device.",estimated_cost_india:"₹3,500 – ₹4,200",author_name:"NISHANTH",status:"Published"},{id:307,title:"Emotion Detection using Webcam",level:"AI + Embedded (Intermediate)",description:"A real-time emotion detection system that classifies human facial expressions into emotional states using a deep learning model and live webcam feed.",category:"AI + Embedded + Machine Learning",estimatedTime:"9–11 Hours",problem_statement:"Machines cannot naturally understand human emotions. Emotion detection enables systems to respond intelligently in applications such as education, healthcare, and human–computer interaction.",real_world_case:["Smart classrooms","Mental health monitoring tools","Customer sentiment analysis","Human–robot interaction"],ai_concept:{type:"Deep Learning (Computer Vision)",task:"Facial Expression Classification",model:"CNN trained on FER2013 dataset",classes:["Angry","Happy","Neutral","Sad","Surprise"],learning:"Supervised learning"},hardware:{processor:"Raspberry Pi 4 / PC",camera:"USB Webcam / Pi Camera"},working_principle:["Webcam captures live frames","Face detected using Haar Cascade","Face region resized and normalized","CNN model predicts emotion class","Emotion label displayed on screen"],pin_config:{raspberry_pi:[{module:"Camera",pinName:"CSI / USB",pin:"Camera Interface",direction:"Data"}]},software_stack:["Python 3","OpenCV","TensorFlow / Keras","NumPy"],code:{language:"Python",file:"emotion_detection.py",content:`import cv2
+import numpy as np
+from tensorflow.keras.models import load_model
 
-engine = pyttsx3.init()
-recognizer = sr.Recognizer()
+model = load_model('emotion_model.h5')
+face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+labels = ['Angry','Happy','Neutral','Sad','Surprise']
 
-with sr.Microphone() as source:
-    engine.say('Hello, how can I help you?')
-    engine.runAndWait()
-    audio = recognizer.listen(source)
+cap = cv2.VideoCapture(0)
 
-try:
-    command = recognizer.recognize_google(audio).lower()
+while True:
+    ret, frame = cap.read()
+    if not ret:
+        break
 
-    if 'time' in command:
-        os.system('date')
-        engine.say('Here is the current time')
-    elif 'open browser' in command:
-        os.system('chromium-browser')
-        engine.say('Opening browser')
-    else:
-        engine.say('Command not recognized')
-except sr.UnknownValueError:
-    engine.say('Sorry, I did not understand')
-except sr.RequestError:
-    engine.say('Speech service unavailable')
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    faces = face_cascade.detectMultiScale(gray, 1.3, 5)
 
-engine.runAndWait()`},testing_output:"Voice commands are recognized and corresponding actions are executed with spoken feedback.",common_errors:["Microphone not detected","High background noise","Internet connectivity issues","Audio driver misconfiguration"],improvements:["Offline speech recognition using Vosk","Wake-word detection","IoT device control integration"],mini_challenge:"Use voice commands to control an ESP32-based IoT device.",estimated_cost_india:"₹3,500 – ₹4,200",author_name:"NISHANTH",status:"Published"},{id:308,title:"Intruder Detection using AI Camera",level:"AI + Embedded (Intermediate)",description:"An AI-powered intruder detection system that identifies human presence using object detection and triggers alerts when intrusion is detected.",category:"AI + Embedded + Machine Learning",estimatedTime:"8–10 Hours",problem_statement:"Traditional motion sensors generate frequent false alarms. AI-based detection improves accuracy by identifying humans instead of generic motion.",real_world_case:["Home security systems","Office surveillance","Warehouse monitoring","Restricted-area protection"],ai_concept:{type:"Object Detection",model:"MobileNet-SSD",target_class:"Person",learning:"Pre-trained deep learning model"},hardware:{processor:"Raspberry Pi 4",camera:"Pi Camera / USB Webcam",alert:"Buzzer / Notification module"},working_principle:["Camera captures live video feed","Deep learning model detects objects","Person class filtered from detections","If person detected → alert triggered"],pin_config:{raspberry_pi:[{module:"Buzzer",pinName:"VCC",pin:"3.3V",direction:"Power"},{module:"Buzzer",pinName:"GND",pin:"GND",direction:"Ground"},{module:"Buzzer",pinName:"IN",pin:"GPIO18",direction:"Output"}]},software_stack:["Raspberry Pi OS","Python 3","OpenCV (DNN module)","NumPy","RPi.GPIO"],code:{language:"Python",file:"intruder_detection.py",content:`import cv2
+    for (x,y,w,h) in faces:
+        roi = gray[y:y+h, x:x+w]
+        roi = cv2.resize(roi, (48,48))
+        roi = roi / 255.0
+        roi = roi.reshape(1,48,48,1)
+
+        pred = model.predict(roi)
+        label = labels[np.argmax(pred)]
+        cv2.putText(frame, label, (x,y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0,255,0), 2)
+        cv2.rectangle(frame, (x,y), (x+w,y+h), (255,0,0), 2)
+
+    cv2.imshow('Emotion Detection', frame)
+    if cv2.waitKey(1) & 0xFF == 27:
+        break
+
+cap.release()
+cv2.destroyAllWindows()`},testing_output:"Detected face displays predicted emotion label in real time.",common_errors:["Incorrect model input shape","Poor lighting conditions","Low model accuracy due to limited dataset"],improvements:["Use TensorFlow Lite for faster inference","Temporal smoothing of predictions","Emotion-based system actions"],mini_challenge:"Detect dominant emotion over a 10-second window.",estimated_cost_india:"₹3,000 – ₹4,000",author_name:"NISHANTH",status:"Published"},{id:308,title:"Intruder Detection using AI Camera",level:"AI + Embedded (Intermediate)",description:"An AI-powered intruder detection system that identifies human presence using object detection and triggers alerts when intrusion is detected.",category:"AI + Embedded + Machine Learning",estimatedTime:"8–10 Hours",problem_statement:"Traditional motion sensors generate frequent false alarms. AI-based detection improves accuracy by identifying humans instead of generic motion.",real_world_case:["Home security systems","Office surveillance","Warehouse monitoring","Restricted-area protection"],ai_concept:{type:"Object Detection",model:"MobileNet-SSD",target_class:"Person",learning:"Pre-trained deep learning model"},hardware:{processor:"Raspberry Pi 4",camera:"Pi Camera / USB Webcam",alert:"Buzzer / Notification module"},working_principle:["Camera captures live video feed","Deep learning model detects objects","Person class filtered from detections","If person detected → alert triggered"],pin_config:{raspberry_pi:[{module:"Buzzer",pinName:"VCC",pin:"3.3V",direction:"Power"},{module:"Buzzer",pinName:"GND",pin:"GND",direction:"Ground"},{module:"Buzzer",pinName:"IN",pin:"GPIO18",direction:"Output"}]},software_stack:["Raspberry Pi OS","Python 3","OpenCV (DNN module)","NumPy","RPi.GPIO"],code:{language:"Python",file:"intruder_detection.py",content:`import cv2
 import RPi.GPIO as GPIO
 import numpy as np
 
@@ -6153,48 +6157,25 @@ while True:
 
 cap.release()
 GPIO.cleanup()
-cv2.destroyAllWindows()`},testing_output:"Human detected in camera view triggers buzzer alert.",common_errors:["Incorrect class ID for person","Low FPS on Raspberry Pi","Insufficient lighting at night"],improvements:["Add night-vision camera","Send cloud or mobile alerts","Combine with PIR sensor for power efficiency"],mini_challenge:"Trigger alert only if a person is detected for more than 3 seconds.",estimated_cost_india:"₹3,800 – ₹4,800",author_name:"NISHANTH",status:"Published"},{id:308,title:"Intruder Detection using AI Camera",level:"AI + Embedded (Intermediate)",description:"An AI-powered intruder detection system that identifies human presence using object detection and triggers alerts when intrusion is detected.",category:"AI + Embedded + Machine Learning",estimatedTime:"8–10 Hours",problem_statement:"Traditional motion sensors generate frequent false alarms. AI-based detection improves accuracy by identifying humans instead of generic motion.",real_world_case:["Home security systems","Office surveillance","Warehouse monitoring","Restricted-area protection"],ai_concept:{type:"Object Detection",model:"MobileNet-SSD",target_class:"Person",learning:"Pre-trained deep learning model"},hardware:{processor:"Raspberry Pi 4",camera:"Pi Camera / USB Webcam",alert:"Buzzer / Notification module"},working_principle:["Camera captures live video feed","Deep learning model detects objects","Person class filtered from detections","If person detected → alert triggered"],pin_config:{raspberry_pi:[{module:"Buzzer",pinName:"VCC",pin:"3.3V",direction:"Power"},{module:"Buzzer",pinName:"GND",pin:"GND",direction:"Ground"},{module:"Buzzer",pinName:"IN",pin:"GPIO18",direction:"Output"}]},software_stack:["Raspberry Pi OS","Python 3","OpenCV (DNN module)","NumPy","RPi.GPIO"],code:{language:"Python",file:"intruder_detection.py",content:`import cv2
-import RPi.GPIO as GPIO
-import numpy as np
+cv2.destroyAllWindows()`},testing_output:"Human detected in camera view triggers buzzer alert.",common_errors:["Incorrect class ID for person","Low FPS on Raspberry Pi","Insufficient lighting at night"],improvements:["Add night-vision camera","Send cloud or mobile alerts","Combine with PIR sensor for power efficiency"],mini_challenge:"Trigger alert only if a person is detected for more than 3 seconds.",estimated_cost_india:"₹3,800 – ₹4,800",author_name:"NISHANTH",status:"Published"},{id:309,title:"Automatic Hand Sanitizer Dispenser with IR Sensor",level:"AI + Embedded (Foundation Automation)",description:"A contactless hand sanitizer dispenser that uses an IR proximity sensor and an embedded controller to dispense sanitizer automatically for improved hygiene.",category:"AI + Embedded + Machine Learning",estimatedTime:"4–5 Hours",problem_statement:"Manual sanitizer dispensers increase the risk of cross-contamination. A contactless dispensing system improves hygiene in public places.",real_world_case:["Hospitals and clinics","Schools and colleges","Offices","Public buildings"],ai_concept:{type:"Embedded Intelligence",method:"Threshold-based proximity detection",learning:"Rule-based (no ML required)",note:"AI is not required for reliable proximity-based dispensing"},hardware:{controller:"ESP32 / Arduino Uno",sensor:"IR Proximity Sensor",actuator:"DC Pump / Servo Motor",power:"5V Adapter / Battery"},working_principle:["IR sensor continuously monitors hand presence","Hand detected within sensor range","Controller activates pump for a fixed duration","Pump stops automatically after dispensing"],pin_config:{esp32:[{module:"IR Sensor",pinName:"VCC",mcuPin:"3V3",direction:"Power"},{module:"IR Sensor",pinName:"GND",mcuPin:"GND",direction:"Ground"},{module:"IR Sensor",pinName:"OUT",mcuPin:"GPIO34",direction:"Input"},{module:"Relay Module",pinName:"VCC",mcuPin:"5V",direction:"Power"},{module:"Relay Module",pinName:"GND",mcuPin:"GND",direction:"Ground"},{module:"Relay Module",pinName:"IN",mcuPin:"GPIO25",direction:"Output"}]},software_stack:["ESP32 Arduino Core"],code:{language:"C++ (Arduino)",file:"sanitizer_dispenser.ino",content:`#define IR_PIN 34
+#define PUMP_RELAY 25
 
-BUZZER = 18
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(BUZZER, GPIO.OUT)
-GPIO.output(BUZZER, GPIO.LOW)
+void setup() {
+  pinMode(IR_PIN, INPUT);
+  pinMode(PUMP_RELAY, OUTPUT);
+  digitalWrite(PUMP_RELAY, LOW);
+}
 
-net = cv2.dnn.readNetFromCaffe('deploy.prototxt', 'mobilenet_iter_73000.caffemodel')
-cap = cv2.VideoCapture(0)
+void loop() {
+  int handDetected = digitalRead(IR_PIN);
 
-while True:
-    ret, frame = cap.read()
-    if not ret:
-        break
-
-    blob = cv2.dnn.blobFromImage(frame, 0.007843, (300,300), 127.5)
-    net.setInput(blob)
-    detections = net.forward()
-
-    person_detected = False
-
-    for i in range(detections.shape[2]):
-        confidence = detections[0,0,i,2]
-        class_id = int(detections[0,0,i,1])
-
-        if class_id == 15 and confidence > 0.6:
-            person_detected = True
-
-    if person_detected:
-        GPIO.output(BUZZER, GPIO.HIGH)
-    else:
-        GPIO.output(BUZZER, GPIO.LOW)
-
-    cv2.imshow('Intruder Detection', frame)
-    if cv2.waitKey(1) & 0xFF == 27:
-        break
-
-cap.release()
-GPIO.cleanup()
-cv2.destroyAllWindows()`},testing_output:"Human detected in camera view triggers buzzer alert.",common_errors:["Incorrect class ID for person","Low FPS on Raspberry Pi","Insufficient lighting at night"],improvements:["Add night-vision camera","Send cloud or mobile alerts","Combine with PIR sensor for power efficiency"],mini_challenge:"Trigger alert only if a person is detected for more than 3 seconds.",estimated_cost_india:"₹3,800 – ₹4,800",author_name:"NISHANTH",status:"Published"},{id:310,title:"Smart Security Camera with Motion Detection",level:"AI + Embedded (Intermediate)",description:"A smart surveillance camera system that detects motion using computer vision and triggers alerts or recording only when activity is detected.",category:"AI + Embedded + Machine Learning",estimatedTime:"6–8 Hours",problem_statement:"Continuous video recording wastes storage and power. Motion-triggered surveillance improves efficiency and relevance of captured footage.",real_world_case:["Home CCTV systems","Office surveillance","Retail shop monitoring"],ai_concept:{type:"Computer Vision",method:"Frame differencing and contour analysis",learning:"Classical vision (non-ML baseline)",note:"Can be upgraded to AI-based human detection"},hardware:{processor:"Raspberry Pi 3 / 4",camera:"Pi Camera / USB Webcam",alert:"Buzzer / Notification module"},working_principle:["Camera captures continuous frames","Difference between consecutive frames calculated","Significant pixel changes indicate motion","Alert or recording triggered on motion detection"],pin_config:{raspberry_pi:[{module:"Buzzer",pinName:"VCC",pin:"3.3V",direction:"Power"},{module:"Buzzer",pinName:"GND",pin:"GND",direction:"Ground"},{module:"Buzzer",pinName:"IN",pin:"GPIO23",direction:"Output"}]},software_stack:["Raspberry Pi OS","Python 3","OpenCV","RPi.GPIO"],code:{language:"Python",file:"motion_camera.py",content:`import cv2
+  if (handDetected == LOW) {
+    digitalWrite(PUMP_RELAY, HIGH);
+    delay(800);
+    digitalWrite(PUMP_RELAY, LOW);
+    delay(1500);
+  }
+}`},testing_output:"When a hand is placed near the sensor, sanitizer is dispensed automatically.",common_errors:["Incorrect IR sensor threshold","Pump drawing excessive current","Relay not isolated properly"],improvements:["Add liquid level monitoring","Add usage counter","Battery-powered portable version"],mini_challenge:"Limit dispensing to once every 10 seconds.",estimated_cost_india:"₹800 – ₹1,200",author_name:"NISHANTH",status:"Published"},{id:310,title:"Smart Security Camera with Motion Detection",level:"AI + Embedded (Intermediate)",description:"A smart surveillance camera system that detects motion using computer vision and triggers alerts or recording only when activity is detected.",category:"AI + Embedded + Machine Learning",estimatedTime:"6–8 Hours",problem_statement:"Continuous video recording wastes storage and power. Motion-triggered surveillance improves efficiency and relevance of captured footage.",real_world_case:["Home CCTV systems","Office surveillance","Retail shop monitoring"],ai_concept:{type:"Computer Vision",method:"Frame differencing and contour analysis",learning:"Classical vision (non-ML baseline)",note:"Can be upgraded to AI-based human detection"},hardware:{processor:"Raspberry Pi 3 / 4",camera:"Pi Camera / USB Webcam",alert:"Buzzer / Notification module"},working_principle:["Camera captures continuous frames","Difference between consecutive frames calculated","Significant pixel changes indicate motion","Alert or recording triggered on motion detection"],pin_config:{raspberry_pi:[{module:"Buzzer",pinName:"VCC",pin:"3.3V",direction:"Power"},{module:"Buzzer",pinName:"GND",pin:"GND",direction:"Ground"},{module:"Buzzer",pinName:"IN",pin:"GPIO23",direction:"Output"}]},software_stack:["Raspberry Pi OS","Python 3","OpenCV","RPi.GPIO"],code:{language:"Python",file:"motion_camera.py",content:`import cv2
 import RPi.GPIO as GPIO
 
 BUZZER = 23
