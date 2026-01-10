@@ -5910,4 +5910,523 @@ while True:
 
 cap.release()
 GPIO.cleanup()
-cv2.destroyAllWindows()`},testing_and_output:["Run the Python script","Place a face in front of camera","Relay clicks and door unlocks","Door relocks after 5 seconds"],common_errors:["Insufficient lighting causing no detection","Using 3.3V relay instead of 5V relay","Forgetting common ground","Wrong camera index"],limitations:["Anyone's face can unlock the door","No spoof protection","Not suitable for secure environments"],improvements_next_level:["Upgrade to face recognition","Add liveness detection","Log access attempts to cloud","Add mobile notification"],mini_challenge_for_learner:"Modify the system to unlock only between specific time intervals.",author_name:"NISHANTH",status:"Published"}];export{e as p};
+cv2.destroyAllWindows()`},testing_and_output:["Run the Python script","Place a face in front of camera","Relay clicks and door unlocks","Door relocks after 5 seconds"],common_errors:["Insufficient lighting causing no detection","Using 3.3V relay instead of 5V relay","Forgetting common ground","Wrong camera index"],limitations:["Anyone's face can unlock the door","No spoof protection","Not suitable for secure environments"],improvements_next_level:["Upgrade to face recognition","Add liveness detection","Log access attempts to cloud","Add mobile notification"],mini_challenge_for_learner:"Modify the system to unlock only between specific time intervals.",author_name:"NISHANTH",status:"Published"},{id:302,title:"Voice Controlled Home Automation using ESP32",level:"AI + Embedded (Foundation – Voice & IoT Systems)",category:"AI + Embedded + Machine Learning",estimatedTime:"7–9 Hours",problem_statement:"Manual operation of electrical appliances is inconvenient for elderly, disabled users, and inefficient for smart homes. Voice-controlled automation allows hands-free, remote control of appliances using natural language.",real_world_use_case:["Smart homes","Elderly and assisted living","Home automation startups","IoT product demonstrations"],note_on_ai_usage:"Voice recognition is handled by cloud-based AI (Google Assistant). ESP32 does NOT perform speech recognition; it only executes commands received from the cloud.",ai_concept:{type:"Speech Recognition + Intent Processing",platform:"Google Assistant",integration:"IFTTT Webhooks",reason_for_cloud_ai:"ESP32 cannot process speech locally due to memory and compute limits"},system_block_flow:["User Voice → Google Assistant","Speech-to-Text + Intent Detection","IFTTT Webhook Trigger","HTTP Request → ESP32","GPIO Control → Relay","Appliance ON / OFF"],components:[{name:"ESP32 Development Board",quantity:1,specification:"WiFi + Bluetooth, 3.3V logic",indian_cost:"₹350",alternatives:["NodeMCU ESP8266"]},{name:"1-Channel Relay Module",quantity:1,specification:"5V relay, opto-isolated",indian_cost:"₹120",alternatives:["4-channel relay (for expansion)"]},{name:"AC Bulb with Holder",quantity:1,specification:"230V AC",indian_cost:"₹100"},{name:"5V Power Supply",quantity:1,specification:"USB adapter for ESP32",indian_cost:"₹150"},{name:"Jumper Wires",quantity:1,indian_cost:"₹100"}],total_estimated_cost_india:"₹800 – ₹900",pin_configuration:{esp32:[{module:"Relay",pinName:"IN",gpio:"GPIO26",voltage:"3.3V logic",direction:"Output",description:"Controls relay ON/OFF"},{module:"Relay",pinName:"VCC",gpio:"5V",voltage:"5V",direction:"Power",description:"Relay coil power (from ESP32 VIN or external 5V)"},{module:"Relay",pinName:"GND",gpio:"GND",voltage:"0V",direction:"Ground",description:"Common ground between ESP32 and relay"}]},working_explanation:["1. User gives a voice command such as 'Turn on the light' to Google Assistant.","2. Google Assistant converts speech to text and identifies the intent.","3. IFTTT applet is triggered based on the voice command.","4. IFTTT sends an HTTP request to the ESP32's IP address.","5. ESP32 web server receives the request (/on or /off).","6. ESP32 sets GPIO26 HIGH or LOW accordingly.","7. Relay module switches the AC appliance ON or OFF.","8. Appliance responds instantly to the voice command."],software_stack:["ESP32 Arduino Core","WiFi Library","WebServer Library","Google Assistant","IFTTT"],code:{language:"C++ (Arduino)",file:"voice_home_automation.ino",content:`#include <WiFi.h>
+#include <WebServer.h>
+
+const char* ssid = "YOUR_WIFI_NAME";
+const char* password = "YOUR_WIFI_PASSWORD";
+
+#define RELAY_PIN 26
+
+WebServer server(80);
+
+void handleOn() {
+  digitalWrite(RELAY_PIN, HIGH);
+  server.send(200, "text/plain", "Light ON");
+}
+
+void handleOff() {
+  digitalWrite(RELAY_PIN, LOW);
+  server.send(200, "text/plain", "Light OFF");
+}
+
+void setup() {
+  pinMode(RELAY_PIN, OUTPUT);
+  digitalWrite(RELAY_PIN, LOW);
+
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+  }
+
+  server.on("/on", handleOn);
+  server.on("/off", handleOff);
+  server.begin();
+}
+
+void loop() {
+  server.handleClient();
+}`},testing_and_output:["Upload code to ESP32","Connect ESP32 to WiFi","Create IFTTT applet for voice command","Say 'Turn on the light'","Relay clicks and light turns ON","Say 'Turn off the light'","Light turns OFF"],common_errors:["Incorrect ESP32 IP address in IFTTT","Relay module not powered with 5V","Using GPIO pins that boot ESP32 incorrectly","No common ground"],limitations:["Requires internet connection","Voice processing depends on Google services","Single appliance control (expandable)"],improvements_next_level:["Control multiple appliances","Use MQTT instead of HTTP","Add authentication token","Offline voice assistant using Raspberry Pi"],mini_challenge_for_learner:"Modify the system to control two appliances using different voice commands.",author_name:"NISHANTH",status:"Published"},{id:303,title:"Object Detection using OpenCV and Raspberry Pi",level:"AI + Embedded (Intermediate – Computer Vision)",category:"AI + Embedded + Machine Learning",estimatedTime:"9–11 Hours",problem_statement:"Conventional cameras can only record video and cannot understand what they see. Object detection enables machines to identify and locate real-world objects, which is essential for automation, surveillance, and robotics.",real_world_use_case:["Smart surveillance systems","Retail analytics (people and object monitoring)","Traffic monitoring","Robotics vision systems"],note_on_ai_usage:"This project uses a pre-trained deep learning model for object detection. No training is done on Raspberry Pi due to hardware limitations. Only inference (prediction) runs on the device.",ai_concept:{type:"Deep Learning – Computer Vision",task:"Object Detection",model:"MobileNet-SSD",dataset:"COCO / PASCAL VOC (pre-trained)",why_this_model:"Lightweight, optimized for low-power edge devices like Raspberry Pi"},system_block_flow:["Camera → Raspberry Pi","Image Preprocessing → Blob Creation","Deep Learning Model Inference","Bounding Box + Class Label Output","Display / Decision Logic"],components:[{name:"Raspberry Pi 4 (2GB)",quantity:1,specification:"Quad-core ARM, 5V 3A",indian_cost:"₹2,800",alternatives:["Raspberry Pi 3B+"]},{name:"USB Webcam / Pi Camera",quantity:1,specification:"720p or higher resolution",indian_cost:"₹700",alternatives:["Pi Camera Module v2"]},{name:"Micro SD Card",quantity:1,specification:"16GB or higher, Class 10",indian_cost:"₹300"},{name:"5V Power Supply",quantity:1,specification:"3A recommended",indian_cost:"₹300"}],total_estimated_cost_india:"₹4,000 – ₹4,200",pin_configuration:{raspberry_pi:[{module:"Camera",pinName:"USB / CSI",gpio:"USB / CSI Port",voltage:"5V (internal)",direction:"Input",description:"Video input to Raspberry Pi"}]},working_explanation:["1. Raspberry Pi captures live video frames from the camera.","2. Each frame is resized and normalized to match the input size of the neural network.","3. A blob is created from the image to prepare it for deep learning inference.","4. The MobileNet-SSD model processes the blob and detects objects.","5. For each detected object, the model outputs class ID, confidence score, and bounding box.","6. Only detections above a confidence threshold (e.g., 60%) are considered valid.","7. Bounding boxes and labels are drawn on the frame.","8. The annotated frame is displayed in real time."],software_stack:["Raspberry Pi OS","Python 3","OpenCV (with DNN module)","NumPy"],code:{language:"Python",file:"object_detection.py",content:`import cv2
+import numpy as np
+
+prototxt = 'deploy.prototxt'
+model = 'mobilenet_iter_73000.caffemodel'
+
+net = cv2.dnn.readNetFromCaffe(prototxt, model)
+cap = cv2.VideoCapture(0)
+
+CLASSES = ['background', 'aeroplane', 'bicycle', 'bird', 'boat', 'bottle',
+           'bus', 'car', 'cat', 'chair', 'cow', 'diningtable', 'dog', 'horse',
+           'motorbike', 'person', 'pottedplant', 'sheep', 'sofa', 'train', 'tvmonitor']
+
+while True:
+    ret, frame = cap.read()
+    if not ret:
+        break
+
+    (h, w) = frame.shape[:2]
+    blob = cv2.dnn.blobFromImage(frame, 0.007843, (300, 300), 127.5)
+    net.setInput(blob)
+    detections = net.forward()
+
+    for i in range(detections.shape[2]):
+        confidence = detections[0, 0, i, 2]
+        if confidence > 0.6:
+            idx = int(detections[0, 0, i, 1])
+            box = detections[0, 0, i, 3:7] * np.array([w, h, w, h])
+            (startX, startY, endX, endY) = box.astype('int')
+
+            label = f"{CLASSES[idx]}: {confidence:.2f}"
+            cv2.rectangle(frame, (startX, startY), (endX, endY), (0, 255, 0), 2)
+            cv2.putText(frame, label, (startX, startY - 10),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+
+    cv2.imshow('Object Detection', frame)
+    if cv2.waitKey(1) & 0xFF == 27:
+        break
+
+cap.release()
+cv2.destroyAllWindows()`},testing_and_output:["Run the Python script","Show different objects to the camera","Detected objects are highlighted with labels","Confidence score visible on screen"],common_errors:["Model files not found or wrong path","Low FPS due to high resolution","Insufficient lighting","Running on Raspberry Pi Zero (not supported)"],limitations:["Lower FPS compared to desktop systems","Limited number of detectable object classes","Accuracy depends on lighting and camera angle"],improvements_next_level:["Use TensorFlow Lite for better performance","Detect only specific objects (person-only detection)","Send detection data to cloud via MQTT","Add alert system for specific objects"],mini_challenge_for_learner:"Modify the system to detect only people and ignore all other objects.",author_name:"NISHANTH",status:"Published"},{id:304,title:"Smart Attendance System using Face Recognition",level:"AI + Embedded (Intermediate – Vision & Security Systems)",category:"AI + Embedded + Machine Learning",estimatedTime:"10–12 Hours",problem_statement:"Manual attendance systems are time-consuming, prone to proxy attendance, and inefficient. An automated face recognition-based attendance system improves accuracy, saves time, and provides digital records.",real_world_use_case:["Colleges and universities","Corporate offices","Training centers","Workshops and conferences"],note_on_ai_usage:"This project uses FACE RECOGNITION, not just face detection. The system identifies individuals by comparing facial features with a stored database.",ai_concept:{type:"Computer Vision + Pattern Recognition",task:"Face Recognition",technique:"Face Embeddings + Distance Matching",model:"HOG-based face detector + ResNet face encoder (dlib)",why_this_model:"Accurate and efficient for CPU-based systems like Raspberry Pi"},system_block_flow:["Camera → Raspberry Pi","Face Detection → Face Encoding","Encoding Comparison with Database","Identity Match Decision","Attendance Logging (CSV / Database)"],components:[{name:"Raspberry Pi 4 (2GB)",quantity:1,specification:"Quad-core ARM, 5V 3A",indian_cost:"₹2,800",alternatives:["Raspberry Pi 3B+"]},{name:"USB Webcam / Pi Camera",quantity:1,specification:"720p or higher",indian_cost:"₹700",alternatives:["Pi Camera Module v2"]},{name:"Micro SD Card",quantity:1,specification:"16GB or higher",indian_cost:"₹300"},{name:"5V Power Adapter",quantity:1,specification:"3A recommended",indian_cost:"₹300"}],total_estimated_cost_india:"₹4,000 – ₹4,200",pin_configuration:{raspberry_pi:[{module:"Camera",pinName:"USB / CSI",gpio:"USB / CSI Port",voltage:"5V (internal)",direction:"Input",description:"Video input to Raspberry Pi"}]},working_explanation:["1. The system starts by loading stored face images of authorized users.","2. Each stored image is processed to extract a unique face embedding (numerical feature vector).","3. The camera captures live video frames continuously.","4. Faces are detected in each frame using a HOG-based face detector.","5. For every detected face, a new face embedding is generated.","6. The new embedding is compared with stored embeddings using Euclidean distance.","7. If the distance is below a defined threshold, the person is identified.","8. Once identified, attendance is marked with name, date, and time.","9. Duplicate attendance for the same person on the same day is prevented."],software_stack:["Raspberry Pi OS","Python 3","OpenCV","face_recognition (dlib)","NumPy","CSV / SQLite"],code:{language:"Python",file:"face_attendance.py",content:`import face_recognition
+import cv2
+import os
+import csv
+from datetime import datetime
+
+KNOWN_FACES_DIR = 'known_faces'
+ATTENDANCE_FILE = 'attendance.csv'
+
+known_encodings = []
+known_names = []
+
+for name in os.listdir(KNOWN_FACES_DIR):
+    image = face_recognition.load_image_file(f"{KNOWN_FACES_DIR}/{name}")
+    encoding = face_recognition.face_encodings(image)[0]
+    known_encodings.append(encoding)
+    known_names.append(os.path.splitext(name)[0])
+
+cap = cv2.VideoCapture(0)
+marked_today = set()
+
+with open(ATTENDANCE_FILE, 'a', newline='') as file:
+    writer = csv.writer(file)
+
+    while True:
+        ret, frame = cap.read()
+        rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        locations = face_recognition.face_locations(rgb)
+        encodings = face_recognition.face_encodings(rgb, locations)
+
+        for encoding in encodings:
+            matches = face_recognition.compare_faces(known_encodings, encoding, tolerance=0.45)
+            if True in matches:
+                index = matches.index(True)
+                name = known_names[index]
+                if name not in marked_today:
+                    time_now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                    writer.writerow([name, time_now])
+                    marked_today.add(name)
+
+        cv2.imshow('Attendance System', frame)
+        if cv2.waitKey(1) & 0xFF == 27:
+            break
+
+cap.release()
+cv2.destroyAllWindows()`},testing_and_output:["Add authorized face images to known_faces folder","Run the script","Stand in front of camera","Name and timestamp added to attendance file","Attendance recorded only once per session"],common_errors:["Low-quality training images","Poor lighting causing false rejection","Multiple faces too close together","High CPU usage on Raspberry Pi"],limitations:["No liveness detection","Performance drops with many users","Sensitive to lighting changes"],improvements_next_level:["Add liveness detection (blink detection)","Use database instead of CSV","Upload attendance to cloud","Add admin dashboard"],mini_challenge_for_learner:"Prevent attendance marking if the same face appears again within 10 minutes.",author_name:"NISHANTH",status:"Published"},{id:305,title:"Gesture Controlled Robot using MPU6050",level:"AI + Embedded (Intermediate – Human Machine Interface)",category:"AI + Embedded + Machine Learning",estimatedTime:"8–10 Hours",problem_statement:"Traditional button-based controllers are unintuitive and limit natural interaction. Gesture-controlled robots allow humans to control machines using natural hand movements, improving usability and response speed.",real_world_use_case:["Assistive robotics","Industrial robot teleoperation","Defense robots","VR and AR interaction systems","Hazardous environment robots"],note_on_ai_usage:"This project is a PRE-AI foundation project. Gesture control is rule-based here. It prepares data and logic required for future machine-learning-based gesture classification.",ai_concept:{type:"Sensor-based Motion Interpretation",current_method:"Rule-based orientation mapping",future_upgrade:"ML-based gesture classification (SVM / CNN)",why_this_stage:"Understanding raw sensor data is mandatory before applying ML models"},system_block_flow:["Hand Movement → MPU6050 Sensor","Raw Accelerometer & Gyro Data","Orientation Calculation (Pitch & Roll)","Decision Logic","Motor Driver Control","Robot Movement"],components:[{name:"ESP32 Development Board",quantity:1,specification:"Dual-core MCU, 3.3V logic",indian_cost:"₹450",alternatives:["Arduino Nano","Arduino UNO"]},{name:"MPU6050 IMU Sensor",quantity:1,specification:"3-axis Accelerometer + Gyroscope",indian_cost:"₹180"},{name:"L298N Motor Driver",quantity:1,specification:"Dual H-Bridge, 5–35V",indian_cost:"₹250"},{name:"DC Motors",quantity:2,specification:"150–300 RPM",indian_cost:"₹300"},{name:"Robot Chassis + Wheels",quantity:1,specification:"2-wheel drive",indian_cost:"₹350"},{name:"Battery Pack",quantity:1,specification:"7.4V Li-ion / 9V",indian_cost:"₹300"}],total_estimated_cost_india:"₹1,700 – ₹2,000",pin_configuration:{esp32:[{module:"MPU6050",pinName:"VCC",gpio:"3V3",voltage:"3.3V",direction:"Power",description:"Power supply for MPU6050"},{module:"MPU6050",pinName:"GND",gpio:"GND",voltage:"0V",direction:"Ground",description:"Common ground"},{module:"MPU6050",pinName:"SDA",gpio:"GPIO21",voltage:"3.3V logic",direction:"I2C Data",description:"I2C data line"},{module:"MPU6050",pinName:"SCL",gpio:"GPIO22",voltage:"3.3V logic",direction:"I2C Clock",description:"I2C clock line"},{module:"L298N",pinName:"IN1",gpio:"GPIO26",voltage:"3.3V logic",direction:"Output",description:"Left motor forward"},{module:"L298N",pinName:"IN2",gpio:"GPIO27",voltage:"3.3V logic",direction:"Output",description:"Left motor backward"},{module:"L298N",pinName:"IN3",gpio:"GPIO14",voltage:"3.3V logic",direction:"Output",description:"Right motor forward"},{module:"L298N",pinName:"IN4",gpio:"GPIO12",voltage:"3.3V logic",direction:"Output",description:"Right motor backward"}]},working_explanation:["1. The MPU6050 sensor is fixed on the user's hand.","2. Accelerometer data provides tilt direction (X and Y axes).","3. ESP32 reads raw acceleration values via I2C communication.","4. Threshold values are applied to determine hand tilt direction.","5. Each tilt direction is mapped to a robot movement command.","6. ESP32 sends control signals to the L298N motor driver.","7. Motors rotate accordingly, moving the robot.","8. Neutral hand position stops the robot."],software_stack:["Arduino IDE","ESP32 Board Package","Wire (I2C) Library","MPU6050 Library"],code:{language:"C++ (Arduino)",file:"gesture_robot.ino",content:`#include <Wire.h>
+#include <MPU6050.h>
+
+MPU6050 mpu;
+
+#define L1 26
+#define L2 27
+#define R1 14
+#define R2 12
+
+void setup() {
+  Wire.begin();
+  mpu.initialize();
+
+  pinMode(L1, OUTPUT);
+  pinMode(L2, OUTPUT);
+  pinMode(R1, OUTPUT);
+  pinMode(R2, OUTPUT);
+}
+
+void loop() {
+  int16_t ax, ay, az;
+  mpu.getAcceleration(&ax, &ay, &az);
+
+  if (ay > 8000) {
+    digitalWrite(L1, HIGH); digitalWrite(L2, LOW);
+    digitalWrite(R1, HIGH); digitalWrite(R2, LOW);
+  }
+  else if (ay < -8000) {
+    digitalWrite(L1, LOW); digitalWrite(L2, HIGH);
+    digitalWrite(R1, LOW); digitalWrite(R2, HIGH);
+  }
+  else if (ax > 8000) {
+    digitalWrite(L1, LOW); digitalWrite(L2, LOW);
+    digitalWrite(R1, HIGH); digitalWrite(R2, LOW);
+  }
+  else if (ax < -8000) {
+    digitalWrite(L1, HIGH); digitalWrite(L2, LOW);
+    digitalWrite(R1, LOW); digitalWrite(R2, LOW);
+  }
+  else {
+    digitalWrite(L1, LOW); digitalWrite(L2, LOW);
+    digitalWrite(R1, LOW); digitalWrite(R2, LOW);
+  }
+}`},testing_and_output:["Wear the MPU6050 module on hand","Tilt hand forward → robot moves forward","Tilt backward → robot moves backward","Tilt left/right → robot turns","Neutral position → robot stops"],common_errors:["Improper MPU6050 calibration","Loose I2C connections","Noise causing unwanted movement","Battery voltage drop affecting motors"],limitations:["No gesture learning","Sensitive to hand shake","No wireless separation between hand and robot"],improvements_next_level:["Wireless control using ESP-NOW or Bluetooth","Kalman filter for noise reduction","ML-based gesture classification","Speed control using PWM"],mini_challenge_for_learner:"Add diagonal movement using combined X and Y axis gestures.",author_name:"NISHANTH",status:"Published"},{id:306,title:"AI Voice Assistant using Raspberry Pi",level:"AI + Embedded (Intermediate – Voice & NLP Systems)",category:"AI + Embedded + Machine Learning",estimatedTime:"10–12 Hours",problem_statement:"Human–computer interaction using keyboards and screens is inefficient for many scenarios. Voice assistants enable hands-free, natural interaction, especially useful for accessibility, automation, and smart environments.",real_world_use_case:["Smart home control hubs","Assistive technology for elderly or disabled users","Voice-driven IoT dashboards","Hands-free industrial terminals","Educational AI systems"],ai_concept:{type:"Speech Recognition + Natural Language Processing",speech_to_text:"Google Speech API / Offline Vosk",intent_processing:"Rule-based NLP (can be upgraded to ML)",text_to_speech:"pyttsx3 (offline TTS)",ai_positioning:"Applied AI (Inference-based, not training)"},system_block_flow:["Human Speech","Microphone","Speech-to-Text Engine","Text Processing & Intent Detection","Command Execution","Text-to-Speech Response"],components:[{name:"Raspberry Pi 4 Model B",quantity:1,specification:"4GB RAM recommended",indian_cost:"₹3,500",alternatives:["Raspberry Pi 3B+"]},{name:"USB Microphone",quantity:1,specification:"Plug-and-play condenser mic",indian_cost:"₹500"},{name:"Speaker",quantity:1,specification:"3W / USB powered",indian_cost:"₹400"},{name:"Micro SD Card",quantity:1,specification:"32GB Class 10",indian_cost:"₹350"},{name:"Power Supply",quantity:1,specification:"5V 3A USB-C Adapter",indian_cost:"₹400"}],total_estimated_cost_india:"₹5,000 – ₹5,500",pin_configuration:{raspberry_pi:[{module:"USB Microphone",pinName:"USB",gpio:"USB Port",voltage:"5V (USB)",direction:"Input",description:"Captures user voice input"},{module:"Speaker",pinName:"USB / Audio Jack",gpio:"USB / 3.5mm",voltage:"5V / Audio Signal",direction:"Output",description:"Outputs synthesized voice response"}]},working_explanation:["1. User speaks a command near the USB microphone.","2. Microphone converts sound waves into digital audio signals.","3. SpeechRecognition library captures audio stream.","4. Audio is sent to speech-to-text engine (online or offline).","5. Converted text is analyzed using rule-based intent logic.","6. Matching command triggers corresponding system action.","7. Text-to-speech engine generates spoken response.","8. Speaker outputs the voice response to the user."],supported_commands_example:["What is the time","Open browser","Shutdown system","Say hello"],software_stack:["Raspberry Pi OS","Python 3","SpeechRecognition Library","pyttsx3","PyAudio","OS System Libraries"],code:{language:"Python",file:"voice_assistant.py",content:`import speech_recognition as sr
+import pyttsx3
+import datetime
+import os
+
+engine = pyttsx3.init()
+recognizer = sr.Recognizer()
+
+def speak(text):
+    engine.say(text)
+    engine.runAndWait()
+
+speak('Voice assistant started')
+
+with sr.Microphone() as source:
+    recognizer.adjust_for_ambient_noise(source, duration=1)
+    audio = recognizer.listen(source)
+
+try:
+    command = recognizer.recognize_google(audio).lower()
+
+    if 'time' in command:
+        now = datetime.datetime.now().strftime('%H:%M')
+        speak(f'The time is {now}')
+
+    elif 'open browser' in command:
+        os.system('chromium-browser &')
+        speak('Opening browser')
+
+    elif 'shutdown' in command:
+        speak('Shutting down system')
+        os.system('sudo shutdown now')
+
+    elif 'hello' in command:
+        speak('Hello, how can I help you')
+
+    else:
+        speak('Sorry, command not recognized')
+
+except sr.UnknownValueError:
+    speak('I could not understand')
+except sr.RequestError:
+    speak('Speech service unavailable')`},testing_and_output:["Run Python script on Raspberry Pi","Speak supported command clearly","System executes command","Voice response confirms action"],common_errors:["Microphone not detected by OS","PyAudio installation failure","Internet required for Google STT","Ambient noise reducing accuracy"],limitations:["Depends on internet for online STT","Rule-based intent detection only","Single-command execution"],improvements_next_level:["Offline STT using Vosk","Wake-word detection","ESP32 / IoT device control","ML-based intent classification","Continuous listening mode"],mini_challenge_for_learner:"Add voice command to control an LED connected to GPIO.",author_name:"NISHANTH",status:"Published"},{id:306,title:"AI Voice Assistant using Raspberry Pi",level:"AI + Embedded (Intermediate – Voice & NLP Systems)",category:"AI + Embedded + Machine Learning",estimatedTime:"10–12 Hours",problem_statement:"Human–computer interaction using keyboards and screens is inefficient for many scenarios. Voice assistants enable hands-free, natural interaction, especially useful for accessibility, automation, and smart environments.",real_world_use_case:["Smart home control hubs","Assistive technology for elderly or disabled users","Voice-driven IoT dashboards","Hands-free industrial terminals","Educational AI systems"],ai_concept:{type:"Speech Recognition + Natural Language Processing",speech_to_text:"Google Speech API / Offline Vosk",intent_processing:"Rule-based NLP (can be upgraded to ML)",text_to_speech:"pyttsx3 (offline TTS)",ai_positioning:"Applied AI (Inference-based, not training)"},system_block_flow:["Human Speech","Microphone","Speech-to-Text Engine","Text Processing & Intent Detection","Command Execution","Text-to-Speech Response"],components:[{name:"Raspberry Pi 4 Model B",quantity:1,specification:"4GB RAM recommended",indian_cost:"₹3,500",alternatives:["Raspberry Pi 3B+"]},{name:"USB Microphone",quantity:1,specification:"Plug-and-play condenser mic",indian_cost:"₹500"},{name:"Speaker",quantity:1,specification:"3W / USB powered",indian_cost:"₹400"},{name:"Micro SD Card",quantity:1,specification:"32GB Class 10",indian_cost:"₹350"},{name:"Power Supply",quantity:1,specification:"5V 3A USB-C Adapter",indian_cost:"₹400"}],total_estimated_cost_india:"₹5,000 – ₹5,500",pin_configuration:{raspberry_pi:[{module:"USB Microphone",pinName:"USB",gpio:"USB Port",voltage:"5V (USB)",direction:"Input",description:"Captures user voice input"},{module:"Speaker",pinName:"USB / Audio Jack",gpio:"USB / 3.5mm",voltage:"5V / Audio Signal",direction:"Output",description:"Outputs synthesized voice response"}]},working_explanation:["1. User speaks a command near the USB microphone.","2. Microphone converts sound waves into digital audio signals.","3. SpeechRecognition library captures audio stream.","4. Audio is sent to speech-to-text engine (online or offline).","5. Converted text is analyzed using rule-based intent logic.","6. Matching command triggers corresponding system action.","7. Text-to-speech engine generates spoken response.","8. Speaker outputs the voice response to the user."],supported_commands_example:["What is the time","Open browser","Shutdown system","Say hello"],software_stack:["Raspberry Pi OS","Python 3","SpeechRecognition Library","pyttsx3","PyAudio","OS System Libraries"],code:{language:"Python",file:"voice_assistant.py",content:`import speech_recognition as sr
+import pyttsx3
+import datetime
+import os
+
+engine = pyttsx3.init()
+recognizer = sr.Recognizer()
+
+def speak(text):
+    engine.say(text)
+    engine.runAndWait()
+
+speak('Voice assistant started')
+
+with sr.Microphone() as source:
+    recognizer.adjust_for_ambient_noise(source, duration=1)
+    audio = recognizer.listen(source)
+
+try:
+    command = recognizer.recognize_google(audio).lower()
+
+    if 'time' in command:
+        now = datetime.datetime.now().strftime('%H:%M')
+        speak(f'The time is {now}')
+
+    elif 'open browser' in command:
+        os.system('chromium-browser &')
+        speak('Opening browser')
+
+    elif 'shutdown' in command:
+        speak('Shutting down system')
+        os.system('sudo shutdown now')
+
+    elif 'hello' in command:
+        speak('Hello, how can I help you')
+
+    else:
+        speak('Sorry, command not recognized')
+
+except sr.UnknownValueError:
+    speak('I could not understand')
+except sr.RequestError:
+    speak('Speech service unavailable')`},testing_and_output:["Run Python script on Raspberry Pi","Speak supported command clearly","System executes command","Voice response confirms action"],common_errors:["Microphone not detected by OS","PyAudio installation failure","Internet required for Google STT","Ambient noise reducing accuracy"],limitations:["Depends on internet for online STT","Rule-based intent detection only","Single-command execution"],improvements_next_level:["Offline STT using Vosk","Wake-word detection","ESP32 / IoT device control","ML-based intent classification","Continuous listening mode"],mini_challenge_for_learner:"Add voice command to control an LED connected to GPIO.",author_name:"NISHANTH",status:"Published"},{id:307,title:"Emotion Detection using Webcam",level:"AI + Embedded (Intermediate – Computer Vision & Deep Learning)",category:"AI + Embedded + Machine Learning",estimatedTime:"10–12 Hours",problem_statement:"Machines cannot naturally understand human emotions. Lack of emotional awareness limits effective human–computer interaction in education, healthcare, and customer-facing systems.",real_world_use_case:["Smart classrooms (student engagement analysis)","Mental health monitoring tools","Customer sentiment analysis kiosks","Human–robot interaction systems","Driver monitoring systems"],ai_concept:{type:"Deep Learning – Facial Expression Recognition",model:"Convolutional Neural Network (CNN)",dataset:"FER-2013 (Facial Expression Recognition)",learning_type:"Supervised Learning",output_classes:["Angry","Disgust","Fear","Happy","Sad","Surprise","Neutral"]},system_block_flow:["Webcam","Face Detection (Haar Cascade)","Face Preprocessing","CNN Emotion Classifier","Emotion Label Output"],components:[{name:"Raspberry Pi 4 Model B",quantity:1,specification:"4GB RAM recommended",indian_cost:"₹3,500",alternatives:["Laptop / PC (for faster inference)"]},{name:"USB Webcam",quantity:1,specification:"720p minimum",indian_cost:"₹700"},{name:"Micro SD Card",quantity:1,specification:"32GB Class 10",indian_cost:"₹350"},{name:"Power Supply",quantity:1,specification:"5V 3A Adapter",indian_cost:"₹400"}],total_estimated_cost_india:"₹4,800 – ₹5,200",pin_configuration:{raspberry_pi:[{module:"USB Webcam",pinName:"USB",gpio:"USB Port",voltage:"5V (USB)",direction:"Input",description:"Captures live facial images"}]},working_explanation:["1. Webcam continuously captures live video frames.","2. Each frame is converted to grayscale for faster processing.","3. Haar Cascade classifier detects face regions in the frame.","4. Detected face is cropped and resized to 48×48 pixels.","5. Image is normalized and reshaped for CNN input.","6. CNN predicts emotion probabilities for each class.","7. Emotion with highest probability is selected.","8. Emotion label is displayed on the video stream."],software_stack:["Raspberry Pi OS","Python 3","OpenCV","TensorFlow / Keras","NumPy"],model_details:{input_shape:"48×48×1 (Grayscale)",architecture:["Conv2D","MaxPooling","Dropout","Fully Connected Layers","Softmax Output"],inference_type:"Edge inference (on Raspberry Pi)"},code:{language:"Python",file:"emotion_detection.py",content:`import cv2
+import numpy as np
+from tensorflow.keras.models import load_model
+
+# Load trained emotion model
+model = load_model('emotion_model.h5')
+
+# Load Haar Cascade for face detection
+face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+
+emotion_labels = ['Angry', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral']
+
+cap = cv2.VideoCapture(0)
+
+while True:
+    ret, frame = cap.read()
+    if not ret:
+        break
+
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.3, minNeighbors=5)
+
+    for (x, y, w, h) in faces:
+        roi_gray = gray[y:y+h, x:x+w]
+        roi_gray = cv2.resize(roi_gray, (48, 48))
+        roi_gray = roi_gray / 255.0
+        roi_gray = roi_gray.reshape(1, 48, 48, 1)
+
+        predictions = model.predict(roi_gray)
+        emotion_index = np.argmax(predictions)
+        emotion_text = emotion_labels[emotion_index]
+
+        cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
+        cv2.putText(frame, emotion_text, (x, y-10),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.9, (255, 0, 0), 2)
+
+    cv2.imshow('Emotion Detection', frame)
+
+    if cv2.waitKey(1) & 0xFF == 27:
+        break
+
+cap.release()
+cv2.destroyAllWindows()`},testing_and_output:["Run Python script","Show face clearly to webcam","Detected emotion appears above face","Real-time emotion updates with facial change"],common_errors:["Low lighting causing misclassification","Wrong input image size to model","Model file path incorrect","High CPU usage on Raspberry Pi"],limitations:["Accuracy depends on lighting and camera quality","Emotion prediction is probabilistic","Not suitable for medical diagnosis"],improvements_next_level:["Use TensorFlow Lite for faster inference","Temporal smoothing over multiple frames","Combine audio emotion detection","Deploy on Edge TPU","Emotion-triggered automation"],mini_challenge_for_learner:"Trigger different LED colors for different detected emotions.",ethical_note:"Emotion detection should not be used for decision-making affecting personal rights.",author_name:"NISHANTH",status:"Published"},{id:308,title:"Intruder Detection using AI Camera",level:"AI + Embedded (Intermediate – Vision-based Security Systems)",category:"AI + Embedded + Machine Learning",estimatedTime:"10–12 Hours",problem_statement:"Traditional motion sensors trigger false alarms due to pets, shadows, or lighting changes. A vision-based AI system can accurately distinguish humans from other movements, improving security reliability.",real_world_use_case:["Home security systems","Office surveillance","Warehouse intrusion monitoring","Restricted-area protection","Smart campus security"],ai_concept:{type:"Computer Vision – Object Detection",model:"MobileNet-SSD / YOLOv5 (Person class)",learning_type:"Supervised Learning (Pre-trained model)",inference_location:"Edge (Raspberry Pi)"},system_block_flow:["Camera","Frame Capture","AI Object Detection","Human (Person) Classification","Decision Logic","Alert / Actuator Trigger"],components:[{name:"Raspberry Pi 4 Model B",quantity:1,specification:"4GB RAM recommended",indian_cost:"₹3,500",alternatives:["Raspberry Pi 3B+"]},{name:"USB Webcam / Pi Camera",quantity:1,specification:"720p or higher",indian_cost:"₹700"},{name:"Active Buzzer",quantity:1,specification:"3.3V compatible",indian_cost:"₹80"},{name:"Micro SD Card",quantity:1,specification:"32GB Class 10",indian_cost:"₹350"},{name:"Power Supply",quantity:1,specification:"5V 3A Adapter",indian_cost:"₹400"}],total_estimated_cost_india:"₹5,000 – ₹5,200",pin_configuration:{raspberry_pi:[{module:"Buzzer",pinName:"VCC",gpio:"3.3V",voltage:"3.3V",direction:"Power",description:"Supplies power to buzzer"},{module:"Buzzer",pinName:"GND",gpio:"GND",voltage:"0V",direction:"Ground",description:"Common ground"},{module:"Buzzer",pinName:"IN",gpio:"GPIO18",voltage:"3.3V Logic",direction:"Output",description:"Triggers buzzer when intruder detected"},{module:"Camera",pinName:"USB / CSI",gpio:"USB Port / CSI Slot",voltage:"5V / CSI",direction:"Input",description:"Captures live video feed"}]},working_explanation:["1. Camera continuously captures live video frames.","2. Each frame is resized and preprocessed for AI inference.","3. Object detection model analyzes the frame.","4. Detected objects are classified into predefined classes.","5. System filters detections to 'Person' class only.","6. Confidence score is compared against threshold.","7. If human detected consistently, alert is triggered.","8. Buzzer activates and message is displayed/logged."],software_stack:["Raspberry Pi OS","Python 3","OpenCV","TensorFlow Lite / YOLO","RPi.GPIO","NumPy"],model_details:{input_resolution:"300×300 (MobileNet-SSD)",fps:"8–12 FPS on Raspberry Pi 4",confidence_threshold:"0.6",target_class:"Person"},code:{language:"Python",file:"intruder_detection.py",content:`import cv2
+import RPi.GPIO as GPIO
+import time
+
+BUZZER = 18
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(BUZZER, GPIO.OUT)
+GPIO.output(BUZZER, GPIO.LOW)
+
+net = cv2.dnn.readNetFromCaffe(
+    'deploy.prototxt',
+    'mobilenet_iter_73000.caffemodel'
+)
+
+cap = cv2.VideoCapture(0)
+
+while True:
+    ret, frame = cap.read()
+    if not ret:
+        break
+
+    blob = cv2.dnn.blobFromImage(frame, 0.007843, (300, 300), 127.5)
+    net.setInput(blob)
+    detections = net.forward()
+
+    intruder_detected = False
+
+    for i in range(detections.shape[2]):
+        confidence = detections[0, 0, i, 2]
+        class_id = int(detections[0, 0, i, 1])
+
+        if class_id == 15 and confidence > 0.6:  # Person class
+            intruder_detected = True
+
+    if intruder_detected:
+        GPIO.output(BUZZER, GPIO.HIGH)
+        cv2.putText(frame, 'INTRUDER DETECTED', (20, 40),
+                    cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 3)
+    else:
+        GPIO.output(BUZZER, GPIO.LOW)
+
+    cv2.imshow('Intruder Detection', frame)
+
+    if cv2.waitKey(1) & 0xFF == 27:
+        break
+
+cap.release()
+GPIO.cleanup()
+cv2.destroyAllWindows()`},testing_and_output:["Run the script on Raspberry Pi","Walk in front of the camera","Human detection triggers buzzer","Non-human movement ignored"],common_errors:["Wrong model files path","Low FPS due to high resolution","False positives due to reflections","GPIO permission issues"],limitations:["Performance drops in low light","Single camera coverage","CPU-intensive on Raspberry Pi"],improvements_next_level:["Add PIR sensor for sensor fusion","Send alerts via MQTT / Telegram","Enable night vision IR camera","Use Edge TPU for acceleration","Cloud-based event logging"],mini_challenge_for_learner:"Trigger alert only if person is detected for 3 consecutive seconds.",author_name:"NISHANTH",status:"Published"},{id:309,title:"Automatic Hand Sanitizer Dispenser with IR Sensor",level:"AI + Embedded (Foundation – Smart Automation System)",category:"AI + Embedded + Machine Learning",estimatedTime:"4–6 Hours",problem_statement:"Manual sanitizer dispensers increase the risk of cross-contamination and are inefficient in public places. A contactless automated dispenser improves hygiene and reduces disease transmission.",real_world_use_case:["Hospitals and clinics","Schools and colleges","Airports and railway stations","Office buildings","Shopping malls"],ai_concept:{type:"Rule-based Embedded Intelligence",reason:"This application requires deterministic, fast response rather than probabilistic AI",upgrade_path:"Can be extended with usage analytics or AI-based people counting"},system_block_flow:["IR Proximity Sensor","Signal Conditioning","Microcontroller (ESP32 / Arduino)","Relay / Motor Driver","Pump / Servo Motor","Sanitizer Dispensing"],components:[{name:"ESP32 Development Board",quantity:1,specification:"WiFi-enabled microcontroller",indian_cost:"₹350",alternatives:["Arduino UNO"]},{name:"IR Proximity Sensor Module",quantity:1,specification:"Digital output, adjustable sensitivity",indian_cost:"₹80"},{name:"Relay Module (5V, Single Channel)",quantity:1,specification:"Opto-isolated relay",indian_cost:"₹120",alternatives:["Logic-level MOSFET module"]},{name:"DC Water Pump / Mini Pump",quantity:1,specification:"5–6V DC pump",indian_cost:"₹250"},{name:"Power Supply",quantity:1,specification:"5V 2A Adapter / Battery Pack",indian_cost:"₹200"}],total_estimated_cost_india:"₹900 – ₹1,100",pin_configuration:{esp32:[{module:"IR Sensor",pinName:"VCC",gpio:"3V3",voltage:"3.3V",direction:"Power",description:"Supplies power to IR sensor"},{module:"IR Sensor",pinName:"GND",gpio:"GND",voltage:"0V",direction:"Ground",description:"Common ground reference"},{module:"IR Sensor",pinName:"OUT",gpio:"GPIO34",voltage:"3.3V Logic",direction:"Input",description:"Goes LOW when hand is detected"},{module:"Relay Module",pinName:"VCC",gpio:"5V",voltage:"5V",direction:"Power",description:"Relay operating voltage"},{module:"Relay Module",pinName:"GND",gpio:"GND",voltage:"0V",direction:"Ground",description:"Common ground with ESP32"},{module:"Relay Module",pinName:"IN",gpio:"GPIO25",voltage:"3.3V Logic",direction:"Output",description:"Controls ON/OFF state of pump"}]},working_explanation:["1. IR proximity sensor continuously emits infrared light.","2. When a hand is placed near the sensor, IR light reflects back.","3. Sensor output pin changes logic state (LOW).","4. ESP32 reads the sensor output via GPIO.","5. When detection is confirmed, ESP32 activates relay output.","6. Relay switches ON the DC pump.","7. Pump dispenses sanitizer for a fixed duration.","8. ESP32 switches OFF relay and enforces cooldown time."],software_stack:["ESP32 Arduino Core","Embedded C/C++"],code:{language:"C++ (Arduino)",file:"auto_sanitizer.ino",content:`#define IR_PIN 34
+#define RELAY_PIN 25
+
+unsigned long lastTrigger = 0;
+const unsigned long cooldownTime = 3000;
+
+void setup() {
+  pinMode(IR_PIN, INPUT);
+  pinMode(RELAY_PIN, OUTPUT);
+  digitalWrite(RELAY_PIN, LOW);
+}
+
+void loop() {
+  if (digitalRead(IR_PIN) == LOW) {
+    if (millis() - lastTrigger > cooldownTime) {
+      digitalWrite(RELAY_PIN, HIGH);
+      delay(800);  // dispense duration
+      digitalWrite(RELAY_PIN, LOW);
+      lastTrigger = millis();
+    }
+  }
+}`},testing_and_output:["Power ON the system","Place hand near IR sensor","Pump activates automatically","Sanitizer dispensed once per detection"],common_errors:["IR sensor sensitivity not calibrated","Insufficient power supply for pump","Relay not sharing common ground","Continuous triggering without cooldown"],limitations:["Cannot detect liquid level","No usage tracking","Rule-based logic only"],improvements_next_level:["Add ultrasonic sensor for liquid level","ESP32 WiFi dashboard for usage stats","Battery-powered solar version","AI-based people counting integration"],mini_challenge_for_learner:"Add an OLED display to show daily usage count.",author_name:"NISHANTH",status:"Published"},{id:310,title:"Smart Security Camera with Motion Detection",level:"AI + Embedded (Intermediate – Vision-based Monitoring)",category:"AI + Embedded + Machine Learning",estimatedTime:"6–8 Hours",problem_statement:"Continuous video recording wastes storage, power, and makes event analysis difficult. A motion-based smart camera records and alerts only when meaningful activity occurs.",real_world_use_case:["Home CCTV systems","Office surveillance","Retail shop security","Warehouse monitoring","Hostel and campus security"],ai_concept:{type:"Computer Vision (Classical Vision)",technique:"Frame Differencing + Contour Analysis",reason:"Lightweight and suitable for Raspberry Pi",upgrade_path:"AI-based human detection using deep learning"},system_block_flow:["Camera","Frame Capture","Grayscale Conversion","Frame Differencing","Thresholding & Contour Detection","Motion Decision Logic","Alert / Recording Trigger"],components:[{name:"Raspberry Pi 4 Model B",quantity:1,specification:"2GB / 4GB RAM",indian_cost:"₹3,500",alternatives:["Raspberry Pi 3B+"]},{name:"USB Webcam / Pi Camera",quantity:1,specification:"720p resolution",indian_cost:"₹700"},{name:"Active Buzzer",quantity:1,specification:"3.3V compatible",indian_cost:"₹80"},{name:"Micro SD Card",quantity:1,specification:"32GB Class 10",indian_cost:"₹350"},{name:"Power Adapter",quantity:1,specification:"5V 3A",indian_cost:"₹400"}],total_estimated_cost_india:"₹5,000 – ₹5,200",pin_configuration:{raspberry_pi:[{module:"Buzzer",pinName:"VCC",gpio:"3.3V",voltage:"3.3V",direction:"Power",description:"Supplies power to buzzer"},{module:"Buzzer",pinName:"GND",gpio:"GND",voltage:"0V",direction:"Ground",description:"Common ground"},{module:"Buzzer",pinName:"IN",gpio:"GPIO23",voltage:"3.3V Logic",direction:"Output",description:"Activated when motion is detected"},{module:"Camera",pinName:"USB / CSI",gpio:"USB Port / CSI Slot",voltage:"5V / CSI",direction:"Input",description:"Captures live video feed"}]},working_explanation:["1. Camera continuously captures video frames.","2. Two consecutive frames are converted to grayscale.","3. Absolute difference between frames is calculated.","4. Noise is reduced using Gaussian blur.","5. Thresholding converts differences into binary image.","6. Contours are extracted from thresholded image.","7. Large contour area indicates motion.","8. Motion event triggers buzzer and on-screen alert."],software_stack:["Raspberry Pi OS","Python 3","OpenCV","RPi.GPIO"],motion_detection_parameters:{min_contour_area:"3000 pixels",threshold_value:"20",blur_kernel:"5x5",fps:"12–15 FPS"},code:{language:"Python",file:"motion_camera.py",content:`import cv2
+import RPi.GPIO as GPIO
+
+BUZZER = 23
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(BUZZER, GPIO.OUT)
+GPIO.output(BUZZER, GPIO.LOW)
+
+cap = cv2.VideoCapture(0)
+ret, frame1 = cap.read()
+ret, frame2 = cap.read()
+
+while True:
+    diff = cv2.absdiff(frame1, frame2)
+    gray = cv2.cvtColor(diff, cv2.COLOR_BGR2GRAY)
+    blur = cv2.GaussianBlur(gray, (5, 5), 0)
+    _, thresh = cv2.threshold(blur, 20, 255, cv2.THRESH_BINARY)
+    dilated = cv2.dilate(thresh, None, iterations=3)
+    contours, _ = cv2.findContours(dilated, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+    motion_detected = False
+    for contour in contours:
+        if cv2.contourArea(contour) > 3000:
+            motion_detected = True
+            break
+
+    if motion_detected:
+        GPIO.output(BUZZER, GPIO.HIGH)
+        cv2.putText(frame1, 'MOTION DETECTED', (20, 40),
+                    cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 3)
+    else:
+        GPIO.output(BUZZER, GPIO.LOW)
+
+    cv2.imshow('Security Camera', frame1)
+    frame1 = frame2
+    ret, frame2 = cap.read()
+
+    if cv2.waitKey(1) & 0xFF == 27:
+        break
+
+cap.release()
+GPIO.cleanup()
+cv2.destroyAllWindows()`},testing_and_output:["Run the Python script","Move in front of camera","Motion text appears on screen","Buzzer activates on motion"],common_errors:["False triggers due to lighting change","Incorrect contour area threshold","Camera noise in low light","GPIO permission denied"],limitations:["Cannot differentiate human vs object","Sensitive to lighting changes","Single-camera coverage"],improvements_next_level:["Add AI-based person detection","Record video clips on motion","Send alerts via Telegram / MQTT","Integrate PIR + vision fusion","Night vision camera support"],mini_challenge_for_learner:"Save a video clip automatically when motion is detected.",author_name:"NISHANTH",status:"Published"},{id:311,title:"Voice Recognition using Arduino + Bluetooth",level:"AI + Embedded (Foundation – Voice-Controlled Systems)",category:"AI + Embedded + Machine Learning",estimatedTime:"5–6 Hours",problem_statement:"Low-cost microcontrollers like Arduino cannot perform speech recognition due to limited memory and processing power. By offloading speech recognition to a smartphone and using Bluetooth for communication, voice-controlled embedded systems become feasible and affordable.",real_world_use_case:["Voice-controlled robots","Home automation modules","Assistive devices for disabled users","Hands-free industrial controls","Educational robotics kits"],ai_concept:{type:"Speech Recognition (Cloud / Smartphone-based)",speech_processing_location:"Smartphone (Google Speech Engine)",embedded_role:"Command parsing and execution",learning_type:"Pre-trained speech model (no on-device training)"},system_block_flow:["Human Voice","Smartphone Microphone","Speech-to-Text Engine","Bluetooth Transmission","Arduino Command Parsing","Actuator Control"],components:[{name:"Arduino UNO",quantity:1,specification:"ATmega328P",indian_cost:"₹450",alternatives:["Arduino Nano"]},{name:"HC-05 Bluetooth Module",quantity:1,specification:"Classic Bluetooth, 9600 baud",indian_cost:"₹250"},{name:"Relay Module / LED",quantity:1,specification:"5V logic",indian_cost:"₹120"},{name:"Resistor Divider",quantity:2,specification:"1.8kΩ + 3.3kΩ",indian_cost:"₹20"},{name:"Power Supply",quantity:1,specification:"USB / 7–12V Adapter",indian_cost:"₹150"}],total_estimated_cost_india:"₹900 – ₹1,000",pin_configuration:{arduino:[{module:"HC-05",pinName:"VCC",gpio:"5V",voltage:"5V",direction:"Power",description:"Supplies power to Bluetooth module"},{module:"HC-05",pinName:"GND",gpio:"GND",voltage:"0V",direction:"Ground",description:"Common ground reference"},{module:"HC-05",pinName:"TXD",gpio:"D10",voltage:"3.3V Logic",direction:"Input",description:"Bluetooth data to Arduino RX"},{module:"HC-05",pinName:"RXD",gpio:"D11",voltage:"3.3V Logic",direction:"Output",description:"Arduino TX via voltage divider"},{module:"Relay / LED",pinName:"IN",gpio:"D8",voltage:"5V Logic",direction:"Output",description:"Controls external device"}]},working_explanation:["1. User speaks a command into a smartphone.","2. Mobile app converts speech to text using Google Speech Engine.","3. Text command is sent via Bluetooth (HC-05).","4. Arduino receives command through SoftwareSerial.","5. Command string is parsed and matched.","6. Corresponding GPIO pin is switched ON or OFF.","7. Relay or LED responds to the voice command."],software_stack:["Arduino IDE","SoftwareSerial Library","Bluetooth Voice Control Android App"],supported_commands_example:["on","off"],code:{language:"C++ (Arduino)",file:"voice_bt_control.ino",content:`#include <SoftwareSerial.h>
+
+SoftwareSerial bt(10, 11); // RX, TX
+#define DEVICE_PIN 8
+
+void setup() {
+  pinMode(DEVICE_PIN, OUTPUT);
+  digitalWrite(DEVICE_PIN, LOW);
+  bt.begin(9600);
+}
+
+void loop() {
+  if (bt.available()) {
+    String command = bt.readStringUntil('\\n');
+    command.trim();
+
+    if (command == "on") {
+      digitalWrite(DEVICE_PIN, HIGH);
+    } else if (command == "off") {
+      digitalWrite(DEVICE_PIN, LOW);
+    }
+  }
+}`},testing_and_output:["Pair smartphone with HC-05","Open voice control app","Speak 'on' or 'off'","Connected device responds correctly"],common_errors:["HC-05 RX pin not level-shifted","Incorrect baud rate","Bluetooth pairing failure","Extra newline characters in command"],limitations:["Depends on smartphone for AI","Limited vocabulary","No authentication"],improvements_next_level:["Add command confirmation feedback","Control multiple devices","Password-protected commands","Upgrade to ESP32 with on-device WiFi"],mini_challenge_for_learner:"Add voice command to control fan speed levels.",author_name:"NISHANTH",status:"Published"},{id:312,title:"Number Plate Detection System",level:"AI + Embedded (Intermediate – Computer Vision & OCR)",category:"AI + Embedded + Machine Learning",estimatedTime:"10–12 Hours",problem_statement:"Manual vehicle identification is slow, error-prone, and not scalable. An automated number plate detection system enables fast, accurate vehicle identification for traffic management and security systems.",real_world_use_case:["Smart parking systems","Toll booth automation","Traffic law enforcement","Campus vehicle access control","Apartment security gates"],ai_concept:{type:"Computer Vision + Optical Character Recognition (OCR)",plate_detection:"Contour-based localization (classical vision)",text_recognition:"Tesseract OCR",learning_type:"Pre-trained OCR model",upgrade_path:"Deep learning-based plate detection (YOLO)"},system_block_flow:["Camera","Image Capture","Preprocessing (Grayscale, Blur)","Edge Detection","Number Plate Localization","OCR Text Extraction","Result Display / Logging"],components:[{name:"Raspberry Pi 4 Model B",quantity:1,specification:"4GB RAM",indian_cost:"₹3,500",alternatives:["Laptop / PC"]},{name:"USB Webcam / Pi Camera",quantity:1,specification:"1080p preferred for clarity",indian_cost:"₹1,000"},{name:"Micro SD Card",quantity:1,specification:"32GB Class 10",indian_cost:"₹350"},{name:"Power Adapter",quantity:1,specification:"5V 3A",indian_cost:"₹400"}],total_estimated_cost_india:"₹5,200 – ₹5,500",pin_configuration:{raspberry_pi:[{module:"Camera",pinName:"USB / CSI",gpio:"USB Port / CSI Slot",voltage:"5V / CSI",direction:"Input",description:"Captures vehicle images"}]},working_explanation:["1. Camera captures an image of the vehicle.","2. Image is converted to grayscale for processing.","3. Bilateral filter removes noise while preserving edges.","4. Canny edge detection highlights sharp transitions.","5. Contours are detected from edge image.","6. Quadrilateral contours are filtered as number plate candidates.","7. Plate region is cropped from original image.","8. OCR engine extracts alphanumeric text.","9. Detected number plate is displayed or stored."],software_stack:["Raspberry Pi OS","Python 3","OpenCV","Tesseract OCR","pytesseract"],ocr_configuration:{psm_mode:"8 (Single word)",language:"English",preprocessing:"Grayscale + thresholding"},code:{language:"Python",file:"number_plate_detection.py",content:`import cv2
+import pytesseract
+
+# Load image
+img = cv2.imread('vehicle.jpg')
+
+# Preprocessing
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+blur = cv2.bilateralFilter(gray, 11, 17, 17)
+edged = cv2.Canny(blur, 30, 200)
+
+# Find contours
+contours, _ = cv2.findContours(edged, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+contours = sorted(contours, key=cv2.contourArea, reverse=True)[:10]
+plate = None
+
+for cnt in contours:
+    approx = cv2.approxPolyDP(cnt, 10, True)
+    if len(approx) == 4:
+        x, y, w, h = cv2.boundingRect(cnt)
+        plate = gray[y:y+h, x:x+w]
+        cv2.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 2)
+        break
+
+if plate is not None:
+    text = pytesseract.image_to_string(plate, config='--psm 8')
+    print('Detected Plate:', text)
+
+cv2.imshow('Result', img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()`},testing_and_output:["Place a vehicle image in project folder","Run Python script","Detected plate highlighted","Plate number printed on console"],common_errors:["Low-resolution images reduce OCR accuracy","Skewed or tilted plates not detected","Tesseract not installed correctly","Poor lighting conditions"],limitations:["Not robust for fast-moving vehicles","Fails in extreme angles","OCR errors for dirty plates"],improvements_next_level:["YOLO-based number plate detection","Real-time video processing","Indian plate dataset fine-tuning","Database + cloud integration"],mini_challenge_for_learner:"Detect and log multiple number plates from a video feed.",author_name:"NISHANTH",status:"Published"},{id:313,title:"Speech-to-Text Conversion using Raspberry Pi",level:"AI + Embedded (Intermediate – Speech Processing Systems)",category:"AI + Embedded + Machine Learning",estimatedTime:"6–8 Hours",problem_statement:"Machines cannot inherently understand spoken language. Converting speech into text enables voice-driven automation, accessibility solutions, and data analysis in embedded systems.",real_world_use_case:["Voice assistants","Meeting transcription systems","Accessibility tools for speech-impaired users","Voice-controlled IoT systems","Smart kiosks and terminals"],ai_concept:{type:"Automatic Speech Recognition (ASR)",models:["Google Speech API (Online)","Vosk (Offline ASR)"],learning_type:"Pre-trained Deep Learning Models",inference_location:"Edge device with optional cloud support"},system_block_flow:["Human Speech","Microphone","Audio Signal Capture","Speech-to-Text Engine","Text Output / Storage"],components:[{name:"Raspberry Pi 4 Model B",quantity:1,specification:"2GB / 4GB RAM",indian_cost:"₹3,500",alternatives:["Raspberry Pi 3B+"]},{name:"USB Microphone",quantity:1,specification:"Condenser mic, plug-and-play",indian_cost:"₹500"},{name:"Micro SD Card",quantity:1,specification:"32GB Class 10",indian_cost:"₹350"},{name:"Power Adapter",quantity:1,specification:"5V 3A",indian_cost:"₹400"}],total_estimated_cost_india:"₹4,700 – ₹5,000",pin_configuration:{raspberry_pi:[{module:"USB Microphone",pinName:"USB",gpio:"USB Port",voltage:"5V (USB)",direction:"Input",description:"Captures audio input from user"}]},working_explanation:["1. User speaks into the USB microphone.","2. Microphone converts sound waves into digital audio samples.","3. Audio stream is captured using PyAudio backend.","4. SpeechRecognition library sends audio to ASR engine.","5. ASR model converts speech waveform into text.","6. Transcribed text is printed, saved, or forwarded to other systems."],software_stack:["Raspberry Pi OS","Python 3","SpeechRecognition Library","PyAudio","Vosk (Offline ASR)","Google Speech API (Optional)"],asr_comparison:{online:{engine:"Google Speech API",accuracy:"High",internet_required:!0},offline:{engine:"Vosk",accuracy:"Moderate",internet_required:!1}},code:{language:"Python",file:"speech_to_text.py",content:`import speech_recognition as sr
+
+recognizer = sr.Recognizer()
+
+with sr.Microphone() as source:
+    print('Speak now...')
+    recognizer.adjust_for_ambient_noise(source, duration=1)
+    audio = recognizer.listen(source)
+
+try:
+    text = recognizer.recognize_google(audio)
+    print('Recognized Text:', text)
+except sr.UnknownValueError:
+    print('Speech not understood')
+except sr.RequestError:
+    print('Speech service unavailable')`},testing_and_output:["Connect USB microphone","Run Python script","Speak a sentence clearly","Converted text appears on terminal"],common_errors:["Microphone not detected by OS","PyAudio installation failure","Internet unavailable for online ASR","High background noise"],limitations:["Accuracy affected by noise","Online ASR depends on internet","Offline ASR has limited vocabulary"],improvements_next_level:["Wake-word detection","Noise suppression filters","Language auto-detection","Direct command-to-action mapping"],mini_challenge_for_learner:"Store converted speech into a text file with timestamp.",author_name:"NISHANTH",status:"Published"},{id:314,title:"Mask Detection during COVID-19",level:"AI + Embedded (Intermediate – Public Safety Computer Vision)",category:"AI + Embedded + Machine Learning",estimatedTime:"8–10 Hours",problem_statement:"Manual enforcement of mask compliance in public spaces is inefficient and unsafe. An automated vision-based system can continuously monitor and identify whether individuals are wearing masks, enabling safer public environments.",real_world_use_case:["Hospitals and clinics","Airports and railway stations","Office buildings","Shopping malls","Educational institutions"],ai_concept:{type:"Image Classification + Face Detection",pipeline:["Face Detection","Face Region Extraction","Mask / No-Mask Classification"],model:"Convolutional Neural Network (CNN)",learning_type:"Supervised Learning",dataset:"MaskedFace-Net / Custom Mask Dataset"},system_block_flow:["Camera","Frame Capture","Face Detection","Face Preprocessing","CNN Mask Classifier","Decision Logic","Alert / Display"],components:[{name:"Raspberry Pi 4 Model B",quantity:1,specification:"4GB RAM recommended",indian_cost:"₹3,500",alternatives:["Laptop / PC"]},{name:"USB Webcam / Pi Camera",quantity:1,specification:"720p or higher",indian_cost:"₹700"},{name:"Active Buzzer",quantity:1,specification:"3.3V compatible",indian_cost:"₹80"},{name:"Micro SD Card",quantity:1,specification:"32GB Class 10",indian_cost:"₹350"},{name:"Power Adapter",quantity:1,specification:"5V 3A",indian_cost:"₹400"}],total_estimated_cost_india:"₹5,000 – ₹5,300",pin_configuration:{raspberry_pi:[{module:"Buzzer",pinName:"VCC",gpio:"3.3V",voltage:"3.3V",direction:"Power",description:"Supplies power to buzzer"},{module:"Buzzer",pinName:"GND",gpio:"GND",voltage:"0V",direction:"Ground",description:"Common ground"},{module:"Buzzer",pinName:"IN",gpio:"GPIO24",voltage:"3.3V Logic",direction:"Output",description:"Activated when no-mask is detected"},{module:"Camera",pinName:"USB / CSI",gpio:"USB Port / CSI Slot",voltage:"5V / CSI",direction:"Input",description:"Captures live video feed"}]},working_explanation:["1. Camera continuously captures live video frames.","2. Each frame is converted to RGB and grayscale formats.","3. Face detection algorithm locates face regions.","4. Each face region is cropped and resized.","5. Face image is normalized for CNN input.","6. CNN classifies face as 'Mask' or 'No Mask'.","7. Decision logic evaluates prediction confidence.","8. Alert is triggered if 'No Mask' is detected."],software_stack:["Raspberry Pi OS","Python 3","OpenCV","TensorFlow / Keras","NumPy","RPi.GPIO"],model_details:{input_shape:"128×128×3",output_classes:["Mask","No Mask"],loss_function:"Categorical Crossentropy",optimizer:"Adam"},code:{language:"Python",file:"mask_detection.py",content:`import cv2
+import numpy as np
+from tensorflow.keras.models import load_model
+import RPi.GPIO as GPIO
+
+BUZZER = 24
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(BUZZER, GPIO.OUT)
+GPIO.output(BUZZER, GPIO.LOW)
+
+model = load_model('mask_model.h5')
+face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+labels = ['Mask', 'No Mask']
+
+cap = cv2.VideoCapture(0)
+
+while True:
+    ret, frame = cap.read()
+    if not ret:
+        break
+
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    faces = face_cascade.detectMultiScale(gray, 1.3, 5)
+
+    for (x, y, w, h) in faces:
+        face = frame[y:y+h, x:x+w]
+        face = cv2.resize(face, (128, 128))
+        face = face / 255.0
+        face = np.reshape(face, (1, 128, 128, 3))
+
+        prediction = model.predict(face)
+        class_index = np.argmax(prediction)
+        label = labels[class_index]
+
+        color = (0, 255, 0) if label == 'Mask' else (0, 0, 255)
+        cv2.rectangle(frame, (x, y), (x+w, y+h), color, 2)
+        cv2.putText(frame, label, (x, y-10),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.9, color, 2)
+
+        if label == 'No Mask':
+            GPIO.output(BUZZER, GPIO.HIGH)
+        else:
+            GPIO.output(BUZZER, GPIO.LOW)
+
+    cv2.imshow('Mask Detection', frame)
+    if cv2.waitKey(1) & 0xFF == 27:
+        break
+
+cap.release()
+GPIO.cleanup()
+cv2.destroyAllWindows()`},testing_and_output:["Run Python script","Stand in front of camera","Mask status displayed above face","Buzzer activates for no-mask condition"],common_errors:["Model input size mismatch","Low lighting causing misclassification","False detection due to face covering styles","Incorrect GPIO pin numbering"],limitations:["Accuracy depends on dataset quality","Cannot detect transparent masks","Ethical concerns if misused"],improvements_next_level:["TensorFlow Lite optimization","Multi-face tracking with ID assignment","Cloud-based compliance reporting","Thermal camera integration"],mini_challenge_for_learner:"Log timestamp and image when a no-mask event occurs.",ethical_note:"This system should be used for safety awareness, not punitive surveillance.",author_name:"NISHANTH",status:"Published"}];export{e as p};
