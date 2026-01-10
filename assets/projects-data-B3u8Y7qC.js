@@ -5147,4 +5147,681 @@ void loop() {
     digitalWrite(R1, LOW); digitalWrite(R2, HIGH);
     delay(800);
   }
-}`,testing_output:"Robot approaches object, grips it, and moves back.",common_errors:"Incorrect distance threshold, weak gripper torque.",improvements:"Add vision-based object detection, sorting logic.",mini_challenge:"Pick only specific-sized objects.",advantages:"Automated material handling.",disadvantages:"Limited object size and weight.",components:["ESP32","Ultrasonic Sensor","Servo Motor","L298N","DC Motors"],circuit_diagram:"Ultrasonic to GPIO18/19. Servo to GPIO25. Motors via L298N.",industrial_use:"Warehouse and service robots.",author_name:"NISHANTH",status:"Published",bom_cost:"₹3,800"}];export{e as p};
+}`,testing_output:"Robot approaches object, grips it, and moves back.",common_errors:"Incorrect distance threshold, weak gripper torque.",improvements:"Add vision-based object detection, sorting logic.",mini_challenge:"Pick only specific-sized objects.",advantages:"Automated material handling.",disadvantages:"Limited object size and weight.",components:["ESP32","Ultrasonic Sensor","Servo Motor","L298N","DC Motors"],circuit_diagram:"Ultrasonic to GPIO18/19. Servo to GPIO25. Motors via L298N.",industrial_use:"Warehouse and service robots.",author_name:"NISHANTH",status:"Published",bom_cost:"₹3,800"},{id:221,title:"Fire Sensor Robot",level:"Intermediate",description:"A fire sensor robot using ESP32 that detects fire using a flame sensor and navigates towards the source while triggering alerts or suppression mechanisms.",category:"Robotics",sub_category:"Robotics (221-235)",estimatedTime:"6–7 Hours",tech:["ESP32","Flame Sensor","L298N Motor Driver","DC Motors","Buzzer"],problem_statement:"Early fire detection is crucial in reducing damage. A mobile fire sensor robot can detect fire in hazardous areas without human intervention.",real_world_case:"Used in fire safety research, warehouses, labs, and educational robotics competitions.",block_diagram:"graph TD; Flame_Sensor-->|Fire Data|ESP32; ESP32-->|Alert|Buzzer; ESP32-->|Motor Control|L298N;",concept:"The robot scans for flame intensity using a flame sensor. When fire is detected, it stops movement and alerts the user.",working_principle:`1. Flame sensor detects IR radiation.
+2. ESP32 reads flame intensity.
+3. Robot approaches or stops.
+4. Alert is triggered.`,pin_config:{esp32:[{module:"Flame Sensor",pinName:"VCC",mcuPin:"3V3",direction:"Power",voltage:"3.3V",description:"Flame sensor power"},{module:"Flame Sensor",pinName:"GND",mcuPin:"GND",direction:"Ground",voltage:"0V",description:"Common ground"},{module:"Flame Sensor",pinName:"OUT",mcuPin:"GPIO34",direction:"Input",voltage:"Analog",description:"Flame intensity signal"},{module:"Buzzer",pinName:"VCC",mcuPin:"3V3",direction:"Power",voltage:"3.3V",description:"Buzzer power"},{module:"Buzzer",pinName:"GND",mcuPin:"GND",direction:"Ground",voltage:"0V",description:"Common ground"},{module:"Buzzer",pinName:"Signal",mcuPin:"GPIO25",direction:"Output",voltage:"3.3V",description:"Fire alert buzzer"},{module:"Motor Driver L298N",pinName:"IN1",mcuPin:"GPIO26",direction:"Output",voltage:"3.3V",description:"Left motor forward"},{module:"Motor Driver L298N",pinName:"IN2",mcuPin:"GPIO27",direction:"Output",voltage:"3.3V",description:"Left motor backward"},{module:"Motor Driver L298N",pinName:"IN3",mcuPin:"GPIO14",direction:"Output",voltage:"3.3V",description:"Right motor forward"},{module:"Motor Driver L298N",pinName:"IN4",mcuPin:"GPIO12",direction:"Output",voltage:"3.3V",description:"Right motor backward"}]},code:`/* Project 221: Fire Sensor Robot */
+#define FLAME_PIN 34
+#define BUZZER 25
+
+#define L1 26
+#define L2 27
+#define R1 14
+#define R2 12
+
+int fireThreshold = 1600;
+
+void stopRobot() {
+  digitalWrite(L1, LOW); digitalWrite(L2, LOW);
+  digitalWrite(R1, LOW); digitalWrite(R2, LOW);
+}
+
+void setup() {
+  pinMode(FLAME_PIN, INPUT);
+  pinMode(BUZZER, OUTPUT);
+  pinMode(L1, OUTPUT); pinMode(L2, OUTPUT);
+  pinMode(R1, OUTPUT); pinMode(R2, OUTPUT);
+}
+
+void loop() {
+  int flameValue = analogRead(FLAME_PIN);
+
+  if (flameValue < fireThreshold) {
+    stopRobot();
+    digitalWrite(BUZZER, HIGH);
+  } else {
+    digitalWrite(BUZZER, LOW);
+    digitalWrite(L1, HIGH); digitalWrite(L2, LOW);
+    digitalWrite(R1, HIGH); digitalWrite(R2, LOW);
+  }
+
+  delay(300);
+}`,testing_output:"Introduce flame → robot stops and buzzer activates.",common_errors:"Wrong flame threshold, ambient IR interference.",improvements:"Add water pump, multi-direction flame sensing.",mini_challenge:"Detect flame direction using multiple sensors.",advantages:"Early fire detection.",disadvantages:"Sensitive to strong light sources.",components:["ESP32","Flame Sensor","Buzzer","L298N","DC Motors"],circuit_diagram:"Flame sensor to GPIO34. Buzzer to GPIO25. Motors via L298N.",industrial_use:"Fire safety robotics.",author_name:"NISHANTH",status:"Published",bom_cost:"₹3,200"},{id:222,title:"Ball Follower Robot",level:"Intermediate",description:"A ball follower robot using ESP32 and ultrasonic sensing that tracks and follows a moving ball while maintaining a safe distance.",category:"Robotics",sub_category:"Robotics (221-235)",estimatedTime:"6 Hours",tech:["ESP32","Ultrasonic Sensor","L298N Motor Driver","DC Motors"],problem_statement:"Tracking and following moving objects is a fundamental robotics problem. A ball follower robot demonstrates dynamic sensing and motion control.",real_world_case:"Used in sports robotics, autonomous tracking systems, and educational robotics projects.",block_diagram:"graph TD; Ultrasonic-->|Distance|ESP32; ESP32-->|Motor Control|L298N;",concept:"The robot uses distance feedback to follow a ball while maintaining an optimal following distance.",working_principle:`1. Ultrasonic sensor measures distance.
+2. ESP32 evaluates target distance.
+3. Robot moves forward or stops.
+4. Continuous tracking loop.`,pin_config:{esp32:[{module:"Ultrasonic Sensor",pinName:"VCC",mcuPin:"5V",direction:"Power",voltage:"5V",description:"Ultrasonic power"},{module:"Ultrasonic Sensor",pinName:"GND",mcuPin:"GND",direction:"Ground",voltage:"0V",description:"Common ground"},{module:"Ultrasonic Sensor",pinName:"TRIG",mcuPin:"GPIO18",direction:"Output",voltage:"3.3V",description:"Trigger pulse"},{module:"Ultrasonic Sensor",pinName:"ECHO",mcuPin:"GPIO19",direction:"Input",voltage:"5V (divider)",description:"Echo signal"},{module:"Motor Driver L298N",pinName:"IN1",mcuPin:"GPIO26",direction:"Output",voltage:"3.3V",description:"Left motor forward"},{module:"Motor Driver L298N",pinName:"IN2",mcuPin:"GPIO27",direction:"Output",voltage:"3.3V",description:"Left motor backward"},{module:"Motor Driver L298N",pinName:"IN3",mcuPin:"GPIO14",direction:"Output",voltage:"3.3V",description:"Right motor forward"},{module:"Motor Driver L298N",pinName:"IN4",mcuPin:"GPIO12",direction:"Output",voltage:"3.3V",description:"Right motor backward"}]},code:`/* Project 222: Ball Follower Robot */
+#define TRIG 18
+#define ECHO 19
+
+#define L1 26
+#define L2 27
+#define R1 14
+#define R2 12
+
+long getDistance() {
+  digitalWrite(TRIG, LOW);
+  delayMicroseconds(2);
+  digitalWrite(TRIG, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIG, LOW);
+  return pulseIn(ECHO, HIGH) * 0.034 / 2;
+}
+
+void setup() {
+  pinMode(TRIG, OUTPUT);
+  pinMode(ECHO, INPUT);
+  pinMode(L1, OUTPUT); pinMode(L2, OUTPUT);
+  pinMode(R1, OUTPUT); pinMode(R2, OUTPUT);
+}
+
+void loop() {
+  long distance = getDistance();
+
+  if (distance > 15 && distance < 40) {
+    // Follow ball
+    digitalWrite(L1, HIGH); digitalWrite(L2, LOW);
+    digitalWrite(R1, HIGH); digitalWrite(R2, LOW);
+  } else {
+    // Stop
+    digitalWrite(L1, LOW); digitalWrite(L2, LOW);
+    digitalWrite(R1, LOW); digitalWrite(R2, LOW);
+  }
+
+  delay(200);
+}`,testing_output:"Robot follows ball within set distance.",common_errors:"Ultrasonic misalignment, echo noise.",improvements:"Add camera-based tracking, PID distance control.",mini_challenge:"Maintain constant distance using PID.",advantages:"Dynamic object tracking.",disadvantages:"Limited sensing angle.",components:["ESP32","Ultrasonic Sensor","L298N","DC Motors"],circuit_diagram:"Ultrasonic to GPIO18/19. Motors via L298N.",industrial_use:"Tracking and follower robots.",author_name:"NISHANTH",status:"Published",bom_cost:"₹2,600"},{id:223,title:"Plant Watering Robot",level:"Intermediate",description:"An ESP32-based autonomous plant watering robot that detects soil moisture levels and waters plants only when required, optimizing water usage.",category:"Robotics",sub_category:"Robotics (221-235)",estimatedTime:"6–7 Hours",tech:["ESP32","Soil Moisture Sensor","Relay Module","Water Pump","DC Motors"],problem_statement:"Manual watering leads to overwatering or underwatering. An autonomous watering robot ensures optimal soil moisture while reducing human effort.",real_world_case:"Used in smart gardens, nurseries, greenhouse automation, and agricultural research prototypes.",block_diagram:"graph TD; Soil_Sensor-->|Moisture|ESP32; ESP32-->|Relay|Water_Pump; ESP32-->|Motor Control|Drive_Motors;",concept:"The robot navigates between plants, measures soil moisture, and activates a water pump only when moisture falls below a threshold.",working_principle:`1. Soil sensor measures moisture.
+2. ESP32 compares value with threshold.
+3. If soil is dry, pump is activated.
+4. After watering, robot moves to next plant.`,pin_config:{esp32:[{module:"Soil Moisture Sensor",pinName:"VCC",mcuPin:"3V3",direction:"Power",voltage:"3.3V",description:"Sensor power"},{module:"Soil Moisture Sensor",pinName:"GND",mcuPin:"GND",direction:"Ground",voltage:"0V",description:"Common ground"},{module:"Soil Moisture Sensor",pinName:"AO",mcuPin:"GPIO34",direction:"Input",voltage:"Analog",description:"Soil moisture value"},{module:"Relay Module",pinName:"VCC",mcuPin:"5V",direction:"Power",voltage:"5V",description:"Relay power"},{module:"Relay Module",pinName:"GND",mcuPin:"GND",direction:"Ground",voltage:"0V",description:"Common ground"},{module:"Relay Module",pinName:"IN",mcuPin:"GPIO25",direction:"Output",voltage:"3.3V",description:"Pump control"},{module:"Motor Driver L298N",pinName:"IN1",mcuPin:"GPIO26",direction:"Output",description:"Left motor forward"},{module:"Motor Driver L298N",pinName:"IN2",mcuPin:"GPIO27",direction:"Output",description:"Left motor backward"},{module:"Motor Driver L298N",pinName:"IN3",mcuPin:"GPIO14",direction:"Output",description:"Right motor forward"},{module:"Motor Driver L298N",pinName:"IN4",mcuPin:"GPIO12",direction:"Output",description:"Right motor backward"}]},code:`/* Project 223: Plant Watering Robot */
+#define SOIL_PIN 34
+#define PUMP_RELAY 25
+
+#define L1 26
+#define L2 27
+#define R1 14
+#define R2 12
+
+int moistureThreshold = 2200;
+
+void stopRobot() {
+  digitalWrite(L1, LOW); digitalWrite(L2, LOW);
+  digitalWrite(R1, LOW); digitalWrite(R2, LOW);
+}
+
+void setup() {
+  pinMode(SOIL_PIN, INPUT);
+  pinMode(PUMP_RELAY, OUTPUT);
+  pinMode(L1, OUTPUT); pinMode(L2, OUTPUT);
+  pinMode(R1, OUTPUT); pinMode(R2, OUTPUT);
+  digitalWrite(PUMP_RELAY, LOW);
+}
+
+void loop() {
+  int moisture = analogRead(SOIL_PIN);
+
+  if (moisture > moistureThreshold) {
+    // Dry soil → water plant
+    stopRobot();
+    digitalWrite(PUMP_RELAY, HIGH);
+    delay(3000);
+    digitalWrite(PUMP_RELAY, LOW);
+  } else {
+    // Move to next plant
+    digitalWrite(L1, HIGH); digitalWrite(L2, LOW);
+    digitalWrite(R1, HIGH); digitalWrite(R2, LOW);
+  }
+
+  delay(500);
+}`,testing_output:"Dry soil → pump activates. Wet soil → robot moves forward.",common_errors:"Wrong moisture calibration, pump power issues.",improvements:"Add GPS/line-following navigation, cloud logging.",mini_challenge:"Water different plants with different thresholds.",advantages:"Water-efficient irrigation.",disadvantages:"Limited plant identification.",components:["ESP32","Soil Moisture Sensor","Relay","Water Pump","L298N","DC Motors"],circuit_diagram:"Soil sensor to GPIO34. Relay to GPIO25. Motors via L298N.",industrial_use:"Smart agriculture robots.",author_name:"NISHANTH",status:"Published",bom_cost:"₹3,400"},{id:223,title:"Plant Watering Robot",level:"Intermediate",description:"An ESP32-based autonomous plant watering robot that detects soil moisture levels and waters plants only when required, optimizing water usage.",category:"Robotics",sub_category:"Robotics (221-235)",estimatedTime:"6–7 Hours",tech:["ESP32","Soil Moisture Sensor","Relay Module","Water Pump","DC Motors"],problem_statement:"Manual watering leads to overwatering or underwatering. An autonomous watering robot ensures optimal soil moisture while reducing human effort.",real_world_case:"Used in smart gardens, nurseries, greenhouse automation, and agricultural research prototypes.",block_diagram:"graph TD; Soil_Sensor-->|Moisture|ESP32; ESP32-->|Relay|Water_Pump; ESP32-->|Motor Control|Drive_Motors;",concept:"The robot navigates between plants, measures soil moisture, and activates a water pump only when moisture falls below a threshold.",working_principle:`1. Soil sensor measures moisture.
+2. ESP32 compares value with threshold.
+3. If soil is dry, pump is activated.
+4. After watering, robot moves to next plant.`,pin_config:{esp32:[{module:"Soil Moisture Sensor",pinName:"VCC",mcuPin:"3V3",direction:"Power",voltage:"3.3V",description:"Sensor power"},{module:"Soil Moisture Sensor",pinName:"GND",mcuPin:"GND",direction:"Ground",voltage:"0V",description:"Common ground"},{module:"Soil Moisture Sensor",pinName:"AO",mcuPin:"GPIO34",direction:"Input",voltage:"Analog",description:"Soil moisture value"},{module:"Relay Module",pinName:"VCC",mcuPin:"5V",direction:"Power",voltage:"5V",description:"Relay power"},{module:"Relay Module",pinName:"GND",mcuPin:"GND",direction:"Ground",voltage:"0V",description:"Common ground"},{module:"Relay Module",pinName:"IN",mcuPin:"GPIO25",direction:"Output",voltage:"3.3V",description:"Pump control"},{module:"Motor Driver L298N",pinName:"IN1",mcuPin:"GPIO26",direction:"Output",description:"Left motor forward"},{module:"Motor Driver L298N",pinName:"IN2",mcuPin:"GPIO27",direction:"Output",description:"Left motor backward"},{module:"Motor Driver L298N",pinName:"IN3",mcuPin:"GPIO14",direction:"Output",description:"Right motor forward"},{module:"Motor Driver L298N",pinName:"IN4",mcuPin:"GPIO12",direction:"Output",description:"Right motor backward"}]},code:`/* Project 223: Plant Watering Robot */
+#define SOIL_PIN 34
+#define PUMP_RELAY 25
+
+#define L1 26
+#define L2 27
+#define R1 14
+#define R2 12
+
+int moistureThreshold = 2200;
+
+void stopRobot() {
+  digitalWrite(L1, LOW); digitalWrite(L2, LOW);
+  digitalWrite(R1, LOW); digitalWrite(R2, LOW);
+}
+
+void setup() {
+  pinMode(SOIL_PIN, INPUT);
+  pinMode(PUMP_RELAY, OUTPUT);
+  pinMode(L1, OUTPUT); pinMode(L2, OUTPUT);
+  pinMode(R1, OUTPUT); pinMode(R2, OUTPUT);
+  digitalWrite(PUMP_RELAY, LOW);
+}
+
+void loop() {
+  int moisture = analogRead(SOIL_PIN);
+
+  if (moisture > moistureThreshold) {
+    // Dry soil → water plant
+    stopRobot();
+    digitalWrite(PUMP_RELAY, HIGH);
+    delay(3000);
+    digitalWrite(PUMP_RELAY, LOW);
+  } else {
+    // Move to next plant
+    digitalWrite(L1, HIGH); digitalWrite(L2, LOW);
+    digitalWrite(R1, HIGH); digitalWrite(R2, LOW);
+  }
+
+  delay(500);
+}`,testing_output:"Dry soil → pump activates. Wet soil → robot moves forward.",common_errors:"Wrong moisture calibration, pump power issues.",improvements:"Add GPS/line-following navigation, cloud logging.",mini_challenge:"Water different plants with different thresholds.",advantages:"Water-efficient irrigation.",disadvantages:"Limited plant identification.",components:["ESP32","Soil Moisture Sensor","Relay","Water Pump","L298N","DC Motors"],circuit_diagram:"Soil sensor to GPIO34. Relay to GPIO25. Motors via L298N.",industrial_use:"Smart agriculture robots.",author_name:"NISHANTH",status:"Published",bom_cost:"₹3,400"},{id:224,title:"Smart Traffic Bot",level:"Intermediate",description:"A smart traffic robot using ESP32 that simulates intelligent traffic control by detecting vehicle density and controlling traffic signals accordingly.",category:"Robotics",sub_category:"Robotics (221-235)",estimatedTime:"6 Hours",tech:["ESP32","IR Sensors","Traffic LEDs","Servo Motor"],problem_statement:"Fixed-time traffic signals cause congestion. Smart traffic systems adjust signal timing based on vehicle density.",real_world_case:"Used in traffic management simulations, smart city projects, and educational demonstrations.",block_diagram:"graph TD; IR_Sensors-->|Density|ESP32; ESP32-->|Signal Control|Traffic_LEDs;",concept:"IR sensors detect vehicle presence at junctions. ESP32 dynamically controls traffic signals to optimize flow.",working_principle:`1. IR sensors detect vehicles.
+2. ESP32 measures lane density.
+3. Signal timing adjusted dynamically.
+4. LEDs indicate traffic flow.`,pin_config:{esp32:[{module:"IR Sensor Lane 1",pinName:"VCC",mcuPin:"3V3",direction:"Power"},{module:"IR Sensor Lane 1",pinName:"GND",mcuPin:"GND",direction:"Ground"},{module:"IR Sensor Lane 1",pinName:"OUT",mcuPin:"GPIO32",direction:"Input"},{module:"IR Sensor Lane 2",pinName:"OUT",mcuPin:"GPIO33",direction:"Input"},{module:"Traffic LED Red",pinName:"Signal",mcuPin:"GPIO25",direction:"Output"},{module:"Traffic LED Yellow",pinName:"Signal",mcuPin:"GPIO26",direction:"Output"},{module:"Traffic LED Green",pinName:"Signal",mcuPin:"GPIO27",direction:"Output"}]},code:`/* Project 224: Smart Traffic Bot */
+#define IR1 32
+#define IR2 33
+
+#define RED 25
+#define YELLOW 26
+#define GREEN 27
+
+void setup() {
+  pinMode(IR1, INPUT);
+  pinMode(IR2, INPUT);
+  pinMode(RED, OUTPUT);
+  pinMode(YELLOW, OUTPUT);
+  pinMode(GREEN, OUTPUT);
+}
+
+void loop() {
+  int lane1 = digitalRead(IR1);
+  int lane2 = digitalRead(IR2);
+
+  if (lane1 == LOW || lane2 == LOW) {
+    // High traffic
+    digitalWrite(RED, LOW);
+    digitalWrite(YELLOW, LOW);
+    digitalWrite(GREEN, HIGH);
+    delay(5000);
+  } else {
+    // Normal traffic
+    digitalWrite(GREEN, LOW);
+    digitalWrite(YELLOW, HIGH);
+    delay(2000);
+    digitalWrite(YELLOW, LOW);
+    digitalWrite(RED, HIGH);
+    delay(3000);
+  }
+}`,testing_output:"LEDs change based on vehicle presence.",common_errors:"Wrong IR placement, ambient light issues.",improvements:"Add camera-based density detection, IoT dashboard.",mini_challenge:"Control 4-way junction logic.",advantages:"Dynamic traffic control.",disadvantages:"Limited sensing range.",components:["ESP32","IR Sensors","LEDs"],circuit_diagram:"IR sensors to GPIO32/33. LEDs to GPIO25–27.",industrial_use:"Smart traffic system demos.",author_name:"NISHANTH",status:"Published",bom_cost:"₹2,100"},{id:225,title:"Smart Garbage Collection Robot",level:"Intermediate",description:"An autonomous garbage collection robot using ESP32 that detects waste, picks it up using a servo-driven mechanism, and transports it to a collection zone.",category:"Robotics",sub_category:"Robotics (221-235)",estimatedTime:"8–9 Hours",tech:["ESP32","Ultrasonic Sensor","IR Obstacle Sensor","Servo Motor","L298N Motor Driver"],problem_statement:"Manual garbage collection exposes workers to health risks and inefficiencies. A smart robot can autonomously collect small waste in controlled environments.",real_world_case:"Used in smart campus prototypes, indoor cleaning robots, hospitals, and public facility automation demos.",block_diagram:"graph TD; Ultrasonic-->|Object Distance|ESP32; IR-->|Obstacle|ESP32; ESP32-->|Motor Control|L298N; ESP32-->|Servo|Garbage_Arm;",concept:"The robot continuously scans for waste using distance sensing. When an object is detected within pickup range, it stops, activates a servo-based arm to collect garbage, and then resumes navigation.",working_principle:`1. Ultrasonic sensor detects object distance.
+2. ESP32 confirms object is garbage-sized.
+3. Robot stops at optimal distance.
+4. Servo arm lowers and picks waste.
+5. Robot resumes movement to disposal zone.`,pin_config:{esp32:[{module:"Ultrasonic Sensor",pinName:"VCC",mcuPin:"5V",direction:"Power",description:"Ultrasonic power"},{module:"Ultrasonic Sensor",pinName:"GND",mcuPin:"GND",direction:"Ground"},{module:"Ultrasonic Sensor",pinName:"TRIG",mcuPin:"GPIO18",direction:"Output"},{module:"Ultrasonic Sensor",pinName:"ECHO",mcuPin:"GPIO19",direction:"Input",description:"Use voltage divider"},{module:"IR Obstacle Sensor",pinName:"VCC",mcuPin:"3V3",direction:"Power"},{module:"IR Obstacle Sensor",pinName:"GND",mcuPin:"GND",direction:"Ground"},{module:"IR Obstacle Sensor",pinName:"OUT",mcuPin:"GPIO34",direction:"Input"},{module:"Servo Motor",pinName:"Signal",mcuPin:"GPIO25",direction:"Output",description:"Garbage pickup arm"},{module:"L298N",pinName:"IN1",mcuPin:"GPIO26",direction:"Output"},{module:"L298N",pinName:"IN2",mcuPin:"GPIO27",direction:"Output"},{module:"L298N",pinName:"IN3",mcuPin:"GPIO14",direction:"Output"},{module:"L298N",pinName:"IN4",mcuPin:"GPIO12",direction:"Output"}]},code:`/* Project 225: Smart Garbage Collection Robot */
+#include <Servo.h>
+
+#define TRIG 18
+#define ECHO 19
+#define IR_OBS 34
+#define SERVO_PIN 25
+
+#define L1 26
+#define L2 27
+#define R1 14
+#define R2 12
+
+Servo arm;
+
+long getDistance() {
+  digitalWrite(TRIG, LOW);
+  delayMicroseconds(2);
+  digitalWrite(TRIG, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIG, LOW);
+  return pulseIn(ECHO, HIGH) * 0.034 / 2;
+}
+
+void stopRobot() {
+  digitalWrite(L1, LOW); digitalWrite(L2, LOW);
+  digitalWrite(R1, LOW); digitalWrite(R2, LOW);
+}
+
+void setup() {
+  pinMode(TRIG, OUTPUT);
+  pinMode(ECHO, INPUT);
+  pinMode(IR_OBS, INPUT);
+  pinMode(L1, OUTPUT); pinMode(L2, OUTPUT);
+  pinMode(R1, OUTPUT); pinMode(R2, OUTPUT);
+
+  arm.attach(SERVO_PIN);
+  arm.write(0); // Arm up
+}
+
+void loop() {
+  long dist = getDistance();
+  int obstacle = digitalRead(IR_OBS);
+
+  if (dist < 15 && obstacle == HIGH) {
+    stopRobot();
+    arm.write(90); // Pick garbage
+    delay(1000);
+    arm.write(0);
+  } else {
+    digitalWrite(L1, HIGH); digitalWrite(L2, LOW);
+    digitalWrite(R1, HIGH); digitalWrite(R2, LOW);
+  }
+}`,testing_output:"Robot detects garbage, stops, picks it up, and continues moving.",common_errors:"Servo torque insufficient, wrong distance threshold.",improvements:"Add waste classification (wet/dry), bin fill detection.",mini_challenge:"Count number of garbage pickups per cycle.",advantages:"Automated waste handling.",disadvantages:"Limited garbage size handling.",components:["ESP32","Ultrasonic Sensor","IR Sensor","Servo","L298N","DC Motors"],industrial_use:"Smart cleaning robots.",author_name:"NISHANTH",status:"Published",bom_cost:"₹3,900"},{id:226,title:"Mobile Controlled Rover",level:"Intermediate",description:"A mobile-controlled rover using ESP32 and Bluetooth that allows real-time directional control via a smartphone application.",category:"Robotics",sub_category:"Robotics (221-235)",estimatedTime:"5–6 Hours",tech:["ESP32","Bluetooth","L298N Motor Driver","DC Motors"],problem_statement:"Remote mobility is required in hazardous or inaccessible areas. A mobile-controlled rover enables safe remote navigation.",real_world_case:"Used in surveillance robots, exploration bots, and remote inspection systems.",block_diagram:"graph TD; Mobile_App-->|Bluetooth|ESP32; ESP32-->|Motor Control|L298N;",concept:"ESP32 receives directional commands via Bluetooth and translates them into motor control signals for precise rover movement.",working_principle:`1. User sends command from mobile app.
+2. ESP32 receives Bluetooth data.
+3. Command decoded into motion.
+4. Motors execute movement.`,pin_config:{esp32:[{module:"Bluetooth",pinName:"RX/TX",mcuPin:"Internal",direction:"Communication",description:"ESP32 built-in BT"},{module:"L298N",pinName:"IN1",mcuPin:"GPIO26",direction:"Output"},{module:"L298N",pinName:"IN2",mcuPin:"GPIO27",direction:"Output"},{module:"L298N",pinName:"IN3",mcuPin:"GPIO14",direction:"Output"},{module:"L298N",pinName:"IN4",mcuPin:"GPIO12",direction:"Output"}]},code:`/* Project 226: Mobile Controlled Rover */
+#include "BluetoothSerial.h"
+BluetoothSerial SerialBT;
+
+#define L1 26
+#define L2 27
+#define R1 14
+#define R2 12
+
+void setup() {
+  SerialBT.begin("ESP32_Rover");
+  pinMode(L1, OUTPUT); pinMode(L2, OUTPUT);
+  pinMode(R1, OUTPUT); pinMode(R2, OUTPUT);
+}
+
+void loop() {
+  if (SerialBT.available()) {
+    char cmd = SerialBT.read();
+
+    if (cmd == 'F') {
+      digitalWrite(L1, HIGH); digitalWrite(L2, LOW);
+      digitalWrite(R1, HIGH); digitalWrite(R2, LOW);
+    } else if (cmd == 'B') {
+      digitalWrite(L1, LOW); digitalWrite(L2, HIGH);
+      digitalWrite(R1, LOW); digitalWrite(R2, HIGH);
+    } else if (cmd == 'L') {
+      digitalWrite(L1, LOW); digitalWrite(L2, LOW);
+      digitalWrite(R1, HIGH); digitalWrite(R2, LOW);
+    } else if (cmd == 'R') {
+      digitalWrite(L1, HIGH); digitalWrite(L2, LOW);
+      digitalWrite(R1, LOW); digitalWrite(R2, LOW);
+    } else if (cmd == 'S') {
+      digitalWrite(L1, LOW); digitalWrite(L2, LOW);
+      digitalWrite(R1, LOW); digitalWrite(R2, LOW);
+    }
+  }
+}`,testing_output:"Rover responds instantly to mobile commands.",common_errors:"Bluetooth pairing issues, command mismatch.",improvements:"Add speed control, camera streaming.",mini_challenge:"Add obstacle override safety.",advantages:"Simple and responsive control.",disadvantages:"Limited range (Bluetooth).",components:["ESP32","L298N","DC Motors"],industrial_use:"Remote inspection rovers.",author_name:"NISHANTH",status:"Published",bom_cost:"₹2,300"},{id:227,title:"Self-Balancing Robot (Basic PID)",level:"Intermediate",description:"A two-wheeled self-balancing robot using ESP32 and MPU6050 that maintains upright balance using a basic PID control algorithm.",category:"Robotics",sub_category:"Robotics (221-235)",estimatedTime:"10–12 Hours",tech:["ESP32","MPU6050","PID Control","L298N Motor Driver","DC Motors"],problem_statement:"Balancing a dynamically unstable system requires continuous feedback and correction. This project demonstrates real-time closed-loop control using PID.",real_world_case:"Used in personal transporters (Segway), humanoid robots, and robotics research platforms.",block_diagram:"graph TD; MPU6050-->|Angle|ESP32; ESP32-->|PID Output|L298N; L298N-->|Torque|Motors;",concept:"The robot continuously measures tilt angle and applies PID corrections to motor speed to maintain vertical balance.",working_principle:`1. MPU6050 measures pitch angle.
+2. ESP32 calculates error from vertical.
+3. PID controller computes correction.
+4. Motors apply torque.
+5. Loop repeats at high frequency.`,pin_config:{esp32:[{module:"MPU6050",pinName:"VCC",mcuPin:"3V3",direction:"Power"},{module:"MPU6050",pinName:"GND",mcuPin:"GND",direction:"Ground"},{module:"MPU6050",pinName:"SDA",mcuPin:"GPIO21",direction:"I2C"},{module:"MPU6050",pinName:"SCL",mcuPin:"GPIO22",direction:"I2C"},{module:"L298N",pinName:"IN1",mcuPin:"GPIO26",direction:"Output"},{module:"L298N",pinName:"IN2",mcuPin:"GPIO27",direction:"Output"},{module:"L298N",pinName:"IN3",mcuPin:"GPIO14",direction:"Output"},{module:"L298N",pinName:"IN4",mcuPin:"GPIO12",direction:"Output"}]},code:`/* Project 227: Self-Balancing Robot (Basic PID) */
+#include <Wire.h>
+#include <Adafruit_MPU6050.h>
+#include <Adafruit_Sensor.h>
+
+Adafruit_MPU6050 mpu;
+
+#define L1 26
+#define L2 27
+#define R1 14
+#define R2 12
+
+// PID constants (must be tuned)
+float Kp = 18.0;
+float Ki = 0.8;
+float Kd = 1.2;
+
+float setPoint = 0.0; // Upright angle
+float error, previousError = 0;
+float integral = 0;
+
+void setup() {
+  Serial.begin(115200);
+  if (!mpu.begin()) {
+    while (1);
+  }
+
+  pinMode(L1, OUTPUT); pinMode(L2, OUTPUT);
+  pinMode(R1, OUTPUT); pinMode(R2, OUTPUT);
+}
+
+void driveMotor(float output) {
+  if (output > 0) {
+    digitalWrite(L1, HIGH); digitalWrite(L2, LOW);
+    digitalWrite(R1, HIGH); digitalWrite(R2, LOW);
+  } else {
+    digitalWrite(L1, LOW); digitalWrite(L2, HIGH);
+    digitalWrite(R1, LOW); digitalWrite(R2, HIGH);
+  }
+}
+
+void loop() {
+  sensors_event_t a, g, t;
+  mpu.getEvent(&a, &g, &t);
+
+  float angle = atan2(a.acceleration.x, a.acceleration.z) * 57.3;
+
+  error = setPoint - angle;
+  integral += error;
+  float derivative = error - previousError;
+
+  float output = Kp * error + Ki * integral + Kd * derivative;
+
+  driveMotor(output);
+  previousError = error;
+
+  delay(10); // Control loop timing
+}`,testing_output:"Robot oscillates initially, stabilizes after PID tuning.",common_errors:"Wrong PID tuning, loose wheels, sensor noise.",improvements:"Add complementary filter, encoder feedback.",mini_challenge:"Tune PID for faster recovery without oscillation.",advantages:"Demonstrates real control systems.",disadvantages:"Requires careful tuning.",components:["ESP32","MPU6050","L298N","DC Motors"],industrial_use:"Control system research.",author_name:"NISHANTH",status:"Published",bom_cost:"₹4,200"},{id:228,title:"Arduino-based Prosthetic Arm",level:"Intermediate",description:"A basic prosthetic arm using Arduino that mimics finger movement using flex sensors and servo motors.",category:"Robotics",sub_category:"Robotics (221-235)",estimatedTime:"9–10 Hours",tech:["Arduino UNO","Flex Sensors","Servo Motors"],problem_statement:"Affordable prosthetic solutions are limited. A basic sensor-driven prosthetic arm helps demonstrate low-cost assistive technology.",real_world_case:"Used in assistive device research, rehabilitation engineering, and educational biomedical projects.",block_diagram:"graph TD; Flex_Sensors-->|Finger Bend|Arduino; Arduino-->|PWM|Servo_Motors;",concept:"Flex sensors detect finger bending. Arduino maps sensor values to servo angles, mimicking finger movement.",working_principle:`1. Flex sensor resistance changes with bending.
+2. Arduino reads analog value.
+3. Value mapped to servo angle.
+4. Servo moves corresponding finger.`,pin_config:{arduino:[{module:"Flex Sensor 1",pinName:"Signal",mcuPin:"A0",direction:"Input"},{module:"Flex Sensor 2",pinName:"Signal",mcuPin:"A1",direction:"Input"},{module:"Servo Finger 1",pinName:"Signal",mcuPin:"D9",direction:"Output"},{module:"Servo Finger 2",pinName:"Signal",mcuPin:"D10",direction:"Output"}]},code:`/* Project 228: Arduino-based Prosthetic Arm */
+#include <Servo.h>
+
+Servo finger1;
+Servo finger2;
+
+#define FLEX1 A0
+#define FLEX2 A1
+
+void setup() {
+  finger1.attach(9);
+  finger2.attach(10);
+}
+
+void loop() {
+  int flexVal1 = analogRead(FLEX1);
+  int flexVal2 = analogRead(FLEX2);
+
+  int angle1 = map(flexVal1, 500, 900, 0, 180);
+  int angle2 = map(flexVal2, 500, 900, 0, 180);
+
+  finger1.write(constrain(angle1, 0, 180));
+  finger2.write(constrain(angle2, 0, 180));
+
+  delay(30);
+}`,testing_output:"Finger servos mimic hand bending.",common_errors:"Wrong flex calibration, servo jitter.",improvements:"Add EMG sensors, force feedback.",mini_challenge:"Grip objects with controlled force.",advantages:"Low-cost assistive demo.",disadvantages:"Limited precision.",components:["Arduino UNO","Flex Sensors","Servo Motors"],industrial_use:"Assistive technology research.",author_name:"NISHANTH",status:"Published",bom_cost:"₹3,600"},{id:229,title:"Camera Controlled Car",level:"Intermediate",description:"A camera-controlled robotic car using ESP32-CAM that streams live video over Wi-Fi and allows remote directional control through a web interface.",category:"Robotics",sub_category:"Robotics (221-235)",estimatedTime:"8–10 Hours",tech:["ESP32-CAM","ESP32","Wi-Fi","L298N Motor Driver","DC Motors"],problem_statement:"Remote navigation in unknown or hazardous environments requires visual feedback. Camera-controlled robots provide real-time situational awareness.",real_world_case:"Used in surveillance rovers, search-and-rescue robots, inspection bots, and teleoperated vehicles.",block_diagram:"graph TD; Camera-->|Video Stream|ESP32_CAM; Web_UI-->|Commands|ESP32; ESP32-->|Motor Control|L298N;",concept:"Live video streaming allows a human operator to visually guide the robot. Control commands are sent via HTTP requests to the ESP32.",working_principle:`1. ESP32-CAM streams video via Wi-Fi.
+2. User views stream on browser.
+3. Button commands sent to ESP32.
+4. Motors respond in real time.`,pin_config:{esp32:[{module:"ESP32-CAM",pinName:"5V",mcuPin:"5V",direction:"Power",description:"Camera power"},{module:"ESP32-CAM",pinName:"GND",mcuPin:"GND",direction:"Ground"},{module:"L298N",pinName:"IN1",mcuPin:"GPIO12",direction:"Output",description:"Left motor forward"},{module:"L298N",pinName:"IN2",mcuPin:"GPIO13",direction:"Output",description:"Left motor backward"},{module:"L298N",pinName:"IN3",mcuPin:"GPIO14",direction:"Output",description:"Right motor forward"},{module:"L298N",pinName:"IN4",mcuPin:"GPIO15",direction:"Output",description:"Right motor backward"}]},code:`/* Project 229: Camera Controlled Car (ESP32-CAM + Web Control) */
+#include "esp_camera.h"
+#include <WiFi.h>
+#include <WebServer.h>
+
+#define L1 12
+#define L2 13
+#define R1 14
+#define R2 15
+
+const char* ssid = "YOUR_WIFI";
+const char* password = "YOUR_PASS";
+
+WebServer server(80);
+
+void moveForward() {
+  digitalWrite(L1, HIGH); digitalWrite(L2, LOW);
+  digitalWrite(R1, HIGH); digitalWrite(R2, LOW);
+}
+void stopCar() {
+  digitalWrite(L1, LOW); digitalWrite(L2, LOW);
+  digitalWrite(R1, LOW); digitalWrite(R2, LOW);
+}
+
+void setup() {
+  pinMode(L1, OUTPUT); pinMode(L2, OUTPUT);
+  pinMode(R1, OUTPUT); pinMode(R2, OUTPUT);
+
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) delay(500);
+
+  server.on("/forward", moveForward);
+  server.on("/stop", stopCar);
+  server.begin();
+}
+
+void loop() {
+  server.handleClient();
+}`,testing_output:"Live video stream visible; car responds to web commands.",common_errors:"Insufficient power for ESP32-CAM, Wi-Fi latency.",improvements:"Add watchdog timer, encrypted commands.",mini_challenge:"Add object detection on video stream.",advantages:"Visual teleoperation.",disadvantages:"Network-dependent.",components:["ESP32-CAM","ESP32","L298N","DC Motors"],industrial_use:"Surveillance and inspection robots.",author_name:"NISHANTH",status:"Published",bom_cost:"₹4,500"},{id:230,title:"Edge Avoiding Robot",level:"Intermediate",description:"A safety-focused mobile robot using ESP32 that prevents falling by detecting surface edges using downward-facing IR sensors.",category:"Robotics",sub_category:"Robotics (221-235)",estimatedTime:"5–6 Hours",tech:["ESP32","IR Sensors","L298N Motor Driver","DC Motors"],problem_statement:"Mobile robots risk falling when operating on elevated surfaces. Edge avoidance ensures operational safety.",real_world_case:"Used in vacuum robots, inspection bots, and service robots.",block_diagram:"graph TD; IR_Sensors-->|Edge Detection|ESP32; ESP32-->|Motor Control|L298N;",concept:"Downward IR sensors detect reflected surface light. Absence of reflection indicates an edge.",working_principle:`1. IR sensors monitor ground reflection.
+2. ESP32 detects edge condition.
+3. Robot stops and retreats.
+4. Direction adjusted.`,pin_config:{esp32:[{module:"IR Sensor Left",pinName:"VCC",mcuPin:"3V3",direction:"Power"},{module:"IR Sensor Left",pinName:"GND",mcuPin:"GND",direction:"Ground"},{module:"IR Sensor Left",pinName:"OUT",mcuPin:"GPIO34",direction:"Input"},{module:"IR Sensor Right",pinName:"OUT",mcuPin:"GPIO35",direction:"Input"},{module:"L298N",pinName:"IN1",mcuPin:"GPIO26",direction:"Output"},{module:"L298N",pinName:"IN2",mcuPin:"GPIO27",direction:"Output"},{module:"L298N",pinName:"IN3",mcuPin:"GPIO14",direction:"Output"},{module:"L298N",pinName:"IN4",mcuPin:"GPIO12",direction:"Output"}]},code:`/* Project 230: Edge Avoiding Robot */
+#define IR_L 34
+#define IR_R 35
+
+#define L1 26
+#define L2 27
+#define R1 14
+#define R2 12
+
+void stopRobot() {
+  digitalWrite(L1, LOW); digitalWrite(L2, LOW);
+  digitalWrite(R1, LOW); digitalWrite(R2, LOW);
+}
+
+void setup() {
+  pinMode(IR_L, INPUT);
+  pinMode(IR_R, INPUT);
+  pinMode(L1, OUTPUT); pinMode(L2, OUTPUT);
+  pinMode(R1, OUTPUT); pinMode(R2, OUTPUT);
+}
+
+void loop() {
+  int left = digitalRead(IR_L);
+  int right = digitalRead(IR_R);
+
+  if (left == LOW || right == LOW) {
+    stopRobot();
+    delay(200);
+    // Reverse slightly
+    digitalWrite(L1, LOW); digitalWrite(L2, HIGH);
+    digitalWrite(R1, LOW); digitalWrite(R2, HIGH);
+    delay(400);
+  } else {
+    digitalWrite(L1, HIGH); digitalWrite(L2, LOW);
+    digitalWrite(R1, HIGH); digitalWrite(R2, LOW);
+  }
+}`,testing_output:"Robot avoids falling from table edges.",common_errors:"Wrong sensor height, reflective surfaces.",improvements:"Combine with obstacle avoidance.",mini_challenge:"Detect stairs reliably.",advantages:"Critical safety layer.",disadvantages:"Sensitive to lighting.",components:["ESP32","IR Sensors","L298N","DC Motors"],industrial_use:"Service and inspection robots.",author_name:"NISHANTH",status:"Published",bom_cost:"₹2,200"},{id:231,title:"Smart Vacuum Mapping Robot (Simple)",level:"Intermediate",description:"A smart vacuum robot using ESP32 that performs structured room coverage using basic mapping logic without complex SLAM algorithms.",category:"Robotics",sub_category:"Robotics (221-235)",estimatedTime:"9–10 Hours",tech:["ESP32","Ultrasonic Sensor","IR Edge Sensors","Relay Module","L298N Motor Driver"],problem_statement:"Random navigation vacuum robots waste energy and time. Structured coverage improves cleaning efficiency.",real_world_case:"Used in entry-level vacuum robots and industrial floor-cleaning machines.",concept:"The robot maintains a simple directional state and follows a zig-zag pattern, changing direction when obstacles are detected.",working_principle:`1. Robot moves forward cleaning.
+2. Obstacle detected → rotate 90°.
+3. After fixed distance, direction flips.
+4. Area covered systematically.`,pin_config:{esp32:[{module:"Ultrasonic",pinName:"TRIG",mcuPin:"GPIO18",direction:"Output"},{module:"Ultrasonic",pinName:"ECHO",mcuPin:"GPIO19",direction:"Input",description:"Use voltage divider"},{module:"IR Edge Sensor",pinName:"OUT",mcuPin:"GPIO34",direction:"Input"},{module:"Vacuum Relay",pinName:"IN",mcuPin:"GPIO25",direction:"Output"},{module:"L298N",pinName:"IN1",mcuPin:"GPIO26"},{module:"L298N",pinName:"IN2",mcuPin:"GPIO27"},{module:"L298N",pinName:"IN3",mcuPin:"GPIO14"},{module:"L298N",pinName:"IN4",mcuPin:"GPIO12"}]},code:`/* Project 231: Smart Vacuum Mapping Robot (Simple) */
+#define TRIG 18
+#define ECHO 19
+#define EDGE 34
+#define VACUUM 25
+
+#define L1 26
+#define L2 27
+#define R1 14
+#define R2 12
+
+long getDistance() {
+  digitalWrite(TRIG, LOW);
+  delayMicroseconds(2);
+  digitalWrite(TRIG, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIG, LOW);
+  return pulseIn(ECHO, HIGH) * 0.034 / 2;
+}
+
+void forward() {
+  digitalWrite(L1, HIGH); digitalWrite(L2, LOW);
+  digitalWrite(R1, HIGH); digitalWrite(R2, LOW);
+}
+
+void rotateRight() {
+  digitalWrite(L1, HIGH); digitalWrite(L2, LOW);
+  digitalWrite(R1, LOW); digitalWrite(R2, HIGH);
+}
+
+void setup() {
+  pinMode(TRIG, OUTPUT);
+  pinMode(ECHO, INPUT);
+  pinMode(EDGE, INPUT);
+  pinMode(VACUUM, OUTPUT);
+
+  pinMode(L1, OUTPUT); pinMode(L2, OUTPUT);
+  pinMode(R1, OUTPUT); pinMode(R2, OUTPUT);
+
+  digitalWrite(VACUUM, HIGH); // Vacuum ON
+}
+
+void loop() {
+  long dist = getDistance();
+  int edge = digitalRead(EDGE);
+
+  if (edge == LOW || dist < 25) {
+    rotateRight();
+    delay(500);
+  } else {
+    forward();
+  }
+}`,testing_output:"Robot cleans area in structured pattern.",common_errors:"Wheel slip, inaccurate turning angle.",improvements:"Add encoder-based distance tracking.",mini_challenge:"Store visited zones in EEPROM.",advantages:"Better coverage than random walk.",disadvantages:"No true map storage.",components:["ESP32","Ultrasonic","IR Sensor","Relay","L298N","DC Motors"],industrial_use:"Service robotics.",author_name:"NISHANTH",status:"Published",bom_cost:"₹5,200"},{id:232,title:"Gesture Robotic Arm (Basic)",level:"Intermediate",description:"A gesture-controlled robotic arm using ESP32 and MPU6050 that mimics hand orientation in real time.",category:"Robotics",sub_category:"Robotics (221-235)",estimatedTime:"7–8 Hours",tech:["ESP32","MPU6050","Servo Motors"],problem_statement:"Traditional joystick control is unintuitive. Gesture control enables natural human interaction with robotic arms.",real_world_case:"Used in assistive robotics, teleoperation systems, and industrial manipulators.",concept:"Hand tilt angles are mapped to servo angles for corresponding arm joints.",working_principle:`1. MPU6050 reads hand orientation.
+2. ESP32 maps angles to servos.
+3. Robotic arm mirrors hand motion.`,pin_config:{esp32:[{module:"MPU6050",pinName:"SDA",mcuPin:"GPIO21"},{module:"MPU6050",pinName:"SCL",mcuPin:"GPIO22"},{module:"Servo Base",pinName:"Signal",mcuPin:"GPIO25"},{module:"Servo Shoulder",pinName:"Signal",mcuPin:"GPIO26"},{module:"Servo Elbow",pinName:"Signal",mcuPin:"GPIO27"}]},code:`/* Project 232: Gesture Robotic Arm */
+#include <Wire.h>
+#include <Adafruit_MPU6050.h>
+#include <Servo.h>
+
+Adafruit_MPU6050 mpu;
+Servo baseServo, shoulderServo, elbowServo;
+
+void setup() {
+  baseServo.attach(25);
+  shoulderServo.attach(26);
+  elbowServo.attach(27);
+
+  if (!mpu.begin()) {
+    while (1);
+  }
+}
+
+void loop() {
+  sensors_event_t a, g, t;
+  mpu.getEvent(&a, &g, &t);
+
+  int baseAngle = map(a.acceleration.y * 10, -90, 90, 0, 180);
+  int shoulderAngle = map(a.acceleration.x * 10, -90, 90, 0, 180);
+  int elbowAngle = map(a.acceleration.z * 10, -90, 90, 0, 180);
+
+  baseServo.write(constrain(baseAngle, 0, 180));
+  shoulderServo.write(constrain(shoulderAngle, 0, 180));
+  elbowServo.write(constrain(elbowAngle, 0, 180));
+
+  delay(30);
+}`,testing_output:"Robotic arm follows hand motion smoothly.",common_errors:"Servo jitter, sensor noise.",improvements:"Add smoothing filters, wireless control.",mini_challenge:"Add gesture-based gripper control.",advantages:"Natural control.",disadvantages:"Requires steady hand.",components:["ESP32","MPU6050","Servo Motors"],industrial_use:"Teleoperation systems.",author_name:"NISHANTH",status:"Published",bom_cost:"₹3,700"},{id:232,title:"Gesture Robotic Arm (Basic)",level:"Intermediate",description:"A gesture-controlled robotic arm using ESP32 and MPU6050 that mimics hand orientation in real time.",category:"Robotics",sub_category:"Robotics (221-235)",estimatedTime:"7–8 Hours",tech:["ESP32","MPU6050","Servo Motors"],problem_statement:"Traditional joystick control is unintuitive. Gesture control enables natural human interaction with robotic arms.",real_world_case:"Used in assistive robotics, teleoperation systems, and industrial manipulators.",concept:"Hand tilt angles are mapped to servo angles for corresponding arm joints.",working_principle:`1. MPU6050 reads hand orientation.
+2. ESP32 maps angles to servos.
+3. Robotic arm mirrors hand motion.`,pin_config:{esp32:[{module:"MPU6050",pinName:"SDA",mcuPin:"GPIO21"},{module:"MPU6050",pinName:"SCL",mcuPin:"GPIO22"},{module:"Servo Base",pinName:"Signal",mcuPin:"GPIO25"},{module:"Servo Shoulder",pinName:"Signal",mcuPin:"GPIO26"},{module:"Servo Elbow",pinName:"Signal",mcuPin:"GPIO27"}]},code:`/* Project 232: Gesture Robotic Arm */
+#include <Wire.h>
+#include <Adafruit_MPU6050.h>
+#include <Servo.h>
+
+Adafruit_MPU6050 mpu;
+Servo baseServo, shoulderServo, elbowServo;
+
+void setup() {
+  baseServo.attach(25);
+  shoulderServo.attach(26);
+  elbowServo.attach(27);
+
+  if (!mpu.begin()) {
+    while (1);
+  }
+}
+
+void loop() {
+  sensors_event_t a, g, t;
+  mpu.getEvent(&a, &g, &t);
+
+  int baseAngle = map(a.acceleration.y * 10, -90, 90, 0, 180);
+  int shoulderAngle = map(a.acceleration.x * 10, -90, 90, 0, 180);
+  int elbowAngle = map(a.acceleration.z * 10, -90, 90, 0, 180);
+
+  baseServo.write(constrain(baseAngle, 0, 180));
+  shoulderServo.write(constrain(shoulderAngle, 0, 180));
+  elbowServo.write(constrain(elbowAngle, 0, 180));
+
+  delay(30);
+}`,testing_output:"Robotic arm follows hand motion smoothly.",common_errors:"Servo jitter, sensor noise.",improvements:"Add smoothing filters, wireless control.",mini_challenge:"Add gesture-based gripper control.",advantages:"Natural control.",disadvantages:"Requires steady hand.",components:["ESP32","MPU6050","Servo Motors"],industrial_use:"Teleoperation systems.",author_name:"NISHANTH",status:"Published",bom_cost:"₹3,700"},{id:234,title:"Wi-Fi Controlled Robot Car",level:"Intermediate",description:"A Wi-Fi controlled robot car using ESP32 that responds to commands from a web interface over a local network.",category:"Robotics",sub_category:"Robotics (221-235)",estimatedTime:"6–7 Hours",tech:["ESP32","Wi-Fi","L298N Motor Driver","DC Motors"],concept:"ESP32 hosts a web server that receives HTTP commands and translates them into motor actions.",pin_config:{esp32:[{module:"L298N",pinName:"IN1",mcuPin:"GPIO26"},{module:"L298N",pinName:"IN2",mcuPin:"GPIO27"},{module:"L298N",pinName:"IN3",mcuPin:"GPIO14"},{module:"L298N",pinName:"IN4",mcuPin:"GPIO12"}]},code:`/* Project 234: Wi-Fi Controlled Robot Car */
+#include <WiFi.h>
+#include <WebServer.h>
+
+#define L1 26
+#define L2 27
+#define R1 14
+#define R2 12
+
+WebServer server(80);
+
+void forward() {
+  digitalWrite(L1, HIGH); digitalWrite(L2, LOW);
+  digitalWrite(R1, HIGH); digitalWrite(R2, LOW);
+}
+
+void stopCar() {
+  digitalWrite(L1, LOW); digitalWrite(L2, LOW);
+  digitalWrite(R1, LOW); digitalWrite(R2, LOW);
+}
+
+void setup() {
+  WiFi.begin("SSID", "PASSWORD");
+  while (WiFi.status() != WL_CONNECTED) delay(500);
+
+  pinMode(L1, OUTPUT); pinMode(L2, OUTPUT);
+  pinMode(R1, OUTPUT); pinMode(R2, OUTPUT);
+
+  server.on("/forward", forward);
+  server.on("/stop", stopCar);
+  server.begin();
+}
+
+void loop() {
+  server.handleClient();
+}`,advantages:"Longer range than Bluetooth.",improvements:"Add authentication, camera feed.",author_name:"NISHANTH",status:"Published",bom_cost:"₹2,800"},{id:235,title:"Smart Campus Patrol Bot (Simple)",level:"Intermediate",description:"A patrol robot that autonomously navigates a campus area, detects obstacles, and raises alerts for unusual activity.",category:"Robotics",sub_category:"Robotics (221-235)",estimatedTime:"8 Hours",tech:["ESP32","Ultrasonic Sensor","PIR Sensor","Buzzer","L298N"],concept:"The robot follows a patrol route and triggers alerts when motion is detected during patrol.",working_principle:`1. Robot patrols predefined route.
+2. Ultrasonic avoids obstacles.
+3. PIR detects human motion.
+4. Alert is triggered.`,pin_config:{esp32:[{module:"Ultrasonic",pinName:"TRIG",mcuPin:"GPIO18"},{module:"Ultrasonic",pinName:"ECHO",mcuPin:"GPIO19"},{module:"PIR Sensor",pinName:"OUT",mcuPin:"GPIO34"},{module:"Buzzer",pinName:"Signal",mcuPin:"GPIO25"},{module:"L298N",pinName:"IN1",mcuPin:"GPIO26"},{module:"L298N",pinName:"IN2",mcuPin:"GPIO27"},{module:"L298N",pinName:"IN3",mcuPin:"GPIO14"},{module:"L298N",pinName:"IN4",mcuPin:"GPIO12"}]},code:`/* Project 235: Smart Campus Patrol Bot */
+#define PIR 34
+#define BUZZER 25
+#define TRIG 18
+#define ECHO 19
+
+#define L1 26
+#define L2 27
+#define R1 14
+#define R2 12
+
+long getDistance() {
+  digitalWrite(TRIG, LOW);
+  delayMicroseconds(2);
+  digitalWrite(TRIG, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIG, LOW);
+  return pulseIn(ECHO, HIGH) * 0.034 / 2;
+}
+
+void setup() {
+  pinMode(PIR, INPUT);
+  pinMode(BUZZER, OUTPUT);
+  pinMode(TRIG, OUTPUT);
+  pinMode(ECHO, INPUT);
+
+  pinMode(L1, OUTPUT); pinMode(L2, OUTPUT);
+  pinMode(R1, OUTPUT); pinMode(R2, OUTPUT);
+}
+
+void loop() {
+  long dist = getDistance();
+  int motion = digitalRead(PIR);
+
+  if (motion == HIGH) {
+    digitalWrite(BUZZER, HIGH);
+  } else {
+    digitalWrite(BUZZER, LOW);
+  }
+
+  if (dist < 30) {
+    digitalWrite(L1, LOW); digitalWrite(L2, HIGH);
+    digitalWrite(R1, HIGH); digitalWrite(R2, LOW);
+    delay(400);
+  } else {
+    digitalWrite(L1, HIGH); digitalWrite(L2, LOW);
+    digitalWrite(R1, HIGH); digitalWrite(R2, LOW);
+  }
+}`,industrial_use:"Campus and facility security prototypes.",author_name:"NISHANTH",status:"Published",bom_cost:"₹4,100"}];export{e as p};
