@@ -6429,4 +6429,643 @@ while True:
 
 cap.release()
 GPIO.cleanup()
-cv2.destroyAllWindows()`},testing_and_output:["Run Python script","Stand in front of camera","Mask status displayed above face","Buzzer activates for no-mask condition"],common_errors:["Model input size mismatch","Low lighting causing misclassification","False detection due to face covering styles","Incorrect GPIO pin numbering"],limitations:["Accuracy depends on dataset quality","Cannot detect transparent masks","Ethical concerns if misused"],improvements_next_level:["TensorFlow Lite optimization","Multi-face tracking with ID assignment","Cloud-based compliance reporting","Thermal camera integration"],mini_challenge_for_learner:"Log timestamp and image when a no-mask event occurs.",ethical_note:"This system should be used for safety awareness, not punitive surveillance.",author_name:"NISHANTH",status:"Published"}];export{e as p};
+cv2.destroyAllWindows()`},testing_and_output:["Run Python script","Stand in front of camera","Mask status displayed above face","Buzzer activates for no-mask condition"],common_errors:["Model input size mismatch","Low lighting causing misclassification","False detection due to face covering styles","Incorrect GPIO pin numbering"],limitations:["Accuracy depends on dataset quality","Cannot detect transparent masks","Ethical concerns if misused"],improvements_next_level:["TensorFlow Lite optimization","Multi-face tracking with ID assignment","Cloud-based compliance reporting","Thermal camera integration"],mini_challenge_for_learner:"Log timestamp and image when a no-mask event occurs.",ethical_note:"This system should be used for safety awareness, not punitive surveillance.",author_name:"NISHANTH",status:"Published"},{id:315,title:"Object Tracking Car using OpenCV",level:"AI + Embedded (Intermediate – Vision-Based Control)",category:"AI + Embedded + Machine Learning",estimatedTime:"12–14 Hours",problem_statement:"Traditional robotic cars follow fixed paths or manual commands. They cannot dynamically react to moving objects. Object tracking enables robots to visually follow a target, making them suitable for real-world interaction and autonomous navigation.",real_world_use_case:["Human-following robots","Autonomous delivery carts","Surveillance robots","Warehouse assistance robots","Educational robotics platforms"],ai_concept:{type:"Computer Vision",task:"Object Tracking",method:"Color-based segmentation + contour tracking",learning:"Rule-based vision (no training)",upgrade_path:"Deep learning object tracking (YOLO + SORT)"},hardware:{processor:"Raspberry Pi 4",camera:"Pi Camera v2 / USB Webcam",motor_driver:"L298N",motors:"DC Geared Motors (2 or 4)",chassis:"Robot car chassis",power:"12V battery (motors) + 5V buck converter"},working_principle:["Camera captures live video frames","Frame converted from BGR to HSV color space","Target color isolated using HSV thresholding","Largest contour selected as target object","Centroid position calculated","Horizontal error computed relative to frame center","Motor commands generated to follow the object"],control_logic:{center_tolerance:"±40 pixels",left_turn:"Object centroid < center - tolerance",right_turn:"Object centroid > center + tolerance",forward_motion:"Object within tolerance",stop_condition:"No object detected"},pin_config:{raspberry_pi:[{module:"L298N",pinName:"IN1",pin:"GPIO17",voltage:"3.3V",direction:"Output",description:"Left motor forward control"},{module:"L298N",pinName:"IN2",pin:"GPIO27",voltage:"3.3V",direction:"Output",description:"Left motor reverse control"},{module:"L298N",pinName:"IN3",pin:"GPIO22",voltage:"3.3V",direction:"Output",description:"Right motor forward control"},{module:"L298N",pinName:"IN4",pin:"GPIO23",voltage:"3.3V",direction:"Output",description:"Right motor reverse control"},{module:"Camera",pinName:"CSI",pin:"CSI Port",voltage:"3.3V",direction:"Input",description:"Video input from Pi Camera"}]},software_stack:["Python 3","OpenCV","NumPy","RPi.GPIO"],code:{language:"Python",file:"object_tracking_car.py",content:`import cv2
+import numpy as np
+import RPi.GPIO as GPIO
+
+GPIO.setmode(GPIO.BCM)
+L1, L2, R1, R2 = 17, 27, 22, 23
+for pin in [L1, L2, R1, R2]:
+    GPIO.setup(pin, GPIO.OUT)
+    GPIO.output(pin, GPIO.LOW)
+
+cap = cv2.VideoCapture(0)
+FRAME_CENTER_TOL = 40
+
+while True:
+    ret, frame = cap.read()
+    if not ret:
+        break
+
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+
+    lower = np.array([25, 150, 80])
+    upper = np.array([35, 255, 255])
+    mask = cv2.inRange(hsv, lower, upper)
+
+    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    if contours:
+        c = max(contours, key=cv2.contourArea)
+        x, y, w, h = cv2.boundingRect(c)
+        cx = x + w // 2
+        frame_center = frame.shape[1] // 2
+
+        if cx < frame_center - FRAME_CENTER_TOL:
+            GPIO.output(L1, GPIO.LOW)
+            GPIO.output(L2, GPIO.HIGH)
+            GPIO.output(R1, GPIO.HIGH)
+            GPIO.output(R2, GPIO.LOW)
+        elif cx > frame_center + FRAME_CENTER_TOL:
+            GPIO.output(L1, GPIO.HIGH)
+            GPIO.output(L2, GPIO.LOW)
+            GPIO.output(R1, GPIO.LOW)
+            GPIO.output(R2, GPIO.HIGH)
+        else:
+            GPIO.output(L1, GPIO.HIGH)
+            GPIO.output(L2, GPIO.LOW)
+            GPIO.output(R1, GPIO.HIGH)
+            GPIO.output(R2, GPIO.LOW)
+    else:
+        for pin in [L1, L2, R1, R2]:
+            GPIO.output(pin, GPIO.LOW)
+
+    if cv2.waitKey(1) == 27:
+        break
+
+cap.release()
+GPIO.cleanup()
+cv2.destroyAllWindows()`},testing_output:"Robot continuously follows the colored target object and stops when the object disappears.",common_errors:["Incorrect HSV values for lighting conditions","Motor power insufficient","Camera lag causing oscillation","No common ground between Pi and motor driver"],improvements:["PID control for smoother tracking","Distance estimation using object size","YOLO-based person tracking","ESP32 offloading motor control"],mini_challenge:"Track a moving person instead of a colored object.",estimated_cost_india:{raspberry_pi:"₹3,500",camera:"₹800",motor_driver:"₹250",dc_motors:"₹600",chassis:"₹700",battery_and_converter:"₹600",total:"₹6,450 (approx)"},author_name:"NISHANTH",status:"Published"},{id:316,title:"Automatic Pet Feeder with AI-based Detection",level:"AI + Embedded (Intermediate – Intelligent Automation)",category:"AI + Embedded + Machine Learning",estimatedTime:"12–14 Hours",problem_statement:"Conventional automatic pet feeders dispense food at fixed times, which can cause overfeeding, food wastage, or feeding in the absence of the pet. An AI-based pet feeder ensures food is dispensed only when the pet is actually present.",real_world_use_case:["Smart pet care systems","Home automation for pet owners","Veterinary observation setups","Animal shelters","Research on animal behavior"],ai_concept:{type:"Computer Vision – Object Detection",model:"MobileNet-SSD / YOLOv5 (Person/Animal classes)",learning:"Pre-trained model (COCO dataset)",reason:"Lightweight enough for Raspberry Pi edge inference",upgrade_path:"Pet-specific fine-tuned model (Dog/Cat classification)"},hardware:{processor:"Raspberry Pi 4 (4GB recommended)",camera:"Pi Camera v2 / USB Webcam",actuator:"Servo Motor (SG90 / MG995)",mechanism:"Rotary food dispenser flap",power:"5V 3A power supply",optional:"Load cell for portion verification"},working_principle:["Camera continuously monitors feeding area","Video frames are passed to the AI object detection model","Model detects presence of pet (dog/cat)","Confidence threshold validated to avoid false triggers","If pet detected → servo rotates to dispense food","Cooldown timer prevents repeated dispensing","System returns to monitoring state"],decision_logic:{detection_confidence:"≥ 0.6",dispense_duration:"0.8 – 1.2 seconds",cooldown_period:"10 minutes",fail_safe:"No dispense if camera feed fails"},pin_config:{raspberry_pi:[{module:"Servo Motor",pinName:"Signal",pin:"GPIO18",voltage:"3.3V (PWM)",direction:"Output",description:"Controls servo rotation for food dispensing"},{module:"Servo Motor",pinName:"VCC",pin:"5V",voltage:"5V",direction:"Power",description:"Provides power to servo motor (use external supply)"},{module:"Servo Motor",pinName:"GND",pin:"GND",voltage:"0V",direction:"Ground",description:"Common ground with Raspberry Pi"},{module:"Camera",pinName:"CSI",pin:"CSI Port",voltage:"3.3V",direction:"Input",description:"Video input from Pi Camera"}]},software_stack:["Python 3","OpenCV","TensorFlow Lite","RPi.GPIO","NumPy"],code:{language:"Python",file:"ai_pet_feeder.py",content:`import cv2
+import time
+import RPi.GPIO as GPIO
+
+SERVO_PIN = 18
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(SERVO_PIN, GPIO.OUT)
+
+pwm = GPIO.PWM(SERVO_PIN, 50)
+pwm.start(0)
+
+cap = cv2.VideoCapture(0)
+last_dispense = 0
+COOLDOWN = 600  # seconds
+
+
+def dispense_food():
+    pwm.ChangeDutyCycle(7.5)
+    time.sleep(1)
+    pwm.ChangeDutyCycle(2.5)
+
+while True:
+    ret, frame = cap.read()
+    if not ret:
+        continue
+
+    pet_detected = True  # replace with AI detection output
+
+    if pet_detected and (time.time() - last_dispense > COOLDOWN):
+        dispense_food()
+        last_dispense = time.time()
+
+    if cv2.waitKey(1) == 27:
+        break
+
+cap.release()
+pwm.stop()
+GPIO.cleanup()`},testing_output:"When a pet is detected near the feeder, food is dispensed once and locked for the cooldown period.",common_errors:["Servo drawing too much current from Pi","False detection due to background movement","Improper servo angle calibration","No common ground between servo supply and Pi"],improvements:["Pet face recognition (individual pet feeding)","Portion control using load cell","Mobile app feeding logs","Night vision camera support"],mini_challenge:"Feed different pets with different portion sizes based on recognition.",estimated_cost_india:{raspberry_pi_4:"₹3,500",camera:"₹700",servo_motor:"₹250",power_supply:"₹400",mechanical_parts:"₹500",total:"₹5,350 (approx)"},author_name:"NISHANTH",status:"Published"},{id:317,title:"Face Recognition Door Unlock System",level:"AI + Embedded (Intermediate–Advanced Security System)",category:"AI + Embedded + Machine Learning",estimatedTime:"14–16 Hours",problem_statement:"Basic door locks and face-detection-based systems cannot verify identity and are vulnerable to unauthorized access. A face recognition-based door unlock system ensures that only registered individuals can unlock the door, improving security and access control.",real_world_use_case:["Smart home security","Office access control","Research labs","Hostel and PG entrances","Restricted rooms in institutions"],ai_concept:{type:"Face Recognition (Identification)",method:"Face embeddings + distance comparison",model:"HOG-based face encoding (dlib)",learning:"Feature-based (no online training required)",reason:"Accurate and efficient for Raspberry Pi edge inference"},hardware:{processor:"Raspberry Pi 4 (4GB recommended)",camera:"Pi Camera v2 / USB Webcam",actuator:"Solenoid Lock / Servo Lock via Relay",alert:"Buzzer (optional)",power:"5V 3A Adapter (separate supply for lock recommended)"},working_principle:["Authorized users are registered by capturing face images","Face encodings are generated and stored securely","Camera captures live video frames continuously","Detected faces are encoded in real time","Live encodings are compared with stored encodings","If distance is within threshold → access granted","Relay activates lock for fixed duration","System automatically relocks after timeout"],security_logic:{matching_metric:"Euclidean distance",acceptance_threshold:"≤ 0.45",unlock_duration:"5 seconds",retry_limit:"Unlimited (can be restricted)",fail_safe:"Door remains locked on camera or system failure"},pin_config:{raspberry_pi:[{module:"Relay Module",pinName:"VCC",pin:"5V",voltage:"5V",direction:"Power",description:"Power supply for relay module"},{module:"Relay Module",pinName:"GND",pin:"GND",voltage:"0V",direction:"Ground",description:"Common ground with Raspberry Pi"},{module:"Relay Module",pinName:"IN",pin:"GPIO17",voltage:"3.3V",direction:"Output",description:"Controls door lock ON/OFF"},{module:"Buzzer",pinName:"VCC",pin:"3.3V",voltage:"3.3V",direction:"Power",description:"Power for alert buzzer"},{module:"Buzzer",pinName:"GND",pin:"GND",voltage:"0V",direction:"Ground",description:"Ground connection"},{module:"Buzzer",pinName:"IN",pin:"GPIO27",voltage:"3.3V",direction:"Output",description:"Triggers alert on unauthorized attempt"}]},software_stack:["Python 3","OpenCV","face_recognition (dlib)","RPi.GPIO","NumPy"],code:{language:"Python",file:"face_unlock_system.py",content:`import cv2
+import face_recognition
+import RPi.GPIO as GPIO
+import time
+
+LOCK_PIN = 17
+BUZZER_PIN = 27
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(LOCK_PIN, GPIO.OUT)
+GPIO.setup(BUZZER_PIN, GPIO.OUT)
+GPIO.output(LOCK_PIN, GPIO.LOW)
+
+known_image = face_recognition.load_image_file('authorized_user.jpg')
+known_encoding = face_recognition.face_encodings(known_image)[0]
+
+cap = cv2.VideoCapture(0)
+
+while True:
+    ret, frame = cap.read()
+    if not ret:
+        continue
+
+    rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    locations = face_recognition.face_locations(rgb)
+    encodings = face_recognition.face_encodings(rgb, locations)
+
+    for encoding in encodings:
+        distance = face_recognition.face_distance([known_encoding], encoding)[0]
+        if distance <= 0.45:
+            GPIO.output(LOCK_PIN, GPIO.HIGH)
+            time.sleep(5)
+            GPIO.output(LOCK_PIN, GPIO.LOW)
+        else:
+            GPIO.output(BUZZER_PIN, GPIO.HIGH)
+            time.sleep(1)
+            GPIO.output(BUZZER_PIN, GPIO.LOW)
+
+    if cv2.waitKey(1) == 27:
+        break
+
+cap.release()
+GPIO.cleanup()
+cv2.destroyAllWindows()`},testing_output:"Authorized face unlocks door for 5 seconds; unauthorized face triggers buzzer and no unlock.",common_errors:["Poor lighting causing false rejection","Improper camera angle","Relay powered directly from Pi without isolation","Using face detection instead of recognition"],improvements:["Multiple user database support","Anti-spoofing using blink detection","Access logging with timestamps","Mobile notification on failed attempts"],mini_challenge:"Add OTP fallback if face recognition fails three times.",estimated_cost_india:{raspberry_pi_4:"₹3,500",camera:"₹700",relay_module:"₹150",solenoid_lock:"₹800",buzzer:"₹100",power_supply:"₹400",miscellaneous:"₹250",total:"₹5,900 (approx)"},author_name:"NISHANTH",status:"Published"},{id:318,title:"Smart Mirror with Voice Commands",level:"AI + Embedded (Intermediate–Advanced Human–Machine Interface)",category:"AI + Embedded + Machine Learning",estimatedTime:"14–16 Hours",problem_statement:"Traditional information displays require active interaction and distract users. A smart mirror provides passive, hands-free access to information such as time, weather, and reminders using voice commands, improving daily efficiency.",real_world_use_case:["Smart homes","Hotel rooms","Gym and fitness centers","Retail smart displays","Personal productivity systems"],ai_concept:{type:"Speech Recognition + Intent Processing",speech_to_text:"Google Speech API / Vosk (offline)",intent_logic:"Rule-based NLP",text_to_speech:"pyttsx3",reason:"Reliable voice interaction without heavy ML models on edge"},hardware:{processor:"Raspberry Pi 4 (4GB recommended)",display:"HDMI Monitor behind two-way mirror",audio_input:"USB Microphone",audio_output:"USB / AUX Speaker",power:"5V 3A Adapter"},working_principle:["User speaks a voice command in front of the mirror","Microphone captures the audio signal","Speech-to-text engine converts speech into text","Intent parser matches command keywords","Requested information is fetched or generated","Information is displayed visually on the mirror","Voice feedback is provided via speaker"],supported_commands:["What is the time?","What is the date?","What is today’s weather?","Say hello","Shutdown mirror"],pin_config:{raspberry_pi:[{module:"Display (HDMI)",pinName:"HDMI",pin:"HDMI Port",voltage:"5V (internal)",direction:"Output",description:"Video output to monitor"},{module:"USB Microphone",pinName:"USB",pin:"USB Port",voltage:"5V",direction:"Input",description:"Captures voice commands"},{module:"Speaker",pinName:"USB / AUX",pin:"USB / 3.5mm Jack",voltage:"5V",direction:"Output",description:"Plays voice responses"}]},software_stack:["Raspberry Pi OS","Python 3","SpeechRecognition","pyttsx3","Tkinter (GUI)","Requests (API calls)"],code:{language:"Python",file:"smart_mirror.py",content:`import speech_recognition as sr
+import pyttsx3
+import datetime
+import tkinter as tk
+
+engine = pyttsx3.init()
+recognizer = sr.Recognizer()
+
+root = tk.Tk()
+root.attributes('-fullscreen', True)
+label = tk.Label(root, font=('Helvetica', 48), fg='white', bg='black')
+label.pack(expand=True)
+
+engine.say('Smart mirror ready')
+engine.runAndWait()
+
+with sr.Microphone() as source:
+    recognizer.adjust_for_ambient_noise(source)
+
+    while True:
+        audio = recognizer.listen(source)
+        try:
+            command = recognizer.recognize_google(audio).lower()
+
+            if 'time' in command:
+                now = datetime.datetime.now().strftime('%H:%M:%S')
+                label.config(text=f'Time: {now}')
+                engine.say(f'The time is {now}')
+
+            elif 'date' in command:
+                today = datetime.date.today().strftime('%d %B %Y')
+                label.config(text=f'Date: {today}')
+                engine.say(f'Today is {today}')
+
+            elif 'hello' in command:
+                label.config(text='Hello!')
+                engine.say('Hello, have a great day')
+
+            elif 'shutdown' in command:
+                engine.say('Shutting down smart mirror')
+                engine.runAndWait()
+                break
+
+            engine.runAndWait()
+
+        except sr.UnknownValueError:
+            pass
+
+root.destroy()`},testing_output:"Voice command is recognized, information is displayed on mirror, and audio response is played.",common_errors:["Microphone not detected","Ambient noise causing recognition failure","Display not rotating correctly","Audio feedback loop"],improvements:["Weather API integration","Face recognition for user personalization","Calendar and reminder sync","Gesture-based interaction"],mini_challenge:"Display personalized greeting using face recognition.",estimated_cost_india:{raspberry_pi_4:"₹3,500",monitor:"₹2,000",two_way_mirror:"₹1,200",usb_microphone:"₹500",speaker:"₹400",power_adapter:"₹400",miscellaneous:"₹300",total:"₹8,300 (approx)"},author_name:"NISHANTH",status:"Published"},{id:319,title:"Real-Time Object Counting System",level:"AI + Embedded (Intermediate–Advanced Computer Vision Analytics)",category:"AI + Embedded + Machine Learning",estimatedTime:"12–14 Hours",problem_statement:"Manual counting of people or objects in crowded environments is inaccurate and inefficient. A real-time object counting system automates counting using computer vision, enabling data-driven decisions for space management and analytics.",real_world_use_case:["Retail footfall analytics","Crowd monitoring in public places","Smart building occupancy tracking","Event management","Transport hubs (bus/metro stations)"],ai_concept:{type:"Object Detection + Object Tracking",detection_model:"MobileNet-SSD / YOLOv5",tracking_method:"Centroid-based tracking",logic:"Virtual line crossing",reason:"Balances accuracy and real-time performance on edge devices"},hardware:{processor:"Raspberry Pi 4 (4GB recommended)",camera:"Pi Camera v2 / USB Webcam",display:"HDMI Monitor (optional)",network:"WiFi / Ethernet (optional for cloud logging)",power:"5V 3A Adapter"},working_principle:["Camera captures continuous video frames","AI model detects target objects (e.g., person)","Each detected object is assigned a unique ID","Centroid of each object is tracked across frames","A virtual counting line is defined in the frame","When an object crosses the line in a specific direction, the counter increments","Duplicate counting is prevented using object IDs","Count is displayed and optionally logged"],counting_logic:{line_position:"Horizontal line at mid-frame height",direction:"Top-to-bottom (entry) / bottom-to-top (exit)",debounce:"One count per unique object ID",reset_condition:"Object leaves frame"},pin_config:{raspberry_pi:[{module:"Camera",pinName:"CSI / USB",pin:"Camera Interface",voltage:"5V (internal)",direction:"Input",description:"Captures live video stream"},{module:"Display",pinName:"HDMI",pin:"HDMI Port",voltage:"5V (internal)",direction:"Output",description:"Displays live feed and count overlay"}]},software_stack:["Raspberry Pi OS","Python 3","OpenCV","NumPy","Pre-trained Object Detection Model"],code:{language:"Python",file:"object_counter.py",content:`import cv2
+import numpy as np
+
+cap = cv2.VideoCapture(0)
+count = 0
+line_y = 240
+tracked = {}
+object_id = 0
+
+while True:
+    ret, frame = cap.read()
+    if not ret:
+        break
+
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    blur = cv2.GaussianBlur(gray, (5,5), 0)
+    _, thresh = cv2.threshold(blur, 200, 255, cv2.THRESH_BINARY_INV)
+
+    contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    for cnt in contours:
+        if cv2.contourArea(cnt) < 1500:
+            continue
+
+        x,y,w,h = cv2.boundingRect(cnt)
+        cx = x + w // 2
+        cy = y + h // 2
+
+        if cy > line_y and object_id not in tracked:
+            count += 1
+            tracked[object_id] = True
+            object_id += 1
+
+        cv2.rectangle(frame, (x,y), (x+w,y+h), (0,255,0), 2)
+        cv2.circle(frame, (cx,cy), 4, (0,0,255), -1)
+
+    cv2.line(frame, (0,line_y), (640,line_y), (255,0,0), 2)
+    cv2.putText(frame, f'Count: {count}', (20,40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,255), 2)
+
+    cv2.imshow('Object Counter', frame)
+    if cv2.waitKey(1) == 27:
+        break
+
+cap.release()
+cv2.destroyAllWindows()`},testing_output:"Each object crossing the virtual line increases the counter by one without duplication.",common_errors:["Double counting due to improper tracking logic","Lighting changes affecting detection","Camera angle causing occlusion","Low FPS on high-resolution input"],improvements:["Replace contour detection with YOLO-based person detection","Add entry vs exit counters","Store counts in database","Cloud dashboard visualization"],mini_challenge:"Implement separate IN and OUT counters using direction-based tracking.",estimated_cost_india:{raspberry_pi_4:"₹3,500",camera:"₹700",power_adapter:"₹400",display_optional:"₹2,000",miscellaneous:"₹300",total:"₹4,900 (without display)"},author_name:"NISHANTH",status:"Published"},{id:320,title:"Smart Energy Meter with AI Prediction",level:"AI + Embedded (Intermediate–Advanced Energy Analytics)",category:"AI + Embedded + Machine Learning",estimatedTime:"14–16 Hours",problem_statement:"Conventional energy meters only provide historical consumption data and do not help users anticipate future usage or optimize power consumption. A smart energy meter with AI prediction enables users to forecast energy demand and reduce electricity costs proactively.",real_world_use_case:["Residential smart energy monitoring","Industrial power usage optimization","Smart grid demand forecasting","Hostel and apartment energy analytics","Renewable energy management systems"],ai_concept:{type:"Time-Series Prediction",models:["Linear Regression (baseline)","LSTM (advanced)"],features:["Timestamp","Current consumption","Voltage","Historical energy usage"],reason:"Time-series models effectively capture consumption patterns and trends"},hardware:{controller:"ESP32",current_sensor:"ACS712 (20A / 30A)",voltage_sensor:"ZMPT101B",connectivity:"WiFi",power:"5V 2A Adapter"},working_principle:["Current and voltage sensors continuously measure load parameters","ESP32 samples analog sensor data at fixed intervals","Instantaneous power is calculated using voltage and current","Energy consumption is accumulated over time (kWh)","Data is logged locally or sent to cloud/database","Historical data is used to train a prediction model","AI model predicts future energy consumption","Predicted values are displayed or visualized on dashboard"],energy_calculation:{power_formula:"P = V × I",energy_formula:"Energy (kWh) = Power × Time / 1000",sampling_interval:"1 second",aggregation:"Hourly / Daily"},pin_config:{esp32:[{module:"ACS712 Current Sensor",pinName:"VCC",pin:"5V",voltage:"5V",direction:"Power",description:"Powers the current sensor module"},{module:"ACS712 Current Sensor",pinName:"GND",pin:"GND",voltage:"0V",direction:"Ground",description:"Common ground with ESP32"},{module:"ACS712 Current Sensor",pinName:"OUT",pin:"GPIO34",voltage:"0–3.3V (analog)",direction:"Analog Input",description:"Outputs analog signal proportional to current"},{module:"ZMPT101B Voltage Sensor",pinName:"VCC",pin:"5V",voltage:"5V",direction:"Power",description:"Power for voltage sensing module"},{module:"ZMPT101B Voltage Sensor",pinName:"GND",pin:"GND",voltage:"0V",direction:"Ground",description:"Ground reference"},{module:"ZMPT101B Voltage Sensor",pinName:"OUT",pin:"GPIO35",voltage:"0–3.3V (analog)",direction:"Analog Input",description:"Outputs scaled AC voltage signal"}]},software_stack:["ESP32 Arduino Core","WiFi","HTTP / MQTT","Python (for ML model)","NumPy","Pandas","Scikit-learn / TensorFlow"],code:{language:"C++ (ESP32) + Python (AI)",file:"energy_meter.ino",content:`#define CURRENT_PIN 34
+#define VOLTAGE_PIN 35
+
+float current, voltage, power;
+
+void setup() {
+  Serial.begin(9600);
+}
+
+void loop() {
+  int rawCurrent = analogRead(CURRENT_PIN);
+  int rawVoltage = analogRead(VOLTAGE_PIN);
+
+  current = (rawCurrent - 2048) * 0.026; // calibration needed
+  voltage = (rawVoltage / 4095.0) * 230.0;
+
+  power = voltage * current;
+
+  Serial.print("Power: ");
+  Serial.println(power);
+  delay(1000);
+}`},testing_output:"Real-time power values are printed to Serial Monitor and logged for AI prediction.",common_errors:["Incorrect sensor calibration","Noisy analog readings","Ground mismatch between sensors","Insufficient sampling resolution"],improvements:["Use RMS calculation for AC accuracy","Add cloud dashboard (Firebase / ThingsBoard)","Deploy TensorFlow Lite prediction on ESP32","Tariff-based cost estimation"],mini_challenge:"Predict next 24-hour energy consumption using past 7 days of data.",estimated_cost_india:{esp32:"₹400",acs712:"₹250",zmpt101b:"₹200",power_adapter:"₹300",pcb_and_wires:"₹250",enclosure:"₹300",miscellaneous:"₹200",total:"₹1,900 (approx)"},author_name:"NISHANTH",status:"Published"},{id:321,title:"Human Detection using PIR and AI Model",level:"AI + Embedded (Intermediate–Advanced Sensor Fusion)",category:"AI + Embedded + Machine Learning",estimatedTime:"12–14 Hours",problem_statement:"Standalone PIR sensors trigger false alarms due to heat sources, while AI-only camera systems consume high power and compute continuously. Combining PIR sensing with AI-based human detection reduces false positives and optimizes power and processing efficiency.",real_world_use_case:["Smart home security systems","Battery-powered surveillance cameras","Warehouse safety monitoring","Office after-hours intrusion detection","Smart street-side monitoring units"],ai_concept:{type:"Sensor Fusion (PIR + Computer Vision)",vision_model:"MobileNet-SSD / YOLOv5 (Person class)",fusion_logic:"PIR-triggered AI confirmation",reason:"Run AI inference only when motion is detected to save power and CPU"},hardware:{processor:"Raspberry Pi 4 (4GB recommended)",motion_sensor:"PIR Sensor (HC-SR501)",camera:"Pi Camera v2 / USB Webcam",alert:"Buzzer / Relay / Notification",power:"5V 3A Adapter"},working_principle:["PIR sensor continuously monitors for motion","When PIR output goes HIGH, camera and AI pipeline are activated","Camera captures one or more frames","AI model performs human (person) detection","If human is confirmed, alert is triggered","If no human is detected, system returns to idle","This fusion avoids false alarms and unnecessary AI computation"],fusion_logic:{stage_1:"PIR motion detection (low power, fast response)",stage_2:"AI-based human confirmation",decision_rule:"Alert only if both PIR = HIGH and AI = Person detected",cooldown:"30 seconds between alerts"},pin_config:{raspberry_pi:[{module:"PIR Sensor (HC-SR501)",pinName:"VCC",pin:"5V",voltage:"5V",direction:"Power",description:"Supplies power to PIR motion sensor"},{module:"PIR Sensor (HC-SR501)",pinName:"GND",pin:"GND",voltage:"0V",direction:"Ground",description:"Common ground with Raspberry Pi"},{module:"PIR Sensor (HC-SR501)",pinName:"OUT",pin:"GPIO24",voltage:"3.3V",direction:"Input",description:"Goes HIGH when motion is detected"},{module:"Buzzer",pinName:"VCC",pin:"3.3V",voltage:"3.3V",direction:"Power",description:"Power supply for alert buzzer"},{module:"Buzzer",pinName:"GND",pin:"GND",voltage:"0V",direction:"Ground",description:"Ground connection"},{module:"Buzzer",pinName:"IN",pin:"GPIO18",voltage:"3.3V",direction:"Output",description:"Activates buzzer on confirmed human detection"}]},software_stack:["Raspberry Pi OS","Python 3","OpenCV","TensorFlow Lite / YOLO","RPi.GPIO","NumPy"],code:{language:"Python",file:"pir_ai_human_detection.py",content:`import RPi.GPIO as GPIO
+import cv2
+import time
+
+PIR_PIN = 24
+BUZZER_PIN = 18
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(PIR_PIN, GPIO.IN)
+GPIO.setup(BUZZER_PIN, GPIO.OUT)
+
+cap = cv2.VideoCapture(0)
+last_alert = 0
+COOLDOWN = 30
+
+while True:
+    if GPIO.input(PIR_PIN):
+        ret, frame = cap.read()
+        if not ret:
+            continue
+
+        # --- AI HUMAN DETECTION PLACE ---
+        # Replace this block with YOLO / MobileNet person detection
+        human_detected = False
+
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        if gray.mean() > 40:  # basic sanity check
+            human_detected = True
+
+        if human_detected and (time.time() - last_alert) > COOLDOWN:
+            GPIO.output(BUZZER_PIN, GPIO.HIGH)
+            time.sleep(2)
+            GPIO.output(BUZZER_PIN, GPIO.LOW)
+            last_alert = time.time()
+
+    time.sleep(0.2)`},testing_output:"Motion detected → AI confirms human → buzzer alerts. Motion without human → no alert.",common_errors:["PIR sensitivity set too high","Camera field of view not aligned with PIR","Low-light causing AI false negatives","Ground not common between modules"],improvements:["Replace basic logic with YOLOv5 person detection","Add night vision camera","Send alerts via MQTT or Telegram","Log detection timestamps to cloud"],mini_challenge:"Trigger alert only if human is detected in 3 consecutive frames.",estimated_cost_india:{raspberry_pi_4:"₹3,500",pir_sensor:"₹150",camera:"₹700",buzzer:"₹100",power_adapter:"₹400",wires_and_mounts:"₹200",miscellaneous:"₹250",total:"₹5,300 (approx)"},author_name:"NISHANTH",status:"Published"},{id:322,title:"Image-based Fire Detection System",level:"AI + Embedded (Intermediate–Advanced Safety System)",category:"AI + Embedded + Machine Learning",estimatedTime:"12–14 Hours",problem_statement:"Traditional fire detection systems such as smoke or heat sensors often detect fire only after significant damage has occurred. An image-based fire detection system using AI can visually identify flames at an early stage, enabling faster response and damage prevention.",real_world_use_case:["Industrial safety monitoring","Warehouse fire prevention","Forest fire early warning systems","Data centers and server rooms","Smart building safety systems"],ai_concept:{type:"Computer Vision – Image Classification",model:"CNN (Fire vs No-Fire)",framework:"TensorFlow / TensorFlow Lite",training_data:"Fire image dataset (day/night conditions)",reason:"CNN models learn flame texture, color, and motion patterns better than rule-based methods"},hardware:{processor:"Raspberry Pi 4 (4GB recommended)",camera:"Pi Camera v2 / USB Webcam",alert:"Buzzer / Siren / Relay",indicator:"LED (optional)",power:"5V 3A Adapter"},working_principle:["Camera continuously captures video frames","Each frame is resized and normalized","CNN model processes the frame","Model predicts probability of fire presence","If probability exceeds threshold, fire is confirmed","Alert devices (buzzer/siren) are activated","System continues monitoring until fire clears"],decision_logic:{prediction_threshold:"≥ 0.70",temporal_validation:"Fire detected in 3 consecutive frames",false_alarm_filter:"Ignore single-frame detections",alert_latch:"Alert remains ON until manual reset"},pin_config:{raspberry_pi:[{module:"Buzzer / Siren",pinName:"VCC",pin:"5V",voltage:"5V",direction:"Power",description:"Power supply for audible alert"},{module:"Buzzer / Siren",pinName:"GND",pin:"GND",voltage:"0V",direction:"Ground",description:"Common ground reference"},{module:"Buzzer / Siren",pinName:"IN",pin:"GPIO23",voltage:"3.3V",direction:"Output",description:"Activates alert on confirmed fire detection"},{module:"Status LED (Optional)",pinName:"ANODE",pin:"GPIO24",voltage:"3.3V",direction:"Output",description:"Visual indicator for fire alert status"}]},software_stack:["Raspberry Pi OS","Python 3","OpenCV","TensorFlow / TensorFlow Lite","RPi.GPIO","NumPy"],code:{language:"Python",file:"fire_detection_ai.py",content:`import cv2
+import numpy as np
+import RPi.GPIO as GPIO
+from tensorflow.keras.models import load_model
+
+BUZZER_PIN = 23
+LED_PIN = 24
+THRESHOLD = 0.7
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(BUZZER_PIN, GPIO.OUT)
+GPIO.setup(LED_PIN, GPIO.OUT)
+
+model = load_model('fire_model.h5')
+cap = cv2.VideoCapture(0)
+consecutive = 0
+
+while True:
+    ret, frame = cap.read()
+    if not ret:
+        continue
+
+    img = cv2.resize(frame, (128, 128))
+    img = img / 255.0
+    img = img.reshape(1, 128, 128, 3)
+
+    prediction = model.predict(img)[0][0]
+
+    if prediction >= THRESHOLD:
+        consecutive += 1
+    else:
+        consecutive = 0
+
+    if consecutive >= 3:
+        GPIO.output(BUZZER_PIN, GPIO.HIGH)
+        GPIO.output(LED_PIN, GPIO.HIGH)
+        cv2.putText(frame, 'FIRE DETECTED', (20,40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 3)
+    else:
+        GPIO.output(BUZZER_PIN, GPIO.LOW)
+        GPIO.output(LED_PIN, GPIO.LOW)
+
+    cv2.imshow('Fire Detection', frame)
+    if cv2.waitKey(1) == 27:
+        break
+
+cap.release()
+GPIO.cleanup()
+cv2.destroyAllWindows()`},testing_output:"Fire appears in camera view → confirmed after 3 frames → buzzer and LED activate continuously.",common_errors:["Bright lights causing false positives","Poor dataset diversity","Low FPS causing delayed detection","Incorrect model input dimensions"],improvements:["Combine smoke sensor + AI vision","Use infrared/thermal camera","Send SMS/Telegram alerts","Deploy TensorFlow Lite for faster inference"],mini_challenge:"Detect fire only if flame area increases across frames.",estimated_cost_india:{raspberry_pi_4:"₹3,500",camera:"₹700",buzzer_or_siren:"₹200",led_and_resistors:"₹100",power_adapter:"₹400",mount_and_wiring:"₹250",miscellaneous:"₹250",total:"₹5,400 (approx)"},author_name:"NISHANTH",status:"Published"},{id:323,title:"Smart Baby Monitoring using AI Camera",level:"AI + Embedded (Intermediate–Advanced Care & Safety System)",category:"AI + Embedded + Machine Learning",estimatedTime:"14–16 Hours",problem_statement:"Continuous manual monitoring of infants is impractical and error-prone. Traditional baby monitors only stream video without intelligence. An AI-based baby monitoring system can detect presence, posture, and abnormal inactivity, providing early alerts to caregivers.",real_world_use_case:["Home baby monitoring","Neonatal care units","Smart nurseries","Hospital infant wards","Remote caregiving systems"],ai_concept:{type:"Computer Vision + Temporal Analysis",vision_model:"Person detection (MobileNet-SSD / YOLO)",posture_logic:"Region-of-interest + motion consistency",reason:"Lightweight models enable real-time edge inference with acceptable accuracy"},hardware:{processor:"Raspberry Pi 4 (4GB recommended)",camera:"Pi Camera v2 / USB Webcam",alert:"Buzzer + LED",optional_modules:"WiFi notification / Mobile app",power:"5V 3A Adapter"},working_principle:["Camera continuously monitors the crib or sleeping area","AI model detects baby presence (person class)","Motion is analyzed across consecutive frames","System tracks duration of inactivity","Unsafe conditions are evaluated (no motion, edge proximity)","If abnormal condition persists, alert is triggered","System continues monitoring until reset or condition clears"],safety_logic:{no_motion_timeout:"10 seconds (configurable)",edge_zone_alert:"Triggered if baby centroid enters boundary region",false_alarm_filter:"Require condition persistence across multiple frames",fail_safe:"Alert if camera feed is lost"},pin_config:{raspberry_pi:[{module:"Buzzer",pinName:"VCC",pin:"3.3V",voltage:"3.3V",direction:"Power",description:"Power supply for audible alert"},{module:"Buzzer",pinName:"GND",pin:"GND",voltage:"0V",direction:"Ground",description:"Common ground"},{module:"Buzzer",pinName:"IN",pin:"GPIO22",voltage:"3.3V",direction:"Output",description:"Activates alert on abnormal condition"},{module:"Status LED",pinName:"ANODE",pin:"GPIO23",voltage:"3.3V",direction:"Output",description:"Visual alert indicator"}]},software_stack:["Raspberry Pi OS","Python 3","OpenCV","TensorFlow Lite","RPi.GPIO","NumPy"],code:{language:"Python",file:"baby_monitor_ai.py",content:`import cv2
+import time
+import RPi.GPIO as GPIO
+
+BUZZER_PIN = 22
+LED_PIN = 23
+NO_MOTION_LIMIT = 10
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(BUZZER_PIN, GPIO.OUT)
+GPIO.setup(LED_PIN, GPIO.OUT)
+
+cap = cv2.VideoCapture(0)
+last_motion_time = time.time()
+
+while True:
+    ret, frame = cap.read()
+    if not ret:
+        GPIO.output(BUZZER_PIN, GPIO.HIGH)
+        continue
+
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    motion_metric = gray.var()
+
+    if motion_metric > 20:
+        last_motion_time = time.time()
+        GPIO.output(BUZZER_PIN, GPIO.LOW)
+        GPIO.output(LED_PIN, GPIO.LOW)
+    else:
+        if time.time() - last_motion_time > NO_MOTION_LIMIT:
+            GPIO.output(BUZZER_PIN, GPIO.HIGH)
+            GPIO.output(LED_PIN, GPIO.HIGH)
+            cv2.putText(frame, 'NO MOTION ALERT', (20,40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 3)
+
+    cv2.imshow('Baby Monitor', frame)
+    if cv2.waitKey(1) == 27:
+        break
+
+cap.release()
+GPIO.cleanup()
+cv2.destroyAllWindows()`},testing_output:"Normal baby movement → no alert. Prolonged inactivity → buzzer and LED alert activated.",common_errors:["Camera angle not covering full crib","Low light reducing motion detection accuracy","Overly sensitive thresholds causing false alarms","Power interruptions"],improvements:["Add cry detection using audio AI","Night vision camera integration","Send alerts to mobile app","Posture classification (sleeping on back vs stomach)"],mini_challenge:"Trigger alert only if no motion is detected for 15 consecutive seconds.",ethical_note:"This system assists caregivers and must not replace human supervision.",estimated_cost_india:{raspberry_pi_4:"₹3,500",camera:"₹700",buzzer:"₹100",led_and_resistors:"₹100",power_adapter:"₹400",mounting_and_wires:"₹250",miscellaneous:"₹250",total:"₹5,300 (approx)"},author_name:"NISHANTH",status:"Published"},{id:324,title:"AI Intrusion Alarm System",level:"AI + Embedded (Intermediate–Advanced Security System)",category:"AI + Embedded + Machine Learning",estimatedTime:"14–16 Hours",problem_statement:"Conventional intrusion alarms rely only on motion or infrared sensors, leading to frequent false alarms caused by animals, shadows, or environmental changes. An AI-based intrusion alarm system verifies actual human presence before triggering alerts, increasing reliability and trust.",real_world_use_case:["Residential home security","Office and commercial buildings","Warehouses and storage facilities","Laboratories and restricted areas","After-hours campus security"],ai_concept:{type:"Computer Vision – Human Detection",model:"YOLOv5 / MobileNet-SSD (Person class)",decision_logic:"Human detection + time-based authorization",reason:"Human-class verification drastically reduces false alarms"},hardware:{processor:"Raspberry Pi 4 (4GB recommended)",camera:"Pi Camera v2 / USB Webcam",alert:"High-power siren via relay",indicator:"Status LED",optional:"GSM / WiFi notification module",power:"5V 3A Adapter (separate siren supply recommended)"},working_principle:["System runs continuously in monitoring mode","Camera captures live video frames","AI model performs human detection on each frame","Detected humans are evaluated against security rules","If detection occurs during restricted time window, intrusion is confirmed","Alarm siren and indicators are activated","System remains in alarm state until manually reset"],security_logic:{armed_hours:"22:00 – 06:00",confirmation_frames:"3 consecutive detections",cooldown:"60 seconds between alerts",fail_safe:"Alarm if camera feed is lost during armed hours"},pin_config:{raspberry_pi:[{module:"Relay Module (Siren Control)",pinName:"VCC",pin:"5V",voltage:"5V",direction:"Power",description:"Power for relay module"},{module:"Relay Module (Siren Control)",pinName:"GND",pin:"GND",voltage:"0V",direction:"Ground",description:"Common ground with Raspberry Pi"},{module:"Relay Module (Siren Control)",pinName:"IN",pin:"GPIO21",voltage:"3.3V",direction:"Output",description:"Activates siren when intrusion is confirmed"},{module:"Status LED",pinName:"ANODE",pin:"GPIO20",voltage:"3.3V",direction:"Output",description:"Indicates alarm active state"}]},software_stack:["Raspberry Pi OS","Python 3","OpenCV","YOLOv5 / TensorFlow Lite","RPi.GPIO","NumPy","Datetime"],code:{language:"Python",file:"ai_intrusion_alarm.py",content:`import cv2
+import time
+import datetime
+import RPi.GPIO as GPIO
+
+SIREN_PIN = 21
+LED_PIN = 20
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(SIREN_PIN, GPIO.OUT)
+GPIO.setup(LED_PIN, GPIO.OUT)
+
+cap = cv2.VideoCapture(0)
+confirm_count = 0
+COOLDOWN = 60
+last_alert = 0
+
+while True:
+    ret, frame = cap.read()
+    if not ret:
+        continue
+
+    hour = datetime.datetime.now().hour
+    armed = hour >= 22 or hour <= 6
+
+    # ---- AI HUMAN DETECTION PLACE ----
+    # Replace with YOLO / MobileNet inference
+    human_detected = True
+
+    if armed and human_detected:
+        confirm_count += 1
+    else:
+        confirm_count = 0
+
+    if confirm_count >= 3 and (time.time() - last_alert) > COOLDOWN:
+        GPIO.output(SIREN_PIN, GPIO.HIGH)
+        GPIO.output(LED_PIN, GPIO.HIGH)
+        last_alert = time.time()
+
+    cv2.imshow('Intrusion Monitor', frame)
+    if cv2.waitKey(1) == 27:
+        break
+
+cap.release()
+GPIO.cleanup()
+cv2.destroyAllWindows()`},testing_output:"Human detected during armed hours → siren and LED activate after confirmation frames.",common_errors:["Incorrect time configuration","Camera blind spots","Relay powered from Pi causing instability","False positives due to reflections"],improvements:["Face recognition for authorized users","Cloud-based alert notifications","Multi-camera coverage","Battery backup system"],mini_challenge:"Disable alarm automatically during authorized maintenance window.",estimated_cost_india:{raspberry_pi_4:"₹3,500",camera:"₹700",relay_module:"₹150",siren:"₹500",status_led:"₹100",power_adapter:"₹400",wiring_and_mounts:"₹250",miscellaneous:"₹300",total:"₹5,900 (approx)"},author_name:"NISHANTH",status:"Published"},{id:325,title:"Object Recognition using TensorFlow Lite on ESP32",level:"AI + Embedded (Advanced – Edge AI Systems)",category:"AI + Embedded + Machine Learning",estimatedTime:"16–18 Hours",problem_statement:"Most AI vision systems rely on cloud or high-power processors like Raspberry Pi. This increases latency, power consumption, and cost. Running object recognition directly on an ESP32 enables ultra-low-power, real-time edge AI suitable for IoT deployments.",real_world_use_case:["Smart IoT cameras","Battery-powered security devices","Industrial edge inspection","Smart retail shelves","Wearable vision devices"],ai_concept:{type:"Embedded Machine Learning (TinyML)",model:"TensorFlow Lite Micro (Image Classification)",architecture:"MobileNetV1 (quantized)",input_size:"96x96x3",learning:"Offline trained, on-device inference",reason:"ESP32 has limited RAM/Flash, requiring quantized lightweight models"},hardware:{controller:"ESP32-WROVER (PSRAM recommended)",camera:"OV2640 Camera Module",storage:"On-chip Flash",indicator:"LED / Serial Output",power:"5V via USB / Battery (3.7V Li-ion + boost)"},working_principle:["Camera captures low-resolution image frames","Image is resized and normalized on ESP32","TensorFlow Lite Micro model performs inference","Model outputs class probabilities","Highest-confidence class is selected","Result is displayed via Serial or LED indication","System repeats inference at fixed intervals"],model_constraints:{quantization:"INT8",flash_usage:"~300–500 KB",ram_usage:"~200 KB",inference_time:"150–300 ms (approx)"},pin_config:{esp32:[{module:"OV2640 Camera",pinName:"VCC",pin:"3.3V",voltage:"3.3V",direction:"Power",description:"Power supply for camera module"},{module:"OV2640 Camera",pinName:"GND",pin:"GND",voltage:"0V",direction:"Ground",description:"Common ground"},{module:"OV2640 Camera",pinName:"D0–D7",pin:"GPIO32–GPIO39",voltage:"3.3V",direction:"Input",description:"Parallel camera data lines"},{module:"OV2640 Camera",pinName:"XCLK",pin:"GPIO0",voltage:"3.3V",direction:"Output",description:"Camera clock signal"},{module:"Status LED",pinName:"ANODE",pin:"GPIO2",voltage:"3.3V",direction:"Output",description:"Indicates detection result"}]},software_stack:["ESP32 Arduino Core","TensorFlow Lite for Microcontrollers","ESP32 Camera Library","Arduino IDE","Python (for model training)"],training_pipeline:["Collect labeled images","Train CNN using TensorFlow","Quantize model to INT8","Convert to .tflite","Convert model to C array","Deploy to ESP32 firmware"],code:{language:"C++ (ESP32 Arduino)",file:"esp32_tflite_object_recognition.ino",content:`#include "esp_camera.h"
+#include "model.h" // TFLite model array
+#include "tensorflow/lite/micro/all_ops_resolver.h"
+#include "tensorflow/lite/micro/micro_interpreter.h"
+
+#define LED_PIN 2
+
+void setup() {
+  Serial.begin(115200);
+  pinMode(LED_PIN, OUTPUT);
+
+  // Camera init omitted for brevity
+  Serial.println("ESP32 Object Recognition Ready");
+}
+
+void loop() {
+  // Capture frame
+  // Preprocess image
+  // Run inference
+
+  int detected_class = 1; // Example output
+
+  if (detected_class == 1) {
+    digitalWrite(LED_PIN, HIGH);
+  } else {
+    digitalWrite(LED_PIN, LOW);
+  }
+
+  delay(500);
+}`},testing_output:"ESP32 identifies object classes and toggles LED or prints result via Serial Monitor.",common_errors:["Model too large for ESP32 memory","Incorrect image preprocessing","Camera initialization failure","Heap fragmentation without PSRAM"],limitations:["Limited accuracy compared to full-scale models","Low resolution input images","Single-object classification per frame"],improvements:["Use ESP32-S3 for faster AI acceleration","Add WiFi result transmission","Optimize model with pruning","Integrate motion trigger to save power"],mini_challenge:"Recognize at least 3 object classes using a custom dataset.",estimated_cost_india:{esp32_wrover:"₹650",ov2640_camera:"₹450",battery_and_boost:"₹350",pcb_and_wires:"₹250",miscellaneous:"₹300",total:"₹2,000 (approx)"},author_name:"NISHANTH",status:"Published"},{id:326,title:"AI Traffic Light Controller using Computer Vision",level:"AI + Embedded (Advanced – Smart Infrastructure)",category:"AI + Embedded + Machine Learning",estimatedTime:"18–20 Hours",problem_statement:"Conventional traffic signals operate on fixed timers, causing unnecessary congestion and idle waiting. An AI-based traffic controller dynamically adjusts signal timing based on real-time traffic density to improve flow efficiency.",real_world_use_case:["Smart city traffic management","Urban intersections","Campus road systems","Traffic simulation research"],ai_concept:{type:"Computer Vision + Decision Logic",model:"YOLO / MobileNet-SSD (Vehicle Detection)",task:"Vehicle counting per lane",learning:"Pre-trained model with fine-tuning option",decision_logic:"Density-based adaptive timing"},hardware:{processor:"Raspberry Pi 4 (4GB recommended)",camera:"USB Camera / Pi Camera v2",signal_output:"Traffic Light LEDs / Relay Module",power:"5V 3A Adapter",optional:"ESP32 as signal driver"},working_principle:["Camera captures live video of road lanes","Video frames resized and normalized","AI model detects and counts vehicles per lane","Traffic density calculated for each direction","Green signal duration computed dynamically","Traffic LEDs switched based on priority","Cycle repeats continuously"],decision_algorithm:{vehicle_count_thresholds:{low:"0–5 vehicles",medium:"6–12 vehicles",high:"13+ vehicles"},green_time_mapping:{low:"10 seconds",medium:"25 seconds",high:"45 seconds"},constraints:["Minimum green time enforced","Maximum green time capped","Fair rotation between lanes"]},pin_config:{raspberry_pi:[{module:"Red LED",pinName:"IN",pin:"GPIO17",voltage:"3.3V",direction:"Output",description:"Stops traffic on current lane"},{module:"Yellow LED",pinName:"IN",pin:"GPIO27",voltage:"3.3V",direction:"Output",description:"Transition warning signal"},{module:"Green LED",pinName:"IN",pin:"GPIO22",voltage:"3.3V",direction:"Output",description:"Allows traffic movement"},{module:"Common Ground",pinName:"GND",pin:"GND",voltage:"0V",direction:"Ground",description:"Shared ground reference"}]},software_stack:["Python 3","OpenCV","TensorFlow Lite / YOLO","RPi.GPIO","NumPy"],traffic_density_logic:{input:"Vehicle bounding boxes",processing:"Count vehicles inside ROI per lane",output:"Dynamic green time",update_rate:"Every signal cycle"},code:{language:"Python",file:"ai_traffic_controller.py",content:`import cv2
+import time
+import RPi.GPIO as GPIO
+
+RED, YELLOW, GREEN = 17, 27, 22
+GPIO.setmode(GPIO.BCM)
+GPIO.setup([RED, YELLOW, GREEN], GPIO.OUT)
+
+vehicle_count = 12  # Example from AI detection
+
+def calculate_green_time(count):
+    if count <= 5:
+        return 10
+    elif count <= 12:
+        return 25
+    else:
+        return 45
+
+while True:
+    green_time = calculate_green_time(vehicle_count)
+
+    GPIO.output(GREEN, True)
+    time.sleep(green_time)
+
+    GPIO.output(GREEN, False)
+    GPIO.output(YELLOW, True)
+    time.sleep(3)
+
+    GPIO.output(YELLOW, False)
+    GPIO.output(RED, True)
+    time.sleep(5)
+    GPIO.output(RED, False)`},testing_output:"Traffic lights dynamically adjust green duration based on vehicle density.",common_errors:["Incorrect camera angle causing miscount","Vehicle overlap in dense traffic","GPIO pin conflicts"],safety_constraints:["Failsafe fixed-timer fallback","Manual override option","Minimum green time guarantee"],improvements:["Multi-lane simultaneous detection","Emergency vehicle priority using siren detection","Cloud traffic analytics dashboard","Integration with V2I systems"],mini_challenge:"Give emergency vehicles instant green using sound or RF detection.",estimated_cost_india:{raspberry_pi_4:"₹3,200",camera_module:"₹1,200",led_signal_module:"₹600",power_supply:"₹400",wires_and_mount:"₹400",total:"₹5,800 (approx)"},author_name:"NISHANTH",status:"Published"},{id:326,title:"AI Traffic Light Controller using Computer Vision",level:"AI + Embedded (Advanced – Smart Infrastructure)",category:"AI + Embedded + Machine Learning",estimatedTime:"18–20 Hours",problem_statement:"Conventional traffic signals operate on fixed timers, causing unnecessary congestion and idle waiting. An AI-based traffic controller dynamically adjusts signal timing based on real-time traffic density to improve flow efficiency.",real_world_use_case:["Smart city traffic management","Urban intersections","Campus road systems","Traffic simulation research"],ai_concept:{type:"Computer Vision + Decision Logic",model:"YOLO / MobileNet-SSD (Vehicle Detection)",task:"Vehicle counting per lane",learning:"Pre-trained model with fine-tuning option",decision_logic:"Density-based adaptive timing"},hardware:{processor:"Raspberry Pi 4 (4GB recommended)",camera:"USB Camera / Pi Camera v2",signal_output:"Traffic Light LEDs / Relay Module",power:"5V 3A Adapter",optional:"ESP32 as signal driver"},working_principle:["Camera captures live video of road lanes","Video frames resized and normalized","AI model detects and counts vehicles per lane","Traffic density calculated for each direction","Green signal duration computed dynamically","Traffic LEDs switched based on priority","Cycle repeats continuously"],decision_algorithm:{vehicle_count_thresholds:{low:"0–5 vehicles",medium:"6–12 vehicles",high:"13+ vehicles"},green_time_mapping:{low:"10 seconds",medium:"25 seconds",high:"45 seconds"},constraints:["Minimum green time enforced","Maximum green time capped","Fair rotation between lanes"]},pin_config:{raspberry_pi:[{module:"Red LED",pinName:"IN",pin:"GPIO17",voltage:"3.3V",direction:"Output",description:"Stops traffic on current lane"},{module:"Yellow LED",pinName:"IN",pin:"GPIO27",voltage:"3.3V",direction:"Output",description:"Transition warning signal"},{module:"Green LED",pinName:"IN",pin:"GPIO22",voltage:"3.3V",direction:"Output",description:"Allows traffic movement"},{module:"Common Ground",pinName:"GND",pin:"GND",voltage:"0V",direction:"Ground",description:"Shared ground reference"}]},software_stack:["Python 3","OpenCV","TensorFlow Lite / YOLO","RPi.GPIO","NumPy"],traffic_density_logic:{input:"Vehicle bounding boxes",processing:"Count vehicles inside ROI per lane",output:"Dynamic green time",update_rate:"Every signal cycle"},code:{language:"Python",file:"ai_traffic_controller.py",content:`import cv2
+import time
+import RPi.GPIO as GPIO
+
+RED, YELLOW, GREEN = 17, 27, 22
+GPIO.setmode(GPIO.BCM)
+GPIO.setup([RED, YELLOW, GREEN], GPIO.OUT)
+
+vehicle_count = 12  # Example from AI detection
+
+def calculate_green_time(count):
+    if count <= 5:
+        return 10
+    elif count <= 12:
+        return 25
+    else:
+        return 45
+
+while True:
+    green_time = calculate_green_time(vehicle_count)
+
+    GPIO.output(GREEN, True)
+    time.sleep(green_time)
+
+    GPIO.output(GREEN, False)
+    GPIO.output(YELLOW, True)
+    time.sleep(3)
+
+    GPIO.output(YELLOW, False)
+    GPIO.output(RED, True)
+    time.sleep(5)
+    GPIO.output(RED, False)`},testing_output:"Traffic lights dynamically adjust green duration based on vehicle density.",common_errors:["Incorrect camera angle causing miscount","Vehicle overlap in dense traffic","GPIO pin conflicts"],safety_constraints:["Failsafe fixed-timer fallback","Manual override option","Minimum green time guarantee"],improvements:["Multi-lane simultaneous detection","Emergency vehicle priority using siren detection","Cloud traffic analytics dashboard","Integration with V2I systems"],mini_challenge:"Give emergency vehicles instant green using sound or RF detection.",estimated_cost_india:{raspberry_pi_4:"₹3,200",camera_module:"₹1,200",led_signal_module:"₹600",power_supply:"₹400",wires_and_mount:"₹400",total:"₹5,800 (approx)"},author_name:"NISHANTH",status:"Published"},{id:327,title:"Smart Home Camera with AI Detection and MQTT Alerts",level:"AI + Embedded (Advanced – Connected AI Systems)",category:"AI + Embedded + Machine Learning",estimatedTime:"16–18 Hours",problem_statement:"Conventional CCTV systems only record footage and require manual monitoring. They lack real-time intelligence and system-level integration. An AI-enabled camera with MQTT allows instant alerts and seamless communication with other IoT systems.",real_world_use_case:["Smart home security","Apartment surveillance","Industrial safety monitoring","Remote property monitoring"],ai_concept:{type:"Computer Vision",model:"MobileNet-SSD / YOLO (Person Detection)",task:"Human detection with confidence threshold",learning:"Pre-trained model",edge_processing:"On-device inference (Raspberry Pi)"},iot_concept:{protocol:"MQTT",architecture:"Publish–Subscribe",role:"Event-based alert communication",qos_level:1},hardware:{processor:"Raspberry Pi 4 (4GB)",camera:"Pi Camera v2 / USB Webcam",alert_output:"Buzzer / LED (local)",network:"WiFi / Ethernet",power:"5V 3A Adapter"},working_principle:["Camera captures continuous video stream","Frames preprocessed and resized","AI model detects human presence","Detection confidence validated","Event message published to MQTT broker","Subscriber devices receive alert","Optional local alarm triggered"],mqtt_architecture:{broker:"Mosquitto (Local / Cloud)",publish_topic:"home/security/camera1",payload:{event:"human_detected",confidence:"0.87",timestamp:"ISO-8601"},subscribers:["Mobile app","Home Assistant","Cloud dashboard"]},pin_config:{raspberry_pi:[{module:"Buzzer",pinName:"IN",pin:"GPIO18",voltage:"3.3V",direction:"Output",description:"Local audible alert on detection"},{module:"Buzzer",pinName:"VCC",pin:"3.3V",voltage:"3.3V",direction:"Power",description:"Power supply for buzzer"},{module:"Buzzer",pinName:"GND",pin:"GND",voltage:"0V",direction:"Ground",description:"Common ground reference"}]},software_stack:["Python 3","OpenCV","TensorFlow Lite / YOLO","paho-mqtt","RPi.GPIO","NumPy"],event_logic:{trigger_condition:"Person detected with confidence > 0.6",debounce:"One alert per 10 seconds",fallback:"Local buzzer if MQTT fails"},code:{language:"Python",file:"ai_camera_mqtt.py",content:`import cv2
+import time
+import paho.mqtt.client as mqtt
+import RPi.GPIO as GPIO
+
+BROKER = 'localhost'
+TOPIC = 'home/security/camera1'
+BUZZER = 18
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(BUZZER, GPIO.OUT)
+
+client = mqtt.Client()
+client.connect(BROKER, 1883, 60)
+
+cap = cv2.VideoCapture(0)
+last_publish = 0
+
+while True:
+    ret, frame = cap.read()
+    human_detected = True  # placeholder for AI detection
+
+    if human_detected and time.time() - last_publish > 10:
+        payload = '{"event":"human_detected","confidence":0.85}'
+        client.publish(TOPIC, payload, qos=1)
+        GPIO.output(BUZZER, True)
+        time.sleep(1)
+        GPIO.output(BUZZER, False)
+        last_publish = time.time()
+
+    cv2.imshow('Smart Camera', frame)
+    if cv2.waitKey(1) == 27:
+        break
+
+cap.release()
+GPIO.cleanup()`},testing_output:"Human detected → MQTT alert published → subscribers receive notification.",common_errors:["MQTT broker not running","Incorrect topic configuration","High CPU usage during AI inference","Network latency"],security_considerations:["Use MQTT authentication","Enable TLS encryption","Restrict broker access"],improvements:["Send image snapshot via MQTT","Integrate with Home Assistant","Add face recognition for authorization","Edge TPU acceleration"],mini_challenge:"Trigger alert only if person remains for more than 5 seconds.",estimated_cost_india:{raspberry_pi_4:"₹3,200",camera_module:"₹1,200",buzzer_led:"₹150",power_supply:"₹400",miscellaneous:"₹350",total:"₹5,300 (approx)"},author_name:"NISHANTH",status:"Published"},{id:329,title:"Smart Doorbell with Face Recognition",level:"AI + Embedded (Advanced – Smart Security Product)",category:"AI + Embedded + Machine Learning",estimatedTime:"16–18 Hours",problem_statement:"Conventional doorbells cannot identify visitors, forcing users to manually check every alert. A face-recognition-enabled doorbell can automatically distinguish known and unknown visitors, improving security and convenience.",real_world_use_case:["Smart homes","Apartments and gated communities","Rental properties (Airbnb)","Elderly and assisted-living homes"],ai_concept:{type:"Face Recognition",pipeline:["Face detection","Face encoding generation","Embedding comparison","Identity decision"],model:"HOG + CNN face encoders (dlib)",decision_metric:"Euclidean distance threshold"},embedded_concept:{event_trigger:"Physical doorbell press",real_time_constraint:"< 2 seconds response",fail_safe:"Always ring bell if AI fails"},hardware:{processor:"Raspberry Pi 4 (4GB recommended)",camera:"Pi Camera v2 / USB Webcam (720p minimum)",input:"Momentary Push Button (Doorbell)",output:["Active Buzzer / Chime","LED Indicator"],power:"5V 3A Adapter"},working_principle:["Visitor presses doorbell button","Camera captures high-resolution face image","Face detected and cropped","Face encoding generated","Encoding compared with stored known faces","If known → soft alert / silent notification","If unknown → buzzer + security alert","Optional snapshot saved locally or sent to cloud"],security_logic:{distance_threshold:.45,retry_attempts:3,cooldown_time:"10 seconds",unknown_face_action:["Ring bell","Save snapshot","Send alert"]},pin_config:{raspberry_pi:[{module:"Doorbell Push Button",pinName:"Signal",pin:"GPIO23",voltage:"3.3V",direction:"Input",description:"Triggers face recognition pipeline"},{module:"Doorbell Button",pinName:"GND",pin:"GND",voltage:"0V",direction:"Ground",description:"Common ground"},{module:"Buzzer",pinName:"IN",pin:"GPIO24",voltage:"3.3V",direction:"Output",description:"Audible alert for unknown visitors"},{module:"Buzzer",pinName:"VCC",pin:"3.3V",voltage:"3.3V",direction:"Power",description:"Buzzer power supply"},{module:"Status LED",pinName:"IN",pin:"GPIO18",voltage:"3.3V",direction:"Output",description:"Visual feedback (green = known, red = unknown)"}]},software_stack:["Python 3","OpenCV","face_recognition (dlib)","RPi.GPIO","NumPy","Optional: MQTT / HTTP API"],dataset_structure:{known_faces:"dataset/known/<person_name>/*.jpg",unknown_faces:"captured/unknown/",image_requirements:["Multiple angles","Different lighting","Neutral facial expression"]},code:{language:"Python",file:"smart_doorbell.py",content:`import face_recognition
+import cv2
+import RPi.GPIO as GPIO
+import time
+import os
+
+BUTTON = 23
+BUZZER = 24
+LED = 18
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(BUTTON, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+GPIO.setup(BUZZER, GPIO.OUT)
+GPIO.setup(LED, GPIO.OUT)
+
+known_encodings = []
+known_names = []
+
+for person in os.listdir('dataset/known'):
+    for img_name in os.listdir(f'dataset/known/{person}'):
+        img = face_recognition.load_image_file(f'dataset/known/{person}/{img_name}')
+        enc = face_recognition.face_encodings(img)
+        if enc:
+            known_encodings.append(enc[0])
+            known_names.append(person)
+
+cap = cv2.VideoCapture(0)
+
+while True:
+    if GPIO.input(BUTTON):
+        ret, frame = cap.read()
+        rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        locations = face_recognition.face_locations(rgb)
+        encodings = face_recognition.face_encodings(rgb, locations)
+
+        recognized = False
+
+        for encoding in encodings:
+            distances = face_recognition.face_distance(known_encodings, encoding)
+            if len(distances) > 0 and min(distances) < 0.45:
+                idx = distances.argmin()
+                GPIO.output(LED, GPIO.HIGH)
+                print(f"Known visitor: {known_names[idx]}")
+                recognized = True
+                break
+
+        if not recognized:
+            GPIO.output(BUZZER, GPIO.HIGH)
+            cv2.imwrite('captured/unknown/visitor.jpg', frame)
+            time.sleep(2)
+            GPIO.output(BUZZER, GPIO.LOW)
+
+        GPIO.output(LED, GPIO.LOW)
+        time.sleep(10)
+
+cap.release()
+GPIO.cleanup()`},testing_output:"Known face → silent acknowledgment | Unknown face → buzzer alert + image saved.",common_errors:["Incorrect face distance threshold","Insufficient dataset images","Button bounce triggering multiple captures","Poor camera angle"],working_explanation_step_by_step:["GPIO waits for doorbell press","Camera captures visitor image","Face locations detected","Encodings generated","Encodings compared with database","Decision made using distance metric","Correct alert path executed"],improvements:["Mobile app notifications","Cloud image upload","Face spoof detection (liveness)","Multiple camera angles"],mini_challenge:"Send unknown visitor image to phone using MQTT or WhatsApp API.",estimated_cost_india:{raspberry_pi_4:"₹3,200",camera_module:"₹1,200",push_button:"₹40",buzzer:"₹60",led_and_resistors:"₹50",power_supply:"₹500",miscellaneous:"₹300",total:"₹5,350 (approx)"},author_name:"NISHANTH",status:"Published"},{id:330,title:"AI-Based Animal Detection System for Farmland Protection",level:"AI + Embedded (Advanced – AgriTech & Safety)",category:"AI + Embedded + Machine Learning",estimatedTime:"18–20 Hours",problem_statement:"Farmers suffer major crop losses due to wild animals entering farmland, especially at night. Traditional fencing and scare methods are unreliable. An AI-based detection system can identify animals early and trigger non-lethal alerts to protect crops.",real_world_use_case:["Agricultural farmlands near forests","Village boundary protection","Plantation estates","Smart agriculture projects","Government AgriTech initiatives"],ai_concept:{type:"Object Detection",model:"YOLOv5 / MobileNet-SSD (custom trained)",target_classes:["Cow","Buffalo","Dog","Boar","Deer","Elephant"],training_data:"Animal images captured in Indian rural environments",deployment:"Edge inference on Raspberry Pi"},embedded_concept:{trigger_logic:"AI confirmation + confidence threshold",alert_strategy:"Multi-output deterrent system",power_constraint:"Outdoor, low-maintenance system"},hardware:{processor:"Raspberry Pi 4 (4GB)",camera:"IR Night Vision Camera (USB / Pi Camera)",alert_devices:["High-power Buzzer","Flood Light / Strobe Light"],communication:"Optional GSM module (SMS alert)",power:{primary:"5V 3A Adapter",optional:"Solar panel + battery backup"},enclosure:"Weatherproof outdoor casing (IP65)"},working_principle:["Camera continuously monitors farm boundary","Frames captured at fixed intervals","AI model detects objects in frame","Detected objects filtered for animal classes","Confidence score evaluated","If animal detected above threshold:","→ Activate buzzer and flood light","→ Save image with timestamp","→ (Optional) Send SMS alert to farmer","System resets after cooldown period"],decision_logic:{confidence_threshold:.6,verification_frames:3,cooldown_time:"30 seconds",night_mode:"Always active",day_mode:"Optional (user configurable)"},pin_config:{raspberry_pi:[{module:"Night Vision Camera",pinName:"USB / CSI",pin:"Camera Port",voltage:"5V",direction:"Data",description:"Captures images for AI detection"},{module:"High-Power Buzzer (via Relay)",pinName:"IN",pin:"GPIO18",voltage:"3.3V",direction:"Output",description:"Activates sound deterrent when animal detected"},{module:"Flood Light Relay",pinName:"IN",pin:"GPIO21",voltage:"3.3V",direction:"Output",description:"Turns ON bright light to scare animals"},{module:"Relay Module",pinName:"VCC",pin:"5V",voltage:"5V",direction:"Power",description:"Relay power supply"},{module:"Relay Module",pinName:"GND",pin:"GND",voltage:"0V",direction:"Ground",description:"Common ground with Raspberry Pi"}]},software_stack:["Python 3","OpenCV","YOLOv5 / TensorFlow Lite","RPi.GPIO","NumPy","Optional: GSM (pySerial)"],dataset_guidelines:{source:["Local farmland cameras","Forest boundary images","Day and night samples"],minimum_images_per_class:500,augmentation:["Brightness variation","Motion blur","Night IR noise"]},code:{language:"Python",file:"animal_detection.py",content:`import cv2
+import time
+import RPi.GPIO as GPIO
+
+BUZZER = 18
+LIGHT = 21
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(BUZZER, GPIO.OUT)
+GPIO.setup(LIGHT, GPIO.OUT)
+
+cap = cv2.VideoCapture(0)
+
+CONFIDENCE_THRESHOLD = 0.6
+COOLDOWN = 30
+last_trigger = 0
+
+while True:
+    ret, frame = cap.read()
+    
+    # --- AI MODEL INFERENCE SHOULD BE HERE ---
+    # Assume animal detected with confidence
+    animal_detected = True
+    confidence = 0.72
+
+    current_time = time.time()
+
+    if animal_detected and confidence > CONFIDENCE_THRESHOLD:
+        if current_time - last_trigger > COOLDOWN:
+            GPIO.output(BUZZER, GPIO.HIGH)
+            GPIO.output(LIGHT, GPIO.HIGH)
+            cv2.imwrite(f"captures/animal_{int(current_time)}.jpg", frame)
+            time.sleep(5)
+            GPIO.output(BUZZER, GPIO.LOW)
+            GPIO.output(LIGHT, GPIO.LOW)
+            last_trigger = current_time
+
+    if cv2.waitKey(1) == 27:
+        break
+
+cap.release()
+GPIO.cleanup()`},testing_output:"Animal detected → buzzer and light activated → image saved → farmer alerted.",common_errors:["False positives from humans or vehicles","Poor night illumination","Camera fogging or rain interference","Insufficient dataset diversity"],working_explanation_step_by_step:["System boots and initializes GPIO and camera","Camera captures live frames","AI model processes each frame","Detection results filtered for animals","Confidence evaluated over multiple frames","Alert outputs activated","System enters cooldown to prevent repeat alerts"],improvements:["Thermal camera integration","Animal-specific alert sounds","Solar-powered autonomous system","Mobile app with live feed","Cloud-based incident analytics"],mini_challenge:"Generate different alert patterns for different animal types.",estimated_cost_india:{raspberry_pi_4:"₹3,200",night_vision_camera:"₹1,800",relay_module:"₹150",buzzer:"₹250",flood_light:"₹600",power_supply:"₹500",weatherproof_enclosure:"₹700",miscellaneous:"₹400",total:"₹7,600 (approx)"},author_name:"NISHANTH",status:"Published"}];export{e as p};
