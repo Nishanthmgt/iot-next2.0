@@ -6194,7 +6194,29 @@ while True:
 
 cap.release()
 GPIO.cleanup()
-cv2.destroyAllWindows()`},testing_output:"Motion detected → alert triggered and message displayed.",common_errors:["Lighting changes triggering false motion","Camera noise","Incorrect contour threshold"],improvements:["Add human detection model","Night vision support","Cloud-based alerts"],mini_challenge:"Trigger recording only after motion persists for 3 seconds.",estimated_cost_india:"₹3,000 – ₹3,800",author_name:"NISHANTH",status:"Published"},{id:312,title:"Number Plate Detection System",level:"AI + Embedded (Advanced Vision)",description:"A computer vision system that detects vehicle number plates from images and extracts text using OCR.",category:"AI + Embedded + Machine Learning",estimatedTime:"10–12 Hours",problem_statement:"Manual vehicle identification is inefficient and error-prone. Automated number plate recognition improves speed and accuracy.",real_world_case:["Smart parking systems","Traffic monitoring","Toll collection","Campus vehicle tracking"],ai_concept:{vision:"Object localization",ocr:"Optical Character Recognition",engine:"Tesseract OCR"},hardware:{processor:"Raspberry Pi 4 / PC",camera:"USB Camera / Pi Camera"},working_principle:["Capture vehicle image","Detect plate region","Crop plate area","Apply OCR","Extract plate text"],software_stack:["Python 3","OpenCV","Tesseract OCR","pytesseract"],code:{language:"Python",file:"number_plate.py",content:`import cv2
+cv2.destroyAllWindows()`},testing_output:"Motion detected → alert triggered and message displayed.",common_errors:["Lighting changes triggering false motion","Camera noise","Incorrect contour threshold"],improvements:["Add human detection model","Night vision support","Cloud-based alerts"],mini_challenge:"Trigger recording only after motion persists for 3 seconds.",estimated_cost_india:"₹3,000 – ₹3,800",author_name:"NISHANTH",status:"Published"},{id:311,title:"Voice Recognition using Arduino + Bluetooth",level:"AI + Embedded (Foundation)",description:"A voice-controlled embedded system where speech is recognized on a smartphone and commands are sent to Arduino via Bluetooth for execution.",category:"AI + Embedded + Machine Learning",estimatedTime:"5–6 Hours",problem_statement:"Low-power microcontrollers cannot process speech locally. Offloading speech recognition enables voice control on constrained hardware.",real_world_case:["Voice-controlled robots","Home automation modules","Assistive technology devices"],ai_concept:{speech_recognition:"Smartphone (Google Speech)",embedded_role:"Command execution",communication:"Bluetooth (HC-05)"},system_architecture:["User speaks command","Mobile app converts speech to text","Text command sent via Bluetooth","Arduino parses command","Action executed"],hardware:{controller:"Arduino UNO",bluetooth:"HC-05",output:"LED / Relay / Motor"},pin_config:{arduino:[{module:"HC-05",pinName:"VCC",pin:"5V",direction:"Power"},{module:"HC-05",pinName:"GND",pin:"GND",direction:"Ground"},{module:"HC-05",pinName:"TXD",pin:"D10",direction:"Input"},{module:"HC-05",pinName:"RXD",pin:"D11",direction:"Output",note:"Use voltage divider"},{module:"LED / Relay",pinName:"Signal",pin:"D8",direction:"Output"}]},software_stack:["Arduino IDE","Bluetooth Voice Control App"],code:{language:"C++ (Arduino)",file:"voice_bt.ino",content:`#include <SoftwareSerial.h>
+
+SoftwareSerial bt(10, 11); // RX, TX
+#define DEVICE 8
+
+void setup() {
+  pinMode(DEVICE, OUTPUT);
+  digitalWrite(DEVICE, LOW);
+  bt.begin(9600);
+}
+
+void loop() {
+  if (bt.available()) {
+    String cmd = bt.readStringUntil('\\n');
+    cmd.trim();
+
+    if (cmd == "on") {
+      digitalWrite(DEVICE, HIGH);
+    } else if (cmd == "off") {
+      digitalWrite(DEVICE, LOW);
+    }
+  }
+}`},testing_output:"Voice command 'on' → device turns ON.",common_errors:["RX pin not level shifted","Bluetooth pairing issues","Incorrect command text"],improvements:["Add command confirmation","Multiple device control","Security PIN"],mini_challenge:"Control fan speed using voice commands.",estimated_cost_india:"₹700 – ₹1,000",author_name:"NISHANTH",status:"Published"},{id:312,title:"Number Plate Detection System",level:"AI + Embedded (Advanced Vision)",description:"A computer vision system that detects vehicle number plates from images and extracts text using OCR.",category:"AI + Embedded + Machine Learning",estimatedTime:"10–12 Hours",problem_statement:"Manual vehicle identification is inefficient and error-prone. Automated number plate recognition improves speed and accuracy.",real_world_case:["Smart parking systems","Traffic monitoring","Toll collection","Campus vehicle tracking"],ai_concept:{vision:"Object localization",ocr:"Optical Character Recognition",engine:"Tesseract OCR"},hardware:{processor:"Raspberry Pi 4 / PC",camera:"USB Camera / Pi Camera"},working_principle:["Capture vehicle image","Detect plate region","Crop plate area","Apply OCR","Extract plate text"],software_stack:["Python 3","OpenCV","Tesseract OCR","pytesseract"],code:{language:"Python",file:"number_plate.py",content:`import cv2
 import pytesseract
 
 img = cv2.imread('car.jpg')
@@ -6552,22 +6574,35 @@ pred = model.predict(img)
 waste_type = np.argmax(pred)
 print('Waste type:', waste_type)
 
-cap.release()`},testing_output:"Waste classified and directed to correct bin.",common_errors:["Poor dataset quality","Lighting variations","Servo misalignment"],improvements:["Add weight sensor verification","Retrain model with local waste","Cloud waste analytics"],mini_challenge:"Achieve >90% classification accuracy.",estimated_cost_india:"₹4,500 – ₹6,000",author_name:"NISHANTH",status:"Published"},{id:328,title:"Waste Segregation using AI Image Classification",level:"AI + Embedded (Sustainability AI)",description:"An AI-powered waste segregation system that classifies waste type using camera-based image recognition and automates sorting.",category:"AI + Embedded + Machine Learning",estimatedTime:"12–14 Hours",problem_statement:"Manual waste segregation is inefficient and hazardous. AI-based classification improves recycling accuracy and safety.",real_world_case:["Smart city waste management","Automated recycling plants","Educational demonstration systems"],ai_concept:{type:"Image Classification",model:"CNN / TensorFlow Lite",classes:["Organic","Plastic","Metal","Paper"]},hardware:{processor:"Raspberry Pi 4",camera:"USB Webcam / Pi Camera",actuator:"Servo Motors (bin flaps)"},working_principle:["Camera captures waste image","AI model classifies waste type","Corresponding bin flap activated","Waste directed into correct bin"],pin_config:{raspberry_pi:[{module:"Servo Organic",pinName:"Signal",pin:"GPIO17",direction:"Output"},{module:"Servo Plastic",pinName:"Signal",pin:"GPIO27",direction:"Output"},{module:"Servo Metal",pinName:"Signal",pin:"GPIO22",direction:"Output"}]},software_stack:["Python 3","OpenCV","TensorFlow Lite","RPi.GPIO"],code:{language:"Python",file:"waste_segregation.py",content:`import cv2
-from tensorflow.keras.models import load_model
-import numpy as np
+cap.release()`},testing_output:"Waste classified and directed to correct bin.",common_errors:["Poor dataset quality","Lighting variations","Servo misalignment"],improvements:["Add weight sensor verification","Retrain model with local waste","Cloud waste analytics"],mini_challenge:"Achieve >90% classification accuracy.",estimated_cost_india:"₹4,500 – ₹6,000",author_name:"NISHANTH",status:"Published"},{id:329,title:"Smart Doorbell with Face Recognition",level:"AI + Embedded (Smart Security Product)",description:"A smart doorbell system that recognizes known faces using AI and sends alerts only for unknown visitors.",category:"AI + Embedded + Machine Learning",estimatedTime:"12–14 Hours",problem_statement:"Traditional doorbells cannot identify visitors. AI-powered doorbells improve security by recognizing known and unknown faces.",real_world_case:["Smart homes","Apartments","Rental properties","Home security systems"],ai_concept:{type:"Face Recognition",method:"Face embeddings + similarity threshold",library:"face_recognition (dlib)"},hardware:{processor:"Raspberry Pi 4",camera:"Pi Camera / USB Webcam",input:"Push Button (Doorbell)",output:"Buzzer + Notification"},working_principle:["Visitor presses doorbell","Camera captures face image","Face encoding generated","Compared with known faces","If unknown → alert sent","If known → silent or personalized alert"],pin_config:{raspberry_pi:[{module:"Doorbell Button",pinName:"Signal",pin:"GPIO23",direction:"Input"},{module:"Buzzer",pinName:"VCC",pin:"3.3V",direction:"Power"},{module:"Buzzer",pinName:"GND",pin:"GND",direction:"Ground"},{module:"Buzzer",pinName:"IN",pin:"GPIO24",direction:"Output"}]},software_stack:["Python 3","OpenCV","face_recognition","RPi.GPIO","MQTT / HTTP (optional)"],code:{language:"Python",file:"smart_doorbell.py",content:`import face_recognition
+import cv2
+import RPi.GPIO as GPIO
 
-model = load_model('waste_model.h5')
+BUTTON = 23
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(BUTTON, GPIO.IN)
+
+known_img = face_recognition.load_image_file('owner.jpg')
+known_enc = face_recognition.face_encodings(known_img)[0]
+
 cap = cv2.VideoCapture(0)
 
-ret, frame = cap.read()
-img = cv2.resize(frame, (128,128)) / 255.0
-img = img.reshape(1,128,128,3)
+while True:
+    if GPIO.input(BUTTON):
+        ret, frame = cap.read()
+        rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        faces = face_recognition.face_encodings(rgb)
 
-pred = model.predict(img)
-waste_type = np.argmax(pred)
-print('Waste type:', waste_type)
+        if faces:
+            dist = face_recognition.face_distance([known_enc], faces[0])[0]
+            if dist < 0.45:
+                print('Known visitor')
+            else:
+                print('Unknown visitor! Alert sent')
+        break
 
-cap.release()`},testing_output:"Waste classified and directed to correct bin.",common_errors:["Poor dataset quality","Lighting variations","Servo misalignment"],improvements:["Add weight sensor verification","Retrain model with local waste","Cloud waste analytics"],mini_challenge:"Achieve >90% classification accuracy.",estimated_cost_india:"₹4,500 – ₹6,000",author_name:"NISHANTH",status:"Published"},{id:330,title:"Animal Detection for Farmland Protection",level:"AI + Embedded (AgriTech AI)",description:"An AI-based system that detects animals entering farmland using a camera and triggers alerts to prevent crop damage.",category:"AI + Embedded + Machine Learning",estimatedTime:"12–15 Hours",problem_statement:"Wild animals cause major crop losses. AI-based detection provides early warning and non-lethal protection.",real_world_case:["Smart agriculture","Forest boundary protection","Rural farmlands"],ai_concept:{type:"Object Detection",model:"YOLO / MobileNet",target_classes:["Cow","Dog","Boar","Deer","Elephant"]},hardware:{processor:"Raspberry Pi 4",camera:"Night Vision Camera",alert:"Buzzer / Light / SMS"},working_principle:["Camera monitors field boundary","AI detects animal presence","Animal type identified","Alert triggered to scare animal","Farmer notified"],pin_config:{raspberry_pi:[{module:"Buzzer",pinName:"VCC",pin:"5V",direction:"Power"},{module:"Buzzer",pinName:"GND",pin:"GND",direction:"Ground"},{module:"Buzzer",pinName:"IN",pin:"GPIO18",direction:"Output"},{module:"Flood Light",pinName:"IN",pin:"GPIO21",direction:"Output"}]},software_stack:["Python 3","OpenCV","TensorFlow Lite / YOLO","RPi.GPIO"],code:{language:"Python",file:"animal_detection.py",content:`import cv2
+cap.release()
+GPIO.cleanup()`},testing_output:"Known face → normal bell | Unknown face → security alert.",common_errors:["Incorrect face threshold","Poor camera angle","Button debounce issue"],improvements:["Cloud image upload","Mobile app notification","Face spoof detection"],mini_challenge:"Send visitor snapshot to mobile via MQTT.",estimated_cost_india:"₹4,500 – ₹6,000",author_name:"NISHANTH",status:"Published"},{id:330,title:"Animal Detection for Farmland Protection",level:"AI + Embedded (AgriTech AI)",description:"An AI-based system that detects animals entering farmland using a camera and triggers alerts to prevent crop damage.",category:"AI + Embedded + Machine Learning",estimatedTime:"12–15 Hours",problem_statement:"Wild animals cause major crop losses. AI-based detection provides early warning and non-lethal protection.",real_world_case:["Smart agriculture","Forest boundary protection","Rural farmlands"],ai_concept:{type:"Object Detection",model:"YOLO / MobileNet",target_classes:["Cow","Dog","Boar","Deer","Elephant"]},hardware:{processor:"Raspberry Pi 4",camera:"Night Vision Camera",alert:"Buzzer / Light / SMS"},working_principle:["Camera monitors field boundary","AI detects animal presence","Animal type identified","Alert triggered to scare animal","Farmer notified"],pin_config:{raspberry_pi:[{module:"Buzzer",pinName:"VCC",pin:"5V",direction:"Power"},{module:"Buzzer",pinName:"GND",pin:"GND",direction:"Ground"},{module:"Buzzer",pinName:"IN",pin:"GPIO18",direction:"Output"},{module:"Flood Light",pinName:"IN",pin:"GPIO21",direction:"Output"}]},software_stack:["Python 3","OpenCV","TensorFlow Lite / YOLO","RPi.GPIO"],code:{language:"Python",file:"animal_detection.py",content:`import cv2
 
 cap = cv2.VideoCapture(0)
 
