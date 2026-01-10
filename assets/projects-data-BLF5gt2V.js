@@ -6971,7 +6971,60 @@ while True:
         break
 
 cap.release()
-GPIO.cleanup()`},testing_output:"Human detected → MQTT alert published → subscribers receive notification.",common_errors:["MQTT broker not running","Incorrect topic configuration","High CPU usage during AI inference","Network latency"],security_considerations:["Use MQTT authentication","Enable TLS encryption","Restrict broker access"],improvements:["Send image snapshot via MQTT","Integrate with Home Assistant","Add face recognition for authorization","Edge TPU acceleration"],mini_challenge:"Trigger alert only if person remains for more than 5 seconds.",estimated_cost_india:{raspberry_pi_4:"₹3,200",camera_module:"₹1,200",buzzer_led:"₹150",power_supply:"₹400",miscellaneous:"₹350",total:"₹5,300 (approx)"},author_name:"NISHANTH",status:"Published"},{id:329,title:"Smart Doorbell with Face Recognition",level:"AI + Embedded (Advanced – Smart Security Product)",category:"AI + Embedded + Machine Learning",estimatedTime:"16–18 Hours",problem_statement:"Conventional doorbells cannot identify visitors, forcing users to manually check every alert. A face-recognition-enabled doorbell can automatically distinguish known and unknown visitors, improving security and convenience.",real_world_use_case:["Smart homes","Apartments and gated communities","Rental properties (Airbnb)","Elderly and assisted-living homes"],ai_concept:{type:"Face Recognition",pipeline:["Face detection","Face encoding generation","Embedding comparison","Identity decision"],model:"HOG + CNN face encoders (dlib)",decision_metric:"Euclidean distance threshold"},embedded_concept:{event_trigger:"Physical doorbell press",real_time_constraint:"< 2 seconds response",fail_safe:"Always ring bell if AI fails"},hardware:{processor:"Raspberry Pi 4 (4GB recommended)",camera:"Pi Camera v2 / USB Webcam (720p minimum)",input:"Momentary Push Button (Doorbell)",output:["Active Buzzer / Chime","LED Indicator"],power:"5V 3A Adapter"},working_principle:["Visitor presses doorbell button","Camera captures high-resolution face image","Face detected and cropped","Face encoding generated","Encoding compared with stored known faces","If known → soft alert / silent notification","If unknown → buzzer + security alert","Optional snapshot saved locally or sent to cloud"],security_logic:{distance_threshold:.45,retry_attempts:3,cooldown_time:"10 seconds",unknown_face_action:["Ring bell","Save snapshot","Send alert"]},pin_config:{raspberry_pi:[{module:"Doorbell Push Button",pinName:"Signal",pin:"GPIO23",voltage:"3.3V",direction:"Input",description:"Triggers face recognition pipeline"},{module:"Doorbell Button",pinName:"GND",pin:"GND",voltage:"0V",direction:"Ground",description:"Common ground"},{module:"Buzzer",pinName:"IN",pin:"GPIO24",voltage:"3.3V",direction:"Output",description:"Audible alert for unknown visitors"},{module:"Buzzer",pinName:"VCC",pin:"3.3V",voltage:"3.3V",direction:"Power",description:"Buzzer power supply"},{module:"Status LED",pinName:"IN",pin:"GPIO18",voltage:"3.3V",direction:"Output",description:"Visual feedback (green = known, red = unknown)"}]},software_stack:["Python 3","OpenCV","face_recognition (dlib)","RPi.GPIO","NumPy","Optional: MQTT / HTTP API"],dataset_structure:{known_faces:"dataset/known/<person_name>/*.jpg",unknown_faces:"captured/unknown/",image_requirements:["Multiple angles","Different lighting","Neutral facial expression"]},code:{language:"Python",file:"smart_doorbell.py",content:`import face_recognition
+GPIO.cleanup()`},testing_output:"Human detected → MQTT alert published → subscribers receive notification.",common_errors:["MQTT broker not running","Incorrect topic configuration","High CPU usage during AI inference","Network latency"],security_considerations:["Use MQTT authentication","Enable TLS encryption","Restrict broker access"],improvements:["Send image snapshot via MQTT","Integrate with Home Assistant","Add face recognition for authorization","Edge TPU acceleration"],mini_challenge:"Trigger alert only if person remains for more than 5 seconds.",estimated_cost_india:{raspberry_pi_4:"₹3,200",camera_module:"₹1,200",buzzer_led:"₹150",power_supply:"₹400",miscellaneous:"₹350",total:"₹5,300 (approx)"},author_name:"NISHANTH",status:"Published"},{id:328,title:"AI-Based Waste Segregation System using Image Classification",level:"AI + Embedded (Advanced – Sustainability & Automation)",category:"AI + Embedded + Machine Learning",estimatedTime:"18–20 Hours",problem_statement:"Manual waste segregation is inefficient, unsafe, and inaccurate, leading to poor recycling rates. An AI-powered system can automatically identify waste type and physically route it to the correct bin, improving recycling efficiency and hygiene.",real_world_use_case:["Smart city waste management","Automated recycling centers","Apartment waste systems","Educational AI + Robotics labs"],ai_concept:{type:"Image Classification",model:"Convolutional Neural Network (CNN)",framework:"TensorFlow / TensorFlow Lite",classes:["Organic","Plastic","Metal","Paper"],training_data:"Custom dataset (local waste images)",deployment:"Edge inference on Raspberry Pi"},embedded_concept:{actuation:"Servo-controlled mechanical flaps",decision_logic:"Class → Bin mapping",latency_requirement:"< 1 second per classification"},hardware:{processor:"Raspberry Pi 4 (4GB)",camera:"Pi Camera v2 / USB Webcam",actuators:"SG90 Servo Motors (3–4 units)",power:{logic:"5V 3A Adapter",motors:"External 5V 2A Supply"},structure:"Mechanical chute with rotating flaps"},working_principle:["Waste object placed in input tray","Camera captures top-view image","Image resized and normalized","CNN model classifies waste type","Classification confidence verified","Corresponding servo motor activated","Waste directed into appropriate bin","System resets for next object"],classification_logic:{confidence_threshold:.65,fallback_action:"Send to general waste bin",cooldown_time:"3 seconds between operations"},pin_config:{raspberry_pi:[{module:"Camera",pinName:"CSI",pin:"CSI Port",voltage:"3.3V",direction:"Data",description:"Image acquisition for AI inference"},{module:"Servo - Organic Bin",pinName:"Signal",pin:"GPIO17",voltage:"3.3V",direction:"Output",description:"Rotates flap to organic waste bin"},{module:"Servo - Plastic Bin",pinName:"Signal",pin:"GPIO27",voltage:"3.3V",direction:"Output",description:"Routes plastic waste"},{module:"Servo - Metal Bin",pinName:"Signal",pin:"GPIO22",voltage:"3.3V",direction:"Output",description:"Routes metal waste"},{module:"Servo Motors",pinName:"VCC",pin:"External 5V",voltage:"5V",direction:"Power",description:"Dedicated power supply for servos"},{module:"Servo Motors",pinName:"GND",pin:"Common GND",voltage:"0V",direction:"Ground",description:"Shared ground between Pi and motor supply"}]},software_stack:["Python 3","OpenCV","TensorFlow / TensorFlow Lite","RPi.GPIO","NumPy"],mechanical_design:{input_mechanism:"Slanted tray for single-object placement",sorting_mechanism:"Servo-driven diverter flaps",bin_alignment:"Radial bin placement"},code:{language:"Python",file:"waste_segregation.py",content:`import cv2
+import numpy as np
+import RPi.GPIO as GPIO
+from tensorflow.keras.models import load_model
+import time
+
+SERVO_ORG = 17
+SERVO_PLA = 27
+SERVO_MET = 22
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setup([SERVO_ORG, SERVO_PLA, SERVO_MET], GPIO.OUT)
+
+pwm_org = GPIO.PWM(SERVO_ORG, 50)
+pwm_pla = GPIO.PWM(SERVO_PLA, 50)
+pwm_met = GPIO.PWM(SERVO_MET, 50)
+
+pwm_org.start(0)
+pwm_pla.start(0)
+pwm_met.start(0)
+
+model = load_model('waste_classifier.h5')
+cap = cv2.VideoCapture(0)
+
+labels = ['Organic', 'Plastic', 'Metal', 'Paper']
+
+while True:
+    ret, frame = cap.read()
+    img = cv2.resize(frame, (128,128)) / 255.0
+    img = img.reshape(1,128,128,3)
+
+    prediction = model.predict(img)
+    class_id = np.argmax(prediction)
+    confidence = prediction[0][class_id]
+
+    if confidence > 0.65:
+        if labels[class_id] == 'Organic':
+            pwm_org.ChangeDutyCycle(7)
+        elif labels[class_id] == 'Plastic':
+            pwm_pla.ChangeDutyCycle(7)
+        elif labels[class_id] == 'Metal':
+            pwm_met.ChangeDutyCycle(7)
+
+        time.sleep(1)
+        pwm_org.ChangeDutyCycle(0)
+        pwm_pla.ChangeDutyCycle(0)
+        pwm_met.ChangeDutyCycle(0)
+        time.sleep(3)
+
+    if cv2.waitKey(1) == 27:
+        break
+
+cap.release()
+GPIO.cleanup()`},testing_output:"Waste item classified → corresponding bin flap activates → waste correctly routed.",common_errors:["Servo jitter due to insufficient power","Low accuracy from poor dataset","Lighting variation affecting classification","Camera misalignment"],dataset_guidelines:["Minimum 300 images per class","Different lighting conditions","Multiple orientations","Real waste samples (not stock images)"],improvements:["Add weight sensor for verification","Reject mixed waste","Cloud waste analytics dashboard","Retrain model periodically"],mini_challenge:"Achieve >90% classification accuracy on local waste samples.",estimated_cost_india:{raspberry_pi_4:"₹3,200",camera_module:"₹1,200",servo_motors_3:"₹450",power_supply:"₹500",mechanical_structure:"₹800",miscellaneous:"₹350",total:"₹6,500 (approx)"},author_name:"NISHANTH",status:"Published"},{id:329,title:"Smart Doorbell with Face Recognition",level:"AI + Embedded (Advanced – Smart Security Product)",category:"AI + Embedded + Machine Learning",estimatedTime:"16–18 Hours",problem_statement:"Conventional doorbells cannot identify visitors, forcing users to manually check every alert. A face-recognition-enabled doorbell can automatically distinguish known and unknown visitors, improving security and convenience.",real_world_use_case:["Smart homes","Apartments and gated communities","Rental properties (Airbnb)","Elderly and assisted-living homes"],ai_concept:{type:"Face Recognition",pipeline:["Face detection","Face encoding generation","Embedding comparison","Identity decision"],model:"HOG + CNN face encoders (dlib)",decision_metric:"Euclidean distance threshold"},embedded_concept:{event_trigger:"Physical doorbell press",real_time_constraint:"< 2 seconds response",fail_safe:"Always ring bell if AI fails"},hardware:{processor:"Raspberry Pi 4 (4GB recommended)",camera:"Pi Camera v2 / USB Webcam (720p minimum)",input:"Momentary Push Button (Doorbell)",output:["Active Buzzer / Chime","LED Indicator"],power:"5V 3A Adapter"},working_principle:["Visitor presses doorbell button","Camera captures high-resolution face image","Face detected and cropped","Face encoding generated","Encoding compared with stored known faces","If known → soft alert / silent notification","If unknown → buzzer + security alert","Optional snapshot saved locally or sent to cloud"],security_logic:{distance_threshold:.45,retry_attempts:3,cooldown_time:"10 seconds",unknown_face_action:["Ring bell","Save snapshot","Send alert"]},pin_config:{raspberry_pi:[{module:"Doorbell Push Button",pinName:"Signal",pin:"GPIO23",voltage:"3.3V",direction:"Input",description:"Triggers face recognition pipeline"},{module:"Doorbell Button",pinName:"GND",pin:"GND",voltage:"0V",direction:"Ground",description:"Common ground"},{module:"Buzzer",pinName:"IN",pin:"GPIO24",voltage:"3.3V",direction:"Output",description:"Audible alert for unknown visitors"},{module:"Buzzer",pinName:"VCC",pin:"3.3V",voltage:"3.3V",direction:"Power",description:"Buzzer power supply"},{module:"Status LED",pinName:"IN",pin:"GPIO18",voltage:"3.3V",direction:"Output",description:"Visual feedback (green = known, red = unknown)"}]},software_stack:["Python 3","OpenCV","face_recognition (dlib)","RPi.GPIO","NumPy","Optional: MQTT / HTTP API"],dataset_structure:{known_faces:"dataset/known/<person_name>/*.jpg",unknown_faces:"captured/unknown/",image_requirements:["Multiple angles","Different lighting","Neutral facial expression"]},code:{language:"Python",file:"smart_doorbell.py",content:`import face_recognition
 import cv2
 import RPi.GPIO as GPIO
 import time
