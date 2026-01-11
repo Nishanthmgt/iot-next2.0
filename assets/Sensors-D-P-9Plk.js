@@ -1,4 +1,4 @@
-import{j as e,p,X as E,o as C,Z as T,I as A,ah as B,ai as L,aj as D,ak as H,al as P,am as O,an as _,s as V,ao as G,ag as F,b as m,a1 as M,K as U,d as S,ap as K,aq as X,t as z,R as W,ar as $,E as q}from"./vendor-8X-G9vrw.js";import{H as Q,s as Y,a as Z}from"./index-BnHxYRDj.js";import{p as I}from"./projects-data-DCyO_Kmk.js";import"./boards-data-DfUyxos8.js";function J({sensor:r,onClose:n}){if(!r)return null;const l=r.common_uses?r.common_uses.split(`
+import{j as e,p,X as E,o as C,Z as T,I as A,ah as B,ai as L,aj as D,ak as H,al as P,am as O,an as _,s as V,ao as G,ag as F,b as m,a1 as M,K as U,d as S,ap as K,aq as X,t as z,R as W,ar as $,E as q}from"./vendor-8X-G9vrw.js";import{H as Q,s as Y,a as Z}from"./index-BO4kW3L1.js";import{p as I}from"./projects-data-DCyO_Kmk.js";import"./boards-data-DfUyxos8.js";function J({sensor:r,onClose:n}){if(!r)return null;const l=r.common_uses?r.common_uses.split(`
 `).filter(i=>i.trim()):[],o=r.advantages?r.advantages.split(`
 `).filter(i=>i.trim()):[],c=r.disadvantages?r.disadvantages.split(`
 `).filter(i=>i.trim()):[],s=r.technical_specs?r.technical_specs.split(`
