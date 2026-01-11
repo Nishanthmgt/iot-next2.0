@@ -1,5 +1,7 @@
 User-agent: *
 Allow: /
+Disallow: /admin/
+Disallow: /admin/login
 Disallow: /admin-dashboard
 Disallow: /admin-login
 Disallow: /admin-add
