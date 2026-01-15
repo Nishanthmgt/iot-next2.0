@@ -5,6 +5,7 @@ import { sensorCategories } from '../../data/sensors';
 
 export default function SensorForm({ setView, sensor, onComplete }) {
     const [loading, setLoading] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
         image: '',
@@ -24,6 +25,14 @@ export default function SensorForm({ setView, sensor, onComplete }) {
         beginner_mistakes: '',
         alternatives: ''
     });
+
+    // Detect mobile
+    useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth <= 820);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     useEffect(() => {
         if (sensor) {
@@ -88,17 +97,16 @@ export default function SensorForm({ setView, sensor, onComplete }) {
                 <ChevronLeft size={16} /> BACK
             </button>
 
-            <div className="glass-plus" style={{ padding: '3rem', borderRadius: '1.5rem', maxWidth: '800px', margin: '0 auto' }}>
+            <div className="glass-plus" style={{ padding: isMobile ? '1.5rem' : '3rem', borderRadius: '1.5rem', maxWidth: '800px', margin: '0 auto' }}>
                 <div style={{ marginBottom: '2rem' }}>
-                    <h2 style={{ fontSize: '2.5rem', fontWeight: '900', letterSpacing: '-0.03em', lineHeight: 1.1 }}>
+                    <h2 style={{ fontSize: isMobile ? '1.75rem' : '2.5rem', fontWeight: '900', letterSpacing: '-0.03em', lineHeight: 1.1 }}>
                         {sensor ? 'Edit' : 'Register'} <span className="text-gradient">Hardware</span>
                     </h2>
-                    <p style={{ color: 'var(--text-muted)', fontWeight: '500', fontSize: '0.9rem', marginTop: '0.5rem' }}>Define component parameters.</p>
+                    <p style={{ color: 'var(--text-muted)', fontWeight: '500', fontSize: isMobile ? '0.8rem' : '0.9rem', marginTop: '0.5rem' }}>Define component parameters.</p>
                 </div>
 
                 <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '2rem' }}>
-                    {/* Basic Info Group */}
-                    <div style={{ display: 'grid', gridTemplateColumns: 'minmax(200px, 1fr) 1fr', gap: '1.5rem' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'minmax(200px, 1fr) 1fr', gap: '1.5rem' }}>
                         <div style={{ display: 'grid', gap: '0.75rem' }}>
                             <label style={{ fontSize: '0.85rem', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.6, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                                 <Cpu size={14} /> Component Name

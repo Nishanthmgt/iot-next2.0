@@ -55,7 +55,7 @@ export default function ShareProject({ setView }) {
                     <CheckCircle size={80} color="var(--primary)" style={{ marginBottom: '2rem' }} />
                     <h1 style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>Project Shared!</h1>
                     <p style={{ color: 'var(--text-muted)', fontSize: '1.2rem', maxWidth: '500px' }}>
-                        Thank you for contributing to the IoT community. Your project is now pending review and will be live once approved by Antigravity.
+                        Thank you for contributing to the IoT community. Your project is now pending review and will be live once approved by NISHANTH.
                     </p>
                     <button className="btn btn-primary" onClick={() => setView('home')} style={{ marginTop: '2rem' }}>Return Home</button>
                 </div>

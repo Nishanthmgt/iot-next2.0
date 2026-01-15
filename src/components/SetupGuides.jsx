@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Download, Cpu, Cloud, Smartphone, ChevronRight, Terminal, Globe, HelpCircle } from 'lucide-react';
+import { Helmet } from 'react-helmet-async';
 
 export default function SetupGuides() {
     const [activeTab, setActiveTab] = useState('arduino');
@@ -49,6 +50,13 @@ export default function SetupGuides() {
 
     return (
         <section className="container" id="setup" style={{ padding: '6rem 0' }}>
+            <Helmet>
+                <title>Environment Setup & Installation | Getting Started with IoT | IoTNext</title>
+                <meta name="description" content="Step-by-step guides to setting up your IoT development environment. Install Arduino IDE, Blynk IoT, and Arduino Cloud with ease." />
+                <meta property="og:title" content="IoT Setup & Installation Guides - IoTNext" />
+                <meta property="og:description" content="Get your development environment ready in minutes with our technical setup guides." />
+                <link rel="canonical" href="https://iotnext.store/setup" />
+            </Helmet>
             <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
                 <h2 style={{ fontSize: '3rem', fontWeight: '800', marginBottom: '1rem' }}>Installation & Setup</h2>
                 <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem' }}>Get your development environment ready in minutes.</p>
@@ -125,7 +133,7 @@ export default function SetupGuides() {
 
             <style dangerouslySetInnerHTML={{
                 __html: `
-        @media (max-width: 768px) {
+        @media (max-width: 820px) {
           .hide-mobile { display: none; }
           .guide-content { padding: 1.5rem !important; }
         }

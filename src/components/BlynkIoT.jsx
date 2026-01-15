@@ -18,6 +18,13 @@ import {
 
 const BlynkIoT = () => {
     const [activeTab, setActiveTab] = useState('getting-started');
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 820);
+
+    React.useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth <= 820);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     const tabs = [
         { id: 'getting-started', label: '1. Getting Started', icon: <Cpu size={18} /> },
@@ -69,24 +76,50 @@ void loop()
     };
 
     return (
-        <div className="blynk-container" style={{ padding: '6rem 0' }}>
+        <div className="blynk-container" style={{ padding: window.innerWidth <= 820 ? '5rem 1.25rem 2rem' : '6rem 0' }}>
             <div className="container">
-                {/* Header Section */}
-                <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5 }}
-                    >
-                        <span className="badge badge-advanced" style={{ marginBottom: '1rem' }}>Expert Guide</span>
-                        <h1 style={{ fontSize: '4rem', fontWeight: '900', marginBottom: '1.5rem' }}>
-                            Master <span className="text-gradient">Blynk IoT</span>
+                {/* Header Section - Mobile Optimized */}
+                {/* Header Section: Mobile vs Desktop */}
+                {isMobile ? (
+                    <div style={{ textAlign: 'left', marginBottom: '1.5rem' }}>
+                        <h1 style={{ fontSize: '1.8rem', fontWeight: '800', marginBottom: '0.5rem', letterSpacing: '-0.03em' }}>Blynk IoT</h1>
+                        <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>Cloud platform guide</p>
+                    </div>
+                ) : (
+                    <div style={{ textAlign: 'center', marginBottom: '4rem', padding: '2rem 0', position: 'relative' }}>
+                        {/* Desktop Ambient Glow */}
+                        <div style={{
+                            position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+                            width: '600px', height: '300px',
+                            background: 'radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, transparent 70%)',
+                            filter: 'blur(40px)',
+                            zIndex: -1
+                        }} />
+
+                        <span style={{
+                            display: 'inline-block',
+                            padding: '0.5rem 1.5rem',
+                            borderRadius: '2rem',
+                            border: '1px solid rgba(16, 185, 129, 0.3)',
+                            background: 'rgba(16, 185, 129, 0.05)',
+                            color: '#10b981',
+                            fontSize: '0.9rem',
+                            fontWeight: '700',
+                            marginBottom: '1.5rem',
+                            letterSpacing: '0.05em',
+                            textTransform: 'uppercase'
+                        }}>
+                            Cloud Integration
+                        </span>
+
+                        <h1 style={{ fontSize: '4rem', fontWeight: '800', marginBottom: '1.25rem', letterSpacing: '-0.03em', lineHeight: '1.1' }}>
+                            Master <span style={{ color: '#10b981' }}>Blynk IoT</span>
                         </h1>
-                        <p style={{ color: 'var(--text-muted)', fontSize: '1.2rem', maxWidth: '700px', margin: '0 auto' }}>
-                            The most popular IoT platform to connect your hardware to the cloud and build professional mobile apps in minutes.
+                        <p style={{ color: 'var(--text-secondary)', fontSize: '1.25rem', maxWidth: '600px', margin: '0 auto', lineHeight: '1.6' }}>
+                            The complete guide to connecting ESP32 to the cloud. Build professional mobile apps and control hardware from anywhere.
                         </p>
-                    </motion.div>
-                </div>
+                    </div>
+                )}
 
                 {/* Main Content Area */}
                 <div className="glass" style={{ borderRadius: '2.5rem', overflow: 'hidden', border: '1px solid var(--border)' }}>
@@ -126,7 +159,7 @@ void loop()
                     </div>
 
                     {/* Tab Content */}
-                    <div style={{ padding: '3rem' }}>
+                    <div style={{ padding: isMobile ? '1.5rem' : '3rem' }}>
                         <AnimatePresence mode="wait">
                             {activeTab === 'getting-started' && (
                                 <motion.div

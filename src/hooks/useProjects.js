@@ -3,7 +3,8 @@ import { supabase } from '../lib/supabase';
 import { projects as localProjects } from '../data/projects';
 
 export function useProjects(onlyPublished = true) {
-    const [projects, setProjects] = useState([]);
+    // Initialize with local projects immediately to prevent "zero projects" flash
+    const [projects, setProjects] = useState(localProjects);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 

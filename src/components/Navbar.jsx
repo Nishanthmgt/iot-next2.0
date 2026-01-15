@@ -1,19 +1,34 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import {
     Home, Map, Zap, Cpu, Search, Moon, Sun, ShoppingCart, Menu, X, PlusCircle, BookOpen, HelpCircle, Info, Activity, Shield, Layers, Mail, Github, Linkedin,
-    Sparkles, Box
+    Sparkles, Box, User, Heart, Settings as SettingsIcon, LogOut, Grid, Bookmark
 } from 'lucide-react';
+import { useDashboardData } from '../hooks/useDashboardData';
 
 const Navbar = ({ setView, currentView, theme, toggleTheme, setIsSearchOpen, buildList = [] }) => {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
+    const [isProfileOpen, setIsProfileOpen] = useState(false);
+
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 820);
+    // FIX 1: Destructure userAvatar
+    const { isAuthenticated, userName, userAvatar } = useDashboardData();
+
+    // FIX 2: Ensure userName is safe
+    const safeUserName = userName || 'Engineer';
 
     useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth <= 820);
+        window.addEventListener('resize', handleResize);
         const handleScroll = () => {
             setIsScrolled(window.scrollY > 50);
         };
         window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+            window.removeEventListener('resize', handleResize);
+        };
     }, []);
 
     useEffect(() => {
@@ -29,7 +44,6 @@ const Navbar = ({ setView, currentView, theme, toggleTheme, setIsSearchOpen, bui
         { id: 'roadmap', label: 'Roadmap', icon: <Map size={20} /> },
         { id: 'projects', label: 'Projects', icon: <Layers size={20} /> },
         { id: 'sensors', label: 'Sensors', icon: <Cpu size={20} /> },
-        { id: 'mastery', label: 'Mastery Hub', icon: <Sparkles size={20} /> },
         { id: 'pinout', label: 'Pinout Lab', icon: <Activity size={20} /> },
     ];
 
@@ -45,12 +59,20 @@ const Navbar = ({ setView, currentView, theme, toggleTheme, setIsSearchOpen, bui
         left: 0,
         right: 0,
         zIndex: 1000,
-        height: '72px',
-        background: isScrolled ? 'var(--glass)' : 'transparent',
+        height: isScrolled ? (isMobile ? '52px' : '56px') : '64px',
+        paddingTop: 'env(safe-area-inset-top)',
+        background: isScrolled
+            ? (theme === 'light' ? 'rgba(255, 255, 255, 0.9)' : 'var(--glass)')
+            : 'transparent',
         backdropFilter: isScrolled ? 'blur(20px) saturate(180%)' : 'none',
         WebkitBackdropFilter: isScrolled ? 'blur(20px) saturate(180%)' : 'none',
-        borderBottom: isScrolled ? '1px solid var(--border)' : '1px solid transparent',
-        transition: 'background 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease',
+        borderBottom: isScrolled
+            ? (theme === 'light' ? '1px solid rgba(0,0,0,0.05)' : '1px solid var(--border)')
+            : '1px solid transparent',
+        boxShadow: isScrolled
+            ? (theme === 'light' ? '0 4px 20px rgba(0,0,0,0.06)' : 'none')
+            : 'none',
+        transition: 'all 0.4s ease',
         display: 'flex',
         alignItems: 'center',
         transform: 'translate3d(0, 0, 0)',
@@ -66,9 +88,16 @@ const Navbar = ({ setView, currentView, theme, toggleTheme, setIsSearchOpen, bui
             <nav style={navStyle}>
                 <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 2rem', maxWidth: '1400px', margin: '0 auto' }}>
                     {/* Logo Section */}
-                    <div
+                    <motion.div
                         id="tour-logo"
-                        onClick={() => handleNavClick('home')}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => {
+                            if (isMobile && isAuthenticated && currentView === 'home') {
+                                setView('dashboard');
+                            } else {
+                                handleNavClick('home');
+                            }
+                        }}
                         style={{
                             display: 'flex',
                             alignItems: 'center',
@@ -78,8 +107,8 @@ const Navbar = ({ setView, currentView, theme, toggleTheme, setIsSearchOpen, bui
                         className="nav-logo"
                     >
                         <div style={{
-                            width: '36px',
-                            height: '36px',
+                            width: '32px',
+                            height: '32px',
                             borderRadius: '10px',
                             background: 'white',
                             boxShadow: '0 4px 12px rgba(99, 102, 241, 0.15)',
@@ -101,7 +130,7 @@ const Navbar = ({ setView, currentView, theme, toggleTheme, setIsSearchOpen, bui
                             />
                         </div>
                         <span style={{
-                            fontSize: '1.6rem',
+                            fontSize: isMobile ? '1.2rem' : '1.4rem',
                             fontWeight: '800',
                             color: 'var(--text)',
                             letterSpacing: '-0.03em',
@@ -113,7 +142,7 @@ const Navbar = ({ setView, currentView, theme, toggleTheme, setIsSearchOpen, bui
                                 color: 'var(--primary)'
                             }}>next</span>
                         </span>
-                    </div>
+                    </motion.div>
 
                     {/* Desktop Menu - Hidden on Mobile */}
                     <div className="desktop-only" style={{
@@ -135,26 +164,21 @@ const Navbar = ({ setView, currentView, theme, toggleTheme, setIsSearchOpen, bui
                                 <li
                                     key={item.id}
                                     id={`tour-nav-${item.id}`}
+                                    className={item.desktopOnly ? 'desktop-only' : ''}
                                     onClick={() => handleNavClick(item.id)}
                                     style={{
-                                        fontSize: '0.85rem',
-                                        fontWeight: safeCurrentView === item.id ? '700' : '500',
                                         cursor: 'pointer',
-                                        color: safeCurrentView === item.id ? 'var(--primary)' : 'var(--text-muted)',
+                                        color: safeCurrentView === item.id
+                                            ? (theme === 'light' ? 'var(--primary)' : 'white')
+                                            : 'var(--text-muted)',
+                                        background: safeCurrentView === item.id
+                                            ? (theme === 'light' ? 'rgba(99, 102, 241, 0.1)' : 'rgba(255, 255, 255, 0.1)')
+                                            : 'transparent',
+                                        padding: '0.35rem 0.85rem',
+                                        borderRadius: '50px',
+                                        fontSize: '0.8rem',
+                                        fontWeight: '750',
                                         transition: 'all 0.3s ease',
-                                        padding: '0.4rem 0.8rem',
-                                        borderRadius: '12px',
-                                        background: safeCurrentView === item.id ? 'rgba(var(--primary-rgb), 0.1)' : 'transparent'
-                                    }}
-                                    onMouseEnter={(e) => {
-                                        if (safeCurrentView !== item.id) {
-                                            e.target.style.color = 'var(--text)';
-                                        }
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        if (safeCurrentView !== item.id) {
-                                            e.target.style.color = 'var(--text-muted)';
-                                        }
                                     }}
                                 >
                                     {item.label}
@@ -164,24 +188,22 @@ const Navbar = ({ setView, currentView, theme, toggleTheme, setIsSearchOpen, bui
                     </div>
 
                     {/* Actions Group */}
-                    <div className="desktop-only" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <div className="desktop-only" style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
                         <button
                             onClick={() => setView('cartlist')}
                             style={{
                                 display: 'flex',
                                 alignItems: 'center',
-                                gap: '0.5rem',
-                                padding: '0.6rem 1.25rem',
+                                gap: '0.6rem',
                                 background: 'transparent',
-                                color: currentView === 'cartlist' ? 'var(--primary)' : 'var(--text-muted)',
+                                color: theme === 'light' ? 'var(--text)' : 'white',
                                 border: 'none',
                                 cursor: 'pointer',
                                 fontSize: '0.9rem',
-                                fontWeight: '600',
-                                transition: 'all 0.3s ease'
+                                fontWeight: '600'
                             }}
                         >
-                            <ShoppingCart size={18} />
+                            <ShoppingCart size={20} />
                             <span>Cart</span>
                         </button>
 
@@ -192,180 +214,326 @@ const Navbar = ({ setView, currentView, theme, toggleTheme, setIsSearchOpen, bui
                                 display: 'flex',
                                 alignItems: 'center',
                                 gap: '0.75rem',
-                                padding: '0.6rem 1.5rem',
-                                background: 'var(--surface)',
-                                color: 'var(--text)',
-                                border: '1px solid var(--border)',
+                                padding: '0.5rem 1.25rem',
+                                background: theme === 'light' ? 'rgba(0, 0, 0, 0.05)' : 'rgba(255, 255, 255, 0.05)',
+                                color: theme === 'light' ? 'var(--text)' : 'white',
+                                border: theme === 'light' ? '1px solid rgba(0, 0, 0, 0.1)' : '1px solid rgba(255, 255, 255, 0.1)',
                                 borderRadius: '50px',
                                 cursor: 'pointer',
-                                fontSize: '0.9rem',
-                                fontWeight: '700',
-                                transition: 'all 0.3s ease',
-                                boxShadow: '0 2px 10px rgba(0,0,0,0.05)'
-                            }}
-                            onMouseEnter={(e) => {
-                                e.currentTarget.style.borderColor = 'var(--primary)';
-                                e.currentTarget.style.transform = 'translateY(-1px)';
-                            }}
-                            onMouseLeave={(e) => {
-                                e.currentTarget.style.borderColor = 'var(--border)';
-                                e.currentTarget.style.transform = 'translateY(0)';
+                                fontSize: '0.85rem',
+                                fontWeight: '700'
                             }}
                         >
                             <Search size={18} />
                             <span>Search</span>
                         </button>
 
-                        <button
-                            onClick={() => setView('admin-login')}
-                            style={{
-                                width: '42px',
-                                height: '42px',
-                                borderRadius: '50%',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                color: 'var(--text-muted)',
-                                border: '1px solid var(--border)',
-                                background: 'var(--surface)',
-                                cursor: 'pointer',
-                                transition: 'all 0.3s ease'
-                            }}
-                            title="Admin Portal"
-                        >
-                            <Shield size={20} />
-                        </button>
-
-                        <button
-                            id="tour-theme"
-                            onClick={toggleTheme}
-                            style={{
-                                width: '42px',
-                                height: '42px',
-                                borderRadius: '50%',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                color: 'var(--text-muted)',
-                                border: '1px solid var(--border)',
-                                background: 'var(--surface)',
-                                cursor: 'pointer',
-                                transition: 'all 0.3s ease'
-                            }}
-                        >
-                            {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
-                        </button>
+                        <div style={{ display: 'flex', gap: '1rem', color: 'var(--text-muted)', alignItems: 'center' }}>
+                            <Shield size={20} style={{ cursor: 'pointer' }} onClick={() => setView('admin-login')} />
+                            {theme === 'dark' ? (
+                                <Sun size={20} style={{ cursor: 'pointer' }} onClick={toggleTheme} />
+                            ) : (
+                                <Moon size={20} style={{ cursor: 'pointer' }} onClick={toggleTheme} />
+                            )}
+                        </div>
 
                         <button
                             id="tour-share"
                             onClick={() => setView('share-project')}
                             style={{
-                                padding: '0.7rem 1.75rem',
+                                padding: '0.6rem 1.5rem',
                                 borderRadius: '50px',
                                 display: 'flex',
                                 alignItems: 'center',
                                 gap: '0.6rem',
                                 color: 'white',
                                 border: 'none',
-                                background: 'var(--primary)',
-                                fontSize: '0.95rem',
+                                background: '#6366f1',
+                                fontSize: '0.9rem',
                                 cursor: 'pointer',
                                 fontWeight: '750',
-                                transition: 'all 0.2s ease',
-                                boxShadow: '0 4px 15px rgba(var(--primary-rgb), 0.3)'
+                                boxShadow: '0 4px 15px rgba(99, 102, 241, 0.3)'
                             }}
                         >
                             <PlusCircle size={18} /> Share
                         </button>
+
+                        {!isAuthenticated ? (
+                            <>
+                                <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    onClick={() => setView('login')}
+                                    style={{
+                                        background: 'var(--primary)',
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '0.75rem',
+                                        padding: '0.5rem 1rem',
+                                        fontSize: '0.9rem',
+                                        fontWeight: '600',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '0.5rem'
+                                    }}
+                                >
+                                    Login
+                                </motion.button>
+                                <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    onClick={() => setView('login')}
+                                    style={{
+                                        width: '40px',
+                                        height: '40px',
+                                        borderRadius: '12px',
+                                        background: 'var(--surface)',
+                                        border: '1px solid var(--border)',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        color: 'var(--text-muted)',
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    <img
+                                        src="/logo.png"
+                                        alt="IoTNext"
+                                        style={{
+                                            width: '24px',
+                                            height: '24px',
+                                            objectFit: 'contain'
+                                        }}
+                                    />
+                                </motion.button>
+                            </>
+                        ) : (
+                            <div style={{ position: 'relative' }}>
+                                <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    onClick={() => isMobile ? setView('settings') : setIsProfileOpen(!isProfileOpen)}
+                                    style={{
+                                        width: '40px',
+                                        height: '40px',
+                                        borderRadius: '50%',
+                                        background: 'var(--surface)',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        color: 'white',
+                                        border: '2px solid var(--border)',
+                                        cursor: 'pointer',
+                                        overflow: 'hidden',
+                                        padding: 0
+                                    }}
+                                >
+                                    {/* FIX 3: Safe usage of userAvatar */}
+                                    {userAvatar ? (
+                                        <img src={userAvatar} alt="User" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                    ) : (
+                                        <div style={{ fontWeight: '700', fontSize: '1rem', color: 'var(--text)' }}>
+                                            {(safeUserName || 'U').charAt(0)}
+                                        </div>
+                                    )}
+                                </motion.button>
+
+                                {/* Desktop Profile Dropdown */}
+                                {!isMobile && isProfileOpen && (
+                                    <div style={{
+                                        position: 'absolute',
+                                        top: '120%',
+                                        right: 0,
+                                        width: '220px',
+                                        background: 'var(--surface)',
+                                        borderRadius: '1rem',
+                                        boxShadow: '0 10px 40px rgba(0,0,0,0.2)',
+                                        border: '1px solid var(--border)',
+                                        overflow: 'hidden',
+                                        zIndex: 1000
+                                    }}>
+                                        <div style={{ padding: '1rem', borderBottom: '1px solid var(--border)' }}>
+                                            <div style={{ fontWeight: '700', fontSize: '0.9rem' }}>{safeUserName}</div>
+                                            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Signed In</div>
+                                        </div>
+                                        <div style={{ padding: '0.5rem' }}>
+                                            {[
+                                                { label: 'My Dashboard', icon: Grid, action: () => setView('dashboard') },
+                                                { label: 'Saved Projects', icon: Heart, action: () => setView('projects') },
+                                                { label: 'Settings', icon: SettingsIcon, action: () => setView('settings') },
+                                            ].map((item, idx) => (
+                                                <div
+                                                    key={idx}
+                                                    onClick={() => { item.action(); setIsProfileOpen(false); }}
+                                                    className="dropdown-item"
+                                                    style={{
+                                                        padding: '0.75rem',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '0.75rem',
+                                                        cursor: 'pointer',
+                                                        borderRadius: '0.5rem',
+                                                        fontSize: '0.85rem',
+                                                        color: 'var(--text)',
+                                                        transition: 'background 0.2s'
+                                                    }}
+                                                    onMouseEnter={(e) => e.target.style.background = 'var(--bg)'}
+                                                    onMouseLeave={(e) => e.target.style.background = 'transparent'}
+                                                >
+                                                    <item.icon size={16} color="var(--text-muted)" />
+                                                    {item.label}
+                                                </div>
+                                            ))}
+                                            <div style={{ borderTop: '1px solid var(--border)', margin: '0.5rem 0' }} />
+                                            <div
+                                                onClick={() => { setView('settings'); setIsProfileOpen(false); }}
+                                                style={{
+                                                    padding: '0.75rem',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '0.75rem',
+                                                    cursor: 'pointer',
+                                                    borderRadius: '0.5rem',
+                                                    fontSize: '0.85rem',
+                                                    color: '#ef4444'
+                                                }}
+                                                onMouseEnter={(e) => e.target.style.background = 'rgba(239, 68, 68, 0.1)'}
+                                                onMouseLeave={(e) => e.target.style.background = 'transparent'}
+                                            >
+                                                <LogOut size={16} />
+                                                Sign Out
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
 
                     <div className="mobile-only" style={{ gap: '0.8rem', alignItems: 'center' }}>
                         <button
-                            id="tour-mobile-share"
-                            onClick={() => setView('share-project')}
-                            style={{
-                                width: '52px',
-                                height: '52px',
-                                borderRadius: '8px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                background: '#6366f1',
-                                color: 'white',
-                                border: 'none',
-                                boxShadow: '0 4px 12px rgba(99, 102, 241, 0.2)'
-                            }}
-                        >
-                            <PlusCircle size={26} />
-                        </button>
-                        <button
                             id="tour-mobile-search"
                             onClick={() => setIsSearchOpen?.(true)}
                             style={{
-                                width: '52px',
-                                height: '52px',
-                                borderRadius: '8px',
+                                width: '44px',
+                                height: '44px',
+                                borderRadius: '50%',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 background: 'var(--surface)',
                                 color: 'var(--primary)',
-                                border: '1px solid var(--border)'
+                                border: '1px solid var(--border)',
+                                boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
                             }}
                         >
-                            <Search size={26} />
+                            <Search size={22} />
                         </button>
                         <button
                             id="tour-mobile-menu"
                             onClick={() => setMobileMenuOpen(true)}
                             style={{
-                                width: '52px',
-                                height: '52px',
-                                borderRadius: '8px',
+                                width: '44px',
+                                height: '44px',
+                                borderRadius: '50%',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 background: 'var(--surface)',
                                 color: 'var(--text)',
-                                border: '1px solid var(--border)'
+                                border: '1px solid var(--border)',
+                                boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
                             }}
                         >
-                            <Menu size={26} />
+                            <Menu size={22} />
                         </button>
                     </div>
                 </div>
-            </nav>
+            </nav >
 
             {/* Mobile Bottom Navigation Bar */}
-            <div className="bottom-nav mobile-only">
-                {navItems.map((item) => (
-                    <div
-                        key={item.id}
-                        id={`tour-mobile-nav-${item.id}`}
-                        className={`bottom-nav-item ${safeCurrentView === item.id ? 'active' : ''}`}
-                        onClick={() => handleNavClick(item.id)}
-                    >
-                        <div className="nav-icon-wrapper" style={{ height: '40px' }}>
-                            {React.cloneElement(item.icon, { size: 28 })}
+            < div className="bottom-nav mobile-only" >
+                {
+                    navItems.map((item) => (
+                        <div
+                            key={item.id}
+                            id={`tour-mobile-nav-${item.id}`}
+                            className={`bottom-nav-item ${safeCurrentView === item.id ? 'active' : ''}`}
+                            onClick={() => handleNavClick(item.id)}
+                        >
+                            <div className="nav-icon-wrapper" style={{ transition: 'none' }}>
+                                {React.cloneElement(item.icon, { size: 22 })}
+                            </div>
+                            <span style={{ fontSize: '0.65rem', marginTop: '4px' }}>{item.label}</span>
                         </div>
-                        <span style={{ fontSize: '0.65rem' }}>{item.label}</span>
-                    </div>
-                ))}
-            </div>
+                    ))
+                }
+            </div >
 
             {/* Mobile Menu Drawer Overlay */}
-            <div
+            < div
                 className={`mobile-menu-overlay ${mobileMenuOpen ? 'open' : ''}`}
                 onClick={() => setMobileMenuOpen(false)}
             />
 
-            <div className={`mobile-drawer ${mobileMenuOpen ? 'open' : ''}`} style={{ paddingBottom: 'calc(2rem + 70px)' }}>
+            < div className={`mobile-drawer ${mobileMenuOpen ? 'open' : ''}`} style={{ paddingBottom: 'calc(2rem + 70px)' }}>
                 <div className="drawer-handle" />
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
                         <h3 style={{ fontSize: '1.25rem', color: 'var(--text)', fontWeight: '900' }}>Settings & Logic</h3>
                         <X size={24} onClick={() => setMobileMenuOpen(false)} style={{ cursor: 'pointer', color: 'var(--text-muted)' }} />
                     </div>
+
+
+                    {/* Mobile Auth & Dashboard */}
+                    {isAuthenticated ? (
+                        <div
+                            onClick={() => { setView('dashboard'); setMobileMenuOpen(false); }}
+                            style={{
+                                padding: '1rem',
+                                borderRadius: '1rem',
+                                background: 'linear-gradient(135deg, var(--primary), var(--secondary))',
+                                color: 'white',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between', // Space for arrow/icon
+                                gap: '0.75rem',
+                                cursor: 'pointer',
+                                marginBottom: '0.5rem',
+                                boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)'
+                            }}
+                        >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                {/* User Avatar Small */}
+                                <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '800' }}>
+                                    {userAvatar ? <img src={userAvatar} style={{ width: '100%', height: '100%', borderRadius: '50%' }} /> : (safeUserName || 'U').charAt(0)}
+                                </div>
+                                <span style={{ fontSize: '1rem', fontWeight: '700' }}>My Dashboard</span>
+                            </div>
+                            <Grid size={20} />
+                        </div>
+                    ) : (
+                        <div
+                            onClick={() => { setView('login'); setMobileMenuOpen(false); }}
+                            style={{
+                                padding: '1rem',
+                                borderRadius: '1rem',
+                                background: 'var(--primary)',
+                                color: 'white',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '0.75rem',
+                                cursor: 'pointer',
+                                marginBottom: '0.5rem',
+                                boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)'
+                            }}
+                        >
+                            <span style={{ fontSize: '1rem', fontWeight: '700' }}>Login / Sign Up</span>
+                            <User size={20} />
+                        </div>
+                    )}
 
                     {/* Quick Toggles */}
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
@@ -412,6 +580,7 @@ const Navbar = ({ setView, currentView, theme, toggleTheme, setIsSearchOpen, bui
                         <h4 style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '1rem', fontWeight: '900', letterSpacing: '0.05em' }}>GOVERNANCE & LOGIC</h4>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '0.75rem' }}>
                             {[
+                                { id: 'mastery', label: 'Mastery Hub', icon: <Sparkles size={18} /> },
                                 { id: 'about', label: 'About Us', icon: <Info size={18} /> },
                                 { id: 'qa', label: 'Q&A', icon: <HelpCircle size={18} /> },
                                 { id: 'blog', label: 'Blog', icon: <BookOpen size={18} /> },
@@ -483,7 +652,7 @@ const Navbar = ({ setView, currentView, theme, toggleTheme, setIsSearchOpen, bui
                         </div>
                     </div>
                 </div>
-            </div>
+            </div >
         </>
     );
 };

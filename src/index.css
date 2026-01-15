@@ -1,5 +1,7 @@
-/* Enhanced Global Background System */
+/* Enhanced Global Background System - DISABLED */
 .global-bg-wrapper {
+  display: none !important;
+  /* Completely disabled for clean black background */
   position: fixed;
   inset: 0;
   z-index: -10;
@@ -55,45 +57,16 @@
   }
 }
 
-/* Circuit Grid Pattern */
+/* Circuit Grid Pattern - DISABLED */
 .global-grid {
-  position: absolute;
-  inset: 0;
-  background-image:
-    repeating-linear-gradient(0deg, var(--border) 0px, transparent 1px, transparent 40px, var(--border) 41px),
-    repeating-linear-gradient(90deg, var(--border) 0px, transparent 1px, transparent 40px, var(--border) 41px),
-    radial-gradient(circle at 50% 50%, rgba(var(--primary-rgb), 0.03) 0%, transparent 100%);
-  background-size: 40px 40px, 40px 40px, 100% 100%;
-  mask-image: linear-gradient(to bottom, black 0%, black 60%, transparent 100%);
-  opacity: 0.4;
+  display: none !important;
+  /* Completely disabled for clean black background */
 }
 
-/* Floating Orbs */
+/* Floating Orbs - DISABLED */
 .global-glow {
-  position: absolute;
-  width: 600px;
-  height: 600px;
-  border-radius: 50%;
-  filter: blur(120px);
-  opacity: 0.15;
-  z-index: -5;
-  animation: float 25s ease-in-out infinite;
-  will-change: transform;
-  -webkit-transform: translate3d(0, 0, 0);
-  transform: translate3d(0, 0, 0);
-}
-
-@media (max-width: 768px) {
-  .global-glow {
-    animation: none;
-    /* Stop floating on mobile to save GPU */
-    width: 300px;
-    /* Smaller footprint */
-    height: 300px;
-    filter: blur(60px);
-    /* Lower blur radius is much cheaper to render */
-    opacity: 0.1;
-  }
+  display: none !important;
+  /* Completely disabled */
 }
 
 @keyframes float {
@@ -162,16 +135,16 @@
   --on-primary: #ffffff;
   --secondary: #a855f7;
   --secondary-rgb: 168, 85, 247;
-  --background: #030408;
-  --background-rgb: 3, 4, 8;
-  --surface: #0b0e14;
-  --surface-rgb: 11, 14, 20;
-  --surface-hover: #121721;
+  --background: #000000;
+  --background-rgb: 0, 0, 0;
+  --surface: #0a0a0a;
+  --surface-rgb: 10, 10, 10;
+  --surface-hover: #141414;
   --text: #f8fafc;
   --text-muted: #94a3b8;
   --accent: #22d3ee;
   --accent-rgb: 34, 211, 238;
-  --glass: rgba(11, 14, 20, 0.75);
+  --glass: rgba(10, 10, 10, 0.75);
   --glass-border: rgba(255, 255, 255, 0.1);
   --border: rgba(255, 255, 255, 0.08);
   --shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
@@ -188,8 +161,41 @@
   --blue-gradient: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
   --hero-glow: radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.15), transparent 70%);
 
-  --font-main: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-main: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Global App Spacing */
+  --app-px: 1rem;
+  --app-py: 2.5rem;
+
+  /* High Density Typography Utility */
+  --ls-tight: -0.025em;
+  --lh-tight: 1.2;
+}
+
+@media (min-width: 820px) {
+  :root {
+    --app-px: 2rem;
+    --app-py: 4rem;
+    --lh-tight: 1.25;
+    --ls-tight: -0.02em;
+  }
+}
+
+/* Global Container Utility for consistent mobile alignment */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-left: var(--app-px);
+  padding-right: var(--app-px);
+}
+
+@media (max-width: 820px) {
+  .container {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
 }
 
 /* Dark theme is now the base default in :root */
@@ -205,15 +211,15 @@
   --background-rgb: 255, 255, 255;
   --surface: #ffffff;
   --surface-rgb: 255, 255, 255;
-  --surface-hover: #f8fafc;
+  --surface-hover: #f9fafb;
   --text: #1e293b;
-  --text-muted: #475569;
+  --text-muted: #64748b;
   --accent: #e11d48;
-  --glass: rgba(255, 255, 255, 0.7);
-  --glass-border: rgba(15, 23, 42, 0.08);
-  --border: rgba(0, 0, 0, 0.1);
-  --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
-  --shadow-glow: 0 10px 20px rgba(99, 102, 241, 0.05);
+  --glass: #ffffff;
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --border: rgba(0, 0, 0, 0.08);
+  --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  --shadow-glow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --family-logo-filter: none;
   --tour-safe-bottom: 2rem;
 }
@@ -226,16 +232,59 @@
   box-sizing: border-box;
 }
 
+html,
 body {
   font-family: var(--font-main);
   background-color: var(--background);
   color: var(--text);
-  line-height: 1.6;
+  line-height: 1.5;
   overflow-x: hidden;
+  width: 100vw;
+  position: relative;
+  -webkit-text-size-adjust: 100%;
+  /* Prevent blue highlight on mobile */
+  -webkit-tap-highlight-color: transparent;
+  /* Disable selection for a native feel on UI elements */
+  user-select: none;
+  -webkit-touch-callout: none;
+  /* Momentum scrolling */
+  -webkit-overflow-scrolling: touch;
+  /* Native Font Rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+img,
+video,
+iframe {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Allow selection in specific educational content */
+.lab-content,
+.course-content,
+.project-description,
+.code-block,
+p,
+h1,
+h2,
+h3,
+h4,
+span {
+  user-select: text;
 }
 
 main {
-  padding-top: 72px;
+  padding-top: calc(72px + env(safe-area-inset-top));
+}
+
+@media (max-width: 820px) {
+  main {
+    padding-top: calc(56px + env(safe-area-inset-top));
+    /* Exact match for MobileTopBar height (56px) */
+  }
 }
 
 h1,
@@ -245,8 +294,33 @@ h4,
 h5,
 h6 {
   font-weight: 700;
-  letter-spacing: -0.025em;
+  letter-spacing: var(--ls-tight);
+  line-height: var(--lh-tight);
   color: var(--text);
+}
+
+@media (max-width: 820px) {
+  h1 {
+    font-size: 2rem;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+  }
+
+  h3 {
+    font-size: 1.25rem;
+  }
+
+  p {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--text-muted);
+  }
 }
 
 a {
@@ -302,6 +376,13 @@ button {
   box-shadow: var(--shadow), var(--shadow-glow);
 }
 
+@media (max-width: 768px) {
+  .premium-card {
+    padding: 1.25rem !important;
+    border-radius: 1.25rem !important;
+  }
+}
+
 .container {
   max-width: 1240px;
   margin: 0 auto;
@@ -317,14 +398,24 @@ button {
 
 /* Buttons */
 .btn {
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.75rem;
-  font-weight: 600;
+  height: 48px;
+  /* Standard touch target height */
+  padding: 0 1.5rem;
+  border-radius: 12px;
+  font-weight: 700;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 0.6rem;
   transition: var(--transition);
+  -webkit-tap-highlight-color: transparent;
+  font-size: 0.95rem;
+}
+
+/* Tactile feedback for mobile buttons */
+.btn:active {
+  transform: scale(0.96) translateY(1px);
+  filter: brightness(0.9);
 }
 
 .btn-primary {
@@ -378,8 +469,7 @@ button {
 
 /* Utility */
 section {
-  padding: 2.5rem 0;
-  /* Simplified for mobile to prevent stacking context overload */
+  padding: var(--app-py) 0;
   position: relative;
   z-index: 1;
 }
@@ -413,7 +503,7 @@ section {
 }
 
 .grid-2 {
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
 }
 
 .grid-3 {
@@ -427,6 +517,10 @@ section {
 @media (max-width: 800px) {
   .grid-2 {
     grid-template-columns: 1fr;
+  }
+
+  .grid-2-mobile {
+    grid-template-columns: repeat(2, 1fr) !important;
   }
 }
 
@@ -571,7 +665,8 @@ section {
 }
 
 .bg-dots {
-  background-image: radial-gradient(var(--border) 1px, transparent 1px);
+  background-image: none !important;
+  /* Disabled for clean background */
   background-size: 24px 24px;
 }
 
@@ -676,8 +771,8 @@ section {
   }
 
   body {
-    padding-bottom: 140px;
-    /* Increased space for larger bottom nav */
+    padding-bottom: 100px;
+    /* Reduced space for compact bottom nav */
   }
 }
 
@@ -695,7 +790,7 @@ section {
   width: 100%;
   max-width: none;
   transform: none;
-  height: 110px;
+  height: calc(60px + env(safe-area-inset-bottom));
   background: var(--glass);
   backdrop-filter: blur(25px) saturate(180%);
   -webkit-backdrop-filter: blur(25px) saturate(180%);
@@ -705,7 +800,7 @@ section {
   align-items: center;
   z-index: 1000;
   box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.18);
-  padding: 0 1.5rem;
+  padding: 0 1rem env(safe-area-inset-bottom) 1rem;
   transform: translate3d(0, 0, 0);
   -webkit-transform: translate3d(0, 0, 0);
   backface-visibility: hidden;
@@ -745,6 +840,14 @@ section {
   cursor: pointer;
 }
 
+.bottom-nav-item:active {
+  transform: scale(0.92);
+}
+
+.mobile-drawer {
+  overscroll-behavior: contain;
+}
+
 .bottom-nav-item.active {
   color: var(--primary);
   opacity: 1;
@@ -752,14 +855,19 @@ section {
 }
 
 .bottom-nav-item.active .nav-icon-wrapper {
-  background: rgba(var(--primary-rgb), 0.1);
-  color: var(--primary);
-  box-shadow: 0 0 15px rgba(var(--primary-rgb), 0.3);
+  background: var(--primary);
+  color: white;
+  box-shadow: 0 4px 15px rgba(var(--primary-rgb), 0.4);
+}
+
+/* App-like click animation */
+.bottom-nav-item:active {
+  transform: scale(0.9);
 }
 
 .nav-icon-wrapper {
-  width: 54px;
-  height: 54px;
+  width: 42px;
+  height: 42px;
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -937,15 +1045,8 @@ section {
 }
 
 .technical-grid {
-  position: absolute;
-  inset: -20%;
-  width: 140%;
-  height: 140%;
-  background-image: radial-gradient(circle at 1.5px 1.5px, rgba(var(--primary-rgb), 0.06) 1px, transparent 0);
-  background-size: 60px 60px;
-  pointer-events: none;
-  z-index: -2;
-  opacity: 0.4;
+  display: none !important;
+  /* Completely disabled for clean background */
 }
 
 /* Mockup Specific Hero Elements */
@@ -1045,11 +1146,19 @@ body {
 }
 
 .text-gradient {
-  background: linear-gradient(135deg, #4f46e5, #9333ea);
+  background: linear-gradient(135deg, #6366f1, #a855f7);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   display: inline-block;
+}
+
+.neon-text {
+  background: linear-gradient(135deg, #6366f1, #a855f7);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.3));
 }
 
 .hero-badge {
@@ -1143,7 +1252,7 @@ body {
 /* Vision Section Refinements */
 .grid-vision {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
 }
 
 .vision-title {
@@ -1151,7 +1260,7 @@ body {
 }
 
 .vision-card {
-  padding: 4rem;
+  padding: 2.5rem;
 }
 
 @media (max-width: 1024px) {
@@ -1182,6 +1291,7 @@ body {
     gap: 3rem !important;
   }
 }
+
 /* Mastery Guide Mobile Responsiveness */
 @media (max-width: 768px) {
   .mastery-guide-layout {
@@ -1194,7 +1304,7 @@ body {
     margin-bottom: 2rem;
   }
 
-  .mastery-guide-layout > div:last-child {
+  .mastery-guide-layout>div:last-child {
     padding: 1.5rem !important;
   }
 
@@ -1214,7 +1324,7 @@ body {
 }
 
 @media (max-width: 480px) {
-  .mastery-guide-layout > div:last-child {
+  .mastery-guide-layout>div:last-child {
     padding: 1rem !important;
   }
 
@@ -1235,4 +1345,28 @@ body {
     padding: 0.4rem !important;
     font-size: 0.8rem !important;
   }
+}
+
+input,
+textarea,
+select {
+  font-size: 16px !important;
+  /* Fixes iOS auto-zoom on focus */
+}
+
+/* Safe Area Helper Utilities */
+.pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
+
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.pl-safe {
+  padding-left: env(safe-area-inset-left);
+}
+
+.pr-safe {
+  padding-right: env(safe-area-inset-right);
 }

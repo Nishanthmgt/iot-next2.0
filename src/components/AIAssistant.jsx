@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageSquare, X, Send, Bot, User, Sparkles } from 'lucide-react';
 import { supabase } from '../lib/supabase';
@@ -8,8 +8,8 @@ import { masteryIndex } from '../data/masteryIndex';
 import { callAI } from '../utils/aiService';
 import { useProjects } from '../hooks/useProjects';
 
-const AIAssistant = () => {
-    const [isOpen, setIsOpen] = useState(false);
+const AIAssistant = ({ mode = 'floating' }) => {
+    const [isOpen, setIsOpen] = useState(mode === 'screen');
     const { projects: dbProjects } = useProjects();
     const [messages, setMessages] = useState([
         { role: 'bot', text: 'How can I help you today? I have access to all technical specs, roadmaps, and projects on iotnext.store.' }
@@ -18,6 +18,13 @@ const AIAssistant = () => {
     const [showGreeting, setShowGreeting] = useState(false);
     const [isGenerating, setIsGenerating] = useState(false);
     const [dbSensors, setDbSensors] = useState([]);
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 820);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth <= 820);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     useEffect(() => {
         const fetchSensors = async () => {
@@ -45,6 +52,15 @@ const AIAssistant = () => {
         return () => { clearTimeout(timer); clearTimeout(hideTimer); };
     }, [isOpen]);
 
+    // Build highly optimized dynamic context (Memoized at top level)
+    const context = useMemo(() => `
+SENSORS: ${dbSensors.map(s => s.name).join(', ')}
+BOARDS: ${Object.values(BOARDS).map(b => b.name).join(', ')}
+PROJECTS: ${dbProjects.slice(0, 15).map(p => p.title).join(', ')}
+ROADMAP: ${roadmapSteps.map(step => `Level ${step.level}: ${step.title}`).join(' | ')}
+MASTERY GUIDES: ${masteryIndex.map(m => m.title).join(', ')}
+    `.trim(), [dbSensors, dbProjects]);
+
     const handleSend = async () => {
         if (!input.trim() || isGenerating) return;
 
@@ -54,14 +70,7 @@ const AIAssistant = () => {
         setInput('');
         setIsGenerating(true);
 
-        // Build highly optimized dynamic context
-        const context = `
-SENSORS: ${dbSensors.map(s => s.name).join(', ')}
-BOARDS: ${Object.values(BOARDS).map(b => b.name).join(', ')}
-PROJECTS: ${dbProjects.slice(0, 15).map(p => p.title).join(', ')}
-ROADMAP: ${roadmapSteps.map(step => `Level ${step.level}: ${step.title}`).join(' | ')}
-MASTERY GUIDES: ${masteryIndex.map(m => m.title).join(', ')}
-        `.trim();
+
 
         // Build the strict prompt
         const strictPrompt = `
@@ -94,8 +103,89 @@ ${userMsgText}
     };
 
 
+    if (mode === 'screen') {
+        return (
+            <div className="ai-assistant-screen" style={{
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                borderRadius: '0', // Full screen
+                background: 'var(--background)'
+            }}>
+                {/* Header */}
+                <div style={{ padding: '1.5rem', background: 'var(--primary-gradient)', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                        <div style={{ background: 'rgba(255,255,255,0.2)', padding: '0.6rem', borderRadius: '14px' }}>
+                            <Bot size={24} />
+                        </div>
+                        <div>
+                            <div style={{ fontWeight: 800, fontSize: '1.1rem', letterSpacing: '-0.02em' }}>Nexus AI</div>
+                            <div style={{ fontSize: '0.75rem', opacity: 0.9, fontWeight: 500 }}>Technical Architect</div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Messages */}
+                <div style={{ flex: 1, padding: '1rem', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    {messages.map((msg, i) => (
+                        <div key={i} style={{
+                            alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
+                            maxWidth: '85%',
+                            padding: '1rem',
+                            borderRadius: msg.role === 'user' ? '1.25rem 1.25rem 0.25rem 1.25rem' : '1.25rem 1.25rem 1.25rem 0.25rem',
+                            background: msg.role === 'user' ? 'var(--primary-gradient)' : 'var(--surface)',
+                            color: msg.role === 'user' ? 'white' : 'var(--text)',
+                            fontSize: '0.9rem',
+                            fontWeight: '500',
+                            lineHeight: '1.5',
+                            border: msg.role === 'bot' ? '1px solid var(--border)' : 'none'
+                        }}>
+                            {msg.text}
+                        </div>
+                    ))}
+                    {isGenerating && (
+                        <div style={{
+                            alignSelf: 'flex-start',
+                            padding: '1rem',
+                            borderRadius: '1.25rem',
+                            background: 'var(--surface)',
+                            color: 'var(--text-muted)',
+                            fontSize: '0.9rem',
+                            display: 'flex',
+                            gap: '0.5rem',
+                            alignItems: 'center',
+                            border: '1px solid var(--border)'
+                        }}>
+                            <Sparkles size={14} className="spinning-ai" /> Thinking...
+                        </div>
+                    )}
+                </div>
+
+                {/* Input */}
+                <div style={{ padding: '1rem', borderTop: '1px solid var(--border)', display: 'flex', gap: '0.75rem', background: 'var(--surface)', paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))' }}>
+                    <input
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+                        placeholder="Ask technical question..."
+                        style={{ flex: 1, background: 'var(--background)', border: '1px solid var(--border)', borderRadius: '1rem', padding: '0.8rem 1rem', color: 'var(--text)', outline: 'none', fontSize: '0.9rem' }}
+                    />
+                    <button onClick={handleSend} className="btn-primary" style={{ width: '48px', height: '48px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--primary)', color: 'white', border: 'none' }}>
+                        <Send size={20} />
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
     return (
-        <div className="ai-assistant-wrapper" style={{ position: 'fixed', bottom: '2rem', right: '2rem', zIndex: 1000 }}>
+        <div className="ai-assistant-wrapper" style={{
+            position: 'fixed',
+            bottom: isMobile ? '90px' : '2rem',
+            right: isMobile ? '1rem' : '2rem',
+            zIndex: 1000,
+            width: isMobile ? 'auto' : 'fit-content'
+        }}>
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
@@ -104,8 +194,9 @@ ${userMsgText}
                         exit={{ opacity: 0, y: 20, scale: 0.95 }}
                         className="glass-plus"
                         style={{
-                            width: '380px',
-                            height: '600px',
+                            width: isMobile ? 'calc(100vw - 2rem)' : '380px',
+                            maxWidth: '380px',
+                            height: isMobile ? '60vh' : '600px',
                             borderRadius: '2rem',
                             display: 'flex',
                             flexDirection: 'column',
@@ -221,22 +312,22 @@ ${userMsgText}
                 }}
                 className="btn-primary-shiny"
                 style={{
-                    width: '72px',
-                    height: '72px',
-                    borderRadius: '24px',
+                    width: '60px',
+                    height: '60px',
+                    borderRadius: '20px',
                     background: 'var(--primary-gradient)',
                     color: 'white',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    boxShadow: '0 15px 30px rgba(var(--primary-rgb), 0.4)',
+                    boxShadow: '0 10px 25px rgba(var(--primary-rgb), 0.4)',
                     cursor: 'pointer',
                     border: 'none',
                     position: 'relative',
                     zIndex: 2
                 }}
             >
-                {isOpen ? <X size={32} /> : <MessageSquare size={32} />}
+                {isOpen ? <X size={24} /> : <MessageSquare size={24} />}
             </motion.button>
             <style>{`
                 @keyframes ai-spin {

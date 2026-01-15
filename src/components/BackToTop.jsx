@@ -4,6 +4,13 @@ import { ArrowUp } from 'lucide-react';
 
 const BackToTop = () => {
     const [isScrolled, setIsScrolled] = useState(false);
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 820);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth <= 820);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -15,7 +22,7 @@ const BackToTop = () => {
 
     return (
         <AnimatePresence>
-            {isScrolled && (
+            {!isMobile && isScrolled && (
                 <motion.button
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -24,7 +31,7 @@ const BackToTop = () => {
                     className="glass back-to-top-btn"
                     style={{
                         position: 'fixed',
-                        bottom: '2rem',
+                        bottom: isMobile ? '7rem' : '2rem',
                         left: '2rem', // Keeping it on the left as per current implementation
                         width: '50px',
                         height: '50px',

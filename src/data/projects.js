@@ -1,93 +1,48 @@
 export const projects = [
   {
     "id": 1,
-    "title": "LED Blink: The Gateway to IoT",
-    "level": "Beginner",
-    "description": "Master the 'Hello World' of hardware by controlling a physical light source using digital logic and timing protocols.",
-    "category": "IoT & Systems",
-    "estimatedTime": "15 mins",
-    "tech": [
-      "Arduino",
-      "ESP32"
-    ],
-    "concept": "The LED Blink project introduces the fundamental concept of GPIO (General Purpose Input/Output). By toggling a digital signal between HIGH (5V/3.3V) and LOW (0V), we control the flow of electricity to an external component.",
-    "working_principle": "1. The microcontroller initializes the designated pin as an OUTPUT.\n2. In the main loop, it sets the pin HIGH to complete the circuit.\n3. A delay function pauses execution for a set duration (e.g., 1000ms).\n4. The pin is set LOW to break the circuit, turning the LED off.\n5. The process repeats indefinitely.",
+    "title": "AI-Powered Precision Irrigation",
+    "level": "Advanced",
+    "description": "A next-generation agricultural system that leverages capacitive soil sensing and real-time telemetry to optimize water usage by 40% using specialized IoT protocols.",
+    "category": "Smart Agriculture",
+    "sub_category": "IoT (101-200)",
+    "estimatedTime": "2 Hours",
+    "tech": ["ESP32", "Capacitive Earth Moister Sensor", "MQTT", "Solar Power"],
+    "problem_statement": "Traditional timers and resistive soil sensors are inefficient, prone to corrosion, and lead to over-irrigation, wasting billions of liters of water annually while significantly increasing soil salinity.",
+    "real_world_case": "Deployed in vertical farms and drought-prone vineyard regions to maintain precise hydration levels, ensuring crop health even during severe heatwaves while reducing labor costs by 60%.",
+    "block_diagram": "graph TD; Solar_Panel-->Lipo_Charger; Lipo_Charger-->ESP32; Soil_Sensor-->ESP32; ESP32-->|MQTT|Cloud_Dashboard; ESP32-->|Relay|Water_Pump;",
+    "alternatives": {
+      "MCU": "Arduino Nano Matter (for Thread support)",
+      "Sensor": "TDR (Time Domain Reflectometry) Sensor for higher precision",
+      "Wireless": "LoRaWAN (for 10km+ range in rural farms)"
+    },
+    "testing_output": "1. Monitor Serial Monitor for Moister % calibration.\n2. Trigger manual pump via Dashboard toggle.\n3. Verify data packets arrive in Cloud logs every 5 minutes.\n4. Measure soil hydration change after 10s pump burst.",
+    "common_errors": "1. Air gaps in soil around sensor (Wait 24h for settling).\n2. Voltage drop during pump startup (Requires 1000uF capacitor).\n3. MQTT keep-alive timeout on 2.4GHz congested networks.",
+    "improvements": "Integrate DeepSeek-R1 AI local inference on-device to predict irrigation needs based on 7-day weather forecast API data.",
+    "mini_challenge": "Challenge: Modify the code to only allow irrigation between 10 PM and 4 AM to minimize evaporative loss and leverage off-peak electricity rates.",
+    "concept": "This project integrates high-precision capacitive sensing with low-power ESP32 sleep modes...",
+    "working_principle": "1. The sensor measures soil dielectric constant to determine moister level.\n2. ESP32 wakes up from deep sleep, reads moister, and connects to WiFi.\n3. Payload is published to the MQTT broker.\n4. If moister < threshold, the relay triggers the solenoid valve for a calculated duration.",
     "pin_config": {
       "arduino": [
-        {
-          "module": "System Power",
-          "pinName": "VCC",
-          "mcuPin": "5V / 3.3V",
-          "direction": "Power",
-          "voltage": "5V",
-          "description": "Primary Supply"
-        },
-        {
-          "module": "System Ground",
-          "pinName": "GND",
-          "mcuPin": "GND",
-          "direction": "Power",
-          "voltage": "0V",
-          "description": "Common Ground"
-        },
-        {
-          "module": "Output LED",
-          "pinName": "LED Anode (+)",
-          "mcuPin": "D13",
-          "direction": "Output",
-          "voltage": "5V",
-          "description": "Built-in LED"
-        },
-        {
-          "module": "Output LED",
-          "pinName": "LED Cathode (-)",
-          "mcuPin": "GND",
-          "direction": "Power",
-          "voltage": "5V",
-          "description": "Common Ground"
-        }
+        { "pin": "A0", "component": "Soil Sensor Analog", "note": "Input" },
+        { "pin": "D8", "component": "Relay Module", "note": "Output" }
       ],
       "esp32": [
-        {
-          "module": "System Power",
-          "pinName": "VCC",
-          "mcuPin": "3.3V",
-          "direction": "Power",
-          "voltage": "3.3V",
-          "description": "Primary Supply"
-        },
-        {
-          "module": "System Power",
-          "pinName": "VCC",
-          "mcuPin": "5V / 3.3V",
-          "direction": "Power",
-          "voltage": "5V",
-          "description": "Primary Supply"
-        },
-        {
-          "module": "System Ground",
-          "pinName": "GND",
-          "mcuPin": "GND",
-          "direction": "Power",
-          "voltage": "0V",
-          "description": "Common Ground"
-        }
+        { "module": "Power", "pinName": "Battery Input", "mcuPin": "VBAT", "direction": "Power", "voltage": "3.7V", "description": "Lipo Battery Supply" },
+        { "module": "Sensing", "pinName": "Soil Analog", "mcuPin": "GPIO34", "direction": "Input", "voltage": "3.3V", "description": "Moister Level Reading" },
+        { "module": "Control", "pinName": "Pump Relay", "mcuPin": "GPIO12", "direction": "Output", "voltage": "3.3V", "description": "Triggers 5V Load" }
       ]
     },
-    "code": "// LED Blink: Solid State Pulse\n// Compatible: Arduino UNO | ESP32 | ESP8266\n\nconst int ledPin = 13; // ESP32 typically uses GPIO 2\n\nvoid setup() {\n  // Hardware initialization\n  pinMode(ledPin, OUTPUT);\n}\n\nvoid loop() {\n  // Using blocking delay for fundamental concept learning\n  // For non-blocking, see 'BlinkWithoutDelay' in advanced projects\n  digitalWrite(ledPin, HIGH); // Logic State 1 (VOLTS ON)\n  delay(1000);              // Clock Pause\n  digitalWrite(ledPin, LOW);  // Logic State 0 (VOLTS OFF)\n  delay(1000);              // Clock Pause\n}",
-    "advantages": "Simple to implement, excellent for debugging, low power consumption.",
-    "disadvantages": "Limited application beyond basic signaling.",
-    "usage": "Connect the long leg of the LED to Pin 13 and the short leg to GND (use 220 ohm resistor).",
-    "components": [
-      "1x Arduino UNO or ESP32",
-      "1x LED (5mm)",
-      "1x 220 Ohm Resistor",
-      "Jumper Wires"
-    ],
-    "circuit_diagram": "Connect LED Anode to Pin 13 (Arduino) or GPIO 2 (ESP32) via a 220-ohm resistor. Connect LED Cathode to the Ground (GND) pin.",
-    "author_name": "Antigravity", "status": "Published",
-    "industrial_use": "Critical for heartbeat indicators in industrial PLC units and system status LEDs.",
-    "bom_cost": "$2"
+    "code": "// AI-Powered Precision Irrigation v1.2\n// (C) 2026 IoTNext Enterprise\n\n#include <WiFi.h>\n#include <PubSubClient.h>\n\nconst int SOIL_PIN = 34;\nconst int PUMP_PIN = 12;\nconst int THRESHOLD = 65; // Percent\n\nvoid setup() {\n  Serial.begin(115200);\n  pinMode(PUMP_PIN, OUTPUT);\n  digitalWrite(PUMP_PIN, LOW);\n  // Initialize protocols...\n}\n\nvoid loop() {\n  int reading = analogRead(SOIL_PIN);\n  int moister = map(reading, 3500, 1200, 0, 100);\n  if(moister < THRESHOLD) {\n    triggerIrrigation(10000);\n  }\n  enterDeepSleep(300); // 5 Minutes\n}",
+    "advantages": "Non-corrosive sensor life, extreme power efficiency, cloud-ready telemetry.",
+    "disadvantages": "Requires WiFi coverage, higher initial BOM cost compared to timers.",
+    "usage": "Insert sensor 10cm deep, configure WiFi credentials in source, and map MQTT topics to your mobile dashboard.",
+    "components": ["1x ESP32 NodeMCU", "1x Capacitive Soil Sensor v2.0", "1x 5V Solenoid Valve", "1x 10W Solar Panel", "1x TP4056 Charger"],
+    "circuit_diagram": "Connect Sensor Analog to Pin 34, Relay Signal to Pin 12, and Battery to VSYS via charging circuit.",
+    "author_name": "NISHANTH",
+    "status": "Published",
+    "industrial_use": "Used in smart greenhouses and precision viticulture for water scarcity resilient farming.",
+    "bom_cost": "$18"
   },
   {
     "id": 2,
@@ -175,7 +130,7 @@ export const projects = [
       "Breadboard"
     ],
     "circuit_diagram": "Button Pin 1: VCC | Button Pin 2: D2/GPIO 4 (with 10k pull-down to GND) | LED Anode: D3/GPIO 2 | Cathode: GND (via 220-ohm resistor).",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Used in smart dimming systems and variable speed motor controls.",
     "bom_cost": "$3"
   },
@@ -281,7 +236,7 @@ export const projects = [
       "1x 10k Resistor (optional)"
     ],
     "circuit_diagram": "Potentiometer: Pin 1 -> VCC, Pin 2 (Middle) -> A0/GPIO 34, Pin 3 -> GND. LED Anode -> D3/GPIO 2 with current-limiting resistor.",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Emergency stop buttons and tactile user inputs in ruggedized terminals.",
     "bom_cost": "$4"
   },
@@ -379,7 +334,7 @@ export const projects = [
       "Jumper Wires"
     ],
     "circuit_diagram": "Red LED -> D2, Yellow -> D3, Green -> D4. All LED Cathodes share a common GND connection via 220-ohm resistors.",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Applied in logistics automation and automated conveyor sorting systems for status signaling.",
     "bom_cost": "$9"
   },
@@ -477,7 +432,7 @@ export const projects = [
       "Breadboard"
     ],
     "circuit_diagram": "Servo Motor: Brown -> GND, Red -> 5V, Orange (Signal) -> D9 (Arduino) or GPIO 18 (ESP32). Ensure external power for multiple servos.",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Critical error alarms in medical equipment and proximity alerts in warehouse robots.",
     "bom_cost": "$5"
   },
@@ -575,7 +530,7 @@ export const projects = [
       "1x Push Button"
     ],
     "circuit_diagram": "DHT11 Sensor: Pin 1 (VCC) -> 3.3V-5V, Pin 2 (Data) -> D2/GPIO 4, Pin 4 (GND) -> GND. Use a 10k resistor between VCC and Data if using raw sensor.",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Pseudo-random generator logic for cryptographic testing and Monte Carlo simulations.",
     "bom_cost": "$9"
   },
@@ -673,7 +628,7 @@ export const projects = [
       "Breadboard"
     ],
     "circuit_diagram": "RGB LED: Common Cathode -> GND. Red Anode -> D3, Green Anode -> D5, Blue Anode -> D6. Use resistors for each color channel.",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Calibration tool for visual color sensors and spectrometer testing rigs.",
     "bom_cost": "$6"
   },
@@ -779,7 +734,7 @@ export const projects = [
       "1x LED/Relay"
     ],
     "circuit_diagram": "LDR -> A0/GPIO 32, 10k Resistor -> A0 to GND (Voltage Divider). Relay VCC -> 5V, GND -> GND, IN -> D13/GPIO 27.",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Automated security lighting and light-harvesting solar tracker optimization.",
     "bom_cost": "$7"
   },
@@ -885,7 +840,7 @@ export const projects = [
       "Jumper Wires"
     ],
     "circuit_diagram": "LDR Setup: 5V connected to LDR, LDR connected to A0, A0 connected to GND through a 10k ohm resistor to create a voltage divider.",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Precision light-exposure monitoring for pharmaceutical lab environments.",
     "bom_cost": "$4"
   },
@@ -999,7 +954,7 @@ export const projects = [
       "1x LED"
     ],
     "circuit_diagram": "Active Buzzer (+) -> D8 (Arduino) or GPIO 13 (ESP32), (-) -> GND. Use a transistor driver if the current exceeds 20mA.",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Early-warning system for electrical fire detection in localized control gear.",
     "bom_cost": "$10"
   },
@@ -1114,7 +1069,7 @@ export const projects = [
       "Jumper Wires"
     ],
     "circuit_diagram": "HC-SR04: VCC -> 5V, GND -> GND, Trig -> D11, Echo -> D12. Servo: Signal -> D9. Assemble on a rotating mount for radar effect.",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Local diagnostic displays for HVAC controllers and server rack monitors.",
     "bom_cost": "$12"
   },
@@ -1228,7 +1183,7 @@ export const projects = [
       "Jumper Wires"
     ],
     "circuit_diagram": "I2C 16x2 LCD: VCC -> 5V, GND -> GND, SDA -> A4 (Arduino) / GPIO 21 (ESP32), SCL -> A5 (Arduino) / GPIO 22 (ESP32).",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Used in emergency pull-cords for medical facilities and operator call buttons in factories.",
     "bom_cost": "$6"
   },
@@ -1326,7 +1281,7 @@ export const projects = [
       "Jumper Wires"
     ],
     "circuit_diagram": "Matrix Keypad (4x4): Connect R1-R4 to D2-D5, C1-C4 to D6-D9. Solenoid Valve triggered via Relay on D10/GPIO 14.",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Touchless interface for sterile medical environments and sound-activated safety shut-offs.",
     "bom_cost": "$8"
   },
@@ -1432,7 +1387,7 @@ export const projects = [
       "Jumper Wires"
     ],
     "circuit_diagram": "Flame Sensor: VCC -> 5V, GND -> GND, AO -> A0/GPIO 34. Buzzer (+) -> D8, (-) -> GND. Place sensor near target protection area.",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Object counting on fast-moving conveyor belts and proximity safety in handheld power tools.",
     "bom_cost": "$5"
   },
@@ -1531,7 +1486,7 @@ export const projects = [
       "Jumper Wires"
     ],
     "circuit_diagram": "Water Level Sensor: (+) -> 5V, (-) -> GND, (S) -> A0/GPIO 34. Connect Alert LED to D13 with 220-ohm resistor.",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Ruggedized touch panels for heavy machinery and sterile interfaces in food processing.",
     "bom_cost": "$4"
   },
@@ -1638,7 +1593,7 @@ export const projects = [
       "Jumper Wires"
     ],
     "circuit_diagram": "IR Receiver: Pin 1 (Out) -> D11, Pin 2 (GND) -> GND, Pin 3 (VCC) -> 5V. Multiple LEDs connected to D2, D3, and D4.",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Critical gas leakage detection in commercial kitchens and boiler rooms.",
     "bom_cost": "$15"
   },
@@ -1736,7 +1691,7 @@ export const projects = [
       "Jumper Wires"
     ],
     "circuit_diagram": "Soil Moisture: VCC -> 5V, GND -> GND, AO -> A0/GPIO 34. Water Pump -> Relay (Normally Open), Relay Control -> D7/GPIO 26.",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Automated greenhouse closure systems and smart wipers in automotive HMI.",
     "bom_cost": "$7"
   },
@@ -1827,7 +1782,7 @@ export const projects = [
       "Jumper Wires"
     ],
     "circuit_diagram": "HC-05 Bluetooth: VCC -> 5V, GND -> GND, TX -> RX, RX -> TX (use voltage divider for RX). LED -> D13.",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Liquid level measurement in non-corrosive tanks and collision avoidance for AGVs.",
     "bom_cost": "$9"
   },
@@ -1934,7 +1889,7 @@ export const projects = [
       "Jumper Wires"
     ],
     "circuit_diagram": "MFRC522: VCC -> 3.3V, RST -> D9, GND -> GND, MISO -> D12, MOSI -> D11, SCK -> D13, SDA/SS -> D10. Servo -> D6.",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Water management in municipal storage tanks and cooling tower monitoring.",
     "bom_cost": "$14"
   },
@@ -2017,7 +1972,7 @@ export const projects = [
       "1x Level Sensor"
     ],
     "circuit_diagram": "PIR Sensor: VCC -> 5V, GND -> GND, OUT -> D2 (Arduino) / GPIO 27 (ESP32). Alert Buzzer -> D13/GPIO 26.",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Automated hydroponic fertigation systems and smart home sump pump controllers.",
     "bom_cost": "$28"
   },
@@ -2124,7 +2079,7 @@ export const projects = [
       "1x Relay Module"
     ],
     "circuit_diagram": "Sensor TX -> D2 | Sensor RX -> D3 | Sensor VCC -> 5V | Relay In -> D8",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Server room access control and high-value asset storage lockers.",
     "bom_cost": "$35"
   },
@@ -2239,7 +2194,7 @@ export const projects = [
       "1x RGB LED"
     ],
     "circuit_diagram": "MISO -> D12 | MOSI -> D11 | SCK -> D13 | SDA -> D10 | RST -> D9",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Employee time-tracking systems and contactless inventory management.",
     "bom_cost": "$12"
   },
@@ -2330,7 +2285,7 @@ export const projects = [
       "1x LCD Screen"
     ],
     "circuit_diagram": "ZMPT Out -> A0 | SCT Out -> A1 | VCC -> 5V",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Smart sub-metering for industrial equipment and solar panel efficiency monitoring.",
     "bom_cost": "$28"
   },
@@ -2421,7 +2376,7 @@ export const projects = [
       "Jumper Wires"
     ],
     "circuit_diagram": "GPS TX -> D4 | GPS RX -> D3 | VCC -> 3.3V/5V",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Fleet management, asset tracking in logistics, and automated marine buoys.",
     "bom_cost": "$22"
   },
@@ -2494,7 +2449,7 @@ export const projects = [
       "Jumper Wires"
     ],
     "circuit_diagram": "Internal Radio used (No external wiring required for basic bridge).",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Remote sensor clusters in agriculture and decentralized emergency alert systems.",
     "bom_cost": "$16"
   },
@@ -2600,7 +2555,7 @@ export const projects = [
       "1x FAT32 Formatted SD Card"
     ],
     "circuit_diagram": "CS -> D10 | MOSI -> D11 | MISO -> D12 | SCK -> D13",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Weather station data logging and flight recorders for hobby drones.",
     "bom_cost": "$14"
   },
@@ -2698,7 +2653,7 @@ export const projects = [
       "1x I2C LCD Displays"
     ],
     "circuit_diagram": "MQ-135 AO -> A0 | VCC -> 5V | GND -> GND",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "HVAC automation in smart buildings and pollutant monitoring in manufacturing plants.",
     "bom_cost": "$12"
   },
@@ -2796,7 +2751,7 @@ export const projects = [
       "1x Red High-Intensity LED"
     ],
     "circuit_diagram": "Mic OUT -> A0 | VCC -> 3.3V | GND -> GND",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Safety monitoring in high-decibel factories and noise restriction enforcement in residential áreas.",
     "bom_cost": "$10"
   },
@@ -2879,7 +2834,7 @@ export const projects = [
       "Jumper Wires"
     ],
     "circuit_diagram": "PIR Out -> D2 | Relay In -> D7 | VCC -> 5V",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Automated lighting in warehouses and demand-based HVAC in office buildings.",
     "bom_cost": "$11"
   },
@@ -2978,7 +2933,7 @@ export const projects = [
       "1x Relay Module"
     ],
     "circuit_diagram": "RTC SDA -> A4 | RTC SCL -> A5 | Relay IN -> D7 | VCC -> 5V",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Shift-change whistles in factories and automated street-lighting controllers.",
     "bom_cost": "$13"
   },
@@ -3101,7 +3056,7 @@ export const projects = [
       "Connecting Wires"
     ],
     "circuit_diagram": "OLED SDA -> A4 | OLED SCL -> A5 | Encoder A -> D2 | Encoder B -> D3",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Compact diagnostic displays for industrial pumps and smart thermostat interfaces.",
     "bom_cost": "$9"
   },
@@ -3224,7 +3179,7 @@ export const projects = [
       "Breadboard"
     ],
     "circuit_diagram": "MISO -> D12 | MOSI -> D11 | SCK -> D13 | NSS -> D10 | DIO0 -> D2",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Soil moisture monitoring in large-scale farms and remote meter reading in urban areas.",
     "bom_cost": "$18"
   },
@@ -3322,7 +3277,7 @@ export const projects = [
       "1x PLC or USB-RS485 Converter"
     ],
     "circuit_diagram": "RO -> RX | DI -> TX | DE/RE -> D3 | A -> Bus A | B -> Bus B",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Integrating custom IoT sensors into factory SCADA systems like Ignition or Wonderware.",
     "bom_cost": "$10"
   },
@@ -3420,7 +3375,7 @@ export const projects = [
       "1x Status Buzzer"
     ],
     "circuit_diagram": "ADXL SDA -> GPIO 21 | ADXL SCL -> GPIO 22 | VCC -> 3.3V",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Predictive maintenance for cooling tower fans and industrial conveyor rollers.",
     "bom_cost": "$15"
   },
@@ -3494,7 +3449,7 @@ export const projects = [
       "1x MicroSD for local logs"
     ],
     "circuit_diagram": "AES chip SDA -> Pin 21 | SCL -> Pin 22 | GND -> GND",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Medical device data transmission and secure payment portals in kiosks.",
     "bom_cost": "$12"
   },
@@ -3585,7 +3540,7 @@ export const projects = [
       "Mounting Plates"
     ],
     "circuit_diagram": "Load Cell (Red) -> E+ | (Black) -> E- | (White) -> A- | (Green) -> A+",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Filling stations for chemical containers and automated parcel weighing in warehouses.",
     "bom_cost": "$14"
   },
@@ -3667,7 +3622,7 @@ export const projects = [
       "1x I2C LCD for Display"
     ],
     "circuit_diagram": "Sensor Red -> 5V | Sensor Black -> GND | Sensor Yellow -> D2",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Smart irrigation monitoring and fuel consumption tracking in generators.",
     "bom_cost": "$12"
   },
@@ -3774,7 +3729,7 @@ export const projects = [
       "1x 5V Solar Panel"
     ],
     "circuit_diagram": "LDRs -> A0-A3 | PWM -> D9, D10 | External 5V Power for Servos",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Utility-scale solar farms and smart house energy harvesting units.",
     "bom_cost": "$25"
   },
@@ -3865,7 +3820,7 @@ export const projects = [
       "1x H11AA1 Optocoupler"
     ],
     "circuit_diagram": "CAUTION: HIGH VOLTAGE. Refer to professional isolated dimmer schematics.",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "PID-controlled industrial ovens and smart lighting for theaters/auditoriums.",
     "bom_cost": "$9"
   },
@@ -3941,7 +3896,7 @@ export const projects = [
       "1x MicroSD Slot"
     ],
     "circuit_diagram": "Consolidated wiring of SPI, I2C, and UART interfaces.",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Central control nodes in smart factories and environmental auditing for data centers.",
     "bom_cost": "$32"
   },
@@ -4039,7 +3994,7 @@ export const projects = [
       "1x MG90S Servo"
     ],
     "circuit_diagram": "Trig->D12 | Echo->D11 | Servo->D9 | Power->5V Rail",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Municipal waste management optimization and public restroom sanitation.",
     "bom_cost": "$12"
   },
@@ -4129,7 +4084,7 @@ export const projects = [
       "1x 28BYJ-48 Stepper + Driver"
     ],
     "circuit_diagram": "Stepper -> GPIO 13,12,14,27 | HX711 -> GPIO 18,19 | External 5V Power",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Livestock precision feeding and automated grain silos.",
     "bom_cost": "$18"
   },
@@ -4236,7 +4191,7 @@ export const projects = [
       "1x OLED Display"
     ],
     "circuit_diagram": "INA219 V-IN+ -> Solar + | V-IN- -> Load + | GND -> Shared GND",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Remote weather stations and UPS battery health monitoring systems.",
     "bom_cost": "$15"
   },
@@ -4343,7 +4298,7 @@ export const projects = [
       "1x Li-ion Battery"
     ],
     "circuit_diagram": "MAX30102 SDA -> GPIO 21 | SCL -> GPIO 22 | VCC -> 3.3V",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Remote patient monitoring and fitness tracking wearables.",
     "bom_cost": "$22"
   },
@@ -4450,7 +4405,7 @@ export const projects = [
       "1x Battery Case"
     ],
     "circuit_diagram": "Sensor SDA -> A4 | SCL -> A5 | Buzzer -> D3 | VCC -> 5V Rail",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Health screening at entry points and non-destructive industrial temperature checks.",
     "bom_cost": "$24"
   },
@@ -4542,7 +4497,7 @@ export const projects = [
       "1x 3.7V LiPo"
     ],
     "circuit_diagram": "SIM7000 TX/RX -> ESP32 RX2/TX2 | Power -> Dedicated 5V/2A Source",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Fleet management, high-value asset tracking (containers/heavy machinery), and wildlife tracking.",
     "bom_cost": "$45"
   },
@@ -4633,7 +4588,7 @@ export const projects = [
       "1x 12V DC Supply"
     ],
     "circuit_diagram": "NPK A/B -> MAX485 A/B | MAX485 RO/DI -> ESP32 16/17 | Power -> 12V",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Large-scale automated greenhouses and precision farming consulting services.",
     "bom_cost": "$55"
   },
@@ -4715,7 +4670,7 @@ export const projects = [
       "1x DS18B20 Temp Sensor"
     ],
     "circuit_diagram": "pH Amp VCC/GND -> 5V Rail | pH Signal -> A0 | Temp SIG -> D2",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Aquaponics, wastewater treatment plants, and smart pool maintenance.",
     "bom_cost": "$35"
   },
@@ -4806,7 +4761,7 @@ export const projects = [
       "1x 5V Relay"
     ],
     "circuit_diagram": "MH-Z19 TX/RX -> ESP32 RX2/TX2 | CCS811 SDA/SCL -> GPIO 21/22",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Smart office ventilation, greenhouse climate control, and mining safety monitoring.",
     "bom_cost": "$28"
   },
@@ -4905,7 +4860,7 @@ export const projects = [
       "1x SPI Logic Shifter"
     ],
     "circuit_diagram": "ADXL SPI -> ESP32 VSPI Port | Buzzer -> GPIO 4",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Earthquake early warning, structural health monitoring for bridges, and machinery fault detection.",
     "bom_cost": "$32"
   },
@@ -4971,7 +4926,7 @@ export const projects = [
       "1x External Wi-Fi Antenna (Optional)"
     ],
     "circuit_diagram": "Scanners operate autonomously via Wi-Fi; Beacons are stand-alone battery units.",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Warehouse inventory tracking and customer dwell-time analysis in shopping malls.",
     "bom_cost": "$15"
   },
@@ -5062,7 +5017,7 @@ export const projects = [
       "1x 18650 Li-ion Cell"
     ],
     "circuit_diagram": "LoRa SPI -> VSPI Port | BME280 SDA/SCL -> GPIO 21/22 | Antenna -> SMA Connector",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Weather research balloons and long-range wildlife migration tracking.",
     "bom_cost": "$26"
   },
@@ -5137,7 +5092,7 @@ export const projects = [
       "1x 5V Supply"
     ],
     "circuit_diagram": "PIR -> GPIO 13 | LED -> GPIO 12/Logic MOSFET | VCC -> 5V rail",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Smart highway lighting and low-traffic industrial park security lighting.",
     "bom_cost": "$20"
   },
@@ -5219,7 +5174,7 @@ export const projects = [
       "1x Waterproof Enclosure"
     ],
     "circuit_diagram": "Mic VCC -> 5V | Mic Gain -> GND | Mic Out -> A0 | VCC -> 5V",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Enforcing construction site noise limits and auditing highway acoustic barriers.",
     "bom_cost": "$14"
   },
@@ -5317,7 +5272,7 @@ export const projects = [
       "10x RFID Keyfobs/Cards"
     ],
     "circuit_diagram": "RC522 VCC -> 3.3V | RC522 SPI -> MCU SPI Port | Reset -> D9",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Employee access control and real-time palette tracking in loading bays.",
     "bom_cost": "$16"
   },
@@ -5408,7 +5363,7 @@ export const projects = [
       "1x 12V Solenoid Lock"
     ],
     "circuit_diagram": "Fingerprint RX/TX -> ESP32 17/16 | Relay -> GPIO 4 | Solenoid -> Relay Output",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Server room access control and high-security equipment lockers.",
     "bom_cost": "$38"
   },
@@ -5543,7 +5498,7 @@ export const projects = [
       "Power Supply 5V/12V"
     ],
     "circuit_diagram": "Ultrasonic (TRIG: 5, ECHO: 18), Relay (IN: 26), Potentiometer (OUT: 34), OLED (SDA: 21, SCL: 22).",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Chemical process tanks, water treatment plants, boiler water control, and smart irrigation systems.",
     "bom_cost": "$25"
   },
@@ -5626,7 +5581,7 @@ export const projects = [
       "1x Bracket Set"
     ],
     "circuit_diagram": "IR RX OUT -> D2 | IR TX/RX VCC -> 5V | LCD SDA/SCL -> A4/A5",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Bottle counting in beverage plants and component verification in SMT assembly lines.",
     "bom_cost": "$12"
   },
@@ -5724,7 +5679,7 @@ export const projects = [
       "1x SOS Button"
     ],
     "circuit_diagram": "SIM TX/RX -> ESP32 16/17 | GPS TX/RX -> ESP32 25/26 | Button -> GPIO 23",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Home healthcare, senior living, patient safety monitoring, and personal security.",
     "bom_cost": "$42"
   },
@@ -5820,7 +5775,7 @@ export const projects = [
       "Power Supply 5V"
     ],
     "circuit_diagram": "Soil (34), DHT22 (4), LDR (35), Relay (26), OLED (21, 22), Buzzer (27).",
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "industrial_use": "Smart agriculture, precision farming, greenhouse automation, water resource management.",
     "bom_cost": "$25"
   },
@@ -5894,7 +5849,7 @@ export const projects = [
       "1x L293D",
       "1x DC Fan"
     ],
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "bom_cost": "$12"
   },
   {
@@ -5960,7 +5915,7 @@ export const projects = [
       "1x MQ-135",
       "1x DHT11"
     ],
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "bom_cost": "$22"
   },
   {
@@ -6024,7 +5979,7 @@ export const projects = [
       "1x IR Sensor",
       "1x High Torque Servo"
     ],
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "bom_cost": "$15"
   },
   {
@@ -6097,7 +6052,7 @@ export const projects = [
       "1x PIR",
       "1x 5V Relay"
     ],
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "bom_cost": "$8"
   },
   {
@@ -6170,7 +6125,7 @@ export const projects = [
       "1x 4x4 Keypad",
       "1x 12V Solenoid"
     ],
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "bom_cost": "$25"
   },
   {
@@ -6241,7 +6196,7 @@ export const projects = [
       "1x 1.3 inch OLED",
       "1x Two-way Mirror"
     ],
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "bom_cost": "$30"
   },
   {
@@ -6305,7 +6260,7 @@ export const projects = [
       "1x RC522 RFID",
       "1x SD Module"
     ],
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "bom_cost": "$20"
   },
   {
@@ -6360,7 +6315,7 @@ export const projects = [
       "1x DS3231 RTC",
       "1x 360 Servo"
     ],
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "bom_cost": "$28"
   },
   {
@@ -6424,7 +6379,7 @@ export const projects = [
       "1x Moisture Sensor",
       "1x RGB LED"
     ],
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "bom_cost": "$7"
   },
   {
@@ -6496,7 +6451,7 @@ export const projects = [
       "1x HMC5883L",
       "1x OLED 0.96"
     ],
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "bom_cost": "$14"
   },
   {
@@ -6568,7 +6523,7 @@ export const projects = [
       "1x Mic Sensor",
       "1x Piezo Buzzer"
     ],
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "bom_cost": "$9"
   },
   {
@@ -6632,7 +6587,7 @@ export const projects = [
       "5x Reed Switches",
       "1x Loud Siren"
     ],
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "bom_cost": "$35",
     "code": "// Laser Tripwire Alarm\n// High-Fidelity Implementation\n\nconst int LDR_PIN = 34;\nconst int BUZZER_PIN = 13;\nconst int THRESHOLD = 500; // Calibrated Dark Value\n\nvoid setup() {\n  Serial.begin(115200);\n  pinMode(BUZZER_PIN, OUTPUT);\n  Serial.println(\"Security Perimeter Armed.\");\n}\n\nvoid loop() {\n  int lightLevel = analogRead(LDR_PIN);\n\n  if (lightLevel < THRESHOLD) {\n    Serial.println(\"ALARM! BEAM BROKEN!\");\n    for(int i=0; i<5; i++) {\n      digitalWrite(BUZZER_PIN, HIGH);\n      delay(100);\n      digitalWrite(BUZZER_PIN, LOW);\n      delay(100);\n    }\n  }\n  delay(50);\n}"
   },
@@ -6688,7 +6643,7 @@ export const projects = [
       "1x Piezo Disc",
       "1x LED"
     ],
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "bom_cost": "$5"
   },
   {
@@ -6759,7 +6714,7 @@ export const projects = [
       "1x LDR module",
       "1x SD Module"
     ],
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "bom_cost": "$12",
     "code": "// Light Intensity Logger\n#include <SPI.h>\n#include <SD.h>\n\nconst int LDR_PIN = 34;\n\nvoid setup() {\n  Serial.begin(115200);\n  if(!SD.begin()) { Serial.println(\"SD Failed\"); return; }\n}\n\nvoid loop() {\n  int val = analogRead(LDR_PIN);\n  File logFile = SD.open(\"/lights.csv\", FILE_WRITE);\n  if(logFile) {\n    logFile.print(millis());\n    logFile.print(\",\");\n    logFile.println(val);\n    logFile.close();\n  }\n  delay(3600000); // Record hourly\n}"
   },
@@ -6822,7 +6777,7 @@ export const projects = [
       "1x Arcade Button",
       "1x High Decibel Buzzer"
     ],
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "bom_cost": "$18",
     "code": "// Smart Emergency SOS Node\n#define BTN_PIN 27\n#define BUZZER_PIN 26\n\nvoid setup() {\n  pinMode(BTN_PIN, INPUT_PULLUP);\n  pinMode(BUZZER_PIN, OUTPUT);\n  Serial.begin(115200);\n}\n\nvoid triggerSOS() {\n  Serial.println(\"EMERGENCY SIGNAL BROADCASTING...\");\n  for(int i=0; i<3; i++) { // S-O-S pattern\n    digitalWrite(BUZZER_PIN, HIGH); delay(200); digitalWrite(BUZZER_PIN, LOW); delay(200);\n  }\n  delay(500);\n}\n\nvoid loop() {\n  if(digitalRead(BTN_PIN) == LOW) {\n    triggerSOS();\n    delay(2000); // Prevent spamming\n  }\n}"
   },
@@ -6886,7 +6841,7 @@ export const projects = [
       "1x FSR",
       "1x DFPlayer Mini"
     ],
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "bom_cost": "$22",
     "code": "// Smart Pressure Sensitive Door Mat\n#define FSR_PIN 32\n#define CHIME_PIN 13\n\nvoid setup() {\n  pinMode(CHIME_PIN, OUTPUT);\n  Serial.begin(115200);\n}\n\nvoid loop() {\n  int force = analogRead(FSR_PIN);\n  if (force > 500) { // Calibrated threshold for human weight\n    digitalWrite(CHIME_PIN, HIGH);\n    Serial.println(\"Visitor Detected at Entrance!\");\n    delay(2000);\n    digitalWrite(CHIME_PIN, LOW);\n  }\n  delay(100);\n}"
   },
@@ -6950,7 +6905,7 @@ export const projects = [
       "1x LM35",
       "1x 2N2222 Transistor"
     ],
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "bom_cost": "$6",
     "code": "// Auto Temperature Controlled Fan\n#include \"DHT.h\"\n#define DHTPIN 4\n#define FAN_PIN 13\n#define TEMP_THRESHOLD 28.0\n\nDHT dht(DHTPIN, DHT11);\n\nvoid setup() {\n  dht.begin();\n  pinMode(FAN_PIN, OUTPUT);\n}\n\nvoid loop() {\n  float t = dht.readTemperature();\n  if(!isnan(t)) {\n    if(t > TEMP_THRESHOLD) digitalWrite(FAN_PIN, HIGH); \n    else if(t < (TEMP_THRESHOLD - 1.0)) digitalWrite(FAN_PIN, LOW);\n  }\n  delay(2000);\n}"
   },
@@ -7014,7 +6969,7 @@ export const projects = [
       "1x HC-SR04",
       "1x NEMA 17 Stepper"
     ],
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "bom_cost": "$40",
     "code": "// Smart Automated Entry Node\n#define PIR 14\n#define LOCK_RELAY 27\n\nvoid setup() {\n  pinMode(PIR, INPUT);\n  pinMode(LOCK_RELAY, OUTPUT);\n  digitalWrite(LOCK_RELAY, HIGH); // Locked by default (Active Low)\n}\n\nvoid loop() {\n  if(digitalRead(PIR) == HIGH) {\n    digitalWrite(LOCK_RELAY, LOW); // Unlock\n    delay(10000); // 10s Entry Window\n    digitalWrite(LOCK_RELAY, HIGH);\n  }\n  delay(500);\n}"
   },
@@ -7078,7 +7033,7 @@ export const projects = [
       "1x IR Beam Pair",
       "1x Worm Gear Motor"
     ],
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "bom_cost": "$55",
     "code": "// Automated Gate Barrier\n#include <ESP32Servo.h>\n\nServo gateServo;\n#define TRIG 4\n#define ECHO 5\n\nvoid setup() {\n  gateServo.attach(18);\n  gateServo.write(0); // Closed\n  pinMode(TRIG, OUTPUT); pinMode(ECHO, INPUT);\n}\n\nvoid loop() {\n  digitalWrite(TRIG, HIGH); delayMicroseconds(10); digitalWrite(TRIG, LOW);\n  long duration = pulseIn(ECHO, HIGH);\n  int distance = duration * 0.034 / 2;\n\n  if (distance > 0 && distance < 50) {\n    gateServo.write(90); // Open\n    delay(5000);\n    gateServo.write(0);  // Close\n  }\n  delay(100);\n}"
   },
@@ -7142,7 +7097,7 @@ export const projects = [
       "1x Sound Sensor",
       "1x 5V Relay"
     ],
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "bom_cost": "$10",
     "code": "// Smart Adaptive Lamp\n// High-Fidelity Implementation\n\nconst int LAMP_PIN = 12;\nconst int PIR_PIN = 14;\nconst int LDR_PIN = 32;\n\nvoid setup() {\n  pinMode(LAMP_PIN, OUTPUT);\n  pinMode(PIR_PIN, INPUT);\n  Serial.begin(115200);\n}\n\nvoid loop() {\n  int lux = analogRead(LDR_PIN);\n  bool presence = digitalRead(PIR_PIN);\n  \n  if (presence) {\n    int brightness = map(lux, 4095, 0, 0, 255); // Inverse: darker = brighter\n    analogWrite(LAMP_PIN, brightness);\n    Serial.print(\"Lamp Active. Intensity: \");\n    Serial.println(brightness);\n  } else {\n    analogWrite(LAMP_PIN, 0);\n  }\n  delay(1000);\n}"
   },
@@ -7198,7 +7153,7 @@ export const projects = [
       "1x Resistor",
       "1x LED"
     ],
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "bom_cost": "$8"
   },
   {
@@ -7269,7 +7224,7 @@ export const projects = [
       "1x 4-Ch Relay Board",
       "1x 5V Power Supply"
     ],
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "bom_cost": "$22"
   },
   {
@@ -7347,7 +7302,7 @@ export const projects = [
       "1x PZEM-004T",
       "1x CT Coil"
     ],
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "bom_cost": "$35",
     "industrial_use": "Smart grids, industrial sub-metering, energy audits, and billing systems."
   },
@@ -7411,7 +7366,7 @@ export const projects = [
       "1x Solar Panel",
       "1x TP4056"
     ],
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "bom_cost": "$25",
     "code": "// Ultra-Low Power Weather Station\n#include <Adafruit_BME280.h>\n#include <WiFi.h>\n\n#define uS_TO_S_FACTOR 1000000\n#define TIME_TO_SLEEP  900\n\nAdafruit_BME280 bme;\n\nvoid setup() {\n  Serial.begin(115200);\n  if(!bme.begin(0x76)) { Serial.println(\"BME Error\"); return; }\n  \n  WiFi.begin(\"SSID\", \"PASS\");\n  while(WiFi.status() != WL_CONNECTED) delay(500);\n  \n  // PUSH DATA\n  Serial.printf(\"Temp: %.2f | Hum: %.2f\\n\", bme.readTemperature(), bme.readHumidity());\n  \n  esp_sleep_enable_timer_wakeup(TIME_TO_SLEEP * uS_TO_S_FACTOR);\n  Serial.println(\"Entering Deep Sleep...\");\n  Serial.flush(); \n  esp_deep_sleep_start();\n}\n\nvoid loop() {}"
   },
@@ -7474,7 +7429,7 @@ export const projects = [
       "1x Capacitive Sensor",
       "1x 12V Solenoid"
     ],
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "bom_cost": "$28",
     "code": "// Fail-Safe Smart Irrigation\nconst int SENSOR_PIN = 34;\nconst int VALVE_PIN = 25;\nconst int THRESHOLD = 2000;\n\nvoid setup() {\n  pinMode(VALVE_PIN, OUTPUT);\n  digitalWrite(VALVE_PIN, LOW);\n}\n\nvoid loop() {\n  int sum = 0;\n  for(int i=0; i<10; i++) sum += analogRead(SENSOR_PIN);\n  int avg = sum / 10;\n\n  if(avg > THRESHOLD) {\n    digitalWrite(VALVE_PIN, HIGH); // Open Valve\n    delay(15000);                 // Water for 15s\n    digitalWrite(VALVE_PIN, LOW);  // Close Valve\n    delay(3600000);               // Wait 1 hour for soil to soak\n  }\n  delay(60000); \n}"
   },
@@ -7553,7 +7508,7 @@ export const projects = [
       "1x MFRC522",
       "1x Solenoid Lock"
     ],
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "bom_cost": "$18",
     "code": "// High-Security RFID Lock\n#include <MFRC522.h>\n#include <BlynkSimpleEsp32.h>\n\nMFRC522 mfrc522(5, 22);\n\nvoid setup() {\n  Serial.begin(115200);\n  SPI.begin();\n  mfrc522.PCD_Init();\n  pinMode(27, OUTPUT); // Solenoid Pin\n}\n\nvoid loop() {\n  if (!mfrc522.PICC_IsNewCardPresent()) return;\n  if (!mfrc522.PICC_ReadCardSerial()) return;\n  \n  // Check UID logic\n  if(mfrc522.uid.uidByte[0] == 0xDE && mfrc522.uid.uidByte[1] == 0xAD) {\n    digitalWrite(27, HIGH);\n    delay(5000);\n    digitalWrite(27, LOW);\n  }\n}"
   },
@@ -7648,7 +7603,7 @@ export const projects = [
       "1x OLED",
       "1x SD Slot"
     ],
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "bom_cost": "$24",
     "code": "// Institutional IoT Attendance\n#include <HTTPClient.h>\n#include <LiquidCrystal_I2C.h>\n\nLiquidCrystal_I2C lcd(0x27, 16, 2);\n\nvoid sendAttendance(String id) {\n  HTTPClient http;\n  http.begin(\"https://script.google.com/macros/s/AKf.../exec?id=\" + id);\n  int code = http.GET();\n  if(code > 0) lcd.print(\"Logged!\");\n  http.end();\n}\n\nvoid setup() {\n  lcd.init();\n  lcd.backlight();\n  lcd.print(\"Welcome!\");\n}\n\nvoid loop() {\n  // RFID reading logic here\n}",
     "industrial_use": "Corporate offices, education campus, secure areas."
@@ -7720,7 +7675,7 @@ export const projects = [
       "1x MQ-2",
       "1x Buzzer"
     ],
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "bom_cost": "$12",
     "code": "// Industrial Gas Safety Node\n#define SENSOR_PIN 32\n#define SIREN_PIN 13\n#define SHUTOFF_VALVE 27\n\nvoid setup() {\n  pinMode(SIREN_PIN, OUTPUT);\n  pinMode(SHUTOFF_VALVE, OUTPUT);\n  digitalWrite(SHUTOFF_VALVE, HIGH); // Open by default\n}\n\nvoid loop() {\n  int val = analogRead(SENSOR_PIN);\n  if (val > 2500) { // Dangerous Level\n    digitalWrite(SIREN_PIN, HIGH);\n    digitalWrite(SHUTOFF_VALVE, LOW); // Close Valve\n    Serial.println(\"GAS EXCEEDED: CLOSING MAIN VALVE\");\n    // Telegram API call logic\n  }\n  delay(200);\n}"
   },
@@ -7783,7 +7738,7 @@ export const projects = [
       "3x HC-SR04",
       "1x I2C LCD"
     ],
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "bom_cost": "$18",
     "code": "// Smart Parking Slot Monitor\n#include <PubSubClient.h>\n\nconst int TRIG = 4; const int ECHO = 5;\nconst int RED_LED = 25; const int GRN_LED = 26;\n\nvoid setup() {\n  pinMode(TRIG, OUTPUT); pinMode(ECHO, INPUT);\n  pinMode(RED_LED, OUTPUT); pinMode(GRN_LED, OUTPUT);\n}\n\nvoid loop() {\n  digitalWrite(TRIG, HIGH); delayMicroseconds(10); digitalWrite(TRIG, LOW);\n  long d = pulseIn(ECHO, HIGH) * 0.034 / 2;\n  \n  if(d < 50 && d > 0) {\n    digitalWrite(RED_LED, HIGH); digitalWrite(GRN_LED, LOW);\n    // MQTT publish \"Occupied\"\n  } else {\n    digitalWrite(RED_LED, LOW); digitalWrite(GRN_LED, HIGH);\n    // MQTT publish \"Vacant\"\n  }\n  delay(2000);\n}"
   },
@@ -7863,7 +7818,7 @@ export const projects = [
       "1x Power MOSFET",
       "1x LDR"
     ],
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "bom_cost": "$15",
     "code": "// Autonomous Smart Streetlight\nconst int LED_PIN = 14;\nconst int PIR_PIN = 27;\n\nvoid setup() {\n  ledcSetup(0, 5000, 8);\n  ledcAttachPin(LED_PIN, 0);\n  pinMode(PIR_PIN, INPUT);\n}\n\nvoid loop() {\n  if(digitalRead(PIR_PIN)) {\n    for(int i=50; i<255; i++) { \n      ledcWrite(0, i); \n      delay(5); \n    }\n    delay(15000);\n  } else {\n    ledcWrite(0, 20); // 8% Standby\n  }\n  delay(500);\n}"
   },
@@ -7934,7 +7889,7 @@ export const projects = [
       "1x Flame Sensor",
       "1x High Decibel Buzzer"
     ],
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "bom_cost": "$14",
     "code": "// Fire Mitigation & Alert System\nconst int FLAME_PIN = 32;\nconst int PUMP_RELAY = 13;\n\nvoid setup() {\n  pinMode(FLAME_PIN, INPUT);\n  pinMode(PUMP_RELAY, OUTPUT);\n  digitalWrite(PUMP_RELAY, LOW);\n}\n\nvoid loop() {\n  if(digitalRead(FLAME_PIN) == LOW) { // Flame detected (Active Low)\n    digitalWrite(PUMP_RELAY, HIGH);\n    Serial.println(\"FIRE DETECTED! Suppression Active.\");\n    // Send Cloud Alert\n    delay(10000);\n  } else {\n    digitalWrite(PUMP_RELAY, LOW);\n  }\n  delay(50);\n}"
   },
@@ -8005,7 +7960,7 @@ export const projects = [
       "1x JSN-SR04T",
       "1x 30A Relay"
     ],
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "bom_cost": "$28",
     "code": "// Liquid Level Logic Controller\n#define PUMP 15\n#define TRIG 12\n#define ECHO 13\n\nvoid setup() {\n  pinMode(PUMP, OUTPUT);\n  pinMode(TRIG, OUTPUT); pinMode(ECHO, INPUT);\n}\n\nvoid loop() {\n  digitalWrite(TRIG, HIGH); delayMicroseconds(10); digitalWrite(TRIG, LOW);\n  long dist = pulseIn(ECHO, HIGH) * 0.034 / 2;\n  int level = map(dist, 100, 10, 0, 100); // 100cm (Empty) to 10cm (Full)\n\n  if(level < 20) digitalWrite(PUMP, HIGH);\n  if(level > 95) digitalWrite(PUMP, LOW);\n  delay(5000);\n}"
   },
@@ -8068,7 +8023,7 @@ export const projects = [
       "1x DS18B20 Waterproof",
       "1x Magnetic Reed Switch"
     ],
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "bom_cost": "$16",
     "code": "// Smart Refrigerator Security Log\n#include <OneWire.h>\n#include <DallasTemperature.h>\n\nOneWire oneWire(4);\nDallasTemperature sensors(&oneWire);\n#define REED_PIN 15\n#define BUZZER 13\n\nvoid setup() {\n  sensors.begin();\n  pinMode(REED_PIN, INPUT_PULLUP);\n  pinMode(BUZZER, OUTPUT);\n}\n\nvoid loop() {\n  sensors.requestTemperatures();\n  float t = sensors.getTempCByIndex(0);\n  bool doorOpen = digitalRead(REED_PIN) == HIGH;\n  \n  if (doorOpen) {\n    // Timer logic here\n    digitalWrite(BUZZER, HIGH); delay(100); digitalWrite(BUZZER, LOW);\n  }\n  delay(5000);\n}"
   },
@@ -8131,7 +8086,7 @@ export const projects = [
       "1x TSOP IR Receiver",
       "1x 4-Relay Board"
     ],
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "bom_cost": "$26",
     "code": "// Smart Comfort & Energy Node\n#include <IRremote.h>\n\nconst int IR_RX = 15; \nconst int RELAY = 13;\n\nvoid setup() {\n  IrReceiver.begin(IR_RX, ENABLE_LED_FEEDBACK);\n  pinMode(RELAY, OUTPUT);\n}\n\nvoid loop() {\n  if (IrReceiver.decode()) {\n    if(IrReceiver.decodedIRData.command == 0x12) { // Example IR Command\n      digitalWrite(RELAY, !digitalRead(RELAY));\n    }\n    IrReceiver.resume();\n  }\n}"
   },
@@ -8209,7 +8164,7 @@ export const projects = [
       "1x MAX30102",
       "1x 0.96 OLED"
     ],
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "bom_cost": "$32",
     "code": "// Medical Grade Pulse Auditor\n#include <Wire.h>\n#include \"MAX30105.h\"\n#include \"heartRate.h\"\n\nMAX30105 particleSensor;\n\nvoid setup() {\n  Serial.begin(115200);\n  if (!particleSensor.begin(Wire, I2C_SPEED_FAST)) { \n    Serial.println(\"Sensor Link Failed\"); \n    return; \n  }\n  particleSensor.setup();\n}\n\nvoid loop() {\n  long irValue = particleSensor.getIR();\n  if (checkForBeat(irValue) == true) {\n    long delta = millis() - lastBeat;\n    float bpm = 60 / (delta / 1000.0);\n    Serial.print(\"BPM: \"); Serial.println(bpm);\n  }\n}",
     "industrial_use": "Telemedicine, nursing homes, fitness tracking."
@@ -8314,7 +8269,7 @@ export const projects = [
       "1x BME280",
       "2x DC Fans"
     ],
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "bom_cost": "$65",
     "code": "// Greenhouse Climate Controller\n#include \"Adafruit_SGP30.h\"\nAdafruit_SGP30 sgp;\n\nvoid setup() {\n  Serial.begin(115200);\n  if(!sgp.begin()) { Serial.println(\"CO2 Sensor Error\"); return; }\n  pinMode(13, OUTPUT); // Exhaust Fan\n}\n\nvoid loop() {\n  if(sgp.IAQmeasure()) {\n    Serial.print(\"CO2: \"); Serial.print(sgp.eCO2); Serial.println(\" ppm\");\n    if(sgp.eCO2 > 800) {\n      digitalWrite(13, HIGH); // Ventilate\n    } else {\n      digitalWrite(13, LOW);\n    }\n  }\n  delay(2000);\n}",
     "industrial_use": "Precision agriculture, research test-beds, commercial hydroponics."
@@ -8378,7 +8333,7 @@ export const projects = [
       "8x IR Sensors",
       "12x Traffic LEDs"
     ],
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "bom_cost": "$28",
     "code": "// Density-Based Junction Logic\nconst int LANES[] = {32, 33, 34, 35}; // IR sensor pins\nconst int REDS[] = {2, 4, 5, 12};\nconst int GREENS[] = {13, 14, 15, 16};\n\nvoid setup() {\n  for(int i=0; i<4; i++) {\n    pinMode(LANES[i], INPUT);\n    pinMode(REDS[i], OUTPUT);\n    pinMode(GREENS[i], OUTPUT);\n  }\n}\n\nvoid loop() {\n  // Simple priority logic\n  for(int i=0; i<4; i++) {\n    if(digitalRead(LANES[i]) == LOW) { // Vehicle detected\n      digitalWrite(GREENS[i], HIGH); digitalWrite(REDS[i], LOW);\n      delay(10000);\n      digitalWrite(GREENS[i], LOW); digitalWrite(REDS[i], HIGH);\n    }\n  }\n  delay(100);\n}"
   },
@@ -8448,7 +8403,7 @@ export const projects = [
       "1x SDS011 Laser Sensor",
       "1x OLED"
     ],
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "bom_cost": "$45",
     "code": "#include <Wire.h>\n#include <Adafruit_GFX.h>\n#include <Adafruit_SSD1306.h>\n#include <SDS011.h>\n\n// -------- OLED CONFIG ----------\n#define SCREEN_WIDTH 128\n#define SCREEN_HEIGHT 64\n#define OLED_RESET -1\n#define OLED_ADDR 0x3C\n\nAdafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);\n\n// -------- SDS011 CONFIG --------\n#define SDS_RX 16\n#define SDS_TX 17\n\nSDS011 sds;\nHardwareSerial sdsSerial(2);\n\n// -------- VARIABLES -----------\nfloat pm25, pm10;\n\nvoid setup() {\n  Serial.begin(115200);\n\n  // OLED Init\n  Wire.begin(21, 22);\n  if (!display.begin(SSD1306_SWITCHCAPVCC, OLED_ADDR)) {\n    Serial.println(\"OLED not found!\");\n    while (1);\n  }\n\n  display.clearDisplay();\n  display.setTextSize(1);\n  display.setTextColor(WHITE);\n  display.setCursor(10, 20);\n  display.println(\"Air Monitor\");\n  display.display();\n  delay(2000);\n\n  // SDS011 Init\n  sdsSerial.begin(9600, SERIAL_8N1, SDS_RX, SDS_TX);\n  sds.begin(&sdsSerial);\n}\n\nvoid loop() {\n  if (sds.read(&pm25, &pm10) == 0) {\n\n    Serial.printf(\"PM2.5: %.2f | PM10: %.2f\\n\", pm25, pm10);\n\n    display.clearDisplay();\n    display.setTextSize(1);\n\n    display.setCursor(0, 0);\n    display.println(\"Air Quality\");\n\n    display.setCursor(0, 20);\n    display.print(\"PM2.5: \");\n    display.print(pm25);\n    display.println(\" ug/m3\");\n    \n    display.setCursor(0, 40);\n    display.print(\"PM10: \");\n    display.print(pm10);\n    display.println(\" ug/m3\");\n    \n    display.display();\n  }\n  delay(1000);\n}",
     "industrial_use": "Smart city pollution mapping, HVAC optimization, industrial safety."
@@ -8522,7 +8477,7 @@ export const projects = [
       "1x Buzzer",
       "Power Supply"
     ],
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "bom_cost": "$28",
     "code": "#include <Wire.h>\n#include <Adafruit_GFX.h>\n#include <Adafruit_SSD1306.h>\n\n#define TRIG 5\n#define ECHO 18\n#define BUZZER 26\n#define SCREEN_WIDTH 128\n#define SCREEN_HEIGHT 64\n\nAdafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);\n\nvoid setup() {\n  Serial.begin(115200);\n  pinMode(TRIG, OUTPUT);\n  pinMode(ECHO, INPUT);\n  pinMode(BUZZER, OUTPUT);\n  Wire.begin(21, 22);\n  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);\n  display.clearDisplay();\n  display.setCursor(10, 20);\n  display.setTextColor(WHITE);\n  display.println(\"Smart Bin System\");\n  display.display();\n  delay(2000);\n}\n\nvoid loop() {\n  digitalWrite(TRIG, LOW);\n  delayMicroseconds(2);\n  digitalWrite(TRIG, HIGH);\n  delayMicroseconds(10);\n  digitalWrite(TRIG, LOW);\n  long duration = pulseIn(ECHO, HIGH);\n  int distance = duration * 0.034 / 2;\n\n  display.clearDisplay();\n  display.setCursor(0, 0);\n  display.print(\"Fill Level: \");\n  display.print(distance);\n  display.println(\" cm\");\n\n  if (distance < 10) {\n    display.println(\"BIN FULL!\");\n    digitalWrite(BUZZER, HIGH);\n  } else {\n    digitalWrite(BUZZER, LOW);\n  }\n  display.display();\n  delay(2000);\n}",
     "industrial_use": "Smart city sanitation, industrial waste compliance, institutional management."
@@ -8618,28 +8573,16256 @@ export const projects = [
       "1x Neo-6M GPS",
       "1x LiPo Battery"
     ],
-    "author_name": "Antigravity", "status": "Published",
+    "author_name": "NISHANTH", "status": "Published",
     "bom_cost": "$55",
     "code": "// Pro Vehicle Asset Tracker\n// Hardware: ESP32 + SIM800L + Neo-6M GPS\n\n#include <TinyGPS++.h>\n#include <HardwareSerial.h>\n\nTinyGPSPlus gps;\nHardwareSerial GPS_Serial(2);\n\nvoid setup() {\n  Serial.begin(115200);\n  GPS_Serial.begin(9600, SERIAL_8N1, 4, 5);\n  Serial.println(\"Booting Logistics Tracker...\");\n}\n\nvoid loop() {\n  while (GPS_Serial.available() > 0) {\n    if (gps.encode(GPS_Serial.read())) {\n      if (gps.location.isValid()) {\n        Serial.print(\"LAT: \"); Serial.println(gps.location.lat(), 6);\n        Serial.print(\"LNG: \"); Serial.println(gps.location.lng(), 6);\n        Serial.print(\"SPEED: \"); Serial.println(gps.speed.kmph());\n      }\n    }\n  }\n  \n  if (millis() > 5000 && gps.charsProcessed() < 10) {\n    Serial.println(\"No GPS Hardware Detected Check Wiring!\");\n  }\n}",
     "industrial_use": "Logistics tracking, vehicle recovery, cold-chain monitoring."
-  }
-];
-
-export const extendedProjects = projects;
-
-export const beginnerExplanations = [
-  {
-    "title": "Voltage, Current & Resistance",
-    "content": "The holy trinity of electronics (Ohm's Law).",
-    "deepDive": "High current needs thick wires.",
-    "mistakes": "Shorting Power to Ground.",
-    "tip": "Always check polarity."
   },
   {
-    "title": "Microcontrollers (The Brain)",
-    "content": "A small computer on a single chip.",
-    "deepDive": "They run firmware (C/C++).",
-    "mistakes": "Over-current on GPIO.",
-    "tip": "Use transistors for high loads."
+    "id": 101,
+    "title": "Smart Home Automation using IoT",
+    "level": "Intermediate",
+    "description": "A complete IoT-based smart home automation system using ESP32 that allows users to remotely control lights, fans, and appliances via a mobile application. The system also supports basic automation logic and environmental monitoring, making it suitable as a foundation project for real-world smart home deployments.",
+    "category": "Smart Home",
+    "sub_category": "IoT (101-200)",
+    "estimatedTime": "4–5 Hours",
+    "tech": ["ESP32", "Relay Module", "Blynk IoT", "DHT22", "WiFi"],
+
+    "problem_statement": "In traditional homes, electrical appliances are controlled manually using physical switches. This often leads to inconvenience, especially for elderly or physically challenged individuals, and results in energy wastage when devices are left ON unintentionally. There is no remote visibility or control over appliance usage. An IoT-based smart home system solves this by enabling remote control, monitoring, and automation of appliances through the internet.",
+
+    "real_world_case": "Smart home automation systems are widely used in modern apartments, villas, hostels, and assisted living facilities. In elderly care homes, caregivers can remotely control appliances and monitor room conditions. In urban households, such systems reduce electricity consumption by ensuring appliances are switched OFF when not required.",
+
+    "block_diagram": "graph TD; Mobile_App-->|Internet|Blynk_Cloud; Blynk_Cloud-->|WiFi|ESP32; ESP32-->|GPIO|Relay_Module; Relay_Module-->|AC_Supply|Appliances; DHT22-->|Temp/Humidity|ESP32;",
+
+    "alternatives": {
+      "MCU": "NodeMCU ESP8266 (lower cost but limited GPIO)",
+      "Platform": "Home Assistant (local server-based automation)",
+      "Communication": "MQTT instead of HTTP-based cloud"
+    },
+
+    "concept": "The ESP32 acts as the central controller of the smart home system. It connects to the internet using WiFi and communicates with a cloud-based IoT platform (Blynk). User commands from a mobile application are received by the ESP32, which then controls electrical appliances using relay modules. Sensors such as DHT22 provide environmental data, enabling monitoring and future automation logic.",
+
+    "working_principle": "1. When powered ON, the ESP32 connects to the configured WiFi network.\n2. The ESP32 establishes a secure connection with the Blynk IoT cloud.\n3. The user interacts with virtual buttons in the mobile app.\n4. Each button press sends a command to the ESP32 via the cloud.\n5. The ESP32 sets the corresponding GPIO pin HIGH or LOW.\n6. The relay module switches the connected appliance ON or OFF.\n7. The DHT22 sensor continuously measures temperature and humidity.\n8. Sensor data is sent back to the mobile dashboard for monitoring.",
+
+    "pin_config": {
+      "esp32": [
+        {
+          "module": "Relay Control",
+          "pinName": "Light Relay",
+          "mcuPin": "GPIO26",
+          "direction": "Output",
+          "voltage": "3.3V",
+          "description": "Controls lighting circuit via relay. GPIO26 is safe for output and does not affect boot mode."
+        },
+        {
+          "module": "Relay Control",
+          "pinName": "Fan Relay",
+          "mcuPin": "GPIO27",
+          "direction": "Output",
+          "voltage": "3.3V",
+          "description": "Controls fan load. Selected as a general-purpose output pin."
+        },
+        {
+          "module": "Relay Control",
+          "pinName": "Appliance Relay",
+          "mcuPin": "GPIO14",
+          "direction": "Output",
+          "voltage": "3.3V",
+          "description": "Controls an additional appliance such as a socket or AC contactor."
+        },
+        {
+          "module": "Sensor",
+          "pinName": "DHT22 Data",
+          "mcuPin": "GPIO27",
+          "direction": "Input",
+          "voltage": "3.3V",
+          "description": "Reads temperature and humidity data. Requires 10k pull-up resistor."
+        }
+      ]
+    },
+
+    "code": "/*\n Project 101: Smart Home Automation using IoT\n Board   : ESP32\n Platform: Blynk IoT\n Author  : NISHANTH\n*/\n\n#define BLYNK_TEMPLATE_ID \"YOUR_TEMPLATE_ID\"\n#define BLYNK_DEVICE_NAME \"Smart Home\"\n#define BLYNK_AUTH_TOKEN \"YOUR_AUTH_TOKEN\"\n\n#include <WiFi.h>\n#include <BlynkSimpleEsp32.h>\n#include <DHT.h>\n\nchar ssid[] = \"YOUR_WIFI_SSID\";\nchar pass[] = \"YOUR_WIFI_PASSWORD\";\n\n#define RELAY_LIGHT 26\n#define RELAY_FAN   27\n#define RELAY_LOAD  14\n\n#define DHT_PIN 27\n#define DHT_TYPE DHT22\n\nDHT dht(DHT_PIN, DHT_TYPE);\nBlynkTimer timer;\n\nBLYNK_WRITE(V0) {\n  digitalWrite(RELAY_LIGHT, param.asInt() ? HIGH : LOW);\n}\n\nBLYNK_WRITE(V1) {\n  digitalWrite(RELAY_FAN, param.asInt() ? HIGH : LOW);\n}\n\nBLYNK_WRITE(V2) {\n  digitalWrite(RELAY_LOAD, param.asInt() ? HIGH : LOW);\n}\n\nvoid sendSensorData() {\n  float temp = dht.readTemperature();\n  float hum  = dht.readHumidity();\n\n  if (!isnan(temp) && !isnan(hum)) {\n    Blynk.virtualWrite(V5, temp);\n    Blynk.virtualWrite(V6, hum);\n  }\n}\n\nvoid setup() {\n  pinMode(RELAY_LIGHT, OUTPUT);\n  pinMode(RELAY_FAN, OUTPUT);\n  pinMode(RELAY_LOAD, OUTPUT);\n\n  digitalWrite(RELAY_LIGHT, LOW);\n  digitalWrite(RELAY_FAN, LOW);\n  digitalWrite(RELAY_LOAD, LOW);\n\n  dht.begin();\n  Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass);\n  timer.setInterval(2000L, sendSensorData);\n}\n\nvoid loop() {\n  Blynk.run();\n  timer.run();\n}",
+
+    "testing_output": "1. Power the ESP32 and verify WiFi connection.\n2. Open Blynk app and toggle Light, Fan, and Appliance buttons.\n3. Confirm relay switching sound and appliance response.\n4. Observe temperature and humidity values updating every 2 seconds.\n5. Disconnect WiFi briefly to verify system reconnection stability.",
+
+    "common_errors": "Using boot-strap GPIOs for relays, insufficient power supply for relay module, missing pull-up resistor for DHT22, incorrect Blynk authentication token.",
+
+    "improvements": "Add scheduling and automation rules, integrate energy monitoring (PZEM-004T), implement local MQTT fallback, add voice assistant support, and build a custom web dashboard.",
+
+    "mini_challenge": "Modify the project to automatically turn OFF lights if no manual interaction occurs for 30 minutes and temperature is below a defined threshold.",
+
+    "advantages": "Remote access, improved convenience, reduced energy wastage, scalable architecture.",
+
+    "disadvantages": "Depends on internet connectivity for cloud-based control.",
+
+    "components": ["ESP32", "4-Channel Relay Module", "DHT22 Sensor", "5V Power Supply"],
+
+    "circuit_diagram": "ESP32 GPIO26, GPIO27, GPIO14 connected to relay inputs. DHT22 data connected to GPIO27 with pull-up resistor. Relay COM and NO terminals connected to AC load.",
+
+    "industrial_use": "Residential automation, hostels, smart apartments, assisted living facilities.",
+
+    "author_name": "NISHANTH",
+    "status": "Reference Standard",
+    "bom_cost": "₹1,200"
+  },
+  {
+    "id": 102,
+    "title": "IoT Smart Agriculture System",
+    "level": "Intermediate",
+    "description": "An IoT-based smart agriculture system using ESP32 that monitors soil moisture, temperature, and humidity, and automatically controls irrigation using a relay-driven water pump. The system also provides real-time remote monitoring through a mobile dashboard, helping farmers optimize water usage and improve crop yield.",
+    "category": "Agriculture",
+    "sub_category": "IoT (101-200)",
+    "estimatedTime": "4–5 Hours",
+    "tech": ["ESP32", "Soil Moisture Sensor", "DHT22", "Relay Module", "Blynk IoT", "WiFi"],
+
+    "problem_statement": "Traditional irrigation practices rely on fixed schedules or manual judgment, which often leads to over-irrigation or under-irrigation. Over-irrigation wastes water and damages crops, while under-irrigation reduces yield. Farmers also lack real-time visibility of soil and environmental conditions when they are away from the field. An IoT-based smart agriculture system enables data-driven irrigation, conserving water while maintaining optimal soil conditions for crops.",
+
+    "real_world_case": "Smart irrigation systems are used in farms, greenhouses, polyhouses, and research fields. In water-scarce regions of India, such systems help reduce water usage significantly while maintaining crop health. Greenhouse operators also use similar systems to maintain consistent soil and climate conditions remotely.",
+
+    "block_diagram": "graph TD; Soil_Moisture_Sensor-->|Analog_Data|ESP32; DHT22-->|Temp_Humidity|ESP32; ESP32-->|GPIO|Relay_Module; Relay_Module-->|AC|Water_Pump; ESP32-->|WiFi|Blynk_Cloud; Blynk_Cloud-->|Internet|Mobile_App;",
+
+    "alternatives": {
+      "Soil Sensor": "Capacitive Soil Moisture Sensor (more durable, less corrosion)",
+      "MCU": "NodeMCU ESP8266 (lower cost but fewer ADC pins)",
+      "Platform": "Thingspeak or MQTT-based local server"
+    },
+
+    "concept": "The ESP32 acts as the central controller that continuously monitors soil moisture and environmental conditions. Based on predefined moisture thresholds, the controller automatically decides when irrigation is required. A relay module safely isolates and switches the water pump, while a cloud dashboard allows farmers to view live sensor data and system status remotely.",
+
+    "working_principle": "1. When powered ON, the ESP32 connects to the configured WiFi network.\n2. The soil moisture sensor outputs an analog voltage proportional to soil water content.\n3. The ESP32 reads this value using its ADC-capable GPIO pin.\n4. The DHT22 sensor measures ambient temperature and humidity.\n5. Sensor data is uploaded to the cloud dashboard for monitoring.\n6. If soil moisture falls below a defined threshold, the ESP32 activates the relay.\n7. The relay switches ON the water pump to irrigate crops.\n8. Once adequate moisture is reached, the pump is turned OFF automatically.",
+
+    "pin_config": {
+      "esp32": [
+        {
+          "module": "Soil Moisture Sensor",
+          "pinName": "Analog Output",
+          "mcuPin": "GPIO32",
+          "direction": "Input",
+          "voltage": "Analog",
+          "description": "ADC-capable pin used to read soil moisture level. GPIO32 is input-safe and ideal for analog sensors."
+        },
+        {
+          "module": "Temperature & Humidity Sensor",
+          "pinName": "DHT22 Data",
+          "mcuPin": "GPIO27",
+          "direction": "Input",
+          "voltage": "3.3V",
+          "description": "Reads ambient temperature and humidity. Requires a 10k pull-up resistor on data line."
+        },
+        {
+          "module": "Relay Control",
+          "pinName": "Water Pump Relay",
+          "mcuPin": "GPIO26",
+          "direction": "Output",
+          "voltage": "3.3V",
+          "description": "Controls irrigation pump via relay. GPIO26 is a safe general-purpose output pin."
+        }
+      ]
+    },
+
+    "code": "/*\n Project 102: IoT Smart Agriculture System\n Board   : ESP32\n Platform: Blynk IoT\n Author  : NISHANTH\n*/\n\n#define BLYNK_TEMPLATE_ID \"YOUR_TEMPLATE_ID\"\n#define BLYNK_DEVICE_NAME \"Smart Agriculture\"\n#define BLYNK_AUTH_TOKEN \"YOUR_AUTH_TOKEN\"\n\n#include <WiFi.h>\n#include <BlynkSimpleEsp32.h>\n#include <DHT.h>\n\nchar ssid[] = \"YOUR_WIFI_SSID\";\nchar pass[] = \"YOUR_WIFI_PASSWORD\";\n\n#define SOIL_PIN 32\n#define RELAY_PUMP 26\n#define DHT_PIN 27\n#define DHT_TYPE DHT22\n\nint moistureThreshold = 2000; // Adjust after calibration\n\nDHT dht(DHT_PIN, DHT_TYPE);\nBlynkTimer timer;\n\nvoid readAndControlIrrigation() {\n  int soilValue = analogRead(SOIL_PIN);\n  float temp = dht.readTemperature();\n  float hum  = dht.readHumidity();\n\n  Blynk.virtualWrite(V5, soilValue);\n\n  if (!isnan(temp) && !isnan(hum)) {\n    Blynk.virtualWrite(V6, temp);\n    Blynk.virtualWrite(V7, hum);\n  }\n\n  if (soilValue > moistureThreshold) {\n    digitalWrite(RELAY_PUMP, HIGH); // Pump ON\n  } else {\n    digitalWrite(RELAY_PUMP, LOW);  // Pump OFF\n  }\n}\n\nvoid setup() {\n  pinMode(RELAY_PUMP, OUTPUT);\n  digitalWrite(RELAY_PUMP, LOW);\n\n  dht.begin();\n  Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass);\n  timer.setInterval(3000L, readAndControlIrrigation);\n}\n\nvoid loop() {\n  Blynk.run();\n  timer.run();\n}",
+
+    "testing_output": "1. Insert soil sensor into dry soil and verify pump turns ON automatically.\n2. Water the soil gradually and observe pump switching OFF.\n3. Check live soil moisture, temperature, and humidity values on the dashboard.\n4. Adjust moistureThreshold and verify system response.\n5. Run system continuously for 1–2 hours to confirm stability.",
+
+    "common_errors": "Incorrect soil sensor calibration, using non-ADC pins for analog input, insufficient power supply for relay and pump, missing common ground between ESP32 and relay module.",
+
+    "improvements": "Integrate weather-based irrigation logic, add GSM alerts for pump status, include solar power support, log historical data for crop analysis, and implement AI-based irrigation prediction.",
+
+    "mini_challenge": "Modify the system to irrigate only during early morning or evening hours to minimize water evaporation.",
+
+    "advantages": "Efficient water usage, reduced manual labor, improved crop yield, remote monitoring capability.",
+
+    "disadvantages": "Depends on sensor calibration accuracy and internet connectivity for cloud monitoring.",
+
+    "components": ["ESP32", "Soil Moisture Sensor", "DHT22 Sensor", "Relay Module", "Water Pump"],
+
+    "circuit_diagram": "Soil moisture sensor analog output connected to GPIO32. DHT22 data connected to GPIO27 with pull-up resistor. Relay input connected to GPIO26 controlling the water pump.",
+
+    "industrial_use": "Precision agriculture, greenhouse automation, smart irrigation systems.",
+
+    "author_name": "NISHANTH",
+    "status": "Reference Standard",
+    "bom_cost": "₹1,100"
+  },
+  {
+    "id": 103,
+    "title": "IoT Water Quality Monitoring",
+    "level": "Intermediate",
+    "description": "An IoT-based water quality monitoring system using ESP32 that continuously measures pH and turbidity of water sources and provides real-time visibility through a cloud dashboard. The system helps detect unsafe water conditions early and supports data-driven water safety decisions.",
+    "category": "Environment",
+    "sub_category": "IoT (101-200)",
+    "estimatedTime": "4–5 Hours",
+    "tech": ["ESP32", "pH Sensor", "Turbidity Sensor", "Blynk IoT", "WiFi"],
+
+    "problem_statement": "Water contamination is a major cause of health issues, especially in rural and semi-urban regions. Traditional water testing methods are manual, infrequent, and do not provide continuous monitoring. As a result, contaminated water may be consumed before issues are detected. An IoT-based system enables continuous, real-time water quality monitoring and early warning of unsafe conditions.",
+
+    "real_world_case": "Water quality monitoring systems are used in drinking water supply networks, aquaculture farms, water treatment plants, and rural borewell monitoring setups. In fish farms, real-time monitoring prevents fish loss, while in villages it helps ensure safe drinking water availability.",
+
+    "block_diagram": "graph TD; pH_Sensor-->|Analog|ESP32; Turbidity_Sensor-->|Analog|ESP32; ESP32-->|WiFi|Blynk_Cloud; Blynk_Cloud-->|Internet|Mobile_App;",
+
+    "alternatives": {
+      "pH Sensor": "Industrial pH probe with signal conditioning board",
+      "Platform": "Thingspeak or custom MQTT dashboard",
+      "Communication": "LoRa for long-distance water source monitoring"
+    },
+
+    "concept": "The ESP32 acts as a data acquisition and communication unit. It reads analog voltage outputs from pH and turbidity sensors, converts them into digital values using ADC pins, and transmits the data to a cloud dashboard. Threshold-based logic can later be added to classify water safety levels.",
+
+    "working_principle": "1. The ESP32 powers ON and connects to WiFi.\n2. The pH sensor generates a voltage proportional to hydrogen ion concentration.\n3. The turbidity sensor outputs an analog voltage based on suspended particles in water.\n4. ESP32 reads both signals using ADC-capable GPIO pins.\n5. Raw sensor data is transmitted to the cloud dashboard.\n6. Users monitor water quality trends remotely in real time.",
+
+    "pin_config": {
+      "esp32": [
+        {
+          "module": "pH Sensor",
+          "pinName": "Analog Output",
+          "mcuPin": "GPIO34",
+          "direction": "Input",
+          "voltage": "Analog",
+          "description": "ADC input-only pin ideal for stable pH sensor readings."
+        },
+        {
+          "module": "Turbidity Sensor",
+          "pinName": "Analog Output",
+          "mcuPin": "GPIO35",
+          "direction": "Input",
+          "voltage": "Analog",
+          "description": "ADC input-only pin used for turbidity measurement."
+        }
+      ]
+    },
+
+    "code": "/*\n Project 103: IoT Water Quality Monitoring\n Board   : ESP32\n Platform: Blynk IoT\n Author  : NISHANTH\n*/\n\n#define BLYNK_TEMPLATE_ID \"YOUR_TEMPLATE_ID\"\n#define BLYNK_DEVICE_NAME \"Water Quality\"\n#define BLYNK_AUTH_TOKEN \"YOUR_AUTH_TOKEN\"\n\n#include <WiFi.h>\n#include <BlynkSimpleEsp32.h>\n\nchar ssid[] = \"YOUR_WIFI_SSID\";\nchar pass[] = \"YOUR_WIFI_PASSWORD\";\n\n#define PH_PIN 34\n#define TURBIDITY_PIN 35\n\nBlynkTimer timer;\n\nvoid readWaterQuality() {\n  int phRaw = analogRead(PH_PIN);\n  int turbidityRaw = analogRead(TURBIDITY_PIN);\n\n  Blynk.virtualWrite(V5, phRaw);\n  Blynk.virtualWrite(V6, turbidityRaw);\n}\n\nvoid setup() {\n  Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass);\n  timer.setInterval(3000L, readWaterQuality);\n}\n\nvoid loop() {\n  Blynk.run();\n  timer.run();\n}",
+
+    "testing_output": "1. Immerse sensors in clean water and note baseline values.\n2. Add impurities gradually and observe turbidity value changes.\n3. Adjust pH using safe test solutions and verify response.\n4. Monitor stability of readings over 10–15 minutes.",
+
+    "common_errors": "Skipping sensor calibration, using non-ADC pins, electrical noise from pumps, improper sensor grounding.",
+
+    "improvements": "Convert raw values into actual pH units, add alert notifications for unsafe thresholds, log historical data, integrate temperature compensation.",
+
+    "mini_challenge": "Implement water safety classification (Safe / Moderate / Unsafe) based on pH and turbidity thresholds.",
+
+    "advantages": "Continuous monitoring, early contamination detection, remote access.",
+
+    "disadvantages": "Sensors require regular calibration and maintenance.",
+
+    "components": ["ESP32", "pH Sensor Module", "Turbidity Sensor"],
+
+    "circuit_diagram": "pH sensor analog output connected to GPIO34. Turbidity sensor analog output connected to GPIO35. Common ground shared with ESP32.",
+
+    "industrial_use": "Drinking water monitoring, aquaculture management, water treatment plants.",
+
+    "author_name": "NISHANTH",
+    "status": "Reference Standard",
+    "bom_cost": "₹1,800"
+  },
+  {
+    "id": 104,
+    "title": "Smart Street Lighting System",
+    "level": "Intermediate",
+    "description": "A smart street lighting system using ESP32 that automatically controls street lights based on ambient light conditions, reducing energy consumption and enabling smarter city infrastructure.",
+    "category": "Smart City",
+    "sub_category": "IoT (101-200)",
+    "estimatedTime": "3–4 Hours",
+    "tech": ["ESP32", "LDR Sensor", "Relay Module", "WiFi"],
+
+    "problem_statement": "Conventional street lighting systems operate on fixed schedules and remain ON even during daylight or low-traffic periods, resulting in significant energy wastage. Manual control is impractical for large areas. A smart, sensor-based system can automate lighting and reduce power consumption.",
+
+    "real_world_case": "Smart street lighting is deployed in smart cities, campuses, highways, and industrial areas. Municipal corporations use such systems to reduce electricity bills and maintenance costs while improving public safety.",
+
+    "block_diagram": "graph TD; LDR-->|Analog|ESP32; ESP32-->|GPIO|Relay_Module; Relay_Module-->|AC|Street_Light;",
+
+    "alternatives": {
+      "Sensor": "Photodiode or Light Sensor Module",
+      "Controller": "ESP8266 for cost-optimized deployments",
+      "Control": "PWM-based LED dimming drivers"
+    },
+
+    "concept": "The ESP32 continuously monitors ambient light intensity using an LDR sensor. Based on a predefined threshold, it automatically switches street lights ON during low-light conditions and OFF during daylight, ensuring efficient energy usage.",
+
+    "working_principle": "1. LDR changes resistance based on light intensity.\n2. Voltage divider converts resistance change into analog voltage.\n3. ESP32 reads analog voltage using ADC pin.\n4. If light intensity falls below threshold, relay turns ON light.\n5. When daylight returns, relay switches OFF automatically.",
+
+    "pin_config": {
+      "esp32": [
+        {
+          "module": "Light Sensor",
+          "pinName": "LDR Output",
+          "mcuPin": "GPIO33",
+          "direction": "Input",
+          "voltage": "Analog",
+          "description": "ADC pin used to read ambient light level."
+        },
+        {
+          "module": "Relay Control",
+          "pinName": "Street Light Relay",
+          "mcuPin": "GPIO26",
+          "direction": "Output",
+          "voltage": "3.3V",
+          "description": "Controls AC street light via relay."
+        }
+      ]
+    },
+
+    "code": "/*\n Project 104: Smart Street Lighting System\n Board   : ESP32\n Author  : NISHANTH\n*/\n\n#define LDR_PIN 33\n#define RELAY_PIN 26\n\nint lightThreshold = 2000; // Adjust after testing\n\nvoid setup() {\n  pinMode(RELAY_PIN, OUTPUT);\n  digitalWrite(RELAY_PIN, LOW);\n}\n\nvoid loop() {\n  int lightValue = analogRead(LDR_PIN);\n\n  if (lightValue < lightThreshold) {\n    digitalWrite(RELAY_PIN, HIGH); // Night time\n  } else {\n    digitalWrite(RELAY_PIN, LOW);  // Day time\n  }\n\n  delay(1000);\n}",
+
+    "testing_output": "1. Cover LDR to simulate night and verify light turns ON.\n2. Expose LDR to bright light and confirm light turns OFF.\n3. Tune threshold value for real outdoor conditions.",
+
+    "common_errors": "Incorrect LDR placement, wrong threshold calibration, relay contact rating mismatch.",
+
+    "improvements": "Add motion-based dimming, solar power integration, cloud monitoring, and fault detection.",
+
+    "mini_challenge": "Modify the system to dim lights instead of fully turning them OFF during low-traffic hours.",
+
+    "advantages": "Energy efficient, automatic operation, low maintenance.",
+
+    "disadvantages": "LDR performance affected by dust and weather.",
+
+    "components": ["ESP32", "LDR Sensor", "Relay Module"],
+
+    "circuit_diagram": "LDR voltage divider output connected to GPIO33. Relay input connected to GPIO26 controlling street light.",
+
+    "industrial_use": "Smart city lighting, campuses, highways.",
+
+    "author_name": "NISHANTH",
+    "status": "Reference Standard",
+    "bom_cost": "₹650"
+  },
+  {
+    "id": 105,
+    "title": "IoT-based Health Monitoring System",
+    "level": "Intermediate",
+    "description": "An IoT-based health monitoring system using ESP32 that continuously measures vital parameters such as heart rate, body temperature, and blood oxygen level, and uploads the data to a cloud dashboard for real-time monitoring by caregivers or medical professionals.",
+    "category": "Healthcare",
+    "sub_category": "IoT (101-200)",
+    "estimatedTime": "4–5 Hours",
+    "tech": ["ESP32", "MAX30102", "DS18B20", "Blynk IoT", "WiFi"],
+
+    "problem_statement": "Patients with chronic illnesses, elderly individuals, and post-operative patients require continuous health monitoring. Manual measurement is inconvenient and does not provide real-time alerts in emergencies. Delays in detecting abnormal vital signs can lead to severe health complications. An IoT-based monitoring system enables continuous, remote observation of patient health parameters.",
+
+    "real_world_case": "Remote patient monitoring systems are widely used in home healthcare, hospitals, and quarantine centers. Doctors can track vital signs remotely, reducing hospital visits while ensuring timely medical intervention when abnormal readings are detected.",
+
+    "block_diagram": "graph TD; MAX30102-->|I2C|ESP32; DS18B20-->|Temp|ESP32; ESP32-->|WiFi|Blynk_Cloud; Blynk_Cloud-->|Internet|Mobile_App;",
+
+    "alternatives": {
+      "Heart Sensor": "Pulse Sensor (analog-based, lower accuracy)",
+      "Temperature Sensor": "LM35 (simpler but less accurate)",
+      "Platform": "Thingspeak or MQTT dashboard"
+    },
+
+    "concept": "The ESP32 functions as a wearable or bedside monitoring unit. It interfaces with biomedical sensors to acquire vital signs and transmits this data to a cloud dashboard. This architecture allows continuous monitoring, historical data analysis, and future integration of alert systems.",
+
+    "working_principle": "1. ESP32 connects to WiFi and cloud platform.\n2. MAX30102 measures heart rate and SpO2 using optical sensing.\n3. DS18B20 measures body temperature using a digital 1-Wire interface.\n4. ESP32 reads sensor data at regular intervals.\n5. Data is transmitted to the cloud dashboard.\n6. Abnormal values can be detected and flagged for alerts.",
+
+    "pin_config": {
+      "esp32": [
+        {
+          "module": "Heart Rate & SpO2 Sensor",
+          "pinName": "MAX30102 SDA",
+          "mcuPin": "GPIO21",
+          "direction": "I/O",
+          "voltage": "3.3V",
+          "description": "I2C data line for MAX30102 sensor."
+        },
+        {
+          "module": "Heart Rate & SpO2 Sensor",
+          "pinName": "MAX30102 SCL",
+          "mcuPin": "GPIO22",
+          "direction": "I/O",
+          "voltage": "3.3V",
+          "description": "I2C clock line for MAX30102 sensor."
+        },
+        {
+          "module": "Temperature Sensor",
+          "pinName": "DS18B20 Data",
+          "mcuPin": "GPIO27",
+          "direction": "Input",
+          "voltage": "3.3V",
+          "description": "1-Wire digital temperature sensor input with pull-up resistor."
+        }
+      ]
+    },
+
+    "code": "/*\n Project 105: IoT-based Health Monitoring System\n Board   : ESP32\n Platform: Blynk IoT\n Author  : NISHANTH\n*/\n\n#define BLYNK_TEMPLATE_ID \"YOUR_TEMPLATE_ID\"\n#define BLYNK_DEVICE_NAME \"Health Monitor\"\n#define BLYNK_AUTH_TOKEN \"YOUR_AUTH_TOKEN\"\n\n#include <WiFi.h>\n#include <BlynkSimpleEsp32.h>\n#include <OneWire.h>\n#include <DallasTemperature.h>\n\nchar ssid[] = \"YOUR_WIFI_SSID\";\nchar pass[] = \"YOUR_WIFI_PASSWORD\";\n\n#define TEMP_PIN 27\n\nOneWire oneWire(TEMP_PIN);\nDallasTemperature tempSensor(&oneWire);\nBlynkTimer timer;\n\nvoid readVitals() {\n  tempSensor.requestTemperatures();\n  float bodyTemp = tempSensor.getTempCByIndex(0);\n\n  if (bodyTemp != DEVICE_DISCONNECTED_C) {\n    Blynk.virtualWrite(V5, bodyTemp);\n  }\n}\n\nvoid setup() {\n  tempSensor.begin();\n  Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass);\n  timer.setInterval(3000L, readVitals);\n}\n\nvoid loop() {\n  Blynk.run();\n  timer.run();\n}",
+
+    "testing_output": "1. Place temperature sensor in contact with skin.\n2. Verify body temperature updates on dashboard.\n3. Observe stable readings over several minutes.\n4. Disconnect WiFi briefly and check reconnection.",
+
+    "common_errors": "Missing pull-up resistor for DS18B20, unstable WiFi connection, incorrect sensor placement.",
+
+    "improvements": "Add SpO2 and heart rate processing, integrate alert notifications, include data logging and AI-based anomaly detection.",
+
+    "mini_challenge": "Add a threshold alert that notifies when body temperature exceeds 38°C.",
+
+    "advantages": "Continuous monitoring, remote access, early detection of health issues.",
+
+    "disadvantages": "Depends on sensor accuracy and internet availability.",
+
+    "components": ["ESP32", "MAX30102 Sensor", "DS18B20 Sensor"],
+
+    "circuit_diagram": "MAX30102 connected via I2C (GPIO21, GPIO22). DS18B20 data connected to GPIO27 with pull-up resistor.",
+
+    "industrial_use": "Remote healthcare monitoring, hospitals, elderly care.",
+
+    "author_name": "NISHANTH",
+    "status": "Reference Standard",
+    "bom_cost": "₹2,000"
+  },
+  {
+    "id": 106,
+    "title": "IoT Smart Energy Meter",
+    "level": "Intermediate",
+    "description": "An IoT-based smart energy meter using ESP32 and PZEM-004T that measures voltage, current, power, and energy consumption in real time and uploads the data to a cloud dashboard for monitoring and analysis.",
+    "category": "Energy",
+    "sub_category": "IoT (101-200)",
+    "estimatedTime": "4–5 Hours",
+    "tech": ["ESP32", "PZEM-004T", "Blynk IoT", "WiFi"],
+
+    "problem_statement": "Conventional electricity meters do not provide real-time feedback to consumers, making it difficult to understand energy usage patterns. Lack of visibility often leads to higher electricity bills and inefficient energy usage. A smart energy meter provides live consumption data and helps users make informed decisions.",
+
+    "real_world_case": "Smart energy meters are used in homes, apartments, hostels, and small industries to monitor electricity usage, detect abnormal consumption, and plan energy-saving strategies.",
+
+    "block_diagram": "graph TD; AC_Load-->|Voltage_Current|PZEM004T; PZEM004T-->|UART|ESP32; ESP32-->|WiFi|Blynk_Cloud; Blynk_Cloud-->|Internet|Mobile_App;",
+
+    "alternatives": {
+      "Sensors": "ACS712 + ZMPT101B (separate current and voltage sensing)",
+      "Platform": "Thingspeak or local MQTT server",
+      "Communication": "RS485-based industrial meters"
+    },
+
+    "concept": "The PZEM-004T module measures electrical parameters directly from the AC line and communicates digitally with the ESP32. The ESP32 acts as a gateway, sending this data to a cloud dashboard for visualization and analysis.",
+
+    "working_principle": "1. PZEM-004T measures voltage and current from the AC load.\n2. Internal calculations provide power and energy values.\n3. ESP32 reads data via UART communication.\n4. Data is uploaded to cloud dashboard via WiFi.\n5. Users monitor energy consumption in real time.",
+
+    "pin_config": {
+      "esp32": [
+        {
+          "module": "UART Communication",
+          "pinName": "PZEM RX",
+          "mcuPin": "GPIO16",
+          "direction": "Input",
+          "voltage": "3.3V",
+          "description": "Receives serial data from PZEM module."
+        },
+        {
+          "module": "UART Communication",
+          "pinName": "PZEM TX",
+          "mcuPin": "GPIO17",
+          "direction": "Output",
+          "voltage": "3.3V",
+          "description": "Transmits commands to PZEM module."
+        }
+      ]
+    },
+
+    "code": "/*\n Project 106: IoT Smart Energy Meter\n Board   : ESP32\n Platform: Blynk IoT\n Author  : NISHANTH\n*/\n\n#define BLYNK_TEMPLATE_ID \"YOUR_TEMPLATE_ID\"\n#define BLYNK_DEVICE_NAME \"Energy Meter\"\n#define BLYNK_AUTH_TOKEN \"YOUR_AUTH_TOKEN\"\n\n#include <WiFi.h>\n#include <BlynkSimpleEsp32.h>\n#include <PZEM004Tv30.h>\n\nchar ssid[] = \"YOUR_WIFI_SSID\";\nchar pass[] = \"YOUR_WIFI_PASSWORD\";\n\nPZEM004Tv30 pzem(Serial2, 16, 17);\nBlynkTimer timer;\n\nvoid sendEnergyData() {\n  Blynk.virtualWrite(V5, pzem.voltage());\n  Blynk.virtualWrite(V6, pzem.current());\n  Blynk.virtualWrite(V7, pzem.power());\n  Blynk.virtualWrite(V8, pzem.energy());\n}\n\nvoid setup() {\n  Serial2.begin(9600);\n  Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass);\n  timer.setInterval(2000L, sendEnergyData);\n}\n\nvoid loop() {\n  Blynk.run();\n  timer.run();\n}",
+
+    "testing_output": "1. Connect a known electrical load.\n2. Verify voltage and current readings.\n3. Compare energy readings with conventional meter.\n4. Observe stability over extended runtime.",
+
+    "common_errors": "Incorrect UART wiring, loose CT connection, unsafe AC handling.",
+
+    "improvements": "Add cost calculation, alerts for overconsumption, data logging, and mobile billing reports.",
+
+    "mini_challenge": "Calculate daily electricity cost based on per-unit tariff and display it.",
+
+    "advantages": "Real-time energy visibility, cost awareness, remote monitoring.",
+
+    "disadvantages": "Requires careful handling of AC mains.",
+
+    "components": ["ESP32", "PZEM-004T Energy Meter"],
+
+    "circuit_diagram": "PZEM UART TX/RX connected to ESP32 GPIO16 and GPIO17. AC load connected through PZEM module.",
+
+    "industrial_use": "Smart metering, energy management systems.",
+
+    "author_name": "NISHANTH",
+    "status": "Reference Standard",
+    "bom_cost": "₹1,800"
+  },
+  {
+    "id": 107,
+    "title": "Wi-Fi Weather Station",
+    "level": "Intermediate",
+    "description": "A Wi-Fi based weather station using ESP32 that measures temperature, humidity, and atmospheric pressure and provides real-time environmental data through a cloud dashboard. This project introduces multi-sensor integration and I2C communication.",
+    "category": "Weather",
+    "sub_category": "IoT (101-200)",
+    "estimatedTime": "4–5 Hours",
+    "tech": ["ESP32", "DHT22", "BMP280", "Blynk IoT", "WiFi"],
+
+    "problem_statement": "Weather data from centralized stations may not accurately represent local environmental conditions. Farmers, researchers, and institutions often need localized weather information such as temperature, humidity, and pressure. Manual measurement is impractical and non-continuous. A local IoT weather station enables real-time, location-specific environmental monitoring.",
+
+    "real_world_case": "Local weather stations are used in farms, research labs, school campuses, and smart cities. Farmers rely on such data for irrigation planning, while institutions use it for environmental studies and micro-climate analysis.",
+
+    "block_diagram": "graph TD; DHT22-->|Temp_Humidity|ESP32; BMP280-->|I2C|ESP32; ESP32-->|WiFi|Blynk_Cloud; Blynk_Cloud-->|Internet|Mobile_App;",
+
+    "alternatives": {
+      "Sensor": "BME280 (temperature + humidity + pressure in one module)",
+      "Platform": "Thingspeak",
+      "Communication": "LoRa for long-range deployment"
+    },
+
+    "concept": "The ESP32 acts as a data collection and communication unit. Environmental sensors measure weather parameters and send them to the ESP32. The ESP32 processes the data and uploads it to a cloud dashboard, enabling real-time monitoring and future data analysis.",
+
+    "working_principle": "1. ESP32 connects to WiFi on power-up.\n2. DHT22 measures ambient temperature and humidity.\n3. BMP280 measures atmospheric pressure using I2C communication.\n4. ESP32 reads sensor data at fixed intervals.\n5. Data is sent to the cloud dashboard.\n6. Users view live weather data remotely.",
+
+    "pin_config": {
+      "esp32": [
+        {
+          "module": "DHT22 Sensor",
+          "pinName": "VCC",
+          "mcuPin": "3V3",
+          "direction": "Power",
+          "voltage": "3.3V",
+          "description": "Supplies power to DHT22 sensor."
+        },
+        {
+          "module": "DHT22 Sensor",
+          "pinName": "GND",
+          "mcuPin": "GND",
+          "direction": "Ground",
+          "voltage": "0V",
+          "description": "Common ground reference."
+        },
+        {
+          "module": "DHT22 Sensor",
+          "pinName": "Data",
+          "mcuPin": "GPIO27",
+          "direction": "Input",
+          "voltage": "3.3V",
+          "description": "Digital data pin with 10k pull-up resistor."
+        },
+        {
+          "module": "BMP280 Sensor",
+          "pinName": "VCC",
+          "mcuPin": "3V3",
+          "direction": "Power",
+          "voltage": "3.3V",
+          "description": "BMP280 operates safely at 3.3V."
+        },
+        {
+          "module": "BMP280 Sensor",
+          "pinName": "GND",
+          "mcuPin": "GND",
+          "direction": "Ground",
+          "voltage": "0V",
+          "description": "Common ground."
+        },
+        {
+          "module": "BMP280 Sensor",
+          "pinName": "SDA",
+          "mcuPin": "GPIO21",
+          "direction": "I/O",
+          "voltage": "3.3V",
+          "description": "I2C data line."
+        },
+        {
+          "module": "BMP280 Sensor",
+          "pinName": "SCL",
+          "mcuPin": "GPIO22",
+          "direction": "I/O",
+          "voltage": "3.3V",
+          "description": "I2C clock line."
+        }
+      ]
+    },
+
+    "code": "/*\n Project 107: Wi-Fi Weather Station\n Board   : ESP32\n Platform: Blynk IoT\n Author  : NISHANTH\n*/\n\n#define BLYNK_TEMPLATE_ID \"YOUR_TEMPLATE_ID\"\n#define BLYNK_DEVICE_NAME \"Weather Station\"\n#define BLYNK_AUTH_TOKEN \"YOUR_AUTH_TOKEN\"\n\n#include <WiFi.h>\n#include <BlynkSimpleEsp32.h>\n#include <DHT.h>\n#include <Adafruit_BMP280.h>\n\nchar ssid[] = \"YOUR_WIFI_SSID\";\nchar pass[] = \"YOUR_WIFI_PASSWORD\";\n\n#define DHT_PIN 27\n#define DHT_TYPE DHT22\n\nDHT dht(DHT_PIN, DHT_TYPE);\nAdafruit_BMP280 bmp;\nBlynkTimer timer;\n\nvoid sendWeatherData() {\n  float temp = dht.readTemperature();\n  float hum  = dht.readHumidity();\n  float pressure = bmp.readPressure() / 100.0;\n\n  if (!isnan(temp) && !isnan(hum)) {\n    Blynk.virtualWrite(V5, temp);\n    Blynk.virtualWrite(V6, hum);\n  }\n  Blynk.virtualWrite(V7, pressure);\n}\n\nvoid setup() {\n  dht.begin();\n  bmp.begin(0x76);\n  Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass);\n  timer.setInterval(3000L, sendWeatherData);\n}\n\nvoid loop() {\n  Blynk.run();\n  timer.run();\n}",
+
+    "testing_output": "1. Power system and verify WiFi connection.\n2. Observe temperature, humidity, and pressure updates.\n3. Compare readings with local weather app for validation.",
+
+    "common_errors": "Wrong I2C address, missing pull-up on DHT22, unstable power supply.",
+
+    "improvements": "Add rainfall and wind speed sensors, store historical data, display weather trends.",
+
+    "mini_challenge": "Calculate and display heat index using temperature and humidity.",
+
+    "advantages": "Localized weather monitoring, low cost, scalable.",
+
+    "disadvantages": "Limited accuracy compared to professional stations.",
+
+    "components": ["ESP32", "DHT22 Sensor", "BMP280 Sensor"],
+
+    "circuit_diagram": "DHT22 connected to GPIO27 with pull-up. BMP280 connected via I2C on GPIO21/22.",
+
+    "industrial_use": "Agriculture, environmental monitoring, research.",
+
+    "author_name": "NISHANTH",
+    "status": "Reference Standard",
+    "bom_cost": "₹1,300"
+  },
+  {
+    "id": 108,
+    "title": "Smart Parking System using IoT",
+    "level": "Intermediate",
+    "description": "An IoT-based smart parking system using ESP32 that detects vehicle presence in parking slots using ultrasonic sensors and provides real-time availability status through a cloud dashboard.",
+    "category": "Smart City",
+    "sub_category": "IoT (101-200)",
+    "estimatedTime": "4 Hours",
+    "tech": ["ESP32", "Ultrasonic Sensor (HC-SR04)", "Blynk IoT", "WiFi"],
+
+    "problem_statement": "Drivers waste time and fuel searching for parking spaces, leading to traffic congestion and pollution. Traditional parking systems lack real-time availability information. A smart parking system provides live slot status, improving efficiency and reducing congestion.",
+
+    "real_world_case": "Smart parking systems are used in malls, offices, airports, hospitals, and smart cities to optimize parking space usage and reduce traffic chaos.",
+
+    "block_diagram": "graph TD; Ultrasonic_Sensor-->|Distance|ESP32; ESP32-->|WiFi|Blynk_Cloud; Blynk_Cloud-->|Internet|Mobile_App;",
+
+    "alternatives": {
+      "Sensor": "IR Proximity Sensor",
+      "Communication": "LoRa for city-wide deployment",
+      "Platform": "Firebase"
+    },
+
+    "concept": "The ultrasonic sensor measures the distance between the sensor and the ground or vehicle. The ESP32 interprets this distance to determine whether a parking slot is occupied and updates the status on a cloud dashboard.",
+
+    "working_principle": "1. Ultrasonic sensor emits sound pulses.\n2. Echo time is measured to calculate distance.\n3. ESP32 determines slot occupancy.\n4. Slot status is sent to cloud dashboard.",
+
+    "pin_config": {
+      "esp32": [
+        {
+          "module": "Ultrasonic Sensor",
+          "pinName": "VCC",
+          "mcuPin": "5V",
+          "direction": "Power",
+          "voltage": "5V",
+          "description": "HC-SR04 requires 5V for accurate operation."
+        },
+        {
+          "module": "Ultrasonic Sensor",
+          "pinName": "GND",
+          "mcuPin": "GND",
+          "direction": "Ground",
+          "voltage": "0V",
+          "description": "Common ground."
+        },
+        {
+          "module": "Ultrasonic Sensor",
+          "pinName": "TRIG",
+          "mcuPin": "GPIO25",
+          "direction": "Output",
+          "voltage": "3.3V",
+          "description": "Trigger pulse output."
+        },
+        {
+          "module": "Ultrasonic Sensor",
+          "pinName": "ECHO",
+          "mcuPin": "GPIO26",
+          "direction": "Input",
+          "voltage": "3.3V (via divider)",
+          "description": "Echo signal reduced from 5V using voltage divider."
+        }
+      ]
+    },
+
+    "code": "/*\n Project 108: Smart Parking System\n Board   : ESP32\n Platform: Blynk IoT\n Author  : NISHANTH\n*/\n\n#define BLYNK_TEMPLATE_ID \"YOUR_TEMPLATE_ID\"\n#define BLYNK_DEVICE_NAME \"Smart Parking\"\n#define BLYNK_AUTH_TOKEN \"YOUR_AUTH_TOKEN\"\n\n#include <WiFi.h>\n#include <BlynkSimpleEsp32.h>\n\n#define TRIG_PIN 25\n#define ECHO_PIN 26\n\nBlynkTimer timer;\n\nlong getDistance() {\n  digitalWrite(TRIG_PIN, LOW);\n  delayMicroseconds(2);\n  digitalWrite(TRIG_PIN, HIGH);\n  delayMicroseconds(10);\n  digitalWrite(TRIG_PIN, LOW);\n\n  long duration = pulseIn(ECHO_PIN, HIGH, 30000);\n  return duration * 0.034 / 2;\n}\n\nvoid sendParkingStatus() {\n  long distance = getDistance();\n  int occupied = (distance < 10) ? 1 : 0;\n  Blynk.virtualWrite(V5, occupied);\n}\n\nvoid setup() {\n  pinMode(TRIG_PIN, OUTPUT);\n  pinMode(ECHO_PIN, INPUT);\n  Blynk.begin(BLYNK_AUTH_TOKEN, \"SSID\", \"PASS\");\n  timer.setInterval(2000L, sendParkingStatus);\n}\n\nvoid loop() {\n  Blynk.run();\n  timer.run();\n}",
+
+    "testing_output": "1. Place vehicle under sensor and verify occupied status.\n2. Remove vehicle and confirm slot available.\n3. Adjust distance threshold for real installation.",
+
+    "common_errors": "Missing voltage divider on echo pin, wrong sensor height calibration.",
+
+    "improvements": "Add multiple slots, LED indicators, payment integration.",
+
+    "mini_challenge": "Extend system to monitor 4 parking slots.",
+
+    "advantages": "Reduced traffic congestion, efficient parking usage.",
+
+    "disadvantages": "Sensor accuracy affected by environment.",
+
+    "components": ["ESP32", "HC-SR04 Ultrasonic Sensor"],
+
+    "circuit_diagram": "HC-SR04 TRIG to GPIO25, ECHO to GPIO26 via voltage divider.",
+
+    "industrial_use": "Smart city parking systems.",
+
+    "author_name": "NISHANTH",
+    "status": "Reference Standard",
+    "bom_cost": "₹900"
+  },
+  {
+    "id": 109,
+    "title": "Air Pollution Monitoring System",
+    "level": "Intermediate",
+    "description": "An IoT-based air pollution monitoring system using ESP32 that measures air quality parameters using a gas sensor and provides real-time pollution data through a cloud dashboard. The system helps identify unhealthy air conditions and supports early warning mechanisms.",
+    "category": "Environment",
+    "sub_category": "IoT (101-200)",
+    "estimatedTime": "4–5 Hours",
+    "tech": ["ESP32", "MQ-135 Gas Sensor", "Blynk IoT", "WiFi"],
+
+    "problem_statement": "Air pollution is a serious health concern in urban and industrial areas. Traditional air quality monitoring stations are expensive and sparsely distributed, making it difficult to assess local air conditions. People are often unaware of real-time pollution levels in their immediate environment. A low-cost IoT-based air pollution monitoring system enables localized, continuous air quality monitoring.",
+
+    "real_world_case": "Air quality monitoring systems are deployed near schools, hospitals, traffic junctions, industrial zones, and residential areas. Localized monitoring helps authorities and individuals take preventive actions during high pollution levels, such as restricting outdoor activities.",
+
+    "block_diagram": "graph TD; MQ135-->|Analog_Gas_Data|ESP32; ESP32-->|WiFi|Blynk_Cloud; Blynk_Cloud-->|Internet|Mobile_App;",
+
+    "alternatives": {
+      "Gas Sensor": "MQ-7 (CO specific), MQ-2 (smoke and LPG)",
+      "Platform": "Thingspeak",
+      "Communication": "LoRaWAN for city-scale monitoring"
+    },
+
+    "concept": "The MQ-135 gas sensor detects harmful gases such as NH3, NOx, benzene, and CO2. The ESP32 reads the analog voltage output from the sensor and uploads the data to a cloud dashboard. Although the readings are relative, they are useful for trend analysis and pollution alerts.",
+
+    "working_principle": "1. MQ-135 sensor heater warms up to detect gas concentration.\n2. Sensor resistance changes based on pollutant levels.\n3. Analog voltage is generated corresponding to gas concentration.\n4. ESP32 reads voltage using ADC pin.\n5. Data is transmitted to cloud dashboard.\n6. Users monitor pollution trends in real time.",
+
+    "pin_config": {
+      "esp32": [
+        {
+          "module": "MQ-135 Gas Sensor",
+          "pinName": "VCC",
+          "mcuPin": "5V",
+          "direction": "Power",
+          "voltage": "5V",
+          "description": "Provides power to sensor heater. MQ sensors require 5V for stable operation."
+        },
+        {
+          "module": "MQ-135 Gas Sensor",
+          "pinName": "GND",
+          "mcuPin": "GND",
+          "direction": "Ground",
+          "voltage": "0V",
+          "description": "Common ground reference."
+        },
+        {
+          "module": "MQ-135 Gas Sensor",
+          "pinName": "Analog Output",
+          "mcuPin": "GPIO32",
+          "direction": "Input",
+          "voltage": "Analog (≤3.3V)",
+          "description": "Analog signal scaled to safe ESP32 ADC range."
+        }
+      ]
+    },
+
+    "code": "/*\n Project 109: Air Pollution Monitoring System\n Board   : ESP32\n Platform: Blynk IoT\n Author  : NISHANTH\n*/\n\n#define BLYNK_TEMPLATE_ID \"YOUR_TEMPLATE_ID\"\n#define BLYNK_DEVICE_NAME \"Air Quality Monitor\"\n#define BLYNK_AUTH_TOKEN \"YOUR_AUTH_TOKEN\"\n\n#include <WiFi.h>\n#include <BlynkSimpleEsp32.h>\n\nchar ssid[] = \"YOUR_WIFI_SSID\";\nchar pass[] = \"YOUR_WIFI_PASSWORD\";\n\n#define GAS_PIN 32\n\nBlynkTimer timer;\n\nvoid sendAirQuality() {\n  int gasValue = analogRead(GAS_PIN);\n  Blynk.virtualWrite(V5, gasValue);\n}\n\nvoid setup() {\n  Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass);\n  timer.setInterval(3000L, sendAirQuality);\n}\n\nvoid loop() {\n  Blynk.run();\n  timer.run();\n}",
+
+    "testing_output": "1. Power the system and allow sensor warm-up (2–3 minutes).\n2. Expose sensor to smoke or pollution source.\n3. Observe rise in air quality value on dashboard.\n4. Ensure readings stabilize over time.",
+
+    "common_errors": "Skipping sensor warm-up, powering MQ sensor from 3.3V, noisy ADC readings due to poor grounding.",
+
+    "improvements": "Convert raw values to AQI, add alert notifications, integrate temperature compensation, log historical pollution data.",
+
+    "mini_challenge": "Trigger a mobile alert when pollution exceeds a safe threshold.",
+
+    "advantages": "Low-cost air monitoring, real-time data, easy deployment.",
+
+    "disadvantages": "Relative readings, requires calibration for accuracy.",
+
+    "components": ["ESP32", "MQ-135 Gas Sensor"],
+
+    "circuit_diagram": "MQ-135 VCC to 5V, GND to GND, analog output to GPIO32 with proper scaling.",
+
+    "industrial_use": "Environmental monitoring, smart cities, health safety systems.",
+
+    "author_name": "NISHANTH",
+    "status": "Reference Standard",
+    "bom_cost": "₹1,000"
+  },
+  {
+    "id": 110,
+    "title": "IoT Fire Safety Monitoring",
+    "level": "Intermediate",
+    "description": "An IoT-based fire safety monitoring system using ESP32 that detects fire hazards using flame and smoke sensors and provides real-time alerts through a cloud dashboard.",
+    "category": "Safety",
+    "sub_category": "IoT (101-200)",
+    "estimatedTime": "4 Hours",
+    "tech": ["ESP32", "Flame Sensor", "MQ-2 Gas Sensor", "Blynk IoT", "WiFi"],
+
+    "problem_statement": "Fire accidents cause severe damage to life and property, especially when detection is delayed. Conventional fire alarms provide only local alerts and lack remote monitoring capability. An IoT-based fire safety system enables early detection and instant remote alerts, improving response time.",
+
+    "real_world_case": "Fire monitoring systems are used in homes, offices, warehouses, factories, and server rooms. Remote alerts allow building owners and safety teams to respond quickly even when premises are unattended.",
+
+    "block_diagram": "graph TD; Flame_Sensor-->|Digital|ESP32; MQ2-->|Smoke|ESP32; ESP32-->|WiFi|Blynk_Cloud; Blynk_Cloud-->|Internet|Mobile_App;",
+
+    "alternatives": {
+      "Smoke Sensor": "MQ-135 or dedicated smoke detector",
+      "Communication": "GSM-based alert system",
+      "Platform": "Firebase"
+    },
+
+    "concept": "The system combines flame detection and smoke sensing to improve fire detection reliability. ESP32 continuously monitors both sensors and sends alerts to the cloud when abnormal conditions are detected.",
+
+    "working_principle": "1. Flame sensor detects infrared light from fire.\n2. MQ-2 sensor detects smoke and flammable gases.\n3. ESP32 reads sensor signals continuously.\n4. If fire or smoke exceeds threshold, alert is triggered.\n5. Alert is sent to cloud dashboard.",
+
+    "pin_config": {
+      "esp32": [
+        {
+          "module": "Flame Sensor",
+          "pinName": "VCC",
+          "mcuPin": "3V3",
+          "direction": "Power",
+          "voltage": "3.3V",
+          "description": "Powers flame sensor module."
+        },
+        {
+          "module": "Flame Sensor",
+          "pinName": "GND",
+          "mcuPin": "GND",
+          "direction": "Ground",
+          "voltage": "0V",
+          "description": "Common ground."
+        },
+        {
+          "module": "Flame Sensor",
+          "pinName": "Digital Output",
+          "mcuPin": "GPIO25",
+          "direction": "Input",
+          "voltage": "3.3V",
+          "description": "Goes LOW when flame is detected."
+        },
+        {
+          "module": "MQ-2 Gas Sensor",
+          "pinName": "VCC",
+          "mcuPin": "5V",
+          "direction": "Power",
+          "voltage": "5V",
+          "description": "Supplies power to MQ-2 sensor heater."
+        },
+        {
+          "module": "MQ-2 Gas Sensor",
+          "pinName": "GND",
+          "mcuPin": "GND",
+          "direction": "Ground",
+          "voltage": "0V",
+          "description": "Common ground reference."
+        },
+        {
+          "module": "MQ-2 Gas Sensor",
+          "pinName": "Analog Output",
+          "mcuPin": "GPIO33",
+          "direction": "Input",
+          "voltage": "Analog (≤3.3V)",
+          "description": "Smoke concentration signal scaled to ESP32 ADC range."
+        }
+      ]
+    },
+
+    "code": "/*\n Project 110: IoT Fire Safety Monitoring\n Board   : ESP32\n Platform: Blynk IoT\n Author  : NISHANTH\n*/\n\n#define BLYNK_TEMPLATE_ID \"YOUR_TEMPLATE_ID\"\n#define BLYNK_DEVICE_NAME \"Fire Safety\"\n#define BLYNK_AUTH_TOKEN \"YOUR_AUTH_TOKEN\"\n\n#include <WiFi.h>\n#include <BlynkSimpleEsp32.h>\n\nchar ssid[] = \"YOUR_WIFI_SSID\";\nchar pass[] = \"YOUR_WIFI_PASSWORD\";\n\n#define FLAME_PIN 25\n#define SMOKE_PIN 33\n\nBlynkTimer timer;\n\nvoid checkFireStatus() {\n  int flameDetected = digitalRead(FLAME_PIN);\n  int smokeLevel = analogRead(SMOKE_PIN);\n\n  Blynk.virtualWrite(V5, flameDetected);\n  Blynk.virtualWrite(V6, smokeLevel);\n}\n\nvoid setup() {\n  pinMode(FLAME_PIN, INPUT);\n  Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass);\n  timer.setInterval(2000L, checkFireStatus);\n}\n\nvoid loop() {\n  Blynk.run();\n  timer.run();\n}",
+
+    "testing_output": "1. Introduce flame source near flame sensor.\n2. Generate smoke near MQ-2 sensor.\n3. Verify real-time alerts on dashboard.\n4. Test system response time.",
+
+    "common_errors": "False positives due to ambient light, no warm-up for MQ sensor, unsafe wiring.",
+
+    "improvements": "Add buzzer and SMS alerts, integrate sprinkler control, add redundancy.",
+
+    "mini_challenge": "Trigger an automatic exhaust fan when smoke level exceeds threshold.",
+
+    "advantages": "Early fire detection, remote alerts, improved safety.",
+
+    "disadvantages": "Requires proper calibration to avoid false alarms.",
+
+    "components": ["ESP32", "Flame Sensor", "MQ-2 Gas Sensor"],
+
+    "circuit_diagram": "Flame sensor digital output to GPIO25. MQ-2 analog output to GPIO33 with proper voltage scaling.",
+
+    "industrial_use": "Fire safety systems, industrial safety monitoring.",
+
+    "author_name": "NISHANTH",
+    "status": "Reference Standard",
+    "bom_cost": "₹1,200"
+  },
+  {
+    "id": 111,
+    "title": "Smart Waste Management System",
+    "level": "Intermediate",
+    "description": "An IoT-based smart waste management system using ESP32 that monitors garbage bin fill level using an ultrasonic sensor and provides real-time status updates to a cloud dashboard, enabling timely waste collection and efficient resource management.",
+    "category": "Smart City",
+    "sub_category": "IoT (101-200)",
+    "estimatedTime": "4 Hours",
+    "tech": ["ESP32", "Ultrasonic Sensor (HC-SR04)", "Blynk IoT", "WiFi"],
+
+    "problem_statement": "In traditional waste management systems, garbage bins are emptied on fixed schedules regardless of their actual fill level. This leads to overflowing bins, unhygienic conditions, and inefficient collection routes. A smart waste monitoring system provides real-time bin status to optimize collection schedules.",
+
+    "real_world_case": "Smart bins are deployed in cities, campuses, airports, railway stations, and residential complexes. Municipal corporations use such systems to reduce operational costs and improve cleanliness by collecting waste only when bins are nearly full.",
+
+    "block_diagram": "graph TD; Ultrasonic_Sensor-->|Distance|ESP32; ESP32-->|WiFi|Blynk_Cloud; Blynk_Cloud-->|Internet|Mobile_App;",
+
+    "alternatives": {
+      "Sensor": "IR Proximity Sensor",
+      "Communication": "LoRaWAN for long-distance city deployment",
+      "Platform": "Firebase"
+    },
+
+    "concept": "The ultrasonic sensor measures the distance between the sensor and the garbage surface. As the bin fills up, the measured distance decreases. The ESP32 converts this distance into a fill-level percentage and uploads it to a cloud dashboard for monitoring.",
+
+    "working_principle": "1. Ultrasonic sensor emits sound pulses.\n2. Echo time is measured to calculate distance.\n3. ESP32 computes garbage level based on bin depth.\n4. Fill level is sent to cloud dashboard.\n5. Collection is triggered when threshold is reached.",
+
+    "pin_config": {
+      "esp32": [
+        {
+          "module": "Ultrasonic Sensor",
+          "pinName": "VCC",
+          "mcuPin": "5V",
+          "direction": "Power",
+          "voltage": "5V",
+          "description": "HC-SR04 requires 5V for reliable distance measurement."
+        },
+        {
+          "module": "Ultrasonic Sensor",
+          "pinName": "GND",
+          "mcuPin": "GND",
+          "direction": "Ground",
+          "voltage": "0V",
+          "description": "Common ground reference."
+        },
+        {
+          "module": "Ultrasonic Sensor",
+          "pinName": "TRIG",
+          "mcuPin": "GPIO25",
+          "direction": "Output",
+          "voltage": "3.3V",
+          "description": "Trigger signal to initiate ultrasonic pulse."
+        },
+        {
+          "module": "Ultrasonic Sensor",
+          "pinName": "ECHO",
+          "mcuPin": "GPIO26",
+          "direction": "Input",
+          "voltage": "3.3V (via divider)",
+          "description": "Echo signal scaled down from 5V using voltage divider."
+        }
+      ]
+    },
+
+    "code": "/*\n Project 111: Smart Waste Management System\n Board   : ESP32\n Platform: Blynk IoT\n Author  : NISHANTH\n*/\n\n#define BLYNK_TEMPLATE_ID \"YOUR_TEMPLATE_ID\"\n#define BLYNK_DEVICE_NAME \"Smart Bin\"\n#define BLYNK_AUTH_TOKEN \"YOUR_AUTH_TOKEN\"\n\n#include <WiFi.h>\n#include <BlynkSimpleEsp32.h>\n\n#define TRIG_PIN 25\n#define ECHO_PIN 26\n\nconst int binDepth = 50; // cm\nBlynkTimer timer;\n\nlong getDistance() {\n  digitalWrite(TRIG_PIN, LOW);\n  delayMicroseconds(2);\n  digitalWrite(TRIG_PIN, HIGH);\n  delayMicroseconds(10);\n  digitalWrite(TRIG_PIN, LOW);\n  long duration = pulseIn(ECHO_PIN, HIGH, 30000);\n  return duration * 0.034 / 2;\n}\n\nvoid sendBinStatus() {\n  long distance = getDistance();\n  int fillLevel = map(distance, binDepth, 0, 0, 100);\n  fillLevel = constrain(fillLevel, 0, 100);\n  Blynk.virtualWrite(V5, fillLevel);\n}\n\nvoid setup() {\n  pinMode(TRIG_PIN, OUTPUT);\n  pinMode(ECHO_PIN, INPUT);\n  Blynk.begin(BLYNK_AUTH_TOKEN, \"SSID\", \"PASS\");\n  timer.setInterval(3000L, sendBinStatus);\n}\n\nvoid loop() {\n  Blynk.run();\n  timer.run();\n}",
+
+    "testing_output": "1. Empty bin and record baseline distance.\n2. Gradually fill bin and observe percentage increase.\n3. Verify dashboard updates in real time.\n4. Test threshold alerts manually.",
+
+    "common_errors": "Incorrect bin depth value, missing voltage divider on echo pin, sensor blockage due to waste.",
+
+    "improvements": "Add GPS for truck routing, add odor sensors, integrate collection scheduling algorithm.",
+
+    "mini_challenge": "Trigger alert when bin level exceeds 80%.",
+
+    "advantages": "Optimized waste collection, cleaner environment, reduced operational cost.",
+
+    "disadvantages": "Sensor accuracy affected by irregular waste surface.",
+
+    "components": ["ESP32", "HC-SR04 Ultrasonic Sensor"],
+
+    "circuit_diagram": "HC-SR04 TRIG to GPIO25, ECHO to GPIO26 via voltage divider.",
+
+    "industrial_use": "Municipal waste management, smart city infrastructure.",
+
+    "author_name": "NISHANTH",
+    "status": "Reference Standard",
+    "bom_cost": "₹900"
+  },
+  {
+    "id": 112,
+    "title": "IoT-based Smart Irrigation System",
+    "level": "Intermediate",
+    "description": "An IoT-based smart irrigation system using ESP32 that automatically controls water supply based on real-time soil moisture data, reducing water wastage and improving crop health.",
+    "category": "Agriculture",
+    "sub_category": "IoT (101-200)",
+    "estimatedTime": "4–5 Hours",
+    "tech": ["ESP32", "Soil Moisture Sensor", "Relay Module", "Blynk IoT", "WiFi"],
+
+    "problem_statement": "Irrigation based on fixed schedules often leads to inefficient water usage. Crops may be watered even when soil moisture is sufficient, resulting in water wastage and root damage. Smart irrigation systems use real-time soil data to deliver water only when needed.",
+
+    "real_world_case": "Smart irrigation is used in farms, gardens, greenhouses, and drip irrigation systems. Farmers benefit from reduced water consumption and improved crop yield, especially in water-scarce regions.",
+
+    "block_diagram": "graph TD; Soil_Moisture_Sensor-->|Analog|ESP32; ESP32-->|GPIO|Relay_Module; Relay_Module-->|Pump|Water_Supply; ESP32-->|WiFi|Blynk_Cloud;",
+
+    "alternatives": {
+      "Sensor": "Capacitive Soil Moisture Sensor (longer life)",
+      "Power": "Solar-powered irrigation controller",
+      "Platform": "MQTT-based automation server"
+    },
+
+    "concept": "The ESP32 continuously monitors soil moisture using an analog sensor. When moisture falls below a defined threshold, the controller activates a relay to start irrigation. Once adequate moisture is reached, irrigation is stopped automatically.",
+
+    "working_principle": "1. Soil moisture sensor outputs analog voltage based on water content.\n2. ESP32 reads sensor value using ADC pin.\n3. Value is compared with predefined threshold.\n4. Relay switches water pump ON or OFF.\n5. Status and readings are uploaded to cloud dashboard.",
+
+    "pin_config": {
+      "esp32": [
+        {
+          "module": "Soil Moisture Sensor",
+          "pinName": "VCC",
+          "mcuPin": "3V3",
+          "direction": "Power",
+          "voltage": "3.3V",
+          "description": "Powers soil moisture sensor safely without damaging ESP32 ADC."
+        },
+        {
+          "module": "Soil Moisture Sensor",
+          "pinName": "GND",
+          "mcuPin": "GND",
+          "direction": "Ground",
+          "voltage": "0V",
+          "description": "Common ground reference."
+        },
+        {
+          "module": "Soil Moisture Sensor",
+          "pinName": "Analog Output",
+          "mcuPin": "GPIO32",
+          "direction": "Input",
+          "voltage": "Analog",
+          "description": "ADC-capable pin used for moisture sensing."
+        },
+        {
+          "module": "Relay Module",
+          "pinName": "VCC",
+          "mcuPin": "5V",
+          "direction": "Power",
+          "voltage": "5V",
+          "description": "Supplies power to relay coil."
+        },
+        {
+          "module": "Relay Module",
+          "pinName": "GND",
+          "mcuPin": "GND",
+          "direction": "Ground",
+          "voltage": "0V",
+          "description": "Common ground shared with ESP32."
+        },
+        {
+          "module": "Relay Module",
+          "pinName": "IN",
+          "mcuPin": "GPIO26",
+          "direction": "Output",
+          "voltage": "3.3V",
+          "description": "Controls relay to switch water pump."
+        }
+      ]
+    },
+
+    "code": "/*\n Project 112: IoT-based Smart Irrigation System\n Board   : ESP32\n Platform: Blynk IoT\n Author  : NISHANTH\n*/\n\n#define BLYNK_TEMPLATE_ID \"YOUR_TEMPLATE_ID\"\n#define BLYNK_DEVICE_NAME \"Smart Irrigation\"\n#define BLYNK_AUTH_TOKEN \"YOUR_AUTH_TOKEN\"\n\n#include <WiFi.h>\n#include <BlynkSimpleEsp32.h>\n\nchar ssid[] = \"YOUR_WIFI_SSID\";\nchar pass[] = \"YOUR_WIFI_PASSWORD\";\n\n#define SOIL_PIN 32\n#define RELAY_PIN 26\n\nint moistureThreshold = 2000;\nBlynkTimer timer;\n\nvoid controlIrrigation() {\n  int soilValue = analogRead(SOIL_PIN);\n  Blynk.virtualWrite(V5, soilValue);\n\n  if (soilValue > moistureThreshold) {\n    digitalWrite(RELAY_PIN, HIGH);\n  } else {\n    digitalWrite(RELAY_PIN, LOW);\n  }\n}\n\nvoid setup() {\n  pinMode(RELAY_PIN, OUTPUT);\n  digitalWrite(RELAY_PIN, LOW);\n  Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass);\n  timer.setInterval(3000L, controlIrrigation);\n}\n\nvoid loop() {\n  Blynk.run();\n  timer.run();\n}",
+
+    "testing_output": "1. Insert sensor into dry soil and verify pump activation.\n2. Water soil and observe pump deactivation.\n3. Adjust threshold for crop type.",
+
+    "common_errors": "Wrong threshold calibration, sensor corrosion, insufficient power for pump relay.",
+
+    "improvements": "Add weather-based logic, multi-zone irrigation, mobile alerts.",
+
+    "mini_challenge": "Add manual override button from mobile app.",
+
+    "advantages": "Water efficient, automatic operation, remote monitoring.",
+
+    "disadvantages": "Sensor lifespan limited in wet soil.",
+
+    "components": ["ESP32", "Soil Moisture Sensor", "Relay Module", "Water Pump"],
+
+    "circuit_diagram": "Soil sensor analog output to GPIO32. Relay input to GPIO26 controlling water pump.",
+
+    "industrial_use": "Precision agriculture, greenhouse irrigation.",
+
+    "author_name": "NISHANTH",
+    "status": "Reference Standard",
+    "bom_cost": "₹1,100"
+  },
+  {
+    "id": 113,
+    "title": "Smart Door Lock using Blynk",
+    "level": "Intermediate",
+    "description": "An IoT-based smart door lock system using ESP32 that allows users to lock and unlock a door remotely using a mobile application. The system uses a servo motor as the locking mechanism and provides secure, convenient access control.",
+    "category": "Smart Home",
+    "sub_category": "IoT (101-200)",
+    "estimatedTime": "3–4 Hours",
+    "tech": ["ESP32", "Servo Motor", "Blynk IoT", "WiFi"],
+
+    "problem_statement": "Traditional mechanical door locks require physical keys, which can be lost, duplicated, or misused. Managing access remotely is not possible with conventional locks. A smart door lock system enables remote control, improves security, and provides better access management.",
+
+    "real_world_case": "Smart door locks are used in homes, hostels, offices, Airbnb rentals, and labs. Owners can grant or revoke access remotely and ensure doors are locked even when they are away.",
+
+    "block_diagram": "graph TD; Mobile_App-->|Internet|Blynk_Cloud; Blynk_Cloud-->|WiFi|ESP32; ESP32-->|PWM|Servo_Motor;",
+
+    "alternatives": {
+      "Actuator": "Solenoid lock",
+      "Authentication": "RFID or Fingerprint module",
+      "Platform": "Home Assistant"
+    },
+
+    "concept": "The ESP32 receives lock or unlock commands from a cloud-based mobile application. Based on the command, it controls a servo motor that physically rotates the locking mechanism. The servo provides precise angle control, making it ideal for door locking applications.",
+
+    "working_principle": "1. ESP32 connects to WiFi and Blynk cloud.\n2. User presses Lock/Unlock button in mobile app.\n3. Command is received by ESP32.\n4. ESP32 generates PWM signal.\n5. Servo motor rotates to lock or unlock position.\n6. Door state is updated on the dashboard.",
+
+    "pin_config": {
+      "esp32": [
+        {
+          "module": "Servo Motor",
+          "pinName": "VCC",
+          "mcuPin": "5V",
+          "direction": "Power",
+          "voltage": "5V",
+          "description": "Provides sufficient current for servo motor operation."
+        },
+        {
+          "module": "Servo Motor",
+          "pinName": "GND",
+          "mcuPin": "GND",
+          "direction": "Ground",
+          "voltage": "0V",
+          "description": "Common ground with ESP32."
+        },
+        {
+          "module": "Servo Motor",
+          "pinName": "Signal",
+          "mcuPin": "GPIO18",
+          "direction": "Output",
+          "voltage": "PWM (3.3V)",
+          "description": "PWM-capable pin used to control servo angle."
+        }
+      ]
+    },
+
+    "code": "/*\n Project 113: Smart Door Lock using Blynk\n Board   : ESP32\n Platform: Blynk IoT\n Author  : NISHANTH\n*/\n\n#define BLYNK_TEMPLATE_ID \"YOUR_TEMPLATE_ID\"\n#define BLYNK_DEVICE_NAME \"Smart Door Lock\"\n#define BLYNK_AUTH_TOKEN \"YOUR_AUTH_TOKEN\"\n\n#include <WiFi.h>\n#include <BlynkSimpleEsp32.h>\n#include <ESP32Servo.h>\n\nchar ssid[] = \"YOUR_WIFI_SSID\";\nchar pass[] = \"YOUR_WIFI_PASSWORD\";\n\n#define SERVO_PIN 18\nServo doorServo;\n\nBLYNK_WRITE(V0) {\n  int lockState = param.asInt();\n  if (lockState) {\n    doorServo.write(90); // Lock\n  } else {\n    doorServo.write(0);  // Unlock\n  }\n}\n\nvoid setup() {\n  doorServo.attach(SERVO_PIN);\n  Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass);\n}\n\nvoid loop() {\n  Blynk.run();\n}",
+
+    "testing_output": "1. Power the system and connect to Blynk.\n2. Press Lock button and observe servo rotation.\n3. Press Unlock button and verify door opens.\n4. Test system reliability over multiple cycles.",
+
+    "common_errors": "Insufficient power for servo, wrong servo angles, loose mechanical coupling.",
+
+    "improvements": "Add fingerprint authentication, door status sensor, access logs.",
+
+    "mini_challenge": "Add auto-lock feature after 30 seconds.",
+
+    "advantages": "Remote access, improved security, no physical keys.",
+
+    "disadvantages": "Depends on internet and power availability.",
+
+    "components": ["ESP32", "Servo Motor", "Door Lock Mechanism"],
+
+    "circuit_diagram": "Servo VCC to 5V, GND to GND, signal to GPIO18.",
+
+    "industrial_use": "Smart homes, offices, access-controlled areas.",
+
+    "author_name": "NISHANTH",
+    "status": "Reference Standard",
+    "bom_cost": "₹1,500"
+  },
+  {
+    "id": 114,
+    "title": "Smart Water Tank Monitoring",
+    "level": "Intermediate",
+    "description": "An IoT-based smart water tank monitoring system using ESP32 that measures water level using an ultrasonic sensor and provides real-time level information through a mobile dashboard.",
+    "category": "Utilities",
+    "sub_category": "IoT (101-200)",
+    "estimatedTime": "3–4 Hours",
+    "tech": ["ESP32", "Ultrasonic Sensor (HC-SR04)", "Blynk IoT", "WiFi"],
+
+    "problem_statement": "Manual monitoring of overhead water tanks often leads to overflow or water shortage. Without real-time level information, pumps are either run too long or not started in time. A smart monitoring system provides accurate water level data and prevents wastage.",
+
+    "real_world_case": "Smart water tank monitoring systems are used in homes, apartments, hostels, and commercial buildings to prevent overflow, automate pumps, and manage water usage efficiently.",
+
+    "block_diagram": "graph TD; Ultrasonic_Sensor-->|Distance|ESP32; ESP32-->|WiFi|Blynk_Cloud; Blynk_Cloud-->|Internet|Mobile_App;",
+
+    "alternatives": {
+      "Sensor": "Float sensor or pressure sensor",
+      "Control": "Automatic pump controller",
+      "Platform": "MQTT dashboard"
+    },
+
+    "concept": "The ultrasonic sensor measures the distance between the sensor and the water surface. Based on the tank height, the ESP32 calculates water level percentage and uploads it to a cloud dashboard.",
+
+    "working_principle": "1. Ultrasonic sensor emits sound pulses.\n2. Echo time is measured to calculate distance.\n3. ESP32 computes water level.\n4. Level data is sent to cloud dashboard.\n5. User monitors tank status remotely.",
+
+    "pin_config": {
+      "esp32": [
+        {
+          "module": "Ultrasonic Sensor",
+          "pinName": "VCC",
+          "mcuPin": "5V",
+          "direction": "Power",
+          "voltage": "5V",
+          "description": "Provides required power to ultrasonic sensor."
+        },
+        {
+          "module": "Ultrasonic Sensor",
+          "pinName": "GND",
+          "mcuPin": "GND",
+          "direction": "Ground",
+          "voltage": "0V",
+          "description": "Common ground reference."
+        },
+        {
+          "module": "Ultrasonic Sensor",
+          "pinName": "TRIG",
+          "mcuPin": "GPIO25",
+          "direction": "Output",
+          "voltage": "3.3V",
+          "description": "Trigger pin for ultrasonic pulse."
+        },
+        {
+          "module": "Ultrasonic Sensor",
+          "pinName": "ECHO",
+          "mcuPin": "GPIO26",
+          "direction": "Input",
+          "voltage": "3.3V (via divider)",
+          "description": "Echo signal scaled down using voltage divider."
+        }
+      ]
+    },
+
+    "code": "/*\n Project 114: Smart Water Tank Monitoring\n Board   : ESP32\n Platform: Blynk IoT\n Author  : NISHANTH\n*/\n\n#define BLYNK_TEMPLATE_ID \"YOUR_TEMPLATE_ID\"\n#define BLYNK_DEVICE_NAME \"Water Tank Monitor\"\n#define BLYNK_AUTH_TOKEN \"YOUR_AUTH_TOKEN\"\n\n#include <WiFi.h>\n#include <BlynkSimpleEsp32.h>\n\n#define TRIG_PIN 25\n#define ECHO_PIN 26\n\nconst int tankDepth = 150; // cm\nBlynkTimer timer;\n\nlong getDistance() {\n  digitalWrite(TRIG_PIN, LOW);\n  delayMicroseconds(2);\n  digitalWrite(TRIG_PIN, HIGH);\n  delayMicroseconds(10);\n  digitalWrite(TRIG_PIN, LOW);\n  long duration = pulseIn(ECHO_PIN, HIGH, 30000);\n  return duration * 0.034 / 2;\n}\n\nvoid sendWaterLevel() {\n  long distance = getDistance();\n  int level = map(distance, tankDepth, 0, 0, 100);\n  level = constrain(level, 0, 100);\n  Blynk.virtualWrite(V5, level);\n}\n\nvoid setup() {\n  pinMode(TRIG_PIN, OUTPUT);\n  pinMode(ECHO_PIN, INPUT);\n  Blynk.begin(BLYNK_AUTH_TOKEN, \"SSID\", \"PASS\");\n  timer.setInterval(3000L, sendWaterLevel);\n}\n\nvoid loop() {\n  Blynk.run();\n  timer.run();\n}",
+
+    "testing_output": "1. Measure empty tank distance.\n2. Fill tank gradually and observe level changes.\n3. Verify dashboard updates in real time.",
+
+    "common_errors": "Incorrect tank depth, sensor condensation, missing echo voltage divider.",
+
+    "improvements": "Add pump automation, overflow alerts, historical usage graphs.",
+
+    "mini_challenge": "Automatically stop pump when tank is full.",
+
+    "advantages": "Prevents overflow, remote monitoring, water conservation.",
+
+    "disadvantages": "Sensor accuracy affected by water turbulence.",
+
+    "components": ["ESP32", "HC-SR04 Ultrasonic Sensor"],
+
+    "circuit_diagram": "HC-SR04 TRIG to GPIO25, ECHO to GPIO26 via voltage divider.",
+
+    "industrial_use": "Water management systems, residential automation.",
+
+    "author_name": "NISHANTH",
+    "status": "Reference Standard",
+    "bom_cost": "₹900"
+  },
+  {
+    "id": 115,
+    "title": "IoT-based Noise Level Monitor",
+    "level": "Intermediate",
+    "description": "An IoT-based noise level monitoring system using ESP32 that measures ambient sound intensity using a microphone sensor and displays real-time noise levels on a cloud dashboard. The system helps identify high-noise zones and supports noise pollution control.",
+    "category": "Environment",
+    "sub_category": "IoT (101-200)",
+    "estimatedTime": "3–4 Hours",
+    "tech": ["ESP32", "Sound Sensor (KY-038)", "Blynk IoT", "WiFi"],
+
+    "problem_statement": "Noise pollution in urban environments affects health, productivity, and quality of life. Conventional noise measurement is manual and infrequent, making it difficult to track continuous exposure. An IoT-based noise monitoring system enables continuous, location-specific noise analysis.",
+
+    "real_world_case": "Noise monitoring systems are used near schools, hospitals, construction sites, traffic junctions, and industrial areas. Authorities and facility managers use this data to enforce noise regulations and plan mitigation strategies.",
+
+    "block_diagram": "graph TD; Sound_Sensor-->|Analog|ESP32; ESP32-->|WiFi|Blynk_Cloud; Blynk_Cloud-->|Internet|Mobile_App;",
+
+    "alternatives": {
+      "Sensor": "INMP441 I2S Digital Microphone",
+      "Platform": "Thingspeak",
+      "Communication": "LoRaWAN for wide-area deployment"
+    },
+
+    "concept": "The sound sensor converts ambient noise into an analog voltage proportional to sound intensity. The ESP32 reads this signal using its ADC and uploads the data to a cloud dashboard for real-time monitoring and trend analysis.",
+
+    "working_principle": "1. Sound waves strike the microphone diaphragm.\n2. The microphone converts sound into an electrical signal.\n3. The sensor module amplifies the signal.\n4. ESP32 reads the analog voltage via ADC.\n5. Noise level data is sent to the cloud dashboard.",
+
+    "pin_config": {
+      "esp32": [
+        {
+          "module": "Sound Sensor",
+          "pinName": "VCC",
+          "mcuPin": "3V3",
+          "direction": "Power",
+          "voltage": "3.3V",
+          "description": "Powers the sound sensor safely at ESP32 logic level."
+        },
+        {
+          "module": "Sound Sensor",
+          "pinName": "GND",
+          "mcuPin": "GND",
+          "direction": "Ground",
+          "voltage": "0V",
+          "description": "Common ground reference."
+        },
+        {
+          "module": "Sound Sensor",
+          "pinName": "Analog Output",
+          "mcuPin": "GPIO34",
+          "direction": "Input",
+          "voltage": "Analog",
+          "description": "ADC input-only pin ideal for microphone signal reading."
+        }
+      ]
+    },
+
+    "code": "/*\n Project 115: IoT-based Noise Level Monitor\n Board   : ESP32\n Platform: Blynk IoT\n Author  : NISHANTH\n*/\n\n#define BLYNK_TEMPLATE_ID \"YOUR_TEMPLATE_ID\"\n#define BLYNK_DEVICE_NAME \"Noise Monitor\"\n#define BLYNK_AUTH_TOKEN \"YOUR_AUTH_TOKEN\"\n\n#include <WiFi.h>\n#include <BlynkSimpleEsp32.h>\n\nchar ssid[] = \"YOUR_WIFI_SSID\";\nchar pass[] = \"YOUR_WIFI_PASSWORD\";\n\n#define SOUND_PIN 34\n\nBlynkTimer timer;\n\nvoid sendNoiseLevel() {\n  int noiseValue = analogRead(SOUND_PIN);\n  Blynk.virtualWrite(V5, noiseValue);\n}\n\nvoid setup() {\n  Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass);\n  timer.setInterval(2000L, sendNoiseLevel);\n}\n\nvoid loop() {\n  Blynk.run();\n  timer.run();\n}",
+
+    "testing_output": "1. Power the system and ensure stable WiFi connection.\n2. Clap or speak near the sensor and observe value changes.\n3. Monitor noise variations over time.\n4. Compare readings between quiet and noisy environments.",
+
+    "common_errors": "Improper sensor gain adjustment, using digital output instead of analog, electrical noise interference.",
+
+    "improvements": "Convert raw ADC values to decibel approximation, add threshold alerts, log historical noise data.",
+
+    "mini_challenge": "Trigger a mobile alert when noise exceeds a safe limit.",
+
+    "advantages": "Continuous monitoring, low cost, easy deployment.",
+
+    "disadvantages": "Provides relative noise level, not calibrated dB.",
+
+    "components": ["ESP32", "Sound Sensor Module"],
+
+    "circuit_diagram": "Sound sensor VCC to 3.3V, GND to GND, analog output to GPIO34.",
+
+    "industrial_use": "Noise pollution monitoring, workplace safety.",
+
+    "author_name": "NISHANTH",
+    "status": "Reference Standard",
+    "bom_cost": "₹500"
+  },
+  {
+    "id": 116,
+    "title": "Smart Lighting using Google Firebase",
+    "level": "Intermediate",
+    "description": "A cloud-controlled smart lighting system using ESP32 and Google Firebase that allows users to remotely switch lights ON or OFF in real time using a mobile or web interface.",
+    "category": "Smart Home",
+    "sub_category": "IoT (101-200)",
+    "estimatedTime": "4 Hours",
+    "tech": ["ESP32", "Relay Module", "Google Firebase", "WiFi"],
+
+    "problem_statement": "Traditional lighting systems require manual operation and provide no remote visibility. Lights are often left ON unintentionally, leading to energy wastage. A cloud-based smart lighting system enables remote control and better energy management.",
+
+    "real_world_case": "Firebase-based lighting systems are used in homes, hostels, offices, and labs where centralized and real-time control of lighting is required without complex server infrastructure.",
+
+    "block_diagram": "graph TD; Firebase-->|Cloud_Data|ESP32; ESP32-->|GPIO|Relay_Module; Relay_Module-->|AC|Light;",
+
+    "alternatives": {
+      "Platform": "Blynk or MQTT",
+      "Control": "Local web server on ESP32",
+      "Communication": "Bluetooth for short range"
+    },
+
+    "concept": "The ESP32 continuously listens for state changes in the Firebase Realtime Database. When the database value changes, the ESP32 updates the relay state accordingly, allowing cloud-based control of lighting.",
+
+    "working_principle": "1. User updates light state in Firebase.\n2. Firebase syncs data in real time.\n3. ESP32 reads updated value over WiFi.\n4. Relay is switched ON or OFF.\n5. Light state is reflected instantly.",
+
+    "pin_config": {
+      "esp32": [
+        {
+          "module": "Relay Module",
+          "pinName": "VCC",
+          "mcuPin": "5V",
+          "direction": "Power",
+          "voltage": "5V",
+          "description": "Supplies power to relay coil."
+        },
+        {
+          "module": "Relay Module",
+          "pinName": "GND",
+          "mcuPin": "GND",
+          "direction": "Ground",
+          "voltage": "0V",
+          "description": "Common ground reference."
+        },
+        {
+          "module": "Relay Module",
+          "pinName": "IN",
+          "mcuPin": "GPIO26",
+          "direction": "Output",
+          "voltage": "3.3V",
+          "description": "Controls relay to switch light."
+        }
+      ]
+    },
+
+    "code": "/*\n Project 116: Smart Lighting using Google Firebase\n Board   : ESP32\n Author  : NISHANTH\n*/\n\n#include <WiFi.h>\n#include <FirebaseESP32.h>\n\n#define RELAY_PIN 26\n\nvoid setup() {\n  pinMode(RELAY_PIN, OUTPUT);\n  digitalWrite(RELAY_PIN, LOW);\n  // Firebase and WiFi initialization goes here\n}\n\nvoid loop() {\n  // Read Firebase value and control relay\n}",
+
+    "testing_output": "1. Change light state in Firebase console.\n2. Verify relay switching instantly.\n3. Observe light response.",
+
+    "common_errors": "Incorrect Firebase credentials, unstable WiFi, wrong database path.",
+
+    "improvements": "Add scheduling, dimming control, energy usage tracking.",
+
+    "mini_challenge": "Control multiple rooms using Firebase nodes.",
+
+    "advantages": "Real-time cloud control, scalable.",
+
+    "disadvantages": "Depends on internet connectivity.",
+
+    "components": ["ESP32", "Relay Module"],
+
+    "circuit_diagram": "Relay VCC to 5V, GND to GND, IN to GPIO26.",
+
+    "industrial_use": "Smart buildings, centralized lighting control.",
+
+    "author_name": "NISHANTH",
+    "status": "Reference Standard",
+    "bom_cost": "₹700"
+  },
+  {
+    "id": 117,
+    "title": "IoT-enabled Smart Mirror",
+    "level": "Intermediate",
+    "description": "An IoT-enabled smart mirror using ESP32 that displays real-time environmental information such as temperature, humidity, and date/time on an OLED display, making daily information easily accessible during routine activities.",
+    "category": "Smart Home",
+    "sub_category": "IoT (101-200)",
+    "estimatedTime": "4–5 Hours",
+    "tech": ["ESP32", "OLED Display (SSD1306)", "DHT22", "WiFi"],
+
+    "problem_statement": "People often rely on phones or other devices to check basic information such as temperature and weather while getting ready. This interrupts routine activities. A smart mirror provides essential information at a glance without requiring additional interaction.",
+
+    "real_world_case": "Smart mirrors are used in smart homes, hotels, gyms, and salons to display environmental data, schedules, and notifications in a non-intrusive manner.",
+
+    "block_diagram": "graph TD; DHT22-->|Temp_Humidity|ESP32; ESP32-->|I2C|OLED_Display; ESP32-->|WiFi|Cloud_Service;",
+
+    "alternatives": {
+      "Display": "LCD with I2C backpack",
+      "Controller": "Raspberry Pi (for advanced UI)",
+      "Sensor": "BME280"
+    },
+
+    "concept": "The ESP32 collects environmental data from sensors and displays it on an OLED screen mounted behind a two-way mirror. The compact OLED display and low power consumption make it ideal for embedded smart mirror applications.",
+
+    "working_principle": "1. ESP32 powers up and initializes sensors.\n2. DHT22 measures temperature and humidity.\n3. ESP32 processes sensor data.\n4. OLED display shows updated information.\n5. Data can optionally be sent to cloud services.",
+
+    "pin_config": {
+      "esp32": [
+        {
+          "module": "DHT22 Sensor",
+          "pinName": "VCC",
+          "mcuPin": "3V3",
+          "direction": "Power",
+          "voltage": "3.3V",
+          "description": "Powers DHT22 sensor safely."
+        },
+        {
+          "module": "DHT22 Sensor",
+          "pinName": "GND",
+          "mcuPin": "GND",
+          "direction": "Ground",
+          "voltage": "0V",
+          "description": "Common ground."
+        },
+        {
+          "module": "DHT22 Sensor",
+          "pinName": "DATA",
+          "mcuPin": "GPIO27",
+          "direction": "Input",
+          "voltage": "3.3V",
+          "description": "Digital data pin with pull-up resistor."
+        },
+        {
+          "module": "OLED Display",
+          "pinName": "VCC",
+          "mcuPin": "3V3",
+          "direction": "Power",
+          "voltage": "3.3V",
+          "description": "Supplies power to OLED display."
+        },
+        {
+          "module": "OLED Display",
+          "pinName": "GND",
+          "mcuPin": "GND",
+          "direction": "Ground",
+          "voltage": "0V",
+          "description": "Common ground."
+        },
+        {
+          "module": "OLED Display",
+          "pinName": "SDA",
+          "mcuPin": "GPIO21",
+          "direction": "I/O",
+          "voltage": "3.3V",
+          "description": "I2C data line."
+        },
+        {
+          "module": "OLED Display",
+          "pinName": "SCL",
+          "mcuPin": "GPIO22",
+          "direction": "I/O",
+          "voltage": "3.3V",
+          "description": "I2C clock line."
+        }
+      ]
+    },
+
+    "code": "/*\n Project 117: IoT-enabled Smart Mirror\n Board   : ESP32\n Author  : NISHANTH\n*/\n\n#include <Wire.h>\n#include <Adafruit_SSD1306.h>\n#include <DHT.h>\n\n#define SCREEN_WIDTH 128\n#define SCREEN_HEIGHT 64\n#define OLED_RESET -1\n#define DHT_PIN 27\n#define DHT_TYPE DHT22\n\nAdafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);\nDHT dht(DHT_PIN, DHT_TYPE);\n\nvoid setup() {\n  dht.begin();\n  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);\n  display.clearDisplay();\n}\n\nvoid loop() {\n  float temp = dht.readTemperature();\n  float hum = dht.readHumidity();\n\n  display.clearDisplay();\n  display.setTextSize(1);\n  display.setTextColor(WHITE);\n  display.setCursor(0, 10);\n  display.print(\"Temp: \"); display.print(temp); display.println(\" C\");\n  display.print(\"Humidity: \"); display.print(hum); display.println(\" %\");\n  display.display();\n  delay(3000);\n}",
+
+    "testing_output": "1. Power system and verify OLED initialization.\n2. Observe temperature and humidity updates.\n3. Compare readings with room thermometer.",
+
+    "common_errors": "Incorrect I2C address, missing pull-up resistor for DHT22.",
+
+    "improvements": "Add weather API, calendar integration, touch input.",
+
+    "mini_challenge": "Display real-time clock (RTC) on the mirror.",
+
+    "advantages": "Hands-free information access, compact design.",
+
+    "disadvantages": "Limited display size.",
+
+    "components": ["ESP32", "OLED Display", "DHT22 Sensor"],
+
+    "circuit_diagram": "DHT22 DATA to GPIO27. OLED connected via I2C (GPIO21/22).",
+
+    "industrial_use": "Smart homes, hospitality, wellness centers.",
+
+    "author_name": "NISHANTH",
+    "status": "Reference Standard",
+    "bom_cost": "₹1,200"
+  },
+  {
+    "id": 118,
+    "title": "ESP32 Smart Plant Watering System",
+    "level": "Intermediate",
+    "description": "An automatic plant watering system using ESP32 that monitors soil moisture levels and controls a water pump through a relay, ensuring plants receive adequate water without manual intervention.",
+    "category": "Agriculture",
+    "sub_category": "IoT (101-200)",
+    "estimatedTime": "3–4 Hours",
+    "tech": ["ESP32", "Soil Moisture Sensor", "Relay Module"],
+
+    "problem_statement": "Houseplants and garden plants often suffer due to irregular watering schedules. Manual watering is inconvenient and inconsistent. An automated system ensures optimal watering based on actual soil conditions.",
+
+    "real_world_case": "Smart plant watering systems are used in home gardens, balconies, nurseries, and indoor plants to maintain healthy plant growth with minimal human effort.",
+
+    "block_diagram": "graph TD; Soil_Moisture_Sensor-->|Analog|ESP32; ESP32-->|GPIO|Relay_Module; Relay_Module-->|Pump|Water_Supply;",
+
+    "alternatives": {
+      "Sensor": "Capacitive soil moisture sensor",
+      "Control": "Drip irrigation valve",
+      "Power": "Solar-powered controller"
+    },
+
+    "concept": "The ESP32 continuously monitors soil moisture levels. When the soil becomes dry, it activates a relay to power a water pump. Once adequate moisture is restored, the pump is turned off automatically.",
+
+    "working_principle": "1. Soil moisture sensor outputs voltage based on water content.\n2. ESP32 reads analog value using ADC.\n3. Value is compared against a threshold.\n4. Relay switches pump ON/OFF accordingly.",
+
+    "pin_config": {
+      "esp32": [
+        {
+          "module": "Soil Moisture Sensor",
+          "pinName": "VCC",
+          "mcuPin": "3V3",
+          "direction": "Power",
+          "voltage": "3.3V",
+          "description": "Powers soil sensor safely."
+        },
+        {
+          "module": "Soil Moisture Sensor",
+          "pinName": "GND",
+          "mcuPin": "GND",
+          "direction": "Ground",
+          "voltage": "0V",
+          "description": "Common ground."
+        },
+        {
+          "module": "Soil Moisture Sensor",
+          "pinName": "Analog Output",
+          "mcuPin": "GPIO32",
+          "direction": "Input",
+          "voltage": "Analog",
+          "description": "ADC-capable pin for moisture reading."
+        },
+        {
+          "module": "Relay Module",
+          "pinName": "VCC",
+          "mcuPin": "5V",
+          "direction": "Power",
+          "voltage": "5V",
+          "description": "Supplies power to relay coil."
+        },
+        {
+          "module": "Relay Module",
+          "pinName": "GND",
+          "mcuPin": "GND",
+          "direction": "Ground",
+          "voltage": "0V",
+          "description": "Common ground with ESP32."
+        },
+        {
+          "module": "Relay Module",
+          "pinName": "IN",
+          "mcuPin": "GPIO26",
+          "direction": "Output",
+          "voltage": "3.3V",
+          "description": "Controls relay to drive pump."
+        }
+      ]
+    },
+
+    "code": "/*\n Project 118: ESP32 Smart Plant Watering System\n Board   : ESP32\n Author  : NISHANTH\n*/\n\n#define SOIL_PIN 32\n#define RELAY_PIN 26\n\nint threshold = 2000;\n\nvoid setup() {\n  pinMode(RELAY_PIN, OUTPUT);\n  digitalWrite(RELAY_PIN, LOW);\n}\n\nvoid loop() {\n  int soilValue = analogRead(SOIL_PIN);\n  if (soilValue > threshold) {\n    digitalWrite(RELAY_PIN, HIGH);\n  } else {\n    digitalWrite(RELAY_PIN, LOW);\n  }\n  delay(3000);\n}",
+
+    "testing_output": "1. Insert sensor into dry soil.\n2. Observe pump activation.\n3. Water soil and observe pump stop.",
+
+    "common_errors": "Wrong threshold calibration, sensor corrosion.",
+
+    "improvements": "Add WiFi monitoring, mobile alerts, multi-plant support.",
+
+    "mini_challenge": "Add timed watering as a backup mode.",
+
+    "advantages": "Automatic watering, plant health improvement.",
+
+    "disadvantages": "Sensor lifespan limited.",
+
+    "components": ["ESP32", "Soil Moisture Sensor", "Relay Module", "Water Pump"],
+
+    "circuit_diagram": "Soil sensor analog to GPIO32. Relay IN to GPIO26 controlling pump.",
+
+    "industrial_use": "Home automation, nursery management.",
+
+    "author_name": "NISHANTH",
+    "status": "Reference Standard",
+    "bom_cost": "₹800"
+  },
+  {
+    "id": 119,
+    "title": "IoT-based Water Flow Meter",
+    "level": "Intermediate",
+    "description": "An IoT-based water flow monitoring system using ESP32 that measures real-time water flow rate and total water consumption using a hall-effect flow sensor and displays the data on a cloud dashboard.",
+    "category": "Utilities",
+    "sub_category": "IoT (101-200)",
+    "estimatedTime": "3–4 Hours",
+    "tech": ["ESP32", "Water Flow Sensor (YF-S201)", "Blynk IoT", "WiFi"],
+
+    "problem_statement": "Water consumption is often unmonitored in homes and buildings, leading to wastage and undetected leakage. Traditional meters do not provide real-time usage data to users. An IoT-based water flow meter enables live monitoring, helping users conserve water and detect abnormal usage early.",
+
+    "real_world_case": "Smart water flow meters are used in homes, apartments, hostels, industries, and irrigation systems to monitor daily consumption, detect leaks, and implement usage-based billing.",
+
+    "block_diagram": "graph TD; Flow_Sensor-->|Pulse|ESP32; ESP32-->|WiFi|Blynk_Cloud; Blynk_Cloud-->|Internet|Mobile_App;",
+
+    "alternatives": {
+      "Sensor": "FS300A flow sensor",
+      "Communication": "LoRaWAN for long-distance water lines",
+      "Platform": "Thingspeak"
+    },
+
+    "concept": "The YF-S201 flow sensor generates electrical pulses proportional to the flow rate of water passing through it. The ESP32 counts these pulses using an interrupt pin and calculates both instantaneous flow rate and total water volume, which are then displayed on a cloud dashboard.",
+
+    "working_principle": "1. Water flows through the sensor turbine.\n2. Hall-effect sensor generates pulses.\n3. ESP32 counts pulses using interrupt.\n4. Flow rate and total volume are calculated.\n5. Data is uploaded to cloud dashboard.",
+
+    "pin_config": {
+      "esp32": [
+        {
+          "module": "Water Flow Sensor",
+          "pinName": "VCC",
+          "mcuPin": "5V",
+          "direction": "Power",
+          "voltage": "5V",
+          "description": "Supplies power to flow sensor for stable pulse generation."
+        },
+        {
+          "module": "Water Flow Sensor",
+          "pinName": "GND",
+          "mcuPin": "GND",
+          "direction": "Ground",
+          "voltage": "0V",
+          "description": "Common ground reference."
+        },
+        {
+          "module": "Water Flow Sensor",
+          "pinName": "Signal",
+          "mcuPin": "GPIO25",
+          "direction": "Input",
+          "voltage": "3.3V",
+          "description": "Interrupt-capable pin used to count flow pulses."
+        }
+      ]
+    },
+
+    "code": "/*\n Project 119: IoT-based Water Flow Meter\n Board   : ESP32\n Platform: Blynk IoT\n Author  : NISHANTH\n*/\n\n#define BLYNK_TEMPLATE_ID \"YOUR_TEMPLATE_ID\"\n#define BLYNK_DEVICE_NAME \"Water Flow Meter\"\n#define BLYNK_AUTH_TOKEN \"YOUR_AUTH_TOKEN\"\n\n#include <WiFi.h>\n#include <BlynkSimpleEsp32.h>\n\nchar ssid[] = \"YOUR_WIFI_SSID\";\nchar pass[] = \"YOUR_WIFI_PASSWORD\";\n\n#define FLOW_PIN 25\n\nvolatile unsigned long pulseCount = 0;\nfloat flowRate;\nfloat totalLitres = 0;\nunsigned long lastTime = 0;\n\nvoid IRAM_ATTR pulseCounter() {\n  pulseCount++;\n}\n\nvoid calculateFlow() {\n  unsigned long currentTime = millis();\n  unsigned long timeDiff = currentTime - lastTime;\n\n  if (timeDiff >= 1000) {\n    flowRate = (pulseCount / 7.5); // L/min (sensor constant)\n    totalLitres += (flowRate / 60.0);\n\n    Blynk.virtualWrite(V5, flowRate);\n    Blynk.virtualWrite(V6, totalLitres);\n\n    pulseCount = 0;\n    lastTime = currentTime;\n  }\n}\n\nvoid setup() {\n  pinMode(FLOW_PIN, INPUT_PULLUP);\n  attachInterrupt(digitalPinToInterrupt(FLOW_PIN), pulseCounter, FALLING);\n  Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass);\n}\n\nvoid loop() {\n  Blynk.run();\n  calculateFlow();\n}",
+
+    "testing_output": "1. Pass water through sensor.\n2. Observe real-time flow rate updates.\n3. Compare total volume with manual measurement.\n4. Test for pulse stability at different flow rates.",
+
+    "common_errors": "Incorrect pulse constant, air bubbles in pipe, loose sensor wiring.",
+
+    "improvements": "Add leakage detection, daily usage report, automatic valve shutoff.",
+
+    "mini_challenge": "Trigger alert if continuous flow exceeds preset duration.",
+
+    "advantages": "Accurate flow monitoring, leakage detection, water conservation.",
+
+    "disadvantages": "Sensor affected by debris and scaling.",
+
+    "components": ["ESP32", "YF-S201 Water Flow Sensor"],
+
+    "circuit_diagram": "Flow sensor VCC to 5V, GND to GND, signal to GPIO25.",
+
+    "industrial_use": "Water management, smart billing, irrigation systems.",
+
+    "author_name": "NISHANTH",
+    "status": "Reference Standard",
+    "bom_cost": "₹700"
+  },
+  {
+    "id": 120,
+    "title": "Smart Pollution Mask",
+    "level": "Intermediate",
+    "description": "A wearable smart pollution mask using ESP32 that monitors air quality in real time and alerts the user when pollution levels exceed safe limits, enhancing personal health and safety.",
+    "category": "Healthcare",
+    "sub_category": "IoT (101-200)",
+    "estimatedTime": "3–4 Hours",
+    "tech": ["ESP32", "MQ-135 Gas Sensor", "Buzzer", "WiFi"],
+
+    "problem_statement": "People exposed to polluted environments such as traffic police, cyclists, and industrial workers often lack real-time awareness of air quality. Continuous exposure to high pollution levels can cause serious health issues. A wearable smart mask provides immediate alerts and awareness.",
+
+    "real_world_case": "Smart pollution masks are used by traffic police, cyclists, industrial workers, and individuals with respiratory conditions to monitor pollution exposure and take timely precautions.",
+
+    "block_diagram": "graph TD; MQ135-->|Gas_Level|ESP32; ESP32-->|Alert|Buzzer; ESP32-->|WiFi|Cloud_Dashboard;",
+
+    "alternatives": {
+      "Sensor": "MQ-7 (CO-specific)",
+      "Alert": "Vibration motor instead of buzzer",
+      "Communication": "Bluetooth for low power wearable"
+    },
+
+    "concept": "The MQ-135 gas sensor detects harmful gases and outputs an analog signal. The ESP32 evaluates pollution levels and triggers a buzzer alert when values exceed safe thresholds, providing immediate user feedback.",
+
+    "working_principle": "1. MQ-135 sensor detects gas concentration.\n2. Analog voltage is generated.\n3. ESP32 reads ADC value.\n4. Value is compared with threshold.\n5. Buzzer alerts user if pollution is high.",
+
+    "pin_config": {
+      "esp32": [
+        {
+          "module": "MQ-135 Gas Sensor",
+          "pinName": "VCC",
+          "mcuPin": "5V",
+          "direction": "Power",
+          "voltage": "5V",
+          "description": "Provides heater power for gas sensing."
+        },
+        {
+          "module": "MQ-135 Gas Sensor",
+          "pinName": "GND",
+          "mcuPin": "GND",
+          "direction": "Ground",
+          "voltage": "0V",
+          "description": "Common ground."
+        },
+        {
+          "module": "MQ-135 Gas Sensor",
+          "pinName": "Analog Output",
+          "mcuPin": "GPIO33",
+          "direction": "Input",
+          "voltage": "Analog (≤3.3V)",
+          "description": "Analog signal scaled for ESP32 ADC."
+        },
+        {
+          "module": "Buzzer",
+          "pinName": "VCC",
+          "mcuPin": "3V3",
+          "direction": "Power",
+          "voltage": "3.3V",
+          "description": "Supplies power to buzzer."
+        },
+        {
+          "module": "Buzzer",
+          "pinName": "GND",
+          "mcuPin": "GND",
+          "direction": "Ground",
+          "voltage": "0V",
+          "description": "Common ground."
+        },
+        {
+          "module": "Buzzer",
+          "pinName": "Signal",
+          "mcuPin": "GPIO27",
+          "direction": "Output",
+          "voltage": "3.3V",
+          "description": "Drives buzzer alert."
+        }
+      ]
+    },
+
+    "code": "/*\n Project 120: Smart Pollution Mask\n Board   : ESP32\n Author  : NISHANTH\n*/\n\n#define GAS_PIN 33\n#define BUZZER_PIN 27\n\nint pollutionThreshold = 2000;\n\nvoid setup() {\n  pinMode(BUZZER_PIN, OUTPUT);\n  digitalWrite(BUZZER_PIN, LOW);\n}\n\nvoid loop() {\n  int gasValue = analogRead(GAS_PIN);\n  if (gasValue > pollutionThreshold) {\n    digitalWrite(BUZZER_PIN, HIGH);\n  } else {\n    digitalWrite(BUZZER_PIN, LOW);\n  }\n  delay(2000);\n}",
+
+    "testing_output": "1. Allow sensor warm-up.\n2. Expose sensor to smoke.\n3. Verify buzzer alert activation.\n4. Adjust threshold for sensitivity.",
+
+    "common_errors": "Skipping warm-up time, incorrect threshold, bulky power supply for wearable.",
+
+    "improvements": "Add Bluetooth app, OLED display, rechargeable battery system.",
+
+    "mini_challenge": "Log pollution exposure time per day.",
+
+    "advantages": "Personal pollution awareness, real-time alert.",
+
+    "disadvantages": "Sensor size and power consumption.",
+
+    "components": ["ESP32", "MQ-135 Gas Sensor", "Buzzer"],
+
+    "circuit_diagram": "MQ-135 analog output to GPIO33. Buzzer signal to GPIO27.",
+
+    "industrial_use": "Personal safety devices, healthcare monitoring.",
+
+    "author_name": "NISHANTH",
+    "status": "Reference Standard",
+    "bom_cost": "₹1,100"
+  },
+  {
+    "id": 121,
+    "title": "IoT Smart Watch for Patients",
+    "level": "Intermediate",
+    "description": "A wearable IoT smart watch using ESP32 that continuously monitors patient body temperature and physical activity to detect abnormal conditions such as fever or prolonged inactivity, enabling remote healthcare supervision.",
+    "category": "Healthcare",
+    "sub_category": "IoT (101-200)",
+    "estimatedTime": "6 Hours",
+    "tech": ["ESP32", "DS18B20", "MPU6050", "WiFi"],
+
+    "problem_statement": "Elderly and chronically ill patients require continuous monitoring. Manual supervision is not always possible, leading to delayed medical response. A wearable IoT smart watch enables continuous monitoring and early detection of abnormal conditions.",
+
+    "real_world_case": "Used in elderly care homes, post-surgery recovery, home healthcare monitoring, and remote patient supervision systems.",
+
+    "block_diagram": "graph TD; DS18B20-->|Temperature|ESP32; MPU6050-->|Motion|ESP32; ESP32-->|WiFi|Cloud_Dashboard;",
+
+    "concept": "This system combines physiological monitoring (body temperature) and activity tracking (motion sensing) to assess patient condition continuously. Time-based inactivity detection adds system intelligence beyond raw sensor data.",
+
+    "working_principle": "1. ESP32 reads body temperature periodically.\n2. MPU6050 monitors patient movement.\n3. ESP32 detects inactivity based on motion absence.\n4. Data is prepared for cloud upload.\n5. Alerts are generated for abnormal conditions.",
+
+    "pin_config": {
+      "esp32": [
+        {
+          "module": "DS18B20",
+          "pinName": "VCC",
+          "mcuPin": "3V3",
+          "direction": "Power",
+          "voltage": "3.3V",
+          "description": "Supplies power to temperature sensor."
+        },
+        {
+          "module": "DS18B20",
+          "pinName": "GND",
+          "mcuPin": "GND",
+          "direction": "Ground",
+          "voltage": "0V",
+          "description": "Common ground reference."
+        },
+        {
+          "module": "DS18B20",
+          "pinName": "DATA",
+          "mcuPin": "GPIO27",
+          "direction": "Input",
+          "voltage": "3.3V",
+          "description": "1-Wire temperature data line with pull-up resistor."
+        },
+        {
+          "module": "MPU6050",
+          "pinName": "VCC",
+          "mcuPin": "3V3",
+          "direction": "Power",
+          "voltage": "3.3V",
+          "description": "Supplies power to accelerometer."
+        },
+        {
+          "module": "MPU6050",
+          "pinName": "GND",
+          "mcuPin": "GND",
+          "direction": "Ground",
+          "voltage": "0V",
+          "description": "Common ground."
+        }
+      ]
+    },
+
+    "code": "/* Project 121: IoT Smart Watch for Patients */\n#include <Wire.h>\n#include <OneWire.h>\n#include <DallasTemperature.h>\n#include <Adafruit_MPU6050.h>\n#include <Adafruit_Sensor.h>\n\n#define TEMP_PIN 27\n\nOneWire oneWire(TEMP_PIN);\nDallasTemperature tempSensor(&oneWire);\nAdafruit_MPU6050 mpu;\n\nunsigned long lastMotionTime = 0;\nconst unsigned long inactivityLimit = 300000; // 5 minutes\n\nvoid setup() {\n  Serial.begin(115200);\n  tempSensor.begin();\n\n  if (!mpu.begin()) {\n    Serial.println(\"MPU6050 not detected\");\n    while (1);\n  }\n\n  mpu.setAccelerometerRange(MPU6050_RANGE_8_G);\n  lastMotionTime = millis();\n}\n\nvoid loop() {\n  tempSensor.requestTemperatures();\n  float bodyTemp = tempSensor.getTempCByIndex(0);\n\n  sensors_event_t a, g, t;\n  mpu.getEvent(&a, &g, &t);\n\n  float motion = abs(a.acceleration.x) + abs(a.acceleration.y) + abs(a.acceleration.z);\n\n  if (motion > 1.5) {\n    lastMotionTime = millis();\n  }\n\n  if (millis() - lastMotionTime > inactivityLimit) {\n    Serial.println(\"ALERT: Patient inactive for long time\");\n  }\n\n  Serial.print(\"Body Temp: \");\n  Serial.print(bodyTemp);\n  Serial.println(\" C\");\n\n  delay(2000);\n}",
+
+    "testing_output": "1. Wear device and move to verify motion detection.\n2. Remain inactive to test inactivity alert.\n3. Compare temperature readings with thermometer.",
+
+    "common_errors": "Improper sensor placement, high power consumption, missing pull-up resistor.",
+
+    "improvements": "Add heart rate sensor, BLE communication, emergency SOS button.",
+
+    "mini_challenge": "Trigger alert if body temperature exceeds 38°C.",
+
+    "advantages": "Continuous monitoring, early alert system.",
+
+    "disadvantages": "Battery optimization required.",
+
+    "components": ["ESP32", "DS18B20", "MPU6050"],
+
+    "circuit_diagram": "DS18B20 DATA to GPIO27. MPU6050 connected via I2C.",
+
+    "industrial_use": "Remote patient monitoring systems.",
+
+    "author_name": "NISHANTH",
+    "status": "Published",
+    "bom_cost": "₹2,200"
+  },
+  {
+    "id": 122,
+    "title": "Smart Fridge Temperature Monitor",
+    "level": "Intermediate",
+    "description": "An IoT-based fridge temperature monitoring system using ESP32 that continuously checks internal temperature and triggers alerts if unsafe conditions occur, preventing food spoilage and medical storage failure.",
+    "category": "Appliance Monitoring",
+    "sub_category": "IoT (101-200)",
+    "estimatedTime": "4 Hours",
+    "tech": ["ESP32", "DS18B20", "Buzzer"],
+
+    "problem_statement": "Temperature fluctuations inside refrigerators often go unnoticed, leading to food spoilage or vaccine damage. Manual checks are unreliable. A smart system provides continuous monitoring and early alerts.",
+
+    "real_world_case": "Used in homes, restaurants, blood banks, vaccine storage units, and laboratories.",
+
+    "block_diagram": "graph TD; DS18B20-->|Temperature|ESP32; ESP32-->|Alert|Buzzer;",
+
+    "concept": "The ESP32 monitors fridge temperature and compares it against a safe range. If the temperature goes out of range, an alert is triggered immediately.",
+
+    "working_principle": "1. DS18B20 measures internal temperature.\n2. ESP32 compares value with safe limits.\n3. Buzzer alerts if temperature is unsafe.",
+
+    "pin_config": {
+      "esp32": [
+        {
+          "module": "DS18B20",
+          "pinName": "VCC",
+          "mcuPin": "3V3",
+          "direction": "Power",
+          "voltage": "3.3V",
+          "description": "Supplies power to temperature sensor."
+        },
+        {
+          "module": "DS18B20",
+          "pinName": "GND",
+          "mcuPin": "GND",
+          "direction": "Ground",
+          "voltage": "0V",
+          "description": "Common ground."
+        },
+        {
+          "module": "DS18B20",
+          "pinName": "DATA",
+          "mcuPin": "GPIO27",
+          "direction": "Input",
+          "voltage": "3.3V",
+          "description": "1-Wire temperature data line."
+        },
+        {
+          "module": "Buzzer",
+          "pinName": "Signal",
+          "mcuPin": "GPIO26",
+          "direction": "Output",
+          "voltage": "3.3V",
+          "description": "Drives audible alert."
+        }
+      ]
+    },
+
+    "code": "/* Project 122: Smart Fridge Temperature Monitor */\n#include <OneWire.h>\n#include <DallasTemperature.h>\n\n#define TEMP_PIN 27\n#define BUZZER_PIN 26\n\nfloat minTemp = 2.0;\nfloat maxTemp = 8.0;\n\nOneWire oneWire(TEMP_PIN);\nDallasTemperature tempSensor(&oneWire);\n\nvoid setup() {\n  Serial.begin(115200);\n  pinMode(BUZZER_PIN, OUTPUT);\n  digitalWrite(BUZZER_PIN, LOW);\n  tempSensor.begin();\n}\n\nvoid loop() {\n  tempSensor.requestTemperatures();\n  float fridgeTemp = tempSensor.getTempCByIndex(0);\n\n  Serial.print(\"Fridge Temp: \");\n  Serial.print(fridgeTemp);\n  Serial.println(\" C\");\n\n  if (fridgeTemp < minTemp || fridgeTemp > maxTemp) {\n    digitalWrite(BUZZER_PIN, HIGH);\n    Serial.println(\"ALERT: Unsafe temperature\");\n  } else {\n    digitalWrite(BUZZER_PIN, LOW);\n  }\n\n  delay(3000);\n}",
+
+    "testing_output": "1. Place sensor inside fridge.\n2. Simulate power failure.\n3. Verify alert activation.",
+
+    "common_errors": "Improper sensor placement, condensation issues.",
+
+    "improvements": "Add WiFi alerts, door-open detection.",
+
+    "mini_challenge": "Log duration of unsafe temperature exposure.",
+
+    "advantages": "Prevents spoilage, early warning.",
+
+    "disadvantages": "Requires proper insulation for sensor.",
+
+    "components": ["ESP32", "DS18B20", "Buzzer"],
+
+    "circuit_diagram": "DS18B20 DATA to GPIO27. Buzzer signal to GPIO26.",
+
+    "industrial_use": "Cold storage monitoring.",
+
+    "author_name": "NISHANTH",
+    "status": "Published",
+    "bom_cost": "₹800"
+  },
+  {
+    "id": 123,
+    "title": "IoT Smart Classroom",
+    "level": "Intermediate",
+    "description": "An IoT-based smart classroom system using ESP32 that automates lights and fans based on classroom occupancy and environmental conditions, improving energy efficiency and student comfort.",
+    "category": "Education",
+    "sub_category": "IoT (101-200)",
+    "estimatedTime": "6 Hours",
+    "tech": ["ESP32", "PIR Sensor", "DHT22", "Relay Module", "WiFi"],
+
+    "problem_statement": "In classrooms, lights and fans often remain ON even when rooms are empty, leading to energy wastage. Additionally, uncomfortable temperature and humidity affect learning quality. Manual control is unreliable and inefficient.",
+
+    "real_world_case": "Smart classroom systems are deployed in schools, colleges, training institutes, and labs to automate energy usage and maintain optimal learning environments.",
+
+    "block_diagram": "graph TD; PIR-->|Occupancy|ESP32; DHT22-->|Temp_Humidity|ESP32; ESP32-->|GPIO|Relay_Module; Relay_Module-->|AC|Lights_Fans; ESP32-->|WiFi|Cloud_Dashboard;",
+
+    "concept": "The system combines occupancy detection and environmental sensing. Devices operate only when students are present, and fan operation depends on temperature, making the classroom context-aware rather than time-based.",
+
+    "working_principle": "1. PIR sensor detects human presence.\n2. DHT22 measures temperature and humidity.\n3. ESP32 decides whether devices should operate.\n4. Relays control lights and fans.\n5. System prevents wastage when classroom is empty.",
+
+    "pin_config": {
+      "esp32": [
+        {
+          "module": "PIR Sensor",
+          "pinName": "VCC",
+          "mcuPin": "5V",
+          "direction": "Power",
+          "voltage": "5V",
+          "description": "Supplies power to PIR sensor."
+        },
+        {
+          "module": "PIR Sensor",
+          "pinName": "GND",
+          "mcuPin": "GND",
+          "direction": "Ground",
+          "voltage": "0V",
+          "description": "Common ground."
+        },
+        {
+          "module": "PIR Sensor",
+          "pinName": "OUT",
+          "mcuPin": "GPIO25",
+          "direction": "Input",
+          "voltage": "3.3V",
+          "description": "Digital output indicating motion."
+        },
+        {
+          "module": "DHT22",
+          "pinName": "VCC",
+          "mcuPin": "3V3",
+          "direction": "Power",
+          "voltage": "3.3V",
+          "description": "Supplies power to temperature and humidity sensor."
+        },
+        {
+          "module": "DHT22",
+          "pinName": "GND",
+          "mcuPin": "GND",
+          "direction": "Ground",
+          "voltage": "0V",
+          "description": "Common ground."
+        },
+        {
+          "module": "DHT22",
+          "pinName": "DATA",
+          "mcuPin": "GPIO27",
+          "direction": "Input",
+          "voltage": "3.3V",
+          "description": "Digital data pin for environmental sensing."
+        },
+        {
+          "module": "Relay Module",
+          "pinName": "IN1",
+          "mcuPin": "GPIO26",
+          "direction": "Output",
+          "voltage": "3.3V",
+          "description": "Controls lights."
+        },
+        {
+          "module": "Relay Module",
+          "pinName": "IN2",
+          "mcuPin": "GPIO33",
+          "direction": "Output",
+          "voltage": "3.3V",
+          "description": "Controls fans."
+        }
+      ]
+    },
+
+    "code": "/* Project 123: IoT Smart Classroom */\n#include <DHT.h>\n\n#define PIR_PIN 25\n#define DHT_PIN 27\n#define RELAY_LIGHT 26\n#define RELAY_FAN 33\n#define DHT_TYPE DHT22\n\nDHT dht(DHT_PIN, DHT_TYPE);\nunsigned long lastMotionTime = 0;\nconst unsigned long emptyDelay = 300000; // 5 minutes\n\nvoid setup() {\n  pinMode(PIR_PIN, INPUT);\n  pinMode(RELAY_LIGHT, OUTPUT);\n  pinMode(RELAY_FAN, OUTPUT);\n  digitalWrite(RELAY_LIGHT, LOW);\n  digitalWrite(RELAY_FAN, LOW);\n  dht.begin();\n}\n\nvoid loop() {\n  int motion = digitalRead(PIR_PIN);\n  float temp = dht.readTemperature();\n\n  if (motion == HIGH) {\n    lastMotionTime = millis();\n    digitalWrite(RELAY_LIGHT, HIGH);\n\n    if (temp > 28.0) {\n      digitalWrite(RELAY_FAN, HIGH);\n    } else {\n      digitalWrite(RELAY_FAN, LOW);\n    }\n  }\n\n  if (millis() - lastMotionTime > emptyDelay) {\n    digitalWrite(RELAY_LIGHT, LOW);\n    digitalWrite(RELAY_FAN, LOW);\n  }\n\n  delay(2000);\n}",
+
+    "testing_output": "1. Enter classroom and observe lights ON.\n2. Raise temperature to test fan control.\n3. Leave room and verify auto shut-off.",
+
+    "common_errors": "Incorrect PIR delay, wrong relay logic, sensor placement issues.",
+
+    "improvements": "Add timetable logic, CO2 sensing, manual override mode.",
+
+    "mini_challenge": "Add teacher-controlled override button.",
+
+    "advantages": "Energy saving, automated comfort control.",
+
+    "disadvantages": "Initial calibration needed.",
+
+    "components": ["ESP32", "PIR Sensor", "DHT22", "2-Channel Relay"],
+
+    "circuit_diagram": "PIR OUT to GPIO25, DHT22 DATA to GPIO27, relays to GPIO26 & GPIO33.",
+
+    "industrial_use": "Smart campuses, institutional automation.",
+
+    "author_name": "NISHANTH",
+    "status": "Published",
+    "bom_cost": "₹1,500"
+  },
+  {
+    "id": 124,
+    "title": "Smart Dust Detection System",
+    "level": "Intermediate",
+    "description": "An IoT-based dust detection system using ESP32 that measures particulate concentration and helps maintain healthy indoor air quality.",
+    "category": "Environment",
+    "sub_category": "IoT (101-200)",
+    "estimatedTime": "5 Hours",
+    "tech": ["ESP32", "Dust Sensor GP2Y1010AU0F", "WiFi"],
+
+    "problem_statement": "Dust pollution inside buildings affects health and productivity. Continuous monitoring is required to maintain air quality.",
+
+    "real_world_case": "Used in classrooms, factories, hospitals, and warehouses.",
+
+    "block_diagram": "graph TD; Dust_Sensor-->|Analog|ESP32; ESP32-->|WiFi|Dashboard;",
+
+    "concept": "An IR-based dust sensor detects particulate matter. ESP32 samples the signal and estimates dust density.",
+
+    "working_principle": "1. IR LED illuminates air.\n2. Dust scatters light.\n3. Photodiode outputs voltage.\n4. ESP32 calculates dust level.",
+
+    "pin_config": {
+      "esp32": [
+        { "module": "Dust Sensor", "pinName": "VCC", "mcuPin": "5V", "direction": "Power", "voltage": "5V", "description": "IR LED supply" },
+        { "module": "Dust Sensor", "pinName": "GND", "mcuPin": "GND", "direction": "Ground", "voltage": "0V", "description": "Common ground" },
+        { "module": "Dust Sensor", "pinName": "LED Control", "mcuPin": "GPIO14", "direction": "Output", "voltage": "3.3V", "description": "Controls IR LED timing" },
+        { "module": "Dust Sensor", "pinName": "Analog Output", "mcuPin": "GPIO34", "direction": "Input", "voltage": "Analog", "description": "Dust signal" }
+      ]
+    },
+
+    "code": "/* Project 124: Smart Dust Detection */\n#define LED_PIN 14\n#define DUST_PIN 34\n\nvoid setup() {\n  pinMode(LED_PIN, OUTPUT);\n}\n\nvoid loop() {\n  digitalWrite(LED_PIN, LOW);\n  delayMicroseconds(280);\n  int dustValue = analogRead(DUST_PIN);\n  delayMicroseconds(40);\n  digitalWrite(LED_PIN, HIGH);\n\n  // Dust value can be converted to ug/m3\n  delay(2000);\n}",
+
+    "testing_output": "Generate dust → observe value rise.",
+
+    "common_errors": "Wrong LED timing, ambient light interference.",
+
+    "improvements": "Add AQI conversion, exhaust fan control.",
+
+    "mini_challenge": "Trigger fan when dust exceeds limit.",
+
+    "advantages": "Low-cost air quality monitoring.",
+
+    "disadvantages": "Sensitive to airflow.",
+
+    "components": ["ESP32", "GP2Y1010AU0F"],
+
+    "circuit_diagram": "LED control to GPIO14. Analog output to GPIO34.",
+
+    "industrial_use": "Indoor air quality systems.",
+
+    "author_name": "NISHANTH",
+    "status": "Published",
+    "bom_cost": "₹1,500"
+  },
+  {
+    "id": 125,
+    "title": "Smart Attendance System using QR",
+    "level": "Intermediate",
+    "description": "An IoT-based smart attendance system using ESP32 that records attendance through QR code scanning, validates entries, and logs attendance data for classrooms or workplaces.",
+    "category": "Education",
+    "sub_category": "IoT (101-200)",
+    "estimatedTime": "6 Hours",
+    "tech": ["ESP32", "QR Code Scanner", "OLED Display", "WiFi"],
+
+    "problem_statement": "Manual attendance is time-consuming and prone to proxy attendance. A QR-based system automates attendance capture, reduces errors, and provides digital records.",
+
+    "real_world_case": "Used in colleges, offices, workshops, events, and training programs to record attendance quickly and accurately.",
+
+    "block_diagram": "graph TD; QR_Scanner-->|UART|ESP32; ESP32-->|I2C|OLED; ESP32-->|WiFi|Cloud_Database;",
+
+    "concept": "Each user has a unique QR code. When scanned, the ESP32 reads the data, validates it, and marks attendance while preventing duplicate entries during the same session.",
+
+    "working_principle": "1. QR scanner reads encoded ID.\n2. ESP32 validates the ID format.\n3. Duplicate entries are blocked.\n4. Attendance is logged locally/cloud.\n5. Confirmation is displayed.",
+
+    "pin_config": {
+      "esp32": [
+        { "module": "QR Scanner", "pinName": "VCC", "mcuPin": "5V", "direction": "Power", "voltage": "5V", "description": "Powers QR scanner" },
+        { "module": "QR Scanner", "pinName": "GND", "mcuPin": "GND", "direction": "Ground", "voltage": "0V", "description": "Common ground" },
+        { "module": "QR Scanner", "pinName": "TX", "mcuPin": "GPIO16", "direction": "Input", "voltage": "3.3V", "description": "UART data from scanner" },
+
+        { "module": "OLED Display", "pinName": "VCC", "mcuPin": "3V3", "direction": "Power", "voltage": "3.3V", "description": "OLED power" },
+        { "module": "OLED Display", "pinName": "GND", "mcuPin": "GND", "direction": "Ground", "voltage": "0V", "description": "Common ground" },
+        { "module": "OLED Display", "pinName": "SDA", "mcuPin": "GPIO21", "direction": "I/O", "voltage": "3.3V", "description": "I2C data" },
+        { "module": "OLED Display", "pinName": "SCL", "mcuPin": "GPIO22", "direction": "I/O", "voltage": "3.3V", "description": "I2C clock" }
+      ]
+    },
+
+    "code": "/* Project 125: Smart Attendance System using QR */\n#include <Wire.h>\n#include <Adafruit_SSD1306.h>\n\n#define SCREEN_WIDTH 128\n#define SCREEN_HEIGHT 64\n#define OLED_RESET -1\n\nAdafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);\nString lastID = \"\";\n\nvoid setup() {\n  Serial.begin(9600); // QR scanner baud rate\n  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);\n  display.clearDisplay();\n}\n\nvoid loop() {\n  if (Serial.available()) {\n    String qrData = Serial.readStringUntil('\\n');\n    qrData.trim();\n\n    display.clearDisplay();\n    display.setTextSize(1);\n    display.setCursor(0, 10);\n\n    if (qrData == lastID) {\n      display.println(\"Duplicate Entry\");\n    } else {\n      lastID = qrData;\n      display.println(\"Attendance Marked\");\n      display.println(qrData);\n      // Future: upload to cloud\n    }\n\n    display.display();\n  }\n}",
+
+    "testing_output": "Scan QR → attendance marked. Scan same QR again → duplicate blocked.",
+
+    "common_errors": "Wrong baud rate, repeated scans, invalid QR format.",
+
+    "improvements": "Add time-based session reset, cloud database sync, authentication.",
+
+    "mini_challenge": "Allow attendance only during scheduled class time.",
+
+    "advantages": "Fast, contactless, reduces proxy attendance.",
+
+    "disadvantages": "Requires QR management.",
+
+    "components": ["ESP32", "QR Scanner", "OLED Display"],
+
+    "circuit_diagram": "QR scanner TX to GPIO16. OLED via I2C (GPIO21/22).",
+
+    "industrial_use": "Smart campuses, workforce management.",
+
+    "author_name": "NISHANTH",
+    "status": "Published",
+    "bom_cost": "₹2,300"
+  },
+  {
+    "id": 126,
+    "title": "Smart Ventilation Controller",
+    "level": "Intermediate",
+    "description": "An IoT-based smart ventilation system using ESP32 that automatically controls an exhaust fan based on temperature, humidity, and air quality conditions.",
+    "category": "Building Automation",
+    "sub_category": "IoT (101-200)",
+    "estimatedTime": "5 Hours",
+    "tech": ["ESP32", "DHT22", "MQ-135", "Relay Module", "WiFi"],
+
+    "problem_statement": "Manual ventilation control is inefficient and often ignored, leading to heat, humidity, and poor air quality. A smart controller ensures optimal ventilation automatically.",
+
+    "real_world_case": "Used in kitchens, server rooms, classrooms, factories, and basements for healthy air circulation.",
+
+    "block_diagram": "graph TD; DHT22-->|Temp|ESP32; MQ135-->|Gas|ESP32; ESP32-->|Relay|Exhaust_Fan;",
+
+    "concept": "The ESP32 evaluates multiple environmental parameters and activates ventilation when any unsafe condition is detected, making the system adaptive and responsive.",
+
+    "working_principle": "1. DHT22 measures temperature and humidity.\n2. MQ-135 measures air quality.\n3. ESP32 evaluates thresholds.\n4. Fan is activated automatically.",
+
+    "pin_config": {
+      "esp32": [
+        { "module": "DHT22", "pinName": "VCC", "mcuPin": "3V3", "direction": "Power", "voltage": "3.3V", "description": "Powers DHT22" },
+        { "module": "DHT22", "pinName": "GND", "mcuPin": "GND", "direction": "Ground", "voltage": "0V", "description": "Common ground" },
+        { "module": "DHT22", "pinName": "DATA", "mcuPin": "GPIO27", "direction": "Input", "voltage": "3.3V", "description": "Temp/humidity data" },
+
+        { "module": "MQ-135", "pinName": "VCC", "mcuPin": "5V", "direction": "Power", "voltage": "5V", "description": "Sensor heater supply" },
+        { "module": "MQ-135", "pinName": "GND", "mcuPin": "GND", "direction": "Ground", "voltage": "0V", "description": "Common ground" },
+        { "module": "MQ-135", "pinName": "Analog Output", "mcuPin": "GPIO34", "direction": "Input", "voltage": "Analog", "description": "Air quality signal" },
+
+        { "module": "Relay Module", "pinName": "IN", "mcuPin": "GPIO26", "direction": "Output", "voltage": "3.3V", "description": "Controls exhaust fan" }
+      ]
+    },
+
+    "code": "/* Project 126: Smart Ventilation Controller */\n#include <DHT.h>\n\n#define DHT_PIN 27\n#define DHT_TYPE DHT22\n#define GAS_PIN 34\n#define RELAY_PIN 26\n\nDHT dht(DHT_PIN, DHT_TYPE);\n\nvoid setup() {\n  pinMode(RELAY_PIN, OUTPUT);\n  digitalWrite(RELAY_PIN, LOW);\n  dht.begin();\n}\n\nvoid loop() {\n  float temp = dht.readTemperature();\n  float hum = dht.readHumidity();\n  int gas = analogRead(GAS_PIN);\n\n  if (temp > 30 || hum > 70 || gas > 2000) {\n    digitalWrite(RELAY_PIN, HIGH);\n  } else {\n    digitalWrite(RELAY_PIN, LOW);\n  }\n\n  delay(3000);\n}",
+
+    "testing_output": "Increase temperature or gas → fan ON. Normal conditions → fan OFF.",
+
+    "common_errors": "Ignoring MQ warm-up, wrong thresholds.",
+
+    "improvements": "Add fan speed control, predictive ventilation.",
+
+    "mini_challenge": "Add delay-based hysteresis to avoid frequent switching.",
+
+    "advantages": "Automatic air quality control.",
+
+    "disadvantages": "Requires calibration.",
+
+    "components": ["ESP32", "DHT22", "MQ-135", "Relay Module"],
+
+    "circuit_diagram": "DHT22 DATA to GPIO27. MQ-135 analog to GPIO34. Relay IN to GPIO26.",
+
+    "industrial_use": "Smart buildings, industrial ventilation.",
+
+    "author_name": "NISHANTH",
+    "status": "Published",
+    "bom_cost": "₹1,400"
+  },
+  {
+    "id": 127,
+    "title": "IoT Smart Locker",
+    "level": "Intermediate",
+    "description": "An IoT-based smart locker system using ESP32 that enables secure access control through PIN-based authentication and remote monitoring, suitable for hostels, offices, and smart storage systems.",
+    "category": "Security",
+    "sub_category": "IoT (101-200)",
+    "estimatedTime": "5 Hours",
+    "tech": ["ESP32", "Keypad", "Servo Motor", "OLED Display", "WiFi"],
+
+    "problem_statement": "Traditional lockers rely on physical keys which can be lost or duplicated. Manual management is inefficient and insecure. A smart locker provides controlled, traceable, and scalable access management.",
+
+    "real_world_case": "Used in hostels, gyms, offices, libraries, parcel lockers, and smart storage facilities.",
+
+    "block_diagram": "graph TD; Keypad-->|PIN|ESP32; ESP32-->|Control|Servo_Lock; ESP32-->|Display|OLED; ESP32-->|WiFi|Cloud_Log;",
+
+    "concept": "The ESP32 validates user-entered PINs through a keypad. If authentication succeeds, a servo motor unlocks the locker. Access attempts can be logged locally or sent to the cloud.",
+
+    "working_principle": "1. User enters PIN via keypad.\n2. ESP32 validates PIN.\n3. Servo unlocks locker on success.\n4. OLED displays status.\n5. Access event is logged.",
+
+    "pin_config": {
+      "esp32": [
+        { "module": "Keypad", "pinName": "VCC", "mcuPin": "3V3", "direction": "Power", "voltage": "3.3V", "description": "Keypad power" },
+        { "module": "Keypad", "pinName": "GND", "mcuPin": "GND", "direction": "Ground", "voltage": "0V", "description": "Common ground" },
+
+        { "module": "Servo Motor", "pinName": "VCC", "mcuPin": "5V", "direction": "Power", "voltage": "5V", "description": "Servo motor supply" },
+        { "module": "Servo Motor", "pinName": "GND", "mcuPin": "GND", "direction": "Ground", "voltage": "0V", "description": "Common ground" },
+        { "module": "Servo Motor", "pinName": "Signal", "mcuPin": "GPIO26", "direction": "Output", "voltage": "PWM 3.3V", "description": "Lock control signal" },
+
+        { "module": "OLED Display", "pinName": "SDA", "mcuPin": "GPIO21", "direction": "I/O", "voltage": "3.3V", "description": "I2C data" },
+        { "module": "OLED Display", "pinName": "SCL", "mcuPin": "GPIO22", "direction": "I/O", "voltage": "3.3V", "description": "I2C clock" }
+      ]
+    },
+
+    "code": "/* Project 127: IoT Smart Locker */\n#include <Keypad.h>\n#include <Servo.h>\n\n#define SERVO_PIN 26\n\nServo lockServo;\n\nconst byte rows = 4, cols = 4;\nchar keys[rows][cols] = {\n  {'1','2','3','A'},\n  {'4','5','6','B'},\n  {'7','8','9','C'},\n  {'*','0','#','D'}\n};\n\nbyte rowPins[rows] = {14, 27, 25, 33};\nbyte colPins[cols] = {32, 35, 34, 39};\n\nKeypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, rows, cols);\n\nString inputPIN = \"\";\nString correctPIN = \"1234\";\n\nvoid setup() {\n  lockServo.attach(SERVO_PIN);\n  lockServo.write(0); // Locked\n}\n\nvoid loop() {\n  char key = keypad.getKey();\n  if (key) {\n    if (key == '#') {\n      if (inputPIN == correctPIN) {\n        lockServo.write(90); // Unlock\n        delay(5000);\n        lockServo.write(0);  // Lock again\n      }\n      inputPIN = \"\";\n    } else {\n      inputPIN += key;\n    }\n  }\n}",
+
+    "testing_output": "Enter correct PIN → locker unlocks. Wrong PIN → no action.",
+
+    "common_errors": "Insufficient servo power, keypad pin mismatch.",
+
+    "improvements": "Add RFID, mobile app unlock, access logs.",
+
+    "mini_challenge": "Lock system after 3 wrong attempts.",
+
+    "advantages": "Keyless access, scalable security.",
+
+    "disadvantages": "Depends on power availability.",
+
+    "components": ["ESP32", "4x4 Keypad", "Servo Motor", "OLED Display"],
+
+    "circuit_diagram": "Keypad to GPIO matrix. Servo signal to GPIO26.",
+
+    "industrial_use": "Smart storage systems.",
+
+    "author_name": "NISHANTH",
+    "status": "Published",
+    "bom_cost": "₹1,600"
+  },
+
+
+
+
+
+
+
+
+
+
+  {
+    "id": 201,
+    "title": "Line Following Robot",
+    "level": "Intermediate",
+    "description": "A line following robot that uses IR sensors to detect a black line on a white surface and automatically adjusts motor direction to follow the path accurately.",
+    "category": "Robotics",
+    "sub_category": "Robotics (201-220)",
+    "estimatedTime": "5 Hours",
+    "tech": ["ESP32", "IR Sensor Module", "L298N Motor Driver", "DC Motors"],
+
+    "problem_statement": "Autonomous navigation is a core challenge in robotics. A line-following robot demonstrates real-time decision making based on sensor feedback.",
+
+    "real_world_case": "Used in warehouse automation, AGVs, industrial transport systems, and robotics education.",
+
+    "block_diagram": "graph TD; IR_Left-->|Signal|ESP32; IR_Right-->|Signal|ESP32; ESP32-->|PWM|Motor_Driver; Motor_Driver-->|Motion|Motors;",
+
+    "concept": "IR sensors detect surface contrast. The ESP32 processes sensor data and controls motor direction and speed to keep the robot aligned with the line.",
+
+    "working_principle": "1. IR sensors detect black/white surface.\n2. ESP32 reads sensor states.\n3. Motor speed/direction adjusted.\n4. Robot follows the line continuously.",
+
+    "pin_config": {
+      "esp32": [
+        { "module": "IR Sensor (Left)", "pinName": "VCC", "mcuPin": "3V3", "direction": "Power", "voltage": "3.3V", "description": "IR sensor power" },
+        { "module": "IR Sensor (Left)", "pinName": "GND", "mcuPin": "GND", "direction": "Ground", "voltage": "0V", "description": "Common ground" },
+        { "module": "IR Sensor (Left)", "pinName": "OUT", "mcuPin": "GPIO34", "direction": "Input", "voltage": "3.3V", "description": "Left line detection" },
+
+        { "module": "IR Sensor (Right)", "pinName": "OUT", "mcuPin": "GPIO35", "direction": "Input", "voltage": "3.3V", "description": "Right line detection" },
+
+        { "module": "Motor Driver L298N", "pinName": "IN1", "mcuPin": "GPIO26", "direction": "Output", "voltage": "3.3V", "description": "Left motor forward" },
+        { "module": "Motor Driver L298N", "pinName": "IN2", "mcuPin": "GPIO27", "direction": "Output", "voltage": "3.3V", "description": "Left motor backward" },
+        { "module": "Motor Driver L298N", "pinName": "IN3", "mcuPin": "GPIO14", "direction": "Output", "voltage": "3.3V", "description": "Right motor forward" },
+        { "module": "Motor Driver L298N", "pinName": "IN4", "mcuPin": "GPIO12", "direction": "Output", "voltage": "3.3V", "description": "Right motor backward" }
+      ]
+    },
+
+    "code": "/* Project 201: Line Following Robot */\n#define IR_LEFT 34\n#define IR_RIGHT 35\n\n#define L1 26\n#define L2 27\n#define R1 14\n#define R2 12\n\nvoid setup() {\n  pinMode(IR_LEFT, INPUT);\n  pinMode(IR_RIGHT, INPUT);\n  pinMode(L1, OUTPUT);\n  pinMode(L2, OUTPUT);\n  pinMode(R1, OUTPUT);\n  pinMode(R2, OUTPUT);\n}\n\nvoid loop() {\n  int left = digitalRead(IR_LEFT);\n  int right = digitalRead(IR_RIGHT);\n\n  if (left == 0 && right == 0) {\n    // Forward\n    digitalWrite(L1, HIGH); digitalWrite(L2, LOW);\n    digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n  } else if (left == 1 && right == 0) {\n    // Turn right\n    digitalWrite(L1, HIGH); digitalWrite(L2, LOW);\n    digitalWrite(R1, LOW); digitalWrite(R2, LOW);\n  } else if (left == 0 && right == 1) {\n    // Turn left\n    digitalWrite(L1, LOW); digitalWrite(L2, LOW);\n    digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n  } else {\n    // Stop\n    digitalWrite(L1, LOW); digitalWrite(L2, LOW);\n    digitalWrite(R1, LOW); digitalWrite(R2, LOW);\n  }\n}",
+
+    "testing_output": "Robot follows black line smoothly on white surface.",
+
+    "common_errors": "Wrong IR threshold, uneven motor speed.",
+
+    "improvements": "Add PID control, speed calibration.",
+
+    "mini_challenge": "Handle sharp turns without stopping.",
+
+    "advantages": "Simple autonomous navigation.",
+
+    "disadvantages": "Fails if line contrast is poor.",
+
+    "components": ["ESP32", "IR Sensors", "L298N", "DC Motors"],
+
+    "circuit_diagram": "IR sensors to GPIO34/35. Motor driver to GPIO26,27,14,12.",
+
+    "industrial_use": "AGVs, conveyor robots.",
+
+    "author_name": "NISHANTH",
+    "status": "Published",
+    "bom_cost": "₹2,200"
+  },
+  {
+    "id": 202,
+    "title": "Obstacle Avoidance Robot",
+    "level": "Intermediate",
+    "description": "An autonomous robot that detects obstacles using an ultrasonic sensor and intelligently avoids collisions by changing direction.",
+    "category": "Robotics",
+    "sub_category": "Robotics (201-220)",
+    "estimatedTime": "5 Hours",
+    "tech": ["ESP32", "Ultrasonic Sensor HC-SR04", "L298N Motor Driver"],
+
+    "problem_statement": "Robots operating in dynamic environments must detect and avoid obstacles to move safely without collisions.",
+
+    "real_world_case": "Used in autonomous vehicles, cleaning robots, and delivery bots.",
+
+    "block_diagram": "graph TD; Ultrasonic-->|Distance|ESP32; ESP32-->|Motor_Control|L298N; L298N-->|Motion|Motors;",
+
+    "concept": "The ultrasonic sensor measures distance to obstacles. When an object is detected within a threshold, the robot stops and turns to avoid collision.",
+
+    "working_principle": "1. Ultrasonic sensor emits sound pulse.\n2. Echo time converted to distance.\n3. ESP32 checks safe distance.\n4. Robot turns when obstacle detected.",
+
+    "pin_config": {
+      "esp32": [
+        { "module": "Ultrasonic Sensor", "pinName": "VCC", "mcuPin": "5V", "direction": "Power", "voltage": "5V", "description": "Ultrasonic sensor power" },
+        { "module": "Ultrasonic Sensor", "pinName": "GND", "mcuPin": "GND", "direction": "Ground", "voltage": "0V", "description": "Common ground" },
+        { "module": "Ultrasonic Sensor", "pinName": "TRIG", "mcuPin": "GPIO18", "direction": "Output", "voltage": "3.3V", "description": "Trigger pulse" },
+        { "module": "Ultrasonic Sensor", "pinName": "ECHO", "mcuPin": "GPIO19", "direction": "Input", "voltage": "5V (use divider)", "description": "Echo signal (level shifted)" }
+      ]
+    },
+
+    "code": "/* Project 202: Obstacle Avoidance Robot */\n#define TRIG 18\n#define ECHO 19\n\n#define L1 26\n#define L2 27\n#define R1 14\n#define R2 12\n\nlong duration;\nint distance;\n\nvoid setup() {\n  pinMode(TRIG, OUTPUT);\n  pinMode(ECHO, INPUT);\n  pinMode(L1, OUTPUT);\n  pinMode(L2, OUTPUT);\n  pinMode(R1, OUTPUT);\n  pinMode(R2, OUTPUT);\n}\n\nint getDistance() {\n  digitalWrite(TRIG, LOW);\n  delayMicroseconds(2);\n  digitalWrite(TRIG, HIGH);\n  delayMicroseconds(10);\n  digitalWrite(TRIG, LOW);\n  duration = pulseIn(ECHO, HIGH);\n  return duration * 0.034 / 2;\n}\n\nvoid loop() {\n  distance = getDistance();\n\n  if (distance > 20) {\n    // Forward\n    digitalWrite(L1, HIGH); digitalWrite(L2, LOW);\n    digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n  } else {\n    // Turn\n    digitalWrite(L1, LOW); digitalWrite(L2, HIGH);\n    digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n    delay(500);\n  }\n}",
+
+    "testing_output": "Robot stops and turns when obstacle detected.",
+
+    "common_errors": "No voltage divider on ECHO pin, wrong distance threshold.",
+
+    "improvements": "Add servo scanning, smoother turns.",
+
+    "mini_challenge": "Detect obstacle direction and choose best path.",
+
+    "advantages": "Autonomous collision avoidance.",
+
+    "disadvantages": "Limited sensing angle.",
+
+    "components": ["ESP32", "HC-SR04", "L298N", "DC Motors"],
+
+    "circuit_diagram": "Ultrasonic TRIG to GPIO18, ECHO to GPIO19 (divider).",
+
+    "industrial_use": "Autonomous mobile robots.",
+
+    "author_name": "NISHANTH",
+    "status": "Published",
+    "bom_cost": "₹2,400"
+  },
+  {
+    "id": 203,
+    "title": "Maze Solver Robot",
+    "level": "Intermediate",
+    "description": "A maze solver robot using ESP32 that navigates through a maze using ultrasonic sensors and applies left-hand rule logic to reach the destination autonomously.",
+    "category": "Robotics",
+    "sub_category": "Robotics (201-220)",
+    "estimatedTime": "6 Hours",
+    "tech": ["ESP32", "Ultrasonic Sensors", "L298N Motor Driver", "DC Motors"],
+
+    "problem_statement": "Robots navigating unknown environments must make decisions at junctions. Maze-solving robots demonstrate autonomous decision-making and path-planning logic.",
+
+    "real_world_case": "Used in robotics competitions, warehouse navigation systems, and autonomous exploration robots.",
+
+    "block_diagram": "graph TD; Ultrasonic_Left-->|Distance|ESP32; Ultrasonic_Front-->|Distance|ESP32; Ultrasonic_Right-->|Distance|ESP32; ESP32-->|Motor_Control|L298N;",
+
+    "concept": "The robot uses three ultrasonic sensors to detect walls and applies the left-hand rule to decide movement at junctions.",
+
+    "working_principle": "1. Measure distance on left, front, and right.\n2. If left is free, turn left.\n3. Else if front is free, go straight.\n4. Else turn right.\n5. Repeat until exit.",
+
+    "pin_config": {
+      "esp32": [
+        { "module": "Ultrasonic (Front)", "pinName": "TRIG", "mcuPin": "GPIO18", "direction": "Output", "voltage": "3.3V", "description": "Front trigger" },
+        { "module": "Ultrasonic (Front)", "pinName": "ECHO", "mcuPin": "GPIO19", "direction": "Input", "voltage": "5V (divider)", "description": "Front echo" },
+
+        { "module": "Ultrasonic (Left)", "pinName": "TRIG", "mcuPin": "GPIO23", "direction": "Output", "voltage": "3.3V", "description": "Left trigger" },
+        { "module": "Ultrasonic (Left)", "pinName": "ECHO", "mcuPin": "GPIO22", "direction": "Input", "voltage": "5V (divider)", "description": "Left echo" },
+
+        { "module": "Ultrasonic (Right)", "pinName": "TRIG", "mcuPin": "GPIO5", "direction": "Output", "voltage": "3.3V", "description": "Right trigger" },
+        { "module": "Ultrasonic (Right)", "pinName": "ECHO", "mcuPin": "GPIO17", "direction": "Input", "voltage": "5V (divider)", "description": "Right echo" }
+      ]
+    },
+
+    "code": "/* Project 203: Maze Solver Robot */\n#define LF_TRIG 23\n#define LF_ECHO 22\n#define FR_TRIG 18\n#define FR_ECHO 19\n#define RT_TRIG 5\n#define RT_ECHO 17\n\n#define L1 26\n#define L2 27\n#define R1 14\n#define R2 12\n\nlong getDistance(int trig, int echo) {\n  digitalWrite(trig, LOW);\n  delayMicroseconds(2);\n  digitalWrite(trig, HIGH);\n  delayMicroseconds(10);\n  digitalWrite(trig, LOW);\n  long d = pulseIn(echo, HIGH);\n  return d * 0.034 / 2;\n}\n\nvoid setup() {\n  pinMode(LF_TRIG, OUTPUT); pinMode(LF_ECHO, INPUT);\n  pinMode(FR_TRIG, OUTPUT); pinMode(FR_ECHO, INPUT);\n  pinMode(RT_TRIG, OUTPUT); pinMode(RT_ECHO, INPUT);\n  pinMode(L1, OUTPUT); pinMode(L2, OUTPUT);\n  pinMode(R1, OUTPUT); pinMode(R2, OUTPUT);\n}\n\nvoid loop() {\n  int left = getDistance(LF_TRIG, LF_ECHO);\n  int front = getDistance(FR_TRIG, FR_ECHO);\n  int right = getDistance(RT_TRIG, RT_ECHO);\n\n  if (left > 20) {\n    // Turn left\n    digitalWrite(L1, LOW); digitalWrite(L2, HIGH);\n    digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n  } else if (front > 20) {\n    // Forward\n    digitalWrite(L1, HIGH); digitalWrite(L2, LOW);\n    digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n  } else {\n    // Turn right\n    digitalWrite(L1, HIGH); digitalWrite(L2, LOW);\n    digitalWrite(R1, LOW); digitalWrite(R2, HIGH);\n  }\n  delay(300);\n}",
+
+    "testing_output": "Robot navigates maze without collision.",
+
+    "common_errors": "Wrong distance threshold, sensor cross-talk.",
+
+    "improvements": "Add mapping, shortest-path memory.",
+
+    "mini_challenge": "Implement right-hand rule and compare efficiency.",
+
+    "advantages": "Autonomous navigation logic.",
+
+    "disadvantages": "Not optimal path always.",
+
+    "components": ["ESP32", "3x Ultrasonic Sensors", "L298N", "DC Motors"],
+
+    "circuit_diagram": "Three ultrasonic sensors connected to ESP32 GPIOs. Motors via L298N.",
+
+    "industrial_use": "Autonomous exploration robots.",
+
+    "author_name": "NISHANTH",
+    "status": "Published",
+    "bom_cost": "₹3,000"
+  },
+  {
+    "id": 204,
+    "title": "Voice Controlled Robot",
+    "level": "Intermediate",
+    "description": "A robot controlled using voice commands via a Bluetooth-connected smartphone, enabling hands-free robot navigation.",
+    "category": "Robotics",
+    "sub_category": "Robotics (201-220)",
+    "estimatedTime": "5 Hours",
+    "tech": ["ESP32", "Bluetooth", "L298N Motor Driver", "DC Motors"],
+
+    "problem_statement": "Hands-free control is essential for accessibility and modern robotics applications. Voice-controlled robots demonstrate human–machine interaction.",
+
+    "real_world_case": "Used in assistive robots, smart wheelchairs, and voice-operated devices.",
+
+    "block_diagram": "graph TD; Mobile_App-->|Voice_Command|ESP32_BT; ESP32-->|Motor_Control|L298N;",
+
+    "concept": "The ESP32 receives voice commands converted to text via a mobile app and controls robot motion accordingly.",
+
+    "working_principle": "1. User speaks command.\n2. App converts speech to text.\n3. Command sent via Bluetooth.\n4. ESP32 decodes command.\n5. Robot moves accordingly.",
+
+    "pin_config": {
+      "esp32": [
+        { "module": "Bluetooth", "pinName": "Built-in", "mcuPin": "ESP32", "direction": "Wireless", "voltage": "3.3V", "description": "Bluetooth Classic" },
+        { "module": "Motor Driver", "pinName": "IN1", "mcuPin": "GPIO26", "direction": "Output", "voltage": "3.3V", "description": "Left motor forward" },
+        { "module": "Motor Driver", "pinName": "IN2", "mcuPin": "GPIO27", "direction": "Output", "voltage": "3.3V", "description": "Left motor backward" },
+        { "module": "Motor Driver", "pinName": "IN3", "mcuPin": "GPIO14", "direction": "Output", "voltage": "3.3V", "description": "Right motor forward" },
+        { "module": "Motor Driver", "pinName": "IN4", "mcuPin": "GPIO12", "direction": "Output", "voltage": "3.3V", "description": "Right motor backward" }
+      ]
+    },
+
+    "code": "/* Project 204: Voice Controlled Robot */\n#include \"BluetoothSerial.h\"\nBluetoothSerial SerialBT;\n\n#define L1 26\n#define L2 27\n#define R1 14\n#define R2 12\n\nvoid setup() {\n  SerialBT.begin(\"VoiceRobot\");\n  pinMode(L1, OUTPUT);\n  pinMode(L2, OUTPUT);\n  pinMode(R1, OUTPUT);\n  pinMode(R2, OUTPUT);\n}\n\nvoid loop() {\n  if (SerialBT.available()) {\n    char cmd = SerialBT.read();\n\n    if (cmd == 'F') {\n      digitalWrite(L1, HIGH); digitalWrite(L2, LOW);\n      digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n    } else if (cmd == 'B') {\n      digitalWrite(L1, LOW); digitalWrite(L2, HIGH);\n      digitalWrite(R1, LOW); digitalWrite(R2, HIGH);\n    } else if (cmd == 'L') {\n      digitalWrite(L1, LOW); digitalWrite(L2, HIGH);\n      digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n    } else if (cmd == 'R') {\n      digitalWrite(L1, HIGH); digitalWrite(L2, LOW);\n      digitalWrite(R1, LOW); digitalWrite(R2, HIGH);\n    } else if (cmd == 'S') {\n      digitalWrite(L1, LOW); digitalWrite(L2, LOW);\n      digitalWrite(R1, LOW); digitalWrite(R2, LOW);\n    }\n  }\n}",
+
+    "testing_output": "Speak command → robot moves accordingly.",
+
+    "common_errors": "Wrong app mapping, Bluetooth pairing issues.",
+
+    "improvements": "Add speech confirmation, obstacle safety.",
+
+    "mini_challenge": "Add voice password for activation.",
+
+    "advantages": "Hands-free control.",
+
+    "disadvantages": "Depends on phone accuracy.",
+
+    "components": ["ESP32", "L298N", "DC Motors"],
+
+    "circuit_diagram": "Motors controlled via L298N connected to ESP32 GPIOs.",
+
+    "industrial_use": "Assistive robotics.",
+
+    "author_name": "NISHANTH",
+    "status": "Published",
+    "bom_cost": "₹2,300"
+  },
+  {
+    "id": 205,
+    "title": "Bluetooth Controlled Car",
+    "level": "Intermediate",
+    "description": "A Bluetooth-controlled robotic car using ESP32 that receives commands from a mobile application and drives DC motors accordingly, enabling wireless manual navigation.",
+    "category": "Robotics",
+    "sub_category": "Robotics (201-220)",
+    "estimatedTime": "4–5 Hours",
+    "tech": ["ESP32", "Bluetooth", "L298N Motor Driver", "DC Motors"],
+
+    "problem_statement": "Manual remote control of robots is essential for testing, teleoperation, and user interaction. A Bluetooth-controlled car provides a simple yet powerful platform for wireless robot control.",
+
+    "real_world_case": "Used in hobby robotics, educational kits, inspection robots, and prototype testing platforms.",
+
+    "block_diagram": "graph TD; Mobile_App-->|Bluetooth|ESP32; ESP32-->|Motor_Control|L298N; L298N-->|Motion|DC_Motors;",
+
+    "concept": "The ESP32 receives control characters over Bluetooth and maps them to motor actions such as forward, backward, left, right, and stop.",
+
+    "working_principle": "1. User presses direction button in mobile app.\n2. Command sent via Bluetooth.\n3. ESP32 decodes command.\n4. Motor driver drives motors accordingly.",
+
+    "pin_config": {
+      "esp32": [
+        { "module": "Bluetooth", "pinName": "Built-in", "mcuPin": "ESP32", "direction": "Wireless", "voltage": "3.3V", "description": "Bluetooth Classic" },
+
+        { "module": "Motor Driver L298N", "pinName": "IN1", "mcuPin": "GPIO26", "direction": "Output", "voltage": "3.3V", "description": "Left motor forward" },
+        { "module": "Motor Driver L298N", "pinName": "IN2", "mcuPin": "GPIO27", "direction": "Output", "voltage": "3.3V", "description": "Left motor backward" },
+        { "module": "Motor Driver L298N", "pinName": "IN3", "mcuPin": "GPIO14", "direction": "Output", "voltage": "3.3V", "description": "Right motor forward" },
+        { "module": "Motor Driver L298N", "pinName": "IN4", "mcuPin": "GPIO12", "direction": "Output", "voltage": "3.3V", "description": "Right motor backward" }
+      ]
+    },
+
+    "code": "/* Project 205: Bluetooth Controlled Car */\n#include \"BluetoothSerial.h\"\nBluetoothSerial SerialBT;\n\n#define L1 26\n#define L2 27\n#define R1 14\n#define R2 12\n\nvoid stopCar() {\n  digitalWrite(L1, LOW); digitalWrite(L2, LOW);\n  digitalWrite(R1, LOW); digitalWrite(R2, LOW);\n}\n\nvoid setup() {\n  SerialBT.begin(\"BT_Car\");\n  pinMode(L1, OUTPUT);\n  pinMode(L2, OUTPUT);\n  pinMode(R1, OUTPUT);\n  pinMode(R2, OUTPUT);\n  stopCar();\n}\n\nvoid loop() {\n  if (SerialBT.available()) {\n    char cmd = SerialBT.read();\n\n    switch (cmd) {\n      case 'F': // Forward\n        digitalWrite(L1, HIGH); digitalWrite(L2, LOW);\n        digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n        break;\n      case 'B': // Backward\n        digitalWrite(L1, LOW); digitalWrite(L2, HIGH);\n        digitalWrite(R1, LOW); digitalWrite(R2, HIGH);\n        break;\n      case 'L': // Left\n        digitalWrite(L1, LOW); digitalWrite(L2, LOW);\n        digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n        break;\n      case 'R': // Right\n        digitalWrite(L1, HIGH); digitalWrite(L2, LOW);\n        digitalWrite(R1, LOW); digitalWrite(R2, LOW);\n        break;\n      case 'S': // Stop\n      default:\n        stopCar();\n        break;\n    }\n  }\n}",
+
+    "testing_output": "Press direction buttons → car moves accordingly.",
+
+    "common_errors": "Bluetooth pairing issues, incorrect command mapping.",
+
+    "improvements": "Add speed control using PWM, obstacle safety layer.",
+
+    "mini_challenge": "Add cruise mode with constant speed.",
+
+    "advantages": "Simple wireless control.",
+
+    "disadvantages": "Limited range of Bluetooth.",
+
+    "components": ["ESP32", "L298N Motor Driver", "DC Motors"],
+
+    "circuit_diagram": "L298N IN pins connected to GPIO26,27,14,12.",
+
+    "industrial_use": "Tele-operated robots.",
+
+    "author_name": "NISHANTH",
+    "status": "Published",
+    "bom_cost": "₹2,000"
+  },
+  {
+    "id": 206,
+    "title": "Gesture Controlled Bot",
+    "level": "Intermediate",
+    "description": "A gesture-controlled robot using ESP32 that interprets hand movements from an accelerometer and controls robot motion wirelessly.",
+    "category": "Robotics",
+    "sub_category": "Robotics (201-220)",
+    "estimatedTime": "6 Hours",
+    "tech": ["ESP32", "MPU6050", "RF/Bluetooth", "L298N Motor Driver"],
+
+    "problem_statement": "Traditional remote controls are limited in intuitiveness. Gesture-based control enables natural human–robot interaction using body movement.",
+
+    "real_world_case": "Used in assistive robotics, intuitive controllers, and advanced HMI systems.",
+
+    "block_diagram": "graph TD; MPU6050-->|Gesture_Data|ESP32_Tx; ESP32_Rx-->|Motor_Control|L298N;",
+
+    "concept": "An accelerometer captures hand tilt. The ESP32 maps tilt direction to robot movement commands.",
+
+    "working_principle": "1. MPU6050 senses hand orientation.\n2. ESP32 interprets tilt direction.\n3. Commands sent wirelessly.\n4. Robot moves accordingly.",
+
+    "pin_config": {
+      "esp32": [
+        { "module": "MPU6050", "pinName": "VCC", "mcuPin": "3V3", "direction": "Power", "voltage": "3.3V", "description": "Accelerometer power" },
+        { "module": "MPU6050", "pinName": "GND", "mcuPin": "GND", "direction": "Ground", "voltage": "0V", "description": "Common ground" },
+        { "module": "MPU6050", "pinName": "SDA", "mcuPin": "GPIO21", "direction": "I/O", "voltage": "3.3V", "description": "I2C data" },
+        { "module": "MPU6050", "pinName": "SCL", "mcuPin": "GPIO22", "direction": "I/O", "voltage": "3.3V", "description": "I2C clock" }
+      ]
+    },
+
+    "code": "/* Project 206: Gesture Controlled Bot (Single ESP32 demo) */\n#include <Wire.h>\n#include <Adafruit_MPU6050.h>\n#include <Adafruit_Sensor.h>\n\nAdafruit_MPU6050 mpu;\n\n#define L1 26\n#define L2 27\n#define R1 14\n#define R2 12\n\nvoid setup() {\n  Serial.begin(115200);\n  if (!mpu.begin()) {\n    Serial.println(\"MPU6050 not detected\");\n    while (1);\n  }\n\n  pinMode(L1, OUTPUT); pinMode(L2, OUTPUT);\n  pinMode(R1, OUTPUT); pinMode(R2, OUTPUT);\n}\n\nvoid loop() {\n  sensors_event_t a, g, t;\n  mpu.getEvent(&a, &g, &t);\n\n  if (a.acceleration.x > 3) {\n    // Forward\n    digitalWrite(L1, HIGH); digitalWrite(L2, LOW);\n    digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n  } else if (a.acceleration.x < -3) {\n    // Backward\n    digitalWrite(L1, LOW); digitalWrite(L2, HIGH);\n    digitalWrite(R1, LOW); digitalWrite(R2, HIGH);\n  } else if (a.acceleration.y > 3) {\n    // Right\n    digitalWrite(L1, HIGH); digitalWrite(L2, LOW);\n    digitalWrite(R1, LOW); digitalWrite(R2, LOW);\n  } else if (a.acceleration.y < -3) {\n    // Left\n    digitalWrite(L1, LOW); digitalWrite(L2, LOW);\n    digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n  } else {\n    // Stop\n    digitalWrite(L1, LOW); digitalWrite(L2, LOW);\n    digitalWrite(R1, LOW); digitalWrite(R2, LOW);\n  }\n\n  delay(200);\n}",
+
+    "testing_output": "Tilt controller → robot moves accordingly.",
+
+    "common_errors": "Improper sensor calibration, noisy readings.",
+
+    "improvements": "Separate transmitter & receiver, smoothing filter.",
+
+    "mini_challenge": "Add gesture lock/unlock gesture.",
+
+    "advantages": "Intuitive control.",
+
+    "disadvantages": "Sensitive to hand tremors.",
+
+    "components": ["ESP32", "MPU6050", "L298N", "DC Motors"],
+
+    "circuit_diagram": "MPU6050 via I2C. Motors via L298N.",
+
+    "industrial_use": "HMI-based robotic systems.",
+
+    "author_name": "NISHANTH",
+    "status": "Published",
+    "bom_cost": "₹2,800"
+  },
+  {
+    "id": 207,
+    "title": "Fire Fighting Robot",
+    "level": "Intermediate",
+    "description": "An autonomous fire-fighting robot using ESP32 that detects fire using flame sensors and activates a water pump to extinguish it while navigating safely.",
+    "category": "Robotics",
+    "sub_category": "Robotics (201-220)",
+    "estimatedTime": "6–7 Hours",
+    "tech": ["ESP32", "Flame Sensor", "L298N Motor Driver", "DC Motors", "Relay Module", "Water Pump"],
+
+    "problem_statement": "Fire accidents in small enclosed areas can escalate quickly before human intervention is possible. A mobile fire-fighting robot can detect and suppress fire at an early stage.",
+
+    "real_world_case": "Used in laboratories, warehouses, server rooms (prototype), and fire-safety robotics competitions.",
+
+    "block_diagram": "graph TD; Flame_Sensor-->|Fire_Detect|ESP32; ESP32-->|Motor_Control|L298N; ESP32-->|Relay|Water_Pump;",
+
+    "concept": "The robot continuously scans for fire using flame sensors. When fire is detected, it stops movement and activates a water pump through a relay to extinguish the flame.",
+
+    "working_principle": "1. Flame sensor detects IR radiation from fire.\n2. ESP32 evaluates flame intensity.\n3. Robot moves towards fire source.\n4. Pump is activated to spray water.\n5. Robot stops after fire is extinguished.",
+
+    "pin_config": {
+      "esp32": [
+        { "module": "Flame Sensor", "pinName": "VCC", "mcuPin": "3V3", "direction": "Power", "voltage": "3.3V", "description": "Flame sensor power" },
+        { "module": "Flame Sensor", "pinName": "GND", "mcuPin": "GND", "direction": "Ground", "voltage": "0V", "description": "Common ground" },
+        { "module": "Flame Sensor", "pinName": "OUT", "mcuPin": "GPIO34", "direction": "Input", "voltage": "Analog", "description": "Flame intensity signal" },
+
+        { "module": "Relay Module", "pinName": "VCC", "mcuPin": "5V", "direction": "Power", "voltage": "5V", "description": "Relay coil supply" },
+        { "module": "Relay Module", "pinName": "GND", "mcuPin": "GND", "direction": "Ground", "voltage": "0V", "description": "Common ground" },
+        { "module": "Relay Module", "pinName": "IN", "mcuPin": "GPIO25", "direction": "Output", "voltage": "3.3V", "description": "Controls water pump" },
+
+        { "module": "Motor Driver L298N", "pinName": "IN1", "mcuPin": "GPIO26", "direction": "Output", "voltage": "3.3V", "description": "Left motor forward" },
+        { "module": "Motor Driver L298N", "pinName": "IN2", "mcuPin": "GPIO27", "direction": "Output", "voltage": "3.3V", "description": "Left motor backward" },
+        { "module": "Motor Driver L298N", "pinName": "IN3", "mcuPin": "GPIO14", "direction": "Output", "voltage": "3.3V", "description": "Right motor forward" },
+        { "module": "Motor Driver L298N", "pinName": "IN4", "mcuPin": "GPIO12", "direction": "Output", "voltage": "3.3V", "description": "Right motor backward" }
+      ]
+    },
+
+    "code": "/* Project 207: Fire Fighting Robot */\n#define FLAME_PIN 34\n#define RELAY_PIN 25\n\n#define L1 26\n#define L2 27\n#define R1 14\n#define R2 12\n\nint fireThreshold = 1500;\n\nvoid setup() {\n  pinMode(FLAME_PIN, INPUT);\n  pinMode(RELAY_PIN, OUTPUT);\n  pinMode(L1, OUTPUT); pinMode(L2, OUTPUT);\n  pinMode(R1, OUTPUT); pinMode(R2, OUTPUT);\n  digitalWrite(RELAY_PIN, LOW);\n}\n\nvoid stopRobot() {\n  digitalWrite(L1, LOW); digitalWrite(L2, LOW);\n  digitalWrite(R1, LOW); digitalWrite(R2, LOW);\n}\n\nvoid loop() {\n  int flameValue = analogRead(FLAME_PIN);\n\n  if (flameValue < fireThreshold) {\n    // Fire detected\n    stopRobot();\n    digitalWrite(RELAY_PIN, HIGH); // Pump ON\n  } else {\n    // Move forward searching for fire\n    digitalWrite(RELAY_PIN, LOW);\n    digitalWrite(L1, HIGH); digitalWrite(L2, LOW);\n    digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n  }\n\n  delay(300);\n}",
+
+    "testing_output": "Introduce flame → robot stops and activates pump.",
+
+    "common_errors": "Incorrect flame threshold, water pump power issues.",
+
+    "improvements": "Add servo-mounted nozzle, multiple flame sensors.",
+
+    "mini_challenge": "Detect fire direction and aim nozzle.",
+
+    "advantages": "Early fire suppression.",
+
+    "disadvantages": "Limited water capacity.",
+
+    "components": ["ESP32", "Flame Sensor", "Relay", "Water Pump", "L298N", "DC Motors"],
+
+    "circuit_diagram": "Flame sensor to GPIO34. Relay IN to GPIO25. Motors via L298N.",
+
+    "industrial_use": "Fire safety robotics.",
+
+    "author_name": "NISHANTH",
+    "status": "Published",
+    "bom_cost": "₹3,500"
+  },
+
+  {
+    "id": 208,
+    "title": "DTMF Controlled Vehicle",
+    "level": "Intermediate",
+    "description": "A DTMF-controlled robotic vehicle using ESP32 that receives commands via GSM phone call tones and navigates accordingly.",
+    "category": "Robotics",
+    "sub_category": "Robotics (201-220)",
+    "estimatedTime": "6 Hours",
+    "tech": ["ESP32", "DTMF Decoder MT8870", "L298N Motor Driver", "DC Motors"],
+
+    "problem_statement": "Remote control in areas without internet or Bluetooth connectivity requires alternative communication. DTMF-based control enables long-distance robot operation over cellular networks.",
+
+    "real_world_case": "Used in remote surveillance, disaster-response robots, and telecom-based control systems.",
+
+    "block_diagram": "graph TD; Mobile_Phone-->|DTMF_Tones|MT8870; MT8870-->|Command|ESP32; ESP32-->|Motor_Control|L298N;",
+
+    "concept": "DTMF tones generated during a phone call are decoded into binary outputs by MT8870. ESP32 interprets these outputs to control vehicle movement.",
+
+    "working_principle": "1. User presses keypad during call.\n2. DTMF tones transmitted.\n3. MT8870 decodes tone.\n4. ESP32 executes motion command.",
+
+    "pin_config": {
+      "esp32": [
+        { "module": "DTMF Decoder MT8870", "pinName": "VCC", "mcuPin": "5V", "direction": "Power", "voltage": "5V", "description": "Decoder power" },
+        { "module": "DTMF Decoder MT8870", "pinName": "GND", "mcuPin": "GND", "direction": "Ground", "voltage": "0V", "description": "Common ground" },
+        { "module": "DTMF Decoder MT8870", "pinName": "Q1", "mcuPin": "GPIO32", "direction": "Input", "voltage": "3.3V", "description": "DTMF bit 1" },
+        { "module": "DTMF Decoder MT8870", "pinName": "Q2", "mcuPin": "GPIO33", "direction": "Input", "voltage": "3.3V", "description": "DTMF bit 2" },
+        { "module": "DTMF Decoder MT8870", "pinName": "Q3", "mcuPin": "GPIO25", "direction": "Input", "voltage": "3.3V", "description": "DTMF bit 3" },
+        { "module": "DTMF Decoder MT8870", "pinName": "Q4", "mcuPin": "GPIO26", "direction": "Input", "voltage": "3.3V", "description": "DTMF bit 4" }
+      ]
+    },
+
+    "code": "/* Project 208: DTMF Controlled Vehicle */\n#define D1 32\n#define D2 33\n#define D3 25\n#define D4 26\n\n#define L1 14\n#define L2 12\n#define R1 27\n#define R2 13\n\nint readDTMF() {\n  return (digitalRead(D4) << 3) | (digitalRead(D3) << 2) | (digitalRead(D2) << 1) | digitalRead(D1);\n}\n\nvoid setup() {\n  pinMode(D1, INPUT); pinMode(D2, INPUT);\n  pinMode(D3, INPUT); pinMode(D4, INPUT);\n  pinMode(L1, OUTPUT); pinMode(L2, OUTPUT);\n  pinMode(R1, OUTPUT); pinMode(R2, OUTPUT);\n}\n\nvoid loop() {\n  int code = readDTMF();\n\n  switch (code) {\n    case 2: // Forward\n      digitalWrite(L1, HIGH); digitalWrite(L2, LOW);\n      digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n      break;\n    case 4: // Left\n      digitalWrite(L1, LOW); digitalWrite(L2, LOW);\n      digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n      break;\n    case 6: // Right\n      digitalWrite(L1, HIGH); digitalWrite(L2, LOW);\n      digitalWrite(R1, LOW); digitalWrite(R2, LOW);\n      break;\n    case 8: // Backward\n      digitalWrite(L1, LOW); digitalWrite(L2, HIGH);\n      digitalWrite(R1, LOW); digitalWrite(R2, HIGH);\n      break;\n    default:\n      digitalWrite(L1, LOW); digitalWrite(L2, LOW);\n      digitalWrite(R1, LOW); digitalWrite(R2, LOW);\n  }\n}",
+
+    "testing_output": "Press phone keys → vehicle moves accordingly.",
+
+    "common_errors": "Noise in audio input, wrong DTMF wiring.",
+
+    "improvements": "Add authentication code, camera feed.",
+
+    "mini_challenge": "Add speed control using different DTMF keys.",
+
+    "advantages": "Long-range control via GSM.",
+
+    "disadvantages": "Latency and tone noise.",
+
+    "components": ["ESP32", "MT8870", "L298N", "DC Motors"],
+
+    "circuit_diagram": "DTMF Q outputs to ESP32 GPIOs. Motors via L298N.",
+
+    "industrial_use": "Remote-controlled robotic systems.",
+
+    "author_name": "NISHANTH",
+    "status": "Published",
+    "bom_cost": "₹3,200"
+  },
+  {
+    "id": 209,
+    "title": "Metal Detector Robot",
+    "level": "Intermediate",
+    "description": "A mobile robot using ESP32 that detects buried or surface metals using an inductive metal detector sensor and alerts the user while navigating autonomously.",
+    "category": "Robotics",
+    "sub_category": "Robotics (201-220)",
+    "estimatedTime": "6 Hours",
+    "tech": ["ESP32", "Metal Detector Sensor", "Buzzer", "L298N Motor Driver", "DC Motors"],
+
+    "problem_statement": "Detecting metallic objects in hazardous or inaccessible areas is risky for humans. A metal detector robot enables safe and efficient metal detection in such environments.",
+
+    "real_world_case": "Used in landmine detection prototypes, treasure hunting, industrial inspection, and educational robotics.",
+
+    "block_diagram": "graph TD; Metal_Sensor-->|Detect|ESP32; ESP32-->|Alert|Buzzer; ESP32-->|Motor_Control|L298N;",
+
+    "concept": "The robot continuously scans the ground using a metal detector sensor. When metal is detected, it stops movement and alerts the user through a buzzer.",
+
+    "working_principle": "1. Metal sensor generates signal near metal.\n2. ESP32 reads detection signal.\n3. Robot stops at detection point.\n4. Buzzer alerts the user.",
+
+    "pin_config": {
+      "esp32": [
+        { "module": "Metal Detector Sensor", "pinName": "VCC", "mcuPin": "5V", "direction": "Power", "voltage": "5V", "description": "Sensor power supply" },
+        { "module": "Metal Detector Sensor", "pinName": "GND", "mcuPin": "GND", "direction": "Ground", "voltage": "0V", "description": "Common ground" },
+        { "module": "Metal Detector Sensor", "pinName": "OUT", "mcuPin": "GPIO34", "direction": "Input", "voltage": "Analog/Digital", "description": "Metal detection signal" },
+
+        { "module": "Buzzer", "pinName": "VCC", "mcuPin": "3V3", "direction": "Power", "voltage": "3.3V", "description": "Buzzer power" },
+        { "module": "Buzzer", "pinName": "GND", "mcuPin": "GND", "direction": "Ground", "voltage": "0V", "description": "Common ground" },
+        { "module": "Buzzer", "pinName": "Signal", "mcuPin": "GPIO25", "direction": "Output", "voltage": "3.3V", "description": "Alert signal" },
+
+        { "module": "Motor Driver L298N", "pinName": "IN1", "mcuPin": "GPIO26", "direction": "Output", "voltage": "3.3V", "description": "Left motor forward" },
+        { "module": "Motor Driver L298N", "pinName": "IN2", "mcuPin": "GPIO27", "direction": "Output", "voltage": "3.3V", "description": "Left motor backward" },
+        { "module": "Motor Driver L298N", "pinName": "IN3", "mcuPin": "GPIO14", "direction": "Output", "voltage": "3.3V", "description": "Right motor forward" },
+        { "module": "Motor Driver L298N", "pinName": "IN4", "mcuPin": "GPIO12", "direction": "Output", "voltage": "3.3V", "description": "Right motor backward" }
+      ]
+    },
+
+    "code": "/* Project 209: Metal Detector Robot */\n#define METAL_PIN 34\n#define BUZZER_PIN 25\n\n#define L1 26\n#define L2 27\n#define R1 14\n#define R2 12\n\nint metalThreshold = 2000;\n\nvoid stopRobot() {\n  digitalWrite(L1, LOW); digitalWrite(L2, LOW);\n  digitalWrite(R1, LOW); digitalWrite(R2, LOW);\n}\n\nvoid setup() {\n  pinMode(METAL_PIN, INPUT);\n  pinMode(BUZZER_PIN, OUTPUT);\n  pinMode(L1, OUTPUT); pinMode(L2, OUTPUT);\n  pinMode(R1, OUTPUT); pinMode(R2, OUTPUT);\n}\n\nvoid loop() {\n  int metalValue = analogRead(METAL_PIN);\n\n  if (metalValue > metalThreshold) {\n    stopRobot();\n    digitalWrite(BUZZER_PIN, HIGH);\n  } else {\n    digitalWrite(BUZZER_PIN, LOW);\n    digitalWrite(L1, HIGH); digitalWrite(L2, LOW);\n    digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n  }\n\n  delay(200);\n}",
+
+    "testing_output": "Place metal object → robot stops and buzzer activates.",
+
+    "common_errors": "Poor sensor calibration, false positives.",
+
+    "improvements": "Add depth estimation, GPS logging.",
+
+    "mini_challenge": "Different buzzer tones for different metal sizes.",
+
+    "advantages": "Safe metal detection.",
+
+    "disadvantages": "Limited detection depth.",
+
+    "components": ["ESP32", "Metal Detector Sensor", "Buzzer", "L298N", "DC Motors"],
+
+    "circuit_diagram": "Metal sensor OUT to GPIO34. Buzzer to GPIO25. Motors via L298N.",
+
+    "industrial_use": "Security inspection, hazard detection.",
+
+    "author_name": "NISHANTH",
+    "status": "Published",
+    "bom_cost": "₹3,400"
+  },
+  {
+    "id": 210,
+    "title": "RFID Path Tracker Robot",
+    "level": "Intermediate",
+    "description": "An RFID-based path tracking robot using ESP32 that follows a predefined route by detecting RFID tags placed along the path.",
+    "category": "Robotics",
+    "sub_category": "Robotics (201-220)",
+    "estimatedTime": "6 Hours",
+    "tech": ["ESP32", "RFID RC522", "L298N Motor Driver", "DC Motors"],
+
+    "problem_statement": "Line-following robots fail in dusty or worn environments. RFID-based navigation provides a robust alternative using digital checkpoints.",
+
+    "real_world_case": "Used in warehouses, logistics robots, guided vehicles, and industrial automation.",
+
+    "block_diagram": "graph TD; RFID_Tags-->|UID|RC522; RC522-->|SPI|ESP32; ESP32-->|Motor_Control|L298N;",
+
+    "concept": "RFID tags placed at junctions encode direction information. The robot reads tag data and decides movement based on predefined logic.",
+
+    "working_principle": "1. Robot moves forward scanning RFID tags.\n2. RC522 reads tag UID.\n3. ESP32 maps UID to direction.\n4. Robot turns accordingly.",
+
+    "pin_config": {
+      "esp32": [
+        { "module": "RFID RC522", "pinName": "VCC", "mcuPin": "3V3", "direction": "Power", "voltage": "3.3V", "description": "RFID module power" },
+        { "module": "RFID RC522", "pinName": "GND", "mcuPin": "GND", "direction": "Ground", "voltage": "0V", "description": "Common ground" },
+        { "module": "RFID RC522", "pinName": "SDA", "mcuPin": "GPIO5", "direction": "Output", "voltage": "3.3V", "description": "SPI SS" },
+        { "module": "RFID RC522", "pinName": "SCK", "mcuPin": "GPIO18", "direction": "Output", "voltage": "3.3V", "description": "SPI clock" },
+        { "module": "RFID RC522", "pinName": "MOSI", "mcuPin": "GPIO23", "direction": "Output", "voltage": "3.3V", "description": "SPI MOSI" },
+        { "module": "RFID RC522", "pinName": "MISO", "mcuPin": "GPIO19", "direction": "Input", "voltage": "3.3V", "description": "SPI MISO" }
+      ]
+    },
+
+    "code": "/* Project 210: RFID Path Tracker Robot */\n#include <SPI.h>\n#include <MFRC522.h>\n\n#define SS_PIN 5\n#define RST_PIN 22\n\n#define L1 26\n#define L2 27\n#define R1 14\n#define R2 12\n\nMFRC522 rfid(SS_PIN, RST_PIN);\n\nvoid setup() {\n  SPI.begin();\n  rfid.PCD_Init();\n  pinMode(L1, OUTPUT); pinMode(L2, OUTPUT);\n  pinMode(R1, OUTPUT); pinMode(R2, OUTPUT);\n}\n\nvoid loop() {\n  if (!rfid.PICC_IsNewCardPresent() || !rfid.PICC_ReadCardSerial()) return;\n\n  byte uid = rfid.uid.uidByte[0];\n\n  if (uid == 0xA1) {\n    // Turn Left\n    digitalWrite(L1, LOW); digitalWrite(L2, LOW);\n    digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n  } else if (uid == 0xB2) {\n    // Turn Right\n    digitalWrite(L1, HIGH); digitalWrite(L2, LOW);\n    digitalWrite(R1, LOW); digitalWrite(R2, LOW);\n  } else {\n    // Forward\n    digitalWrite(L1, HIGH); digitalWrite(L2, LOW);\n    digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n  }\n\n  delay(500);\n}",
+
+    "testing_output": "Robot turns direction based on RFID tag UID.",
+
+    "common_errors": "Wrong UID mapping, insufficient RFID range.",
+
+    "improvements": "Add path memory, dynamic routing.",
+
+    "mini_challenge": "Use multiple UID bytes for complex commands.",
+
+    "advantages": "Robust navigation.",
+
+    "disadvantages": "Requires tag placement.",
+
+    "components": ["ESP32", "RC522", "L298N", "DC Motors"],
+
+    "circuit_diagram": "RC522 via SPI to ESP32. Motors via L298N.",
+
+    "industrial_use": "Automated guided vehicles.",
+
+    "author_name": "NISHANTH",
+    "status": "Published",
+    "bom_cost": "₹3,600"
+  },
+  {
+    "id": 211,
+    "title": "Edge Detection Robot",
+    "level": "Intermediate",
+    "description": "An edge detection robot using ESP32 that prevents falling from edges (tables, stairs) by detecting surface discontinuities using downward-facing IR sensors.",
+    "category": "Robotics",
+    "sub_category": "Robotics (201-220)",
+    "estimatedTime": "5–6 Hours",
+    "tech": ["ESP32", "IR Proximity Sensors", "L298N Motor Driver", "DC Motors"],
+
+    "problem_statement": "Mobile robots operating on elevated surfaces risk falling due to lack of edge awareness. An edge detection system is critical for safe navigation.",
+
+    "real_world_case": "Used in service robots, inspection bots, vacuum robots, and warehouse platforms.",
+
+    "block_diagram": "graph TD; IR_Left-->|Edge|ESP32; IR_Right-->|Edge|ESP32; ESP32-->|Motor_Control|L298N;",
+
+    "concept": "Downward-facing IR sensors detect reflected IR light. When no reflection is detected, an edge is assumed, and the robot changes direction to avoid falling.",
+
+    "working_principle": "1. IR sensors continuously scan surface.\n2. ESP32 reads sensor states.\n3. Edge detected when reflection drops.\n4. Robot stops and turns away.",
+
+    "pin_config": {
+      "esp32": [
+        { "module": "IR Sensor (Left)", "pinName": "VCC", "mcuPin": "3V3", "direction": "Power", "voltage": "3.3V", "description": "IR sensor power" },
+        { "module": "IR Sensor (Left)", "pinName": "GND", "mcuPin": "GND", "direction": "Ground", "voltage": "0V", "description": "Common ground" },
+        { "module": "IR Sensor (Left)", "pinName": "OUT", "mcuPin": "GPIO34", "direction": "Input", "voltage": "3.3V", "description": "Left edge detection" },
+
+        { "module": "IR Sensor (Right)", "pinName": "VCC", "mcuPin": "3V3", "direction": "Power", "voltage": "3.3V", "description": "IR sensor power" },
+        { "module": "IR Sensor (Right)", "pinName": "GND", "mcuPin": "GND", "direction": "Ground", "voltage": "0V", "description": "Common ground" },
+        { "module": "IR Sensor (Right)", "pinName": "OUT", "mcuPin": "GPIO35", "direction": "Input", "voltage": "3.3V", "description": "Right edge detection" },
+
+        { "module": "Motor Driver L298N", "pinName": "IN1", "mcuPin": "GPIO26", "direction": "Output", "voltage": "3.3V", "description": "Left motor forward" },
+        { "module": "Motor Driver L298N", "pinName": "IN2", "mcuPin": "GPIO27", "direction": "Output", "voltage": "3.3V", "description": "Left motor backward" },
+        { "module": "Motor Driver L298N", "pinName": "IN3", "mcuPin": "GPIO14", "direction": "Output", "voltage": "3.3V", "description": "Right motor forward" },
+        { "module": "Motor Driver L298N", "pinName": "IN4", "mcuPin": "GPIO12", "direction": "Output", "voltage": "3.3V", "description": "Right motor backward" }
+      ]
+    },
+
+    "code": "/* Project 211: Edge Detection Robot */\n#define IR_LEFT 34\n#define IR_RIGHT 35\n\n#define L1 26\n#define L2 27\n#define R1 14\n#define R2 12\n\nvoid stopRobot() {\n  digitalWrite(L1, LOW); digitalWrite(L2, LOW);\n  digitalWrite(R1, LOW); digitalWrite(R2, LOW);\n}\n\nvoid setup() {\n  pinMode(IR_LEFT, INPUT);\n  pinMode(IR_RIGHT, INPUT);\n  pinMode(L1, OUTPUT); pinMode(L2, OUTPUT);\n  pinMode(R1, OUTPUT); pinMode(R2, OUTPUT);\n}\n\nvoid loop() {\n  int leftEdge = digitalRead(IR_LEFT);\n  int rightEdge = digitalRead(IR_RIGHT);\n\n  if (leftEdge == LOW || rightEdge == LOW) {\n    // Edge detected\n    stopRobot();\n    delay(200);\n    // Turn away\n    digitalWrite(L1, LOW); digitalWrite(L2, HIGH);\n    digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n    delay(400);\n  } else {\n    // Safe surface, move forward\n    digitalWrite(L1, HIGH); digitalWrite(L2, LOW);\n    digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n  }\n}",
+
+    "testing_output": "Robot stops and turns back when reaching an edge.",
+
+    "common_errors": "Incorrect sensor height, poor surface reflectivity.",
+
+    "improvements": "Add speed control, combine with obstacle avoidance.",
+
+    "mini_challenge": "Detect and stop at stair edges only.",
+
+    "advantages": "Prevents fall damage.",
+
+    "disadvantages": "Sensitive to lighting conditions.",
+
+    "components": ["ESP32", "2x IR Sensors", "L298N", "DC Motors"],
+
+    "circuit_diagram": "IR sensors to GPIO34/35. Motors via L298N.",
+
+    "industrial_use": "Service and inspection robots.",
+
+    "author_name": "NISHANTH",
+    "status": "Published",
+    "bom_cost": "₹2,200"
+  },
+  {
+    "id": 212,
+    "title": "Color Detection Robot",
+    "level": "Intermediate",
+    "description": "A color detection robot using ESP32 and TCS3200 color sensor that identifies surface color and performs actions based on detected color.",
+    "category": "Robotics",
+    "sub_category": "Robotics (201-220)",
+    "estimatedTime": "6 Hours",
+    "tech": ["ESP32", "TCS3200 Color Sensor", "L298N Motor Driver", "DC Motors"],
+
+    "problem_statement": "Robots in sorting and automation systems must identify objects based on color. Color detection enables intelligent decision-making.",
+
+    "real_world_case": "Used in color-based sorting systems, automation lines, and educational robotics.",
+
+    "block_diagram": "graph TD; TCS3200-->|Color_Data|ESP32; ESP32-->|Decision|Motor_Control;",
+
+    "concept": "The TCS3200 outputs frequency values corresponding to RGB components. ESP32 compares values to detect dominant color.",
+
+    "working_principle": "1. Sensor reads RGB components.\n2. ESP32 measures frequency.\n3. Dominant color determined.\n4. Robot acts based on color.",
+
+    "pin_config": {
+      "esp32": [
+        { "module": "TCS3200", "pinName": "VCC", "mcuPin": "5V", "direction": "Power", "voltage": "5V", "description": "Color sensor power" },
+        { "module": "TCS3200", "pinName": "GND", "mcuPin": "GND", "direction": "Ground", "voltage": "0V", "description": "Common ground" },
+        { "module": "TCS3200", "pinName": "S0", "mcuPin": "GPIO18", "direction": "Output", "voltage": "3.3V", "description": "Frequency scaling" },
+        { "module": "TCS3200", "pinName": "S1", "mcuPin": "GPIO19", "direction": "Output", "voltage": "3.3V", "description": "Frequency scaling" },
+        { "module": "TCS3200", "pinName": "S2", "mcuPin": "GPIO21", "direction": "Output", "voltage": "3.3V", "description": "Color select" },
+        { "module": "TCS3200", "pinName": "S3", "mcuPin": "GPIO22", "direction": "Output", "voltage": "3.3V", "description": "Color select" },
+        { "module": "TCS3200", "pinName": "OUT", "mcuPin": "GPIO34", "direction": "Input", "voltage": "Frequency", "description": "Color frequency output" }
+      ]
+    },
+
+    "code": "/* Project 212: Color Detection Robot */\n#define S0 18\n#define S1 19\n#define S2 21\n#define S3 22\n#define COLOR_OUT 34\n\n#define L1 26\n#define L2 27\n#define R1 14\n#define R2 12\n\nint readColor(bool s2, bool s3) {\n  digitalWrite(S2, s2);\n  digitalWrite(S3, s3);\n  delay(10);\n  return pulseIn(COLOR_OUT, LOW);\n}\n\nvoid setup() {\n  pinMode(S0, OUTPUT); pinMode(S1, OUTPUT);\n  pinMode(S2, OUTPUT); pinMode(S3, OUTPUT);\n  pinMode(COLOR_OUT, INPUT);\n\n  digitalWrite(S0, HIGH); digitalWrite(S1, LOW); // 20% scaling\n\n  pinMode(L1, OUTPUT); pinMode(L2, OUTPUT);\n  pinMode(R1, OUTPUT); pinMode(R2, OUTPUT);\n}\n\nvoid loop() {\n  int red = readColor(LOW, LOW);\n  int green = readColor(HIGH, HIGH);\n  int blue = readColor(LOW, HIGH);\n\n  if (red < green && red < blue) {\n    // Red detected → Stop\n    digitalWrite(L1, LOW); digitalWrite(L2, LOW);\n    digitalWrite(R1, LOW); digitalWrite(R2, LOW);\n  } else if (blue < red && blue < green) {\n    // Blue → Turn right\n    digitalWrite(L1, HIGH); digitalWrite(L2, LOW);\n    digitalWrite(R1, LOW); digitalWrite(R2, LOW);\n  } else {\n    // Green → Forward\n    digitalWrite(L1, HIGH); digitalWrite(L2, LOW);\n    digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n  }\n\n  delay(300);\n}",
+
+    "testing_output": "Robot reacts differently to red, green, and blue surfaces.",
+
+    "common_errors": "Poor lighting, wrong calibration.",
+
+    "improvements": "Add color calibration mode, object sorting arm.",
+
+    "mini_challenge": "Detect multiple colors and count occurrences.",
+
+    "advantages": "Color-based decision making.",
+
+    "disadvantages": "Sensitive to ambient light.",
+
+    "components": ["ESP32", "TCS3200", "L298N", "DC Motors"],
+
+    "circuit_diagram": "TCS3200 connected via GPIOs. Motors via L298N.",
+
+    "industrial_use": "Sorting robots.",
+
+    "author_name": "NISHANTH",
+    "status": "Published",
+    "bom_cost": "₹3,000"
+  },
+  {
+    "id": 213,
+    "title": "Pick & Place Robotic Arm",
+    "level": "Intermediate",
+    "description": "A pick and place robotic arm using ESP32 and servo motors that can grab, lift, and place objects at predefined positions with precise control.",
+    "category": "Robotics",
+    "sub_category": "Robotics (201-220)",
+    "estimatedTime": "7–8 Hours",
+    "tech": ["ESP32", "Servo Motors", "Joystick Module", "Power Supply"],
+
+    "problem_statement": "Manual material handling is repetitive and error-prone. Pick and place robots automate object transfer tasks with accuracy and consistency.",
+
+    "real_world_case": "Used in manufacturing lines, packaging units, electronics assembly, and educational robotics labs.",
+
+    "block_diagram": "graph TD; Joystick-->|Control|ESP32; ESP32-->|PWM|Servo_Base; ESP32-->|PWM|Servo_Arm; ESP32-->|PWM|Servo_Gripper;",
+
+    "concept": "Multiple servo motors control different joints of the robotic arm. ESP32 translates joystick movements into angular positions for each servo.",
+
+    "working_principle": "1. Joystick provides analog position.\n2. ESP32 maps input to servo angles.\n3. Servos move arm joints.\n4. Gripper opens/closes to pick or place object.",
+
+    "pin_config": {
+      "esp32": [
+        { "module": "Servo Base", "pinName": "Signal", "mcuPin": "GPIO25", "direction": "Output", "voltage": "PWM 3.3V", "description": "Base rotation" },
+        { "module": "Servo Arm", "pinName": "Signal", "mcuPin": "GPIO26", "direction": "Output", "voltage": "PWM 3.3V", "description": "Arm lift" },
+        { "module": "Servo Gripper", "pinName": "Signal", "mcuPin": "GPIO27", "direction": "Output", "voltage": "PWM 3.3V", "description": "Gripper open/close" },
+
+        { "module": "Joystick", "pinName": "VCC", "mcuPin": "5V", "direction": "Power", "voltage": "5V", "description": "Joystick power" },
+        { "module": "Joystick", "pinName": "GND", "mcuPin": "GND", "direction": "Ground", "voltage": "0V", "description": "Common ground" },
+        { "module": "Joystick", "pinName": "VRx", "mcuPin": "GPIO34", "direction": "Input", "voltage": "Analog", "description": "X-axis control" },
+        { "module": "Joystick", "pinName": "VRy", "mcuPin": "GPIO35", "direction": "Input", "voltage": "Analog", "description": "Y-axis control" }
+      ]
+    },
+
+    "code": "/* Project 213: Pick & Place Robotic Arm */\n#include <Servo.h>\n\nServo baseServo, armServo, gripperServo;\n\n#define BASE_PIN 25\n#define ARM_PIN 26\n#define GRIP_PIN 27\n\n#define JOY_X 34\n#define JOY_Y 35\n\nvoid setup() {\n  baseServo.attach(BASE_PIN);\n  armServo.attach(ARM_PIN);\n  gripperServo.attach(GRIP_PIN);\n}\n\nvoid loop() {\n  int xVal = analogRead(JOY_X);\n  int yVal = analogRead(JOY_Y);\n\n  int baseAngle = map(xVal, 0, 4095, 0, 180);\n  int armAngle = map(yVal, 0, 4095, 0, 180);\n\n  baseServo.write(baseAngle);\n  armServo.write(armAngle);\n\n  // Simple grip demo\n  gripperServo.write(90);\n  delay(100);\n}",
+
+    "testing_output": "Move joystick → arm joints respond. Gripper opens/closes.",
+
+    "common_errors": "Insufficient servo power, mechanical misalignment.",
+
+    "improvements": "Add inverse kinematics, preset positions.",
+
+    "mini_challenge": "Program automatic pick-and-place sequence.",
+
+    "advantages": "Precise object handling.",
+
+    "disadvantages": "Limited payload capacity.",
+
+    "components": ["ESP32", "3x Servo Motors", "Joystick Module"],
+
+    "circuit_diagram": "Servo signals to GPIO25/26/27. Joystick to GPIO34/35.",
+
+    "industrial_use": "Automation and assembly lines.",
+
+    "author_name": "NISHANTH",
+    "status": "Published",
+    "bom_cost": "₹4,500"
+  },
+  {
+    "id": 214,
+    "title": "Smart Vacuum Robot",
+    "level": "Intermediate",
+    "description": "A smart vacuum robot using ESP32 that autonomously navigates a room, avoids obstacles, and cleans surfaces using a suction motor.",
+    "category": "Robotics",
+    "sub_category": "Robotics (201-220)",
+    "estimatedTime": "8 Hours",
+    "tech": ["ESP32", "Ultrasonic Sensor", "IR Edge Sensors", "Motor Driver", "Vacuum Motor"],
+
+    "problem_statement": "Manual cleaning is time-consuming. Autonomous vacuum robots reduce human effort by cleaning floors automatically.",
+
+    "real_world_case": "Used in home cleaning robots, office maintenance, and service robotics.",
+
+    "block_diagram": "graph TD; Ultrasonic-->|Obstacle|ESP32; IR_Sensors-->|Edge|ESP32; ESP32-->|Drive|Motors; ESP32-->|Relay|Vacuum_Motor;",
+
+    "concept": "The robot combines obstacle avoidance and edge detection to safely navigate while continuously running a vacuum motor for cleaning.",
+
+    "working_principle": "1. Ultrasonic sensor detects obstacles.\n2. IR sensors detect edges.\n3. ESP32 navigates safely.\n4. Vacuum motor runs continuously.",
+
+    "pin_config": {
+      "esp32": [
+        { "module": "Ultrasonic Sensor", "pinName": "TRIG", "mcuPin": "GPIO18", "direction": "Output", "voltage": "3.3V", "description": "Trigger pulse" },
+        { "module": "Ultrasonic Sensor", "pinName": "ECHO", "mcuPin": "GPIO19", "direction": "Input", "voltage": "5V (divider)", "description": "Echo signal" },
+
+        { "module": "IR Edge Sensor", "pinName": "OUT", "mcuPin": "GPIO34", "direction": "Input", "voltage": "3.3V", "description": "Edge detection" },
+
+        { "module": "Relay Module", "pinName": "IN", "mcuPin": "GPIO25", "direction": "Output", "voltage": "3.3V", "description": "Vacuum motor control" }
+      ]
+    },
+
+    "code": "/* Project 214: Smart Vacuum Robot */\n#define TRIG 18\n#define ECHO 19\n#define EDGE 34\n#define RELAY 25\n\n#define L1 26\n#define L2 27\n#define R1 14\n#define R2 12\n\nlong getDistance() {\n  digitalWrite(TRIG, LOW);\n  delayMicroseconds(2);\n  digitalWrite(TRIG, HIGH);\n  delayMicroseconds(10);\n  digitalWrite(TRIG, LOW);\n  long d = pulseIn(ECHO, HIGH);\n  return d * 0.034 / 2;\n}\n\nvoid setup() {\n  pinMode(TRIG, OUTPUT);\n  pinMode(ECHO, INPUT);\n  pinMode(EDGE, INPUT);\n  pinMode(RELAY, OUTPUT);\n  pinMode(L1, OUTPUT); pinMode(L2, OUTPUT);\n  pinMode(R1, OUTPUT); pinMode(R2, OUTPUT);\n  digitalWrite(RELAY, HIGH); // Vacuum ON\n}\n\nvoid loop() {\n  int edge = digitalRead(EDGE);\n  long distance = getDistance();\n\n  if (edge == LOW || distance < 20) {\n    // Avoid\n    digitalWrite(L1, LOW); digitalWrite(L2, HIGH);\n    digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n    delay(400);\n  } else {\n    // Forward\n    digitalWrite(L1, HIGH); digitalWrite(L2, LOW);\n    digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n  }\n}",
+
+    "testing_output": "Robot navigates room and avoids obstacles while vacuum runs.",
+
+    "common_errors": "Insufficient suction motor power, false edge detection.",
+
+    "improvements": "Add room mapping, scheduled cleaning.",
+
+    "mini_challenge": "Add battery monitoring and auto-docking.",
+
+    "advantages": "Autonomous cleaning.",
+
+    "disadvantages": "Random navigation.",
+
+    "components": ["ESP32", "Ultrasonic Sensor", "IR Sensors", "Relay", "Motors"],
+
+    "circuit_diagram": "Ultrasonic to GPIO18/19. Relay to GPIO25. Motors via driver.",
+
+    "industrial_use": "Service robotics.",
+
+    "author_name": "NISHANTH",
+    "status": "Published",
+    "bom_cost": "₹5,500"
+  },
+  {
+    "id": 214,
+    "title": "Smart Vacuum Robot",
+    "level": "Intermediate",
+    "description": "A smart vacuum robot using ESP32 that autonomously navigates a room, avoids obstacles, and cleans surfaces using a suction motor.",
+    "category": "Robotics",
+    "sub_category": "Robotics (201-220)",
+    "estimatedTime": "8 Hours",
+    "tech": ["ESP32", "Ultrasonic Sensor", "IR Edge Sensors", "Motor Driver", "Vacuum Motor"],
+
+    "problem_statement": "Manual cleaning is time-consuming. Autonomous vacuum robots reduce human effort by cleaning floors automatically.",
+
+    "real_world_case": "Used in home cleaning robots, office maintenance, and service robotics.",
+
+    "block_diagram": "graph TD; Ultrasonic-->|Obstacle|ESP32; IR_Sensors-->|Edge|ESP32; ESP32-->|Drive|Motors; ESP32-->|Relay|Vacuum_Motor;",
+
+    "concept": "The robot combines obstacle avoidance and edge detection to safely navigate while continuously running a vacuum motor for cleaning.",
+
+    "working_principle": "1. Ultrasonic sensor detects obstacles.\n2. IR sensors detect edges.\n3. ESP32 navigates safely.\n4. Vacuum motor runs continuously.",
+
+    "pin_config": {
+      "esp32": [
+        { "module": "Ultrasonic Sensor", "pinName": "TRIG", "mcuPin": "GPIO18", "direction": "Output", "voltage": "3.3V", "description": "Trigger pulse" },
+        { "module": "Ultrasonic Sensor", "pinName": "ECHO", "mcuPin": "GPIO19", "direction": "Input", "voltage": "5V (divider)", "description": "Echo signal" },
+
+        { "module": "IR Edge Sensor", "pinName": "OUT", "mcuPin": "GPIO34", "direction": "Input", "voltage": "3.3V", "description": "Edge detection" },
+
+        { "module": "Relay Module", "pinName": "IN", "mcuPin": "GPIO25", "direction": "Output", "voltage": "3.3V", "description": "Vacuum motor control" }
+      ]
+    },
+
+    "code": "/* Project 214: Smart Vacuum Robot */\n#define TRIG 18\n#define ECHO 19\n#define EDGE 34\n#define RELAY 25\n\n#define L1 26\n#define L2 27\n#define R1 14\n#define R2 12\n\nlong getDistance() {\n  digitalWrite(TRIG, LOW);\n  delayMicroseconds(2);\n  digitalWrite(TRIG, HIGH);\n  delayMicroseconds(10);\n  digitalWrite(TRIG, LOW);\n  long d = pulseIn(ECHO, HIGH);\n  return d * 0.034 / 2;\n}\n\nvoid setup() {\n  pinMode(TRIG, OUTPUT);\n  pinMode(ECHO, INPUT);\n  pinMode(EDGE, INPUT);\n  pinMode(RELAY, OUTPUT);\n  pinMode(L1, OUTPUT); pinMode(L2, OUTPUT);\n  pinMode(R1, OUTPUT); pinMode(R2, OUTPUT);\n  digitalWrite(RELAY, HIGH); // Vacuum ON\n}\n\nvoid loop() {\n  int edge = digitalRead(EDGE);\n  long distance = getDistance();\n\n  if (edge == LOW || distance < 20) {\n    // Avoid\n    digitalWrite(L1, LOW); digitalWrite(L2, HIGH);\n    digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n    delay(400);\n  } else {\n    // Forward\n    digitalWrite(L1, HIGH); digitalWrite(L2, LOW);\n    digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n  }\n}",
+
+    "testing_output": "Robot navigates room and avoids obstacles while vacuum runs.",
+
+    "common_errors": "Insufficient suction motor power, false edge detection.",
+
+    "improvements": "Add room mapping, scheduled cleaning.",
+
+    "mini_challenge": "Add battery monitoring and auto-docking.",
+
+    "advantages": "Autonomous cleaning.",
+
+    "disadvantages": "Random navigation.",
+
+    "components": ["ESP32", "Ultrasonic Sensor", "IR Sensors", "Relay", "Motors"],
+
+    "circuit_diagram": "Ultrasonic to GPIO18/19. Relay to GPIO25. Motors via driver.",
+
+    "industrial_use": "Service robotics.",
+
+    "author_name": "NISHANTH",
+    "status": "Published",
+    "bom_cost": "₹5,500"
+  },
+  {
+    "id": 215,
+    "title": "Water Surface Robot",
+    "level": "Intermediate",
+    "description": "An ESP32-based water surface robot designed to navigate lakes, tanks, and reservoirs using dual propeller motors, with obstacle avoidance for safe aquatic monitoring.",
+    "category": "Robotics",
+    "sub_category": "Robotics (201-220)",
+    "estimatedTime": "7–8 Hours",
+    "tech": ["ESP32", "Ultrasonic Sensor", "L298N Motor Driver", "DC Propeller Motors"],
+
+    "problem_statement": "Manual monitoring of water bodies is risky and inefficient. A water surface robot enables safe inspection, surveillance, and data collection without human exposure.",
+
+    "real_world_case": "Used in water quality inspection prototypes, aquatic surveillance robots, and research projects for lakes and storage tanks.",
+
+    "block_diagram": "graph TD; Ultrasonic-->|Distance|ESP32; ESP32-->|Motor Control|L298N; L298N-->|Propellers|Water_Motion;",
+
+    "concept": "The robot floats on water and uses propeller motors for thrust. An ultrasonic sensor detects obstacles ahead, allowing the ESP32 to alter direction to avoid collisions.",
+
+    "working_principle": "1. Propeller motors generate thrust for movement.\n2. Ultrasonic sensor measures distance to obstacles.\n3. ESP32 evaluates safe distance.\n4. Robot turns when obstacle detected.\n5. Continuous forward navigation on water surface.",
+
+    "pin_config": {
+      "esp32": [
+        { "module": "Ultrasonic Sensor", "pinName": "VCC", "mcuPin": "5V", "direction": "Power", "voltage": "5V", "description": "Ultrasonic sensor power" },
+        { "module": "Ultrasonic Sensor", "pinName": "GND", "mcuPin": "GND", "direction": "Ground", "voltage": "0V", "description": "Common ground" },
+        { "module": "Ultrasonic Sensor", "pinName": "TRIG", "mcuPin": "GPIO18", "direction": "Output", "voltage": "3.3V", "description": "Trigger pulse" },
+        { "module": "Ultrasonic Sensor", "pinName": "ECHO", "mcuPin": "GPIO19", "direction": "Input", "voltage": "5V (use divider)", "description": "Echo signal" },
+
+        { "module": "Motor Driver L298N", "pinName": "IN1", "mcuPin": "GPIO26", "direction": "Output", "voltage": "3.3V", "description": "Left propeller forward" },
+        { "module": "Motor Driver L298N", "pinName": "IN2", "mcuPin": "GPIO27", "direction": "Output", "voltage": "3.3V", "description": "Left propeller reverse" },
+        { "module": "Motor Driver L298N", "pinName": "IN3", "mcuPin": "GPIO14", "direction": "Output", "voltage": "3.3V", "description": "Right propeller forward" },
+        { "module": "Motor Driver L298N", "pinName": "IN4", "mcuPin": "GPIO12", "direction": "Output", "voltage": "3.3V", "description": "Right propeller reverse" }
+      ]
+    },
+
+    "code": "/* Project 215: Water Surface Robot */\n#define TRIG 18\n#define ECHO 19\n\n#define L1 26\n#define L2 27\n#define R1 14\n#define R2 12\n\nlong getDistance() {\n  digitalWrite(TRIG, LOW);\n  delayMicroseconds(2);\n  digitalWrite(TRIG, HIGH);\n  delayMicroseconds(10);\n  digitalWrite(TRIG, LOW);\n  return pulseIn(ECHO, HIGH) * 0.034 / 2;\n}\n\nvoid setup() {\n  pinMode(TRIG, OUTPUT);\n  pinMode(ECHO, INPUT);\n  pinMode(L1, OUTPUT); pinMode(L2, OUTPUT);\n  pinMode(R1, OUTPUT); pinMode(R2, OUTPUT);\n}\n\nvoid loop() {\n  long distance = getDistance();\n\n  if (distance < 40) {\n    // Turn right to avoid obstacle\n    digitalWrite(L1, HIGH); digitalWrite(L2, LOW);\n    digitalWrite(R1, LOW); digitalWrite(R2, HIGH);\n    delay(400);\n  } else {\n    // Move forward\n    digitalWrite(L1, HIGH); digitalWrite(L2, LOW);\n    digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n  }\n}",
+
+    "testing_output": "Robot moves forward on water and turns when obstacle detected.",
+
+    "common_errors": "Water leakage, unstable float balance, echo noise.",
+
+    "improvements": "Add GPS module, water quality sensors, solar charging.",
+
+    "mini_challenge": "Log distance data and generate water surface map.",
+
+    "advantages": "Safe water monitoring, remote navigation.",
+
+    "disadvantages": "Limited speed and stability in waves.",
+
+    "components": ["ESP32", "Ultrasonic Sensor", "L298N", "2x DC Propeller Motors"],
+
+    "circuit_diagram": "Ultrasonic to GPIO18/19. Propellers via L298N to GPIO26,27,14,12.",
+
+    "industrial_use": "Environmental monitoring robots.",
+
+    "author_name": "NISHANTH",
+    "status": "Published",
+    "bom_cost": "₹4,800"
+  },
+
+  {
+    "id": 216,
+    "title": "Solar Powered Robot",
+    "level": "Intermediate",
+    "description": "A solar-powered robot using ESP32 that harvests solar energy, stores it in a battery, and operates autonomously with efficient power management.",
+    "category": "Robotics",
+    "sub_category": "Robotics (201-220)",
+    "estimatedTime": "6–7 Hours",
+    "tech": ["ESP32", "Solar Panel", "Charge Controller", "Battery", "Motor Driver"],
+
+    "problem_statement": "Robots operating outdoors require reliable power sources. Solar-powered robots reduce dependency on manual charging and enable long-duration autonomous operation.",
+
+    "real_world_case": "Used in agricultural robots, outdoor surveillance bots, and renewable-energy-based robotic systems.",
+
+    "block_diagram": "graph TD; Solar_Panel-->|Energy|Charge_Controller; Battery-->|Power|ESP32; ESP32-->|Motor_Control|Motor_Driver;",
+
+    "concept": "Solar energy is converted and stored in a battery using a charge controller. ESP32 manages motor operation while ensuring efficient power usage.",
+
+    "working_principle": "1. Solar panel generates DC power.\n2. Charge controller safely charges battery.\n3. Battery powers ESP32 and motors.\n4. Robot operates autonomously using stored energy.",
+
+    "pin_config": {
+      "esp32": [
+        { "module": "Motor Driver", "pinName": "IN1", "mcuPin": "GPIO26", "direction": "Output", "voltage": "3.3V", "description": "Left motor forward" },
+        { "module": "Motor Driver", "pinName": "IN2", "mcuPin": "GPIO27", "direction": "Output", "voltage": "3.3V", "description": "Left motor backward" },
+        { "module": "Motor Driver", "pinName": "IN3", "mcuPin": "GPIO14", "direction": "Output", "voltage": "3.3V", "description": "Right motor forward" },
+        { "module": "Motor Driver", "pinName": "IN4", "mcuPin": "GPIO12", "direction": "Output", "voltage": "3.3V", "description": "Right motor backward" }
+      ]
+    },
+
+    "code": "/* Project 216: Solar Powered Robot */\n#define L1 26\n#define L2 27\n#define R1 14\n#define R2 12\n\nvoid setup() {\n  pinMode(L1, OUTPUT); pinMode(L2, OUTPUT);\n  pinMode(R1, OUTPUT); pinMode(R2, OUTPUT);\n}\n\nvoid loop() {\n  // Continuous forward motion\n  digitalWrite(L1, HIGH); digitalWrite(L2, LOW);\n  digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n}",
+
+    "testing_output": "Robot runs using solar-charged battery.",
+
+    "common_errors": "Improper charging circuit, insufficient sunlight.",
+
+    "improvements": "Add battery voltage monitoring, sleep modes.",
+
+    "mini_challenge": "Stop robot when battery voltage is low.",
+
+    "advantages": "Renewable energy powered.",
+
+    "disadvantages": "Dependent on sunlight availability.",
+
+    "components": ["ESP32", "Solar Panel", "Charge Controller", "Battery", "Motor Driver"],
+
+    "circuit_diagram": "Solar panel → charge controller → battery → ESP32 & motors.",
+
+    "industrial_use": "Outdoor autonomous robots.",
+
+    "author_name": "NISHANTH",
+    "status": "Published",
+    "bom_cost": "₹3,900"
+  },
+  {
+    "id": 217,
+    "title": "Wall Climbing Robot",
+    "level": "Intermediate",
+    "description": "A wall climbing robot using ESP32 that adheres to vertical surfaces using a suction mechanism and navigates upward with controlled motor drive.",
+    "category": "Robotics",
+    "sub_category": "Robotics (201-220)",
+    "estimatedTime": "8 Hours",
+    "tech": ["ESP32", "Vacuum/Suction Motor", "L298N Motor Driver", "DC Motors"],
+
+    "problem_statement": "Inspection of vertical surfaces like walls, glass panels, and tanks is dangerous and difficult for humans. Wall-climbing robots enable safe and automated inspection.",
+
+    "real_world_case": "Used in building inspection, glass cleaning robots, tank inspection, and research in climbing robotics.",
+
+    "block_diagram": "graph TD; ESP32-->|Drive|L298N; L298N-->|Motion|Drive_Motors; ESP32-->|Relay|Suction_Motor;",
+
+    "concept": "The robot uses a suction motor to create negative pressure that allows it to stick to vertical surfaces, while drive motors move it upward or sideways.",
+
+    "working_principle": "1. Suction motor creates vacuum.\n2. Robot adheres to wall surface.\n3. Drive motors rotate wheels/tracks.\n4. ESP32 maintains suction while moving.",
+
+    "pin_config": {
+      "esp32": [
+        { "module": "Suction Motor Relay", "pinName": "VCC", "mcuPin": "5V", "direction": "Power", "voltage": "5V", "description": "Relay supply" },
+        { "module": "Suction Motor Relay", "pinName": "GND", "mcuPin": "GND", "direction": "Ground", "voltage": "0V", "description": "Common ground" },
+        { "module": "Suction Motor Relay", "pinName": "IN", "mcuPin": "GPIO25", "direction": "Output", "voltage": "3.3V", "description": "Controls suction motor" },
+
+        { "module": "Motor Driver L298N", "pinName": "IN1", "mcuPin": "GPIO26", "direction": "Output", "voltage": "3.3V", "description": "Left motor forward" },
+        { "module": "Motor Driver L298N", "pinName": "IN2", "mcuPin": "GPIO27", "direction": "Output", "voltage": "3.3V", "description": "Left motor backward" },
+        { "module": "Motor Driver L298N", "pinName": "IN3", "mcuPin": "GPIO14", "direction": "Output", "voltage": "3.3V", "description": "Right motor forward" },
+        { "module": "Motor Driver L298N", "pinName": "IN4", "mcuPin": "GPIO12", "direction": "Output", "voltage": "3.3V", "description": "Right motor backward" }
+      ]
+    },
+
+    "code": "/* Project 217: Wall Climbing Robot */\n#define SUCTION_RELAY 25\n#define L1 26\n#define L2 27\n#define R1 14\n#define R2 12\n\nvoid setup() {\n  pinMode(SUCTION_RELAY, OUTPUT);\n  pinMode(L1, OUTPUT); pinMode(L2, OUTPUT);\n  pinMode(R1, OUTPUT); pinMode(R2, OUTPUT);\n\n  digitalWrite(SUCTION_RELAY, HIGH); // Enable suction\n}\n\nvoid loop() {\n  // Move upward\n  digitalWrite(L1, HIGH); digitalWrite(L2, LOW);\n  digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n}",
+
+    "testing_output": "Robot adheres to wall and climbs upward.",
+
+    "common_errors": "Insufficient suction, air leakage, motor overload.",
+
+    "improvements": "Add pressure sensor feedback, autonomous path planning.",
+
+    "mini_challenge": "Detect suction loss and stop motors immediately.",
+
+    "advantages": "Safe vertical inspection.",
+
+    "disadvantages": "High power consumption.",
+
+    "components": ["ESP32", "Vacuum Motor", "Relay Module", "L298N", "DC Motors"],
+
+    "circuit_diagram": "Relay controls suction motor. L298N controls drive motors.",
+
+    "industrial_use": "Building and tank inspection robots.",
+
+    "author_name": "NISHANTH",
+    "status": "Published",
+    "bom_cost": "₹6,200"
+  },
+  {
+    "id": 218,
+    "title": "Path Tracking Robot",
+    "level": "Intermediate",
+    "description": "A path tracking robot using ESP32 that follows predefined tracks using multiple IR sensors and decision logic for smooth navigation.",
+    "category": "Robotics",
+    "sub_category": "Robotics (201-220)",
+    "estimatedTime": "6 Hours",
+    "tech": ["ESP32", "IR Sensor Array", "L298N Motor Driver", "DC Motors"],
+
+    "problem_statement": "Robots in industrial environments must reliably follow fixed paths for material transport. Path tracking robots ensure repeatable and accurate navigation.",
+
+    "real_world_case": "Used in automated guided vehicles (AGVs), warehouse robots, and factory transport systems.",
+
+    "block_diagram": "graph TD; IR_Array-->|Path Data|ESP32; ESP32-->|Motor Control|L298N;",
+
+    "concept": "An array of IR sensors detects the track position. ESP32 interprets sensor patterns to adjust motor speeds and maintain alignment.",
+
+    "working_principle": "1. IR sensors detect path position.\n2. ESP32 reads sensor pattern.\n3. Corrective turns are applied.\n4. Robot stays centered on path.",
+
+    "pin_config": {
+      "esp32": [
+        { "module": "IR Sensor Left", "pinName": "VCC", "mcuPin": "3V3", "direction": "Power", "voltage": "3.3V", "description": "IR sensor power" },
+        { "module": "IR Sensor Left", "pinName": "GND", "mcuPin": "GND", "direction": "Ground", "voltage": "0V", "description": "Common ground" },
+        { "module": "IR Sensor Left", "pinName": "OUT", "mcuPin": "GPIO32", "direction": "Input", "voltage": "3.3V", "description": "Left path sensor" },
+
+        { "module": "IR Sensor Center", "pinName": "OUT", "mcuPin": "GPIO33", "direction": "Input", "voltage": "3.3V", "description": "Center path sensor" },
+
+        { "module": "IR Sensor Right", "pinName": "OUT", "mcuPin": "GPIO34", "direction": "Input", "voltage": "3.3V", "description": "Right path sensor" },
+
+        { "module": "Motor Driver L298N", "pinName": "IN1", "mcuPin": "GPIO26", "direction": "Output", "voltage": "3.3V", "description": "Left motor forward" },
+        { "module": "Motor Driver L298N", "pinName": "IN2", "mcuPin": "GPIO27", "direction": "Output", "voltage": "3.3V", "description": "Left motor backward" },
+        { "module": "Motor Driver L298N", "pinName": "IN3", "mcuPin": "GPIO14", "direction": "Output", "voltage": "3.3V", "description": "Right motor forward" },
+        { "module": "Motor Driver L298N", "pinName": "IN4", "mcuPin": "GPIO12", "direction": "Output", "voltage": "3.3V", "description": "Right motor backward" }
+      ]
+    },
+
+    "code": "/* Project 218: Path Tracking Robot */\n#define IR_L 32\n#define IR_C 33\n#define IR_R 34\n\n#define L1 26\n#define L2 27\n#define R1 14\n#define R2 12\n\nvoid setup() {\n  pinMode(IR_L, INPUT);\n  pinMode(IR_C, INPUT);\n  pinMode(IR_R, INPUT);\n\n  pinMode(L1, OUTPUT); pinMode(L2, OUTPUT);\n  pinMode(R1, OUTPUT); pinMode(R2, OUTPUT);\n}\n\nvoid loop() {\n  int L = digitalRead(IR_L);\n  int C = digitalRead(IR_C);\n  int R = digitalRead(IR_R);\n\n  if (C == 0) {\n    // Centered\n    digitalWrite(L1, HIGH); digitalWrite(L2, LOW);\n    digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n  } else if (L == 0) {\n    // Drift left\n    digitalWrite(L1, LOW); digitalWrite(L2, LOW);\n    digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n  } else if (R == 0) {\n    // Drift right\n    digitalWrite(L1, HIGH); digitalWrite(L2, LOW);\n    digitalWrite(R1, LOW); digitalWrite(R2, LOW);\n  } else {\n    // Lost path\n    digitalWrite(L1, LOW); digitalWrite(L2, LOW);\n    digitalWrite(R1, LOW); digitalWrite(R2, LOW);\n  }\n}",
+
+    "testing_output": "Robot follows predefined path smoothly.",
+
+    "common_errors": "Improper sensor spacing, wrong threshold tuning.",
+
+    "improvements": "Add PID speed control, dynamic path switching.",
+
+    "mini_challenge": "Track curved paths without stopping.",
+
+    "advantages": "Reliable navigation.",
+
+    "disadvantages": "Needs predefined track.",
+
+    "components": ["ESP32", "3x IR Sensors", "L298N", "DC Motors"],
+
+    "circuit_diagram": "IR sensors to GPIO32/33/34. Motors via L298N.",
+
+    "industrial_use": "AGVs, warehouse robots.",
+
+    "author_name": "NISHANTH",
+    "status": "Published",
+    "bom_cost": "₹2,700"
+  },
+  {
+    "id": 218,
+    "title": "Path Tracking Robot",
+    "level": "Intermediate",
+    "description": "A path tracking robot using ESP32 that follows predefined tracks using multiple IR sensors and decision logic for smooth navigation.",
+    "category": "Robotics",
+    "sub_category": "Robotics (201-220)",
+    "estimatedTime": "6 Hours",
+    "tech": ["ESP32", "IR Sensor Array", "L298N Motor Driver", "DC Motors"],
+
+    "problem_statement": "Robots in industrial environments must reliably follow fixed paths for material transport. Path tracking robots ensure repeatable and accurate navigation.",
+
+    "real_world_case": "Used in automated guided vehicles (AGVs), warehouse robots, and factory transport systems.",
+
+    "block_diagram": "graph TD; IR_Array-->|Path Data|ESP32; ESP32-->|Motor Control|L298N;",
+
+    "concept": "An array of IR sensors detects the track position. ESP32 interprets sensor patterns to adjust motor speeds and maintain alignment.",
+
+    "working_principle": "1. IR sensors detect path position.\n2. ESP32 reads sensor pattern.\n3. Corrective turns are applied.\n4. Robot stays centered on path.",
+
+    "pin_config": {
+      "esp32": [
+        { "module": "IR Sensor Left", "pinName": "VCC", "mcuPin": "3V3", "direction": "Power", "voltage": "3.3V", "description": "IR sensor power" },
+        { "module": "IR Sensor Left", "pinName": "GND", "mcuPin": "GND", "direction": "Ground", "voltage": "0V", "description": "Common ground" },
+        { "module": "IR Sensor Left", "pinName": "OUT", "mcuPin": "GPIO32", "direction": "Input", "voltage": "3.3V", "description": "Left path sensor" },
+
+        { "module": "IR Sensor Center", "pinName": "OUT", "mcuPin": "GPIO33", "direction": "Input", "voltage": "3.3V", "description": "Center path sensor" },
+
+        { "module": "IR Sensor Right", "pinName": "OUT", "mcuPin": "GPIO34", "direction": "Input", "voltage": "3.3V", "description": "Right path sensor" },
+
+        { "module": "Motor Driver L298N", "pinName": "IN1", "mcuPin": "GPIO26", "direction": "Output", "voltage": "3.3V", "description": "Left motor forward" },
+        { "module": "Motor Driver L298N", "pinName": "IN2", "mcuPin": "GPIO27", "direction": "Output", "voltage": "3.3V", "description": "Left motor backward" },
+        { "module": "Motor Driver L298N", "pinName": "IN3", "mcuPin": "GPIO14", "direction": "Output", "voltage": "3.3V", "description": "Right motor forward" },
+        { "module": "Motor Driver L298N", "pinName": "IN4", "mcuPin": "GPIO12", "direction": "Output", "voltage": "3.3V", "description": "Right motor backward" }
+      ]
+    },
+
+    "code": "/* Project 218: Path Tracking Robot */\n#define IR_L 32\n#define IR_C 33\n#define IR_R 34\n\n#define L1 26\n#define L2 27\n#define R1 14\n#define R2 12\n\nvoid setup() {\n  pinMode(IR_L, INPUT);\n  pinMode(IR_C, INPUT);\n  pinMode(IR_R, INPUT);\n\n  pinMode(L1, OUTPUT); pinMode(L2, OUTPUT);\n  pinMode(R1, OUTPUT); pinMode(R2, OUTPUT);\n}\n\nvoid loop() {\n  int L = digitalRead(IR_L);\n  int C = digitalRead(IR_C);\n  int R = digitalRead(IR_R);\n\n  if (C == 0) {\n    // Centered\n    digitalWrite(L1, HIGH); digitalWrite(L2, LOW);\n    digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n  } else if (L == 0) {\n    // Drift left\n    digitalWrite(L1, LOW); digitalWrite(L2, LOW);\n    digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n  } else if (R == 0) {\n    // Drift right\n    digitalWrite(L1, HIGH); digitalWrite(L2, LOW);\n    digitalWrite(R1, LOW); digitalWrite(R2, LOW);\n  } else {\n    // Lost path\n    digitalWrite(L1, LOW); digitalWrite(L2, LOW);\n    digitalWrite(R1, LOW); digitalWrite(R2, LOW);\n  }\n}",
+
+    "testing_output": "Robot follows predefined path smoothly.",
+
+    "common_errors": "Improper sensor spacing, wrong threshold tuning.",
+
+    "improvements": "Add PID speed control, dynamic path switching.",
+
+    "mini_challenge": "Track curved paths without stopping.",
+
+    "advantages": "Reliable navigation.",
+
+    "disadvantages": "Needs predefined track.",
+
+    "components": ["ESP32", "3x IR Sensors", "L298N", "DC Motors"],
+
+    "circuit_diagram": "IR sensors to GPIO32/33/34. Motors via L298N.",
+
+    "industrial_use": "AGVs, warehouse robots.",
+
+    "author_name": "NISHANTH",
+    "status": "Published",
+    "bom_cost": "₹2,700"
+  },
+  {
+    "id": 219,
+    "title": "Hand Gesture Controlled Robot",
+    "level": "Intermediate",
+    "description": "A hand gesture controlled robot using ESP32 and MPU6050 accelerometer where hand tilt gestures are wirelessly translated into robot motion commands.",
+    "category": "Robotics",
+    "sub_category": "Robotics (201-220)",
+    "estimatedTime": "7 Hours",
+    "tech": ["ESP32", "MPU6050", "Bluetooth", "L298N Motor Driver", "DC Motors"],
+
+    "problem_statement": "Traditional button-based control is unintuitive for natural human–robot interaction. Gesture-based control allows users to guide robots using simple hand movements.",
+
+    "real_world_case": "Used in assistive robots, intuitive control systems, rehabilitation robotics, and advanced HMI research.",
+
+    "block_diagram": "graph TD; MPU6050-->|Gesture Data|ESP32_TX; ESP32_TX-->|Bluetooth|ESP32_RX; ESP32_RX-->|Motor Control|L298N;",
+
+    "concept": "One ESP32 reads hand orientation using MPU6050 and sends direction commands wirelessly. The robot-side ESP32 receives commands and controls motor movement.",
+
+    "working_principle": "1. MPU6050 measures hand tilt angles.\n2. ESP32 maps tilt to direction.\n3. Command sent via Bluetooth.\n4. Robot ESP32 decodes command.\n5. Motors move accordingly.",
+
+    "pin_config": {
+      "esp32": [
+        { "module": "MPU6050", "pinName": "VCC", "mcuPin": "3V3", "direction": "Power", "voltage": "3.3V", "description": "Accelerometer power" },
+        { "module": "MPU6050", "pinName": "GND", "mcuPin": "GND", "direction": "Ground", "voltage": "0V", "description": "Common ground" },
+        { "module": "MPU6050", "pinName": "SDA", "mcuPin": "GPIO21", "direction": "I/O", "voltage": "3.3V", "description": "I2C data" },
+        { "module": "MPU6050", "pinName": "SCL", "mcuPin": "GPIO22", "direction": "I/O", "voltage": "3.3V", "description": "I2C clock" },
+
+        { "module": "Motor Driver L298N", "pinName": "IN1", "mcuPin": "GPIO26", "direction": "Output", "voltage": "3.3V", "description": "Left motor forward" },
+        { "module": "Motor Driver L298N", "pinName": "IN2", "mcuPin": "GPIO27", "direction": "Output", "voltage": "3.3V", "description": "Left motor backward" },
+        { "module": "Motor Driver L298N", "pinName": "IN3", "mcuPin": "GPIO14", "direction": "Output", "voltage": "3.3V", "description": "Right motor forward" },
+        { "module": "Motor Driver L298N", "pinName": "IN4", "mcuPin": "GPIO12", "direction": "Output", "voltage": "3.3V", "description": "Right motor backward" }
+      ]
+    },
+
+    "code": "/* Project 219: Hand Gesture Controlled Robot (Single ESP32 Demo) */\n#include <Wire.h>\n#include <Adafruit_MPU6050.h>\n#include <Adafruit_Sensor.h>\n\nAdafruit_MPU6050 mpu;\n\n#define L1 26\n#define L2 27\n#define R1 14\n#define R2 12\n\nvoid setup() {\n  Serial.begin(115200);\n  if (!mpu.begin()) {\n    Serial.println(\"MPU6050 not detected\");\n    while (1);\n  }\n\n  pinMode(L1, OUTPUT); pinMode(L2, OUTPUT);\n  pinMode(R1, OUTPUT); pinMode(R2, OUTPUT);\n}\n\nvoid loop() {\n  sensors_event_t a, g, t;\n  mpu.getEvent(&a, &g, &t);\n\n  if (a.acceleration.x > 3) {\n    // Forward\n    digitalWrite(L1, HIGH); digitalWrite(L2, LOW);\n    digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n  } else if (a.acceleration.x < -3) {\n    // Backward\n    digitalWrite(L1, LOW); digitalWrite(L2, HIGH);\n    digitalWrite(R1, LOW); digitalWrite(R2, HIGH);\n  } else if (a.acceleration.y > 3) {\n    // Right\n    digitalWrite(L1, HIGH); digitalWrite(L2, LOW);\n    digitalWrite(R1, LOW); digitalWrite(R2, LOW);\n  } else if (a.acceleration.y < -3) {\n    // Left\n    digitalWrite(L1, LOW); digitalWrite(L2, LOW);\n    digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n  } else {\n    // Stop\n    digitalWrite(L1, LOW); digitalWrite(L2, LOW);\n    digitalWrite(R1, LOW); digitalWrite(R2, LOW);\n  }\n\n  delay(150);\n}",
+
+    "testing_output": "Tilt hand forward/back/left/right → robot moves accordingly.",
+
+    "common_errors": "Noisy accelerometer data, incorrect tilt thresholds.",
+
+    "improvements": "Add wireless transmitter–receiver separation, smoothing filters.",
+
+    "mini_challenge": "Add gesture-based speed control.",
+
+    "advantages": "Natural and intuitive control.",
+
+    "disadvantages": "Sensitive to hand shake.",
+
+    "components": ["ESP32", "MPU6050", "L298N", "DC Motors"],
+
+    "circuit_diagram": "MPU6050 via I2C. Motors via L298N.",
+
+    "industrial_use": "Assistive and intuitive robotic systems.",
+
+    "author_name": "NISHANTH",
+    "status": "Published",
+    "bom_cost": "₹2,900"
+  },
+
+  {
+    "id": 220,
+    "title": "Object Pickup Robot",
+    "level": "Intermediate",
+    "description": "An autonomous object pickup robot using ESP32 that detects objects, approaches them, and picks them up using a gripper mechanism.",
+    "category": "Robotics",
+    "sub_category": "Robotics (201-220)",
+    "estimatedTime": "8 Hours",
+    "tech": ["ESP32", "Ultrasonic Sensor", "Servo Motor", "L298N Motor Driver", "DC Motors"],
+
+    "problem_statement": "Material collection in hazardous or repetitive environments is unsafe for humans. Object pickup robots automate this process safely and efficiently.",
+
+    "real_world_case": "Used in warehouse automation, waste collection robots, and rescue robotics prototypes.",
+
+    "block_diagram": "graph TD; Ultrasonic-->|Distance|ESP32; ESP32-->|Motor Control|L298N; ESP32-->|Servo|Gripper;",
+
+    "concept": "The robot uses distance sensing to locate objects, moves toward them, and uses a servo-driven gripper to pick and hold the object.",
+
+    "working_principle": "1. Ultrasonic sensor detects object distance.\n2. ESP32 aligns robot with object.\n3. Robot moves forward.\n4. Servo closes gripper.\n5. Robot retreats with object.",
+
+    "pin_config": {
+      "esp32": [
+        { "module": "Ultrasonic Sensor", "pinName": "VCC", "mcuPin": "5V", "direction": "Power", "voltage": "5V", "description": "Ultrasonic power" },
+        { "module": "Ultrasonic Sensor", "pinName": "GND", "mcuPin": "GND", "direction": "Ground", "voltage": "0V", "description": "Common ground" },
+        { "module": "Ultrasonic Sensor", "pinName": "TRIG", "mcuPin": "GPIO18", "direction": "Output", "voltage": "3.3V", "description": "Trigger pulse" },
+        { "module": "Ultrasonic Sensor", "pinName": "ECHO", "mcuPin": "GPIO19", "direction": "Input", "voltage": "5V (use divider)", "description": "Echo signal" },
+
+        { "module": "Servo Motor (Gripper)", "pinName": "Signal", "mcuPin": "GPIO25", "direction": "Output", "voltage": "PWM 3.3V", "description": "Gripper control" },
+
+        { "module": "Motor Driver L298N", "pinName": "IN1", "mcuPin": "GPIO26", "direction": "Output", "voltage": "3.3V", "description": "Left motor forward" },
+        { "module": "Motor Driver L298N", "pinName": "IN2", "mcuPin": "GPIO27", "direction": "Output", "voltage": "3.3V", "description": "Left motor backward" },
+        { "module": "Motor Driver L298N", "pinName": "IN3", "mcuPin": "GPIO14", "direction": "Output", "voltage": "3.3V", "description": "Right motor forward" },
+        { "module": "Motor Driver L298N", "pinName": "IN4", "mcuPin": "GPIO12", "direction": "Output", "voltage": "3.3V", "description": "Right motor backward" }
+      ]
+    },
+
+    "code": "/* Project 220: Object Pickup Robot */\n#include <Servo.h>\n\n#define TRIG 18\n#define ECHO 19\n#define GRIPPER 25\n\n#define L1 26\n#define L2 27\n#define R1 14\n#define R2 12\n\nServo gripper;\n\nlong getDistance() {\n  digitalWrite(TRIG, LOW);\n  delayMicroseconds(2);\n  digitalWrite(TRIG, HIGH);\n  delayMicroseconds(10);\n  digitalWrite(TRIG, LOW);\n  return pulseIn(ECHO, HIGH) * 0.034 / 2;\n}\n\nvoid setup() {\n  pinMode(TRIG, OUTPUT);\n  pinMode(ECHO, INPUT);\n  pinMode(L1, OUTPUT); pinMode(L2, OUTPUT);\n  pinMode(R1, OUTPUT); pinMode(R2, OUTPUT);\n  gripper.attach(GRIPPER);\n  gripper.write(0); // Open\n}\n\nvoid loop() {\n  long dist = getDistance();\n\n  if (dist > 15) {\n    // Move forward\n    digitalWrite(L1, HIGH); digitalWrite(L2, LOW);\n    digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n  } else {\n    // Pick object\n    digitalWrite(L1, LOW); digitalWrite(L2, LOW);\n    digitalWrite(R1, LOW); digitalWrite(R2, LOW);\n    gripper.write(90); // Close\n    delay(1000);\n    // Move backward\n    digitalWrite(L1, LOW); digitalWrite(L2, HIGH);\n    digitalWrite(R1, LOW); digitalWrite(R2, HIGH);\n    delay(800);\n  }\n}",
+
+    "testing_output": "Robot approaches object, grips it, and moves back.",
+
+    "common_errors": "Incorrect distance threshold, weak gripper torque.",
+
+    "improvements": "Add vision-based object detection, sorting logic.",
+
+    "mini_challenge": "Pick only specific-sized objects.",
+
+    "advantages": "Automated material handling.",
+
+    "disadvantages": "Limited object size and weight.",
+
+    "components": ["ESP32", "Ultrasonic Sensor", "Servo Motor", "L298N", "DC Motors"],
+
+    "circuit_diagram": "Ultrasonic to GPIO18/19. Servo to GPIO25. Motors via L298N.",
+
+    "industrial_use": "Warehouse and service robots.",
+
+    "author_name": "NISHANTH",
+    "status": "Published",
+    "bom_cost": "₹3,800"
+  },
+  {
+    "id": 221,
+    "title": "Fire Sensor Robot",
+    "level": "Intermediate",
+    "description": "A fire sensor robot using ESP32 that detects fire using a flame sensor and navigates towards the source while triggering alerts or suppression mechanisms.",
+    "category": "Robotics",
+    "sub_category": "Robotics (221-235)",
+    "estimatedTime": "6–7 Hours",
+    "tech": ["ESP32", "Flame Sensor", "L298N Motor Driver", "DC Motors", "Buzzer"],
+
+    "problem_statement": "Early fire detection is crucial in reducing damage. A mobile fire sensor robot can detect fire in hazardous areas without human intervention.",
+
+    "real_world_case": "Used in fire safety research, warehouses, labs, and educational robotics competitions.",
+
+    "block_diagram": "graph TD; Flame_Sensor-->|Fire Data|ESP32; ESP32-->|Alert|Buzzer; ESP32-->|Motor Control|L298N;",
+
+    "concept": "The robot scans for flame intensity using a flame sensor. When fire is detected, it stops movement and alerts the user.",
+
+    "working_principle": "1. Flame sensor detects IR radiation.\n2. ESP32 reads flame intensity.\n3. Robot approaches or stops.\n4. Alert is triggered.",
+
+    "pin_config": {
+      "esp32": [
+        { "module": "Flame Sensor", "pinName": "VCC", "mcuPin": "3V3", "direction": "Power", "voltage": "3.3V", "description": "Flame sensor power" },
+        { "module": "Flame Sensor", "pinName": "GND", "mcuPin": "GND", "direction": "Ground", "voltage": "0V", "description": "Common ground" },
+        { "module": "Flame Sensor", "pinName": "OUT", "mcuPin": "GPIO34", "direction": "Input", "voltage": "Analog", "description": "Flame intensity signal" },
+
+        { "module": "Buzzer", "pinName": "VCC", "mcuPin": "3V3", "direction": "Power", "voltage": "3.3V", "description": "Buzzer power" },
+        { "module": "Buzzer", "pinName": "GND", "mcuPin": "GND", "direction": "Ground", "voltage": "0V", "description": "Common ground" },
+        { "module": "Buzzer", "pinName": "Signal", "mcuPin": "GPIO25", "direction": "Output", "voltage": "3.3V", "description": "Fire alert buzzer" },
+
+        { "module": "Motor Driver L298N", "pinName": "IN1", "mcuPin": "GPIO26", "direction": "Output", "voltage": "3.3V", "description": "Left motor forward" },
+        { "module": "Motor Driver L298N", "pinName": "IN2", "mcuPin": "GPIO27", "direction": "Output", "voltage": "3.3V", "description": "Left motor backward" },
+        { "module": "Motor Driver L298N", "pinName": "IN3", "mcuPin": "GPIO14", "direction": "Output", "voltage": "3.3V", "description": "Right motor forward" },
+        { "module": "Motor Driver L298N", "pinName": "IN4", "mcuPin": "GPIO12", "direction": "Output", "voltage": "3.3V", "description": "Right motor backward" }
+      ]
+    },
+
+    "code": "/* Project 221: Fire Sensor Robot */\n#define FLAME_PIN 34\n#define BUZZER 25\n\n#define L1 26\n#define L2 27\n#define R1 14\n#define R2 12\n\nint fireThreshold = 1600;\n\nvoid stopRobot() {\n  digitalWrite(L1, LOW); digitalWrite(L2, LOW);\n  digitalWrite(R1, LOW); digitalWrite(R2, LOW);\n}\n\nvoid setup() {\n  pinMode(FLAME_PIN, INPUT);\n  pinMode(BUZZER, OUTPUT);\n  pinMode(L1, OUTPUT); pinMode(L2, OUTPUT);\n  pinMode(R1, OUTPUT); pinMode(R2, OUTPUT);\n}\n\nvoid loop() {\n  int flameValue = analogRead(FLAME_PIN);\n\n  if (flameValue < fireThreshold) {\n    stopRobot();\n    digitalWrite(BUZZER, HIGH);\n  } else {\n    digitalWrite(BUZZER, LOW);\n    digitalWrite(L1, HIGH); digitalWrite(L2, LOW);\n    digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n  }\n\n  delay(300);\n}",
+
+    "testing_output": "Introduce flame → robot stops and buzzer activates.",
+
+    "common_errors": "Wrong flame threshold, ambient IR interference.",
+
+    "improvements": "Add water pump, multi-direction flame sensing.",
+
+    "mini_challenge": "Detect flame direction using multiple sensors.",
+
+    "advantages": "Early fire detection.",
+
+    "disadvantages": "Sensitive to strong light sources.",
+
+    "components": ["ESP32", "Flame Sensor", "Buzzer", "L298N", "DC Motors"],
+
+    "circuit_diagram": "Flame sensor to GPIO34. Buzzer to GPIO25. Motors via L298N.",
+
+    "industrial_use": "Fire safety robotics.",
+
+    "author_name": "NISHANTH",
+    "status": "Published",
+    "bom_cost": "₹3,200"
+  },
+  {
+    "id": 222,
+    "title": "Ball Follower Robot",
+    "level": "Intermediate",
+    "description": "A ball follower robot using ESP32 and ultrasonic sensing that tracks and follows a moving ball while maintaining a safe distance.",
+    "category": "Robotics",
+    "sub_category": "Robotics (221-235)",
+    "estimatedTime": "6 Hours",
+    "tech": ["ESP32", "Ultrasonic Sensor", "L298N Motor Driver", "DC Motors"],
+
+    "problem_statement": "Tracking and following moving objects is a fundamental robotics problem. A ball follower robot demonstrates dynamic sensing and motion control.",
+
+    "real_world_case": "Used in sports robotics, autonomous tracking systems, and educational robotics projects.",
+
+    "block_diagram": "graph TD; Ultrasonic-->|Distance|ESP32; ESP32-->|Motor Control|L298N;",
+
+    "concept": "The robot uses distance feedback to follow a ball while maintaining an optimal following distance.",
+
+    "working_principle": "1. Ultrasonic sensor measures distance.\n2. ESP32 evaluates target distance.\n3. Robot moves forward or stops.\n4. Continuous tracking loop.",
+
+    "pin_config": {
+      "esp32": [
+        { "module": "Ultrasonic Sensor", "pinName": "VCC", "mcuPin": "5V", "direction": "Power", "voltage": "5V", "description": "Ultrasonic power" },
+        { "module": "Ultrasonic Sensor", "pinName": "GND", "mcuPin": "GND", "direction": "Ground", "voltage": "0V", "description": "Common ground" },
+        { "module": "Ultrasonic Sensor", "pinName": "TRIG", "mcuPin": "GPIO18", "direction": "Output", "voltage": "3.3V", "description": "Trigger pulse" },
+        { "module": "Ultrasonic Sensor", "pinName": "ECHO", "mcuPin": "GPIO19", "direction": "Input", "voltage": "5V (divider)", "description": "Echo signal" },
+
+        { "module": "Motor Driver L298N", "pinName": "IN1", "mcuPin": "GPIO26", "direction": "Output", "voltage": "3.3V", "description": "Left motor forward" },
+        { "module": "Motor Driver L298N", "pinName": "IN2", "mcuPin": "GPIO27", "direction": "Output", "voltage": "3.3V", "description": "Left motor backward" },
+        { "module": "Motor Driver L298N", "pinName": "IN3", "mcuPin": "GPIO14", "direction": "Output", "voltage": "3.3V", "description": "Right motor forward" },
+        { "module": "Motor Driver L298N", "pinName": "IN4", "mcuPin": "GPIO12", "direction": "Output", "voltage": "3.3V", "description": "Right motor backward" }
+      ]
+    },
+
+    "code": "/* Project 222: Ball Follower Robot */\n#define TRIG 18\n#define ECHO 19\n\n#define L1 26\n#define L2 27\n#define R1 14\n#define R2 12\n\nlong getDistance() {\n  digitalWrite(TRIG, LOW);\n  delayMicroseconds(2);\n  digitalWrite(TRIG, HIGH);\n  delayMicroseconds(10);\n  digitalWrite(TRIG, LOW);\n  return pulseIn(ECHO, HIGH) * 0.034 / 2;\n}\n\nvoid setup() {\n  pinMode(TRIG, OUTPUT);\n  pinMode(ECHO, INPUT);\n  pinMode(L1, OUTPUT); pinMode(L2, OUTPUT);\n  pinMode(R1, OUTPUT); pinMode(R2, OUTPUT);\n}\n\nvoid loop() {\n  long distance = getDistance();\n\n  if (distance > 15 && distance < 40) {\n    // Follow ball\n    digitalWrite(L1, HIGH); digitalWrite(L2, LOW);\n    digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n  } else {\n    // Stop\n    digitalWrite(L1, LOW); digitalWrite(L2, LOW);\n    digitalWrite(R1, LOW); digitalWrite(R2, LOW);\n  }\n\n  delay(200);\n}",
+
+    "testing_output": "Robot follows ball within set distance.",
+
+    "common_errors": "Ultrasonic misalignment, echo noise.",
+
+    "improvements": "Add camera-based tracking, PID distance control.",
+
+    "mini_challenge": "Maintain constant distance using PID.",
+
+    "advantages": "Dynamic object tracking.",
+
+    "disadvantages": "Limited sensing angle.",
+
+    "components": ["ESP32", "Ultrasonic Sensor", "L298N", "DC Motors"],
+
+    "circuit_diagram": "Ultrasonic to GPIO18/19. Motors via L298N.",
+
+    "industrial_use": "Tracking and follower robots.",
+
+    "author_name": "NISHANTH",
+    "status": "Published",
+    "bom_cost": "₹2,600"
+  },
+  {
+    "id": 223,
+    "title": "Plant Watering Robot",
+    "level": "Intermediate",
+    "description": "An ESP32-based autonomous plant watering robot that detects soil moisture levels and waters plants only when required, optimizing water usage.",
+    "category": "Robotics",
+    "sub_category": "Robotics (221-235)",
+    "estimatedTime": "6–7 Hours",
+    "tech": ["ESP32", "Soil Moisture Sensor", "Relay Module", "Water Pump", "DC Motors"],
+
+    "problem_statement": "Manual watering leads to overwatering or underwatering. An autonomous watering robot ensures optimal soil moisture while reducing human effort.",
+
+    "real_world_case": "Used in smart gardens, nurseries, greenhouse automation, and agricultural research prototypes.",
+
+    "block_diagram": "graph TD; Soil_Sensor-->|Moisture|ESP32; ESP32-->|Relay|Water_Pump; ESP32-->|Motor Control|Drive_Motors;",
+
+    "concept": "The robot navigates between plants, measures soil moisture, and activates a water pump only when moisture falls below a threshold.",
+
+    "working_principle": "1. Soil sensor measures moisture.\n2. ESP32 compares value with threshold.\n3. If soil is dry, pump is activated.\n4. After watering, robot moves to next plant.",
+
+    "pin_config": {
+      "esp32": [
+        { "module": "Soil Moisture Sensor", "pinName": "VCC", "mcuPin": "3V3", "direction": "Power", "voltage": "3.3V", "description": "Sensor power" },
+        { "module": "Soil Moisture Sensor", "pinName": "GND", "mcuPin": "GND", "direction": "Ground", "voltage": "0V", "description": "Common ground" },
+        { "module": "Soil Moisture Sensor", "pinName": "AO", "mcuPin": "GPIO34", "direction": "Input", "voltage": "Analog", "description": "Soil moisture value" },
+
+        { "module": "Relay Module", "pinName": "VCC", "mcuPin": "5V", "direction": "Power", "voltage": "5V", "description": "Relay power" },
+        { "module": "Relay Module", "pinName": "GND", "mcuPin": "GND", "direction": "Ground", "voltage": "0V", "description": "Common ground" },
+        { "module": "Relay Module", "pinName": "IN", "mcuPin": "GPIO25", "direction": "Output", "voltage": "3.3V", "description": "Pump control" },
+
+        { "module": "Motor Driver L298N", "pinName": "IN1", "mcuPin": "GPIO26", "direction": "Output", "description": "Left motor forward" },
+        { "module": "Motor Driver L298N", "pinName": "IN2", "mcuPin": "GPIO27", "direction": "Output", "description": "Left motor backward" },
+        { "module": "Motor Driver L298N", "pinName": "IN3", "mcuPin": "GPIO14", "direction": "Output", "description": "Right motor forward" },
+        { "module": "Motor Driver L298N", "pinName": "IN4", "mcuPin": "GPIO12", "direction": "Output", "description": "Right motor backward" }
+      ]
+    },
+
+    "code": "/* Project 223: Plant Watering Robot */\n#define SOIL_PIN 34\n#define PUMP_RELAY 25\n\n#define L1 26\n#define L2 27\n#define R1 14\n#define R2 12\n\nint moistureThreshold = 2200;\n\nvoid stopRobot() {\n  digitalWrite(L1, LOW); digitalWrite(L2, LOW);\n  digitalWrite(R1, LOW); digitalWrite(R2, LOW);\n}\n\nvoid setup() {\n  pinMode(SOIL_PIN, INPUT);\n  pinMode(PUMP_RELAY, OUTPUT);\n  pinMode(L1, OUTPUT); pinMode(L2, OUTPUT);\n  pinMode(R1, OUTPUT); pinMode(R2, OUTPUT);\n  digitalWrite(PUMP_RELAY, LOW);\n}\n\nvoid loop() {\n  int moisture = analogRead(SOIL_PIN);\n\n  if (moisture > moistureThreshold) {\n    // Dry soil → water plant\n    stopRobot();\n    digitalWrite(PUMP_RELAY, HIGH);\n    delay(3000);\n    digitalWrite(PUMP_RELAY, LOW);\n  } else {\n    // Move to next plant\n    digitalWrite(L1, HIGH); digitalWrite(L2, LOW);\n    digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n  }\n\n  delay(500);\n}",
+
+    "testing_output": "Dry soil → pump activates. Wet soil → robot moves forward.",
+
+    "common_errors": "Wrong moisture calibration, pump power issues.",
+
+    "improvements": "Add GPS/line-following navigation, cloud logging.",
+
+    "mini_challenge": "Water different plants with different thresholds.",
+
+    "advantages": "Water-efficient irrigation.",
+
+    "disadvantages": "Limited plant identification.",
+
+    "components": ["ESP32", "Soil Moisture Sensor", "Relay", "Water Pump", "L298N", "DC Motors"],
+
+    "circuit_diagram": "Soil sensor to GPIO34. Relay to GPIO25. Motors via L298N.",
+
+    "industrial_use": "Smart agriculture robots.",
+
+    "author_name": "NISHANTH",
+    "status": "Published",
+    "bom_cost": "₹3,400"
+  },
+  {
+    "id": 223,
+    "title": "Plant Watering Robot",
+    "level": "Intermediate",
+    "description": "An ESP32-based autonomous plant watering robot that detects soil moisture levels and waters plants only when required, optimizing water usage.",
+    "category": "Robotics",
+    "sub_category": "Robotics (221-235)",
+    "estimatedTime": "6–7 Hours",
+    "tech": ["ESP32", "Soil Moisture Sensor", "Relay Module", "Water Pump", "DC Motors"],
+
+    "problem_statement": "Manual watering leads to overwatering or underwatering. An autonomous watering robot ensures optimal soil moisture while reducing human effort.",
+
+    "real_world_case": "Used in smart gardens, nurseries, greenhouse automation, and agricultural research prototypes.",
+
+    "block_diagram": "graph TD; Soil_Sensor-->|Moisture|ESP32; ESP32-->|Relay|Water_Pump; ESP32-->|Motor Control|Drive_Motors;",
+
+    "concept": "The robot navigates between plants, measures soil moisture, and activates a water pump only when moisture falls below a threshold.",
+
+    "working_principle": "1. Soil sensor measures moisture.\n2. ESP32 compares value with threshold.\n3. If soil is dry, pump is activated.\n4. After watering, robot moves to next plant.",
+
+    "pin_config": {
+      "esp32": [
+        { "module": "Soil Moisture Sensor", "pinName": "VCC", "mcuPin": "3V3", "direction": "Power", "voltage": "3.3V", "description": "Sensor power" },
+        { "module": "Soil Moisture Sensor", "pinName": "GND", "mcuPin": "GND", "direction": "Ground", "voltage": "0V", "description": "Common ground" },
+        { "module": "Soil Moisture Sensor", "pinName": "AO", "mcuPin": "GPIO34", "direction": "Input", "voltage": "Analog", "description": "Soil moisture value" },
+
+        { "module": "Relay Module", "pinName": "VCC", "mcuPin": "5V", "direction": "Power", "voltage": "5V", "description": "Relay power" },
+        { "module": "Relay Module", "pinName": "GND", "mcuPin": "GND", "direction": "Ground", "voltage": "0V", "description": "Common ground" },
+        { "module": "Relay Module", "pinName": "IN", "mcuPin": "GPIO25", "direction": "Output", "voltage": "3.3V", "description": "Pump control" },
+
+        { "module": "Motor Driver L298N", "pinName": "IN1", "mcuPin": "GPIO26", "direction": "Output", "description": "Left motor forward" },
+        { "module": "Motor Driver L298N", "pinName": "IN2", "mcuPin": "GPIO27", "direction": "Output", "description": "Left motor backward" },
+        { "module": "Motor Driver L298N", "pinName": "IN3", "mcuPin": "GPIO14", "direction": "Output", "description": "Right motor forward" },
+        { "module": "Motor Driver L298N", "pinName": "IN4", "mcuPin": "GPIO12", "direction": "Output", "description": "Right motor backward" }
+      ]
+    },
+
+    "code": "/* Project 223: Plant Watering Robot */\n#define SOIL_PIN 34\n#define PUMP_RELAY 25\n\n#define L1 26\n#define L2 27\n#define R1 14\n#define R2 12\n\nint moistureThreshold = 2200;\n\nvoid stopRobot() {\n  digitalWrite(L1, LOW); digitalWrite(L2, LOW);\n  digitalWrite(R1, LOW); digitalWrite(R2, LOW);\n}\n\nvoid setup() {\n  pinMode(SOIL_PIN, INPUT);\n  pinMode(PUMP_RELAY, OUTPUT);\n  pinMode(L1, OUTPUT); pinMode(L2, OUTPUT);\n  pinMode(R1, OUTPUT); pinMode(R2, OUTPUT);\n  digitalWrite(PUMP_RELAY, LOW);\n}\n\nvoid loop() {\n  int moisture = analogRead(SOIL_PIN);\n\n  if (moisture > moistureThreshold) {\n    // Dry soil → water plant\n    stopRobot();\n    digitalWrite(PUMP_RELAY, HIGH);\n    delay(3000);\n    digitalWrite(PUMP_RELAY, LOW);\n  } else {\n    // Move to next plant\n    digitalWrite(L1, HIGH); digitalWrite(L2, LOW);\n    digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n  }\n\n  delay(500);\n}",
+
+    "testing_output": "Dry soil → pump activates. Wet soil → robot moves forward.",
+
+    "common_errors": "Wrong moisture calibration, pump power issues.",
+
+    "improvements": "Add GPS/line-following navigation, cloud logging.",
+
+    "mini_challenge": "Water different plants with different thresholds.",
+
+    "advantages": "Water-efficient irrigation.",
+
+    "disadvantages": "Limited plant identification.",
+
+    "components": ["ESP32", "Soil Moisture Sensor", "Relay", "Water Pump", "L298N", "DC Motors"],
+
+    "circuit_diagram": "Soil sensor to GPIO34. Relay to GPIO25. Motors via L298N.",
+
+    "industrial_use": "Smart agriculture robots.",
+
+    "author_name": "NISHANTH",
+    "status": "Published",
+    "bom_cost": "₹3,400"
+  },
+  {
+    "id": 224,
+    "title": "Smart Traffic Bot",
+    "level": "Intermediate",
+    "description": "A smart traffic robot using ESP32 that simulates intelligent traffic control by detecting vehicle density and controlling traffic signals accordingly.",
+    "category": "Robotics",
+    "sub_category": "Robotics (221-235)",
+    "estimatedTime": "6 Hours",
+    "tech": ["ESP32", "IR Sensors", "Traffic LEDs", "Servo Motor"],
+
+    "problem_statement": "Fixed-time traffic signals cause congestion. Smart traffic systems adjust signal timing based on vehicle density.",
+
+    "real_world_case": "Used in traffic management simulations, smart city projects, and educational demonstrations.",
+
+    "block_diagram": "graph TD; IR_Sensors-->|Density|ESP32; ESP32-->|Signal Control|Traffic_LEDs;",
+
+    "concept": "IR sensors detect vehicle presence at junctions. ESP32 dynamically controls traffic signals to optimize flow.",
+
+    "working_principle": "1. IR sensors detect vehicles.\n2. ESP32 measures lane density.\n3. Signal timing adjusted dynamically.\n4. LEDs indicate traffic flow.",
+
+    "pin_config": {
+      "esp32": [
+        { "module": "IR Sensor Lane 1", "pinName": "VCC", "mcuPin": "3V3", "direction": "Power" },
+        { "module": "IR Sensor Lane 1", "pinName": "GND", "mcuPin": "GND", "direction": "Ground" },
+        { "module": "IR Sensor Lane 1", "pinName": "OUT", "mcuPin": "GPIO32", "direction": "Input" },
+
+        { "module": "IR Sensor Lane 2", "pinName": "OUT", "mcuPin": "GPIO33", "direction": "Input" },
+
+        { "module": "Traffic LED Red", "pinName": "Signal", "mcuPin": "GPIO25", "direction": "Output" },
+        { "module": "Traffic LED Yellow", "pinName": "Signal", "mcuPin": "GPIO26", "direction": "Output" },
+        { "module": "Traffic LED Green", "pinName": "Signal", "mcuPin": "GPIO27", "direction": "Output" }
+      ]
+    },
+
+    "code": "/* Project 224: Smart Traffic Bot */\n#define IR1 32\n#define IR2 33\n\n#define RED 25\n#define YELLOW 26\n#define GREEN 27\n\nvoid setup() {\n  pinMode(IR1, INPUT);\n  pinMode(IR2, INPUT);\n  pinMode(RED, OUTPUT);\n  pinMode(YELLOW, OUTPUT);\n  pinMode(GREEN, OUTPUT);\n}\n\nvoid loop() {\n  int lane1 = digitalRead(IR1);\n  int lane2 = digitalRead(IR2);\n\n  if (lane1 == LOW || lane2 == LOW) {\n    // High traffic\n    digitalWrite(RED, LOW);\n    digitalWrite(YELLOW, LOW);\n    digitalWrite(GREEN, HIGH);\n    delay(5000);\n  } else {\n    // Normal traffic\n    digitalWrite(GREEN, LOW);\n    digitalWrite(YELLOW, HIGH);\n    delay(2000);\n    digitalWrite(YELLOW, LOW);\n    digitalWrite(RED, HIGH);\n    delay(3000);\n  }\n}",
+
+    "testing_output": "LEDs change based on vehicle presence.",
+
+    "common_errors": "Wrong IR placement, ambient light issues.",
+
+    "improvements": "Add camera-based density detection, IoT dashboard.",
+
+    "mini_challenge": "Control 4-way junction logic.",
+
+    "advantages": "Dynamic traffic control.",
+
+    "disadvantages": "Limited sensing range.",
+
+    "components": ["ESP32", "IR Sensors", "LEDs"],
+
+    "circuit_diagram": "IR sensors to GPIO32/33. LEDs to GPIO25–27.",
+
+    "industrial_use": "Smart traffic system demos.",
+
+    "author_name": "NISHANTH",
+    "status": "Published",
+    "bom_cost": "₹2,100"
+  },
+  {
+    "id": 225,
+    "title": "Smart Garbage Collection Robot",
+    "level": "Intermediate",
+    "description": "An autonomous garbage collection robot using ESP32 that detects waste, picks it up using a servo-driven mechanism, and transports it to a collection zone.",
+    "category": "Robotics",
+    "sub_category": "Robotics (221-235)",
+    "estimatedTime": "8–9 Hours",
+    "tech": ["ESP32", "Ultrasonic Sensor", "IR Obstacle Sensor", "Servo Motor", "L298N Motor Driver"],
+
+    "problem_statement": "Manual garbage collection exposes workers to health risks and inefficiencies. A smart robot can autonomously collect small waste in controlled environments.",
+
+    "real_world_case": "Used in smart campus prototypes, indoor cleaning robots, hospitals, and public facility automation demos.",
+
+    "block_diagram": "graph TD; Ultrasonic-->|Object Distance|ESP32; IR-->|Obstacle|ESP32; ESP32-->|Motor Control|L298N; ESP32-->|Servo|Garbage_Arm;",
+
+    "concept": "The robot continuously scans for waste using distance sensing. When an object is detected within pickup range, it stops, activates a servo-based arm to collect garbage, and then resumes navigation.",
+
+    "working_principle": "1. Ultrasonic sensor detects object distance.\n2. ESP32 confirms object is garbage-sized.\n3. Robot stops at optimal distance.\n4. Servo arm lowers and picks waste.\n5. Robot resumes movement to disposal zone.",
+
+    "pin_config": {
+      "esp32": [
+        { "module": "Ultrasonic Sensor", "pinName": "VCC", "mcuPin": "5V", "direction": "Power", "description": "Ultrasonic power" },
+        { "module": "Ultrasonic Sensor", "pinName": "GND", "mcuPin": "GND", "direction": "Ground" },
+        { "module": "Ultrasonic Sensor", "pinName": "TRIG", "mcuPin": "GPIO18", "direction": "Output" },
+        { "module": "Ultrasonic Sensor", "pinName": "ECHO", "mcuPin": "GPIO19", "direction": "Input", "description": "Use voltage divider" },
+
+        { "module": "IR Obstacle Sensor", "pinName": "VCC", "mcuPin": "3V3", "direction": "Power" },
+        { "module": "IR Obstacle Sensor", "pinName": "GND", "mcuPin": "GND", "direction": "Ground" },
+        { "module": "IR Obstacle Sensor", "pinName": "OUT", "mcuPin": "GPIO34", "direction": "Input" },
+
+        { "module": "Servo Motor", "pinName": "Signal", "mcuPin": "GPIO25", "direction": "Output", "description": "Garbage pickup arm" },
+
+        { "module": "L298N", "pinName": "IN1", "mcuPin": "GPIO26", "direction": "Output" },
+        { "module": "L298N", "pinName": "IN2", "mcuPin": "GPIO27", "direction": "Output" },
+        { "module": "L298N", "pinName": "IN3", "mcuPin": "GPIO14", "direction": "Output" },
+        { "module": "L298N", "pinName": "IN4", "mcuPin": "GPIO12", "direction": "Output" }
+      ]
+    },
+
+    "code": "/* Project 225: Smart Garbage Collection Robot */\n#include <Servo.h>\n\n#define TRIG 18\n#define ECHO 19\n#define IR_OBS 34\n#define SERVO_PIN 25\n\n#define L1 26\n#define L2 27\n#define R1 14\n#define R2 12\n\nServo arm;\n\nlong getDistance() {\n  digitalWrite(TRIG, LOW);\n  delayMicroseconds(2);\n  digitalWrite(TRIG, HIGH);\n  delayMicroseconds(10);\n  digitalWrite(TRIG, LOW);\n  return pulseIn(ECHO, HIGH) * 0.034 / 2;\n}\n\nvoid stopRobot() {\n  digitalWrite(L1, LOW); digitalWrite(L2, LOW);\n  digitalWrite(R1, LOW); digitalWrite(R2, LOW);\n}\n\nvoid setup() {\n  pinMode(TRIG, OUTPUT);\n  pinMode(ECHO, INPUT);\n  pinMode(IR_OBS, INPUT);\n  pinMode(L1, OUTPUT); pinMode(L2, OUTPUT);\n  pinMode(R1, OUTPUT); pinMode(R2, OUTPUT);\n\n  arm.attach(SERVO_PIN);\n  arm.write(0); // Arm up\n}\n\nvoid loop() {\n  long dist = getDistance();\n  int obstacle = digitalRead(IR_OBS);\n\n  if (dist < 15 && obstacle == HIGH) {\n    stopRobot();\n    arm.write(90); // Pick garbage\n    delay(1000);\n    arm.write(0);\n  } else {\n    digitalWrite(L1, HIGH); digitalWrite(L2, LOW);\n    digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n  }\n}",
+
+    "testing_output": "Robot detects garbage, stops, picks it up, and continues moving.",
+
+    "common_errors": "Servo torque insufficient, wrong distance threshold.",
+
+    "improvements": "Add waste classification (wet/dry), bin fill detection.",
+
+    "mini_challenge": "Count number of garbage pickups per cycle.",
+
+    "advantages": "Automated waste handling.",
+
+    "disadvantages": "Limited garbage size handling.",
+
+    "components": ["ESP32", "Ultrasonic Sensor", "IR Sensor", "Servo", "L298N", "DC Motors"],
+
+    "industrial_use": "Smart cleaning robots.",
+
+    "author_name": "NISHANTH",
+    "status": "Published",
+    "bom_cost": "₹3,900"
+  },
+  {
+    "id": 226,
+    "title": "Mobile Controlled Rover",
+    "level": "Intermediate",
+    "description": "A mobile-controlled rover using ESP32 and Bluetooth that allows real-time directional control via a smartphone application.",
+    "category": "Robotics",
+    "sub_category": "Robotics (221-235)",
+    "estimatedTime": "5–6 Hours",
+    "tech": ["ESP32", "Bluetooth", "L298N Motor Driver", "DC Motors"],
+
+    "problem_statement": "Remote mobility is required in hazardous or inaccessible areas. A mobile-controlled rover enables safe remote navigation.",
+
+    "real_world_case": "Used in surveillance robots, exploration bots, and remote inspection systems.",
+
+    "block_diagram": "graph TD; Mobile_App-->|Bluetooth|ESP32; ESP32-->|Motor Control|L298N;",
+
+    "concept": "ESP32 receives directional commands via Bluetooth and translates them into motor control signals for precise rover movement.",
+
+    "working_principle": "1. User sends command from mobile app.\n2. ESP32 receives Bluetooth data.\n3. Command decoded into motion.\n4. Motors execute movement.",
+
+    "pin_config": {
+      "esp32": [
+        { "module": "Bluetooth", "pinName": "RX/TX", "mcuPin": "Internal", "direction": "Communication", "description": "ESP32 built-in BT" },
+
+        { "module": "L298N", "pinName": "IN1", "mcuPin": "GPIO26", "direction": "Output" },
+        { "module": "L298N", "pinName": "IN2", "mcuPin": "GPIO27", "direction": "Output" },
+        { "module": "L298N", "pinName": "IN3", "mcuPin": "GPIO14", "direction": "Output" },
+        { "module": "L298N", "pinName": "IN4", "mcuPin": "GPIO12", "direction": "Output" }
+      ]
+    },
+
+    "code": "/* Project 226: Mobile Controlled Rover */\n#include \"BluetoothSerial.h\"\nBluetoothSerial SerialBT;\n\n#define L1 26\n#define L2 27\n#define R1 14\n#define R2 12\n\nvoid setup() {\n  SerialBT.begin(\"ESP32_Rover\");\n  pinMode(L1, OUTPUT); pinMode(L2, OUTPUT);\n  pinMode(R1, OUTPUT); pinMode(R2, OUTPUT);\n}\n\nvoid loop() {\n  if (SerialBT.available()) {\n    char cmd = SerialBT.read();\n\n    if (cmd == 'F') {\n      digitalWrite(L1, HIGH); digitalWrite(L2, LOW);\n      digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n    } else if (cmd == 'B') {\n      digitalWrite(L1, LOW); digitalWrite(L2, HIGH);\n      digitalWrite(R1, LOW); digitalWrite(R2, HIGH);\n    } else if (cmd == 'L') {\n      digitalWrite(L1, LOW); digitalWrite(L2, LOW);\n      digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n    } else if (cmd == 'R') {\n      digitalWrite(L1, HIGH); digitalWrite(L2, LOW);\n      digitalWrite(R1, LOW); digitalWrite(R2, LOW);\n    } else if (cmd == 'S') {\n      digitalWrite(L1, LOW); digitalWrite(L2, LOW);\n      digitalWrite(R1, LOW); digitalWrite(R2, LOW);\n    }\n  }\n}",
+
+    "testing_output": "Rover responds instantly to mobile commands.",
+
+    "common_errors": "Bluetooth pairing issues, command mismatch.",
+
+    "improvements": "Add speed control, camera streaming.",
+
+    "mini_challenge": "Add obstacle override safety.",
+
+    "advantages": "Simple and responsive control.",
+
+    "disadvantages": "Limited range (Bluetooth).",
+
+    "components": ["ESP32", "L298N", "DC Motors"],
+
+    "industrial_use": "Remote inspection rovers.",
+
+    "author_name": "NISHANTH",
+    "status": "Published",
+    "bom_cost": "₹2,300"
+  },
+  {
+    "id": 227,
+    "title": "Self-Balancing Robot (Basic PID)",
+    "level": "Intermediate",
+    "description": "A two-wheeled self-balancing robot using ESP32 and MPU6050 that maintains upright balance using a basic PID control algorithm.",
+    "category": "Robotics",
+    "sub_category": "Robotics (221-235)",
+    "estimatedTime": "10–12 Hours",
+    "tech": ["ESP32", "MPU6050", "PID Control", "L298N Motor Driver", "DC Motors"],
+
+    "problem_statement": "Balancing a dynamically unstable system requires continuous feedback and correction. This project demonstrates real-time closed-loop control using PID.",
+
+    "real_world_case": "Used in personal transporters (Segway), humanoid robots, and robotics research platforms.",
+
+    "block_diagram": "graph TD; MPU6050-->|Angle|ESP32; ESP32-->|PID Output|L298N; L298N-->|Torque|Motors;",
+
+    "concept": "The robot continuously measures tilt angle and applies PID corrections to motor speed to maintain vertical balance.",
+
+    "working_principle": "1. MPU6050 measures pitch angle.\n2. ESP32 calculates error from vertical.\n3. PID controller computes correction.\n4. Motors apply torque.\n5. Loop repeats at high frequency.",
+
+    "pin_config": {
+      "esp32": [
+        { "module": "MPU6050", "pinName": "VCC", "mcuPin": "3V3", "direction": "Power" },
+        { "module": "MPU6050", "pinName": "GND", "mcuPin": "GND", "direction": "Ground" },
+        { "module": "MPU6050", "pinName": "SDA", "mcuPin": "GPIO21", "direction": "I2C" },
+        { "module": "MPU6050", "pinName": "SCL", "mcuPin": "GPIO22", "direction": "I2C" },
+
+        { "module": "L298N", "pinName": "IN1", "mcuPin": "GPIO26", "direction": "Output" },
+        { "module": "L298N", "pinName": "IN2", "mcuPin": "GPIO27", "direction": "Output" },
+        { "module": "L298N", "pinName": "IN3", "mcuPin": "GPIO14", "direction": "Output" },
+        { "module": "L298N", "pinName": "IN4", "mcuPin": "GPIO12", "direction": "Output" }
+      ]
+    },
+
+    "code": "/* Project 227: Self-Balancing Robot (Basic PID) */\n#include <Wire.h>\n#include <Adafruit_MPU6050.h>\n#include <Adafruit_Sensor.h>\n\nAdafruit_MPU6050 mpu;\n\n#define L1 26\n#define L2 27\n#define R1 14\n#define R2 12\n\n// PID constants (must be tuned)\nfloat Kp = 18.0;\nfloat Ki = 0.8;\nfloat Kd = 1.2;\n\nfloat setPoint = 0.0; // Upright angle\nfloat error, previousError = 0;\nfloat integral = 0;\n\nvoid setup() {\n  Serial.begin(115200);\n  if (!mpu.begin()) {\n    while (1);\n  }\n\n  pinMode(L1, OUTPUT); pinMode(L2, OUTPUT);\n  pinMode(R1, OUTPUT); pinMode(R2, OUTPUT);\n}\n\nvoid driveMotor(float output) {\n  if (output > 0) {\n    digitalWrite(L1, HIGH); digitalWrite(L2, LOW);\n    digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n  } else {\n    digitalWrite(L1, LOW); digitalWrite(L2, HIGH);\n    digitalWrite(R1, LOW); digitalWrite(R2, HIGH);\n  }\n}\n\nvoid loop() {\n  sensors_event_t a, g, t;\n  mpu.getEvent(&a, &g, &t);\n\n  float angle = atan2(a.acceleration.x, a.acceleration.z) * 57.3;\n\n  error = setPoint - angle;\n  integral += error;\n  float derivative = error - previousError;\n\n  float output = Kp * error + Ki * integral + Kd * derivative;\n\n  driveMotor(output);\n  previousError = error;\n\n  delay(10); // Control loop timing\n}",
+
+    "testing_output": "Robot oscillates initially, stabilizes after PID tuning.",
+
+    "common_errors": "Wrong PID tuning, loose wheels, sensor noise.",
+
+    "improvements": "Add complementary filter, encoder feedback.",
+
+    "mini_challenge": "Tune PID for faster recovery without oscillation.",
+
+    "advantages": "Demonstrates real control systems.",
+
+    "disadvantages": "Requires careful tuning.",
+
+    "components": ["ESP32", "MPU6050", "L298N", "DC Motors"],
+
+    "industrial_use": "Control system research.",
+
+    "author_name": "NISHANTH",
+    "status": "Published",
+    "bom_cost": "₹4,200"
+  },
+  {
+    "id": 228,
+    "title": "Arduino-based Prosthetic Arm",
+    "level": "Intermediate",
+    "description": "A basic prosthetic arm using Arduino that mimics finger movement using flex sensors and servo motors.",
+    "category": "Robotics",
+    "sub_category": "Robotics (221-235)",
+    "estimatedTime": "9–10 Hours",
+    "tech": ["Arduino UNO", "Flex Sensors", "Servo Motors"],
+
+    "problem_statement": "Affordable prosthetic solutions are limited. A basic sensor-driven prosthetic arm helps demonstrate low-cost assistive technology.",
+
+    "real_world_case": "Used in assistive device research, rehabilitation engineering, and educational biomedical projects.",
+
+    "block_diagram": "graph TD; Flex_Sensors-->|Finger Bend|Arduino; Arduino-->|PWM|Servo_Motors;",
+
+    "concept": "Flex sensors detect finger bending. Arduino maps sensor values to servo angles, mimicking finger movement.",
+
+    "working_principle": "1. Flex sensor resistance changes with bending.\n2. Arduino reads analog value.\n3. Value mapped to servo angle.\n4. Servo moves corresponding finger.",
+
+    "pin_config": {
+      "arduino": [
+        { "module": "Flex Sensor 1", "pinName": "Signal", "mcuPin": "A0", "direction": "Input" },
+        { "module": "Flex Sensor 2", "pinName": "Signal", "mcuPin": "A1", "direction": "Input" },
+
+        { "module": "Servo Finger 1", "pinName": "Signal", "mcuPin": "D9", "direction": "Output" },
+        { "module": "Servo Finger 2", "pinName": "Signal", "mcuPin": "D10", "direction": "Output" }
+      ]
+    },
+
+    "code": "/* Project 228: Arduino-based Prosthetic Arm */\n#include <Servo.h>\n\nServo finger1;\nServo finger2;\n\n#define FLEX1 A0\n#define FLEX2 A1\n\nvoid setup() {\n  finger1.attach(9);\n  finger2.attach(10);\n}\n\nvoid loop() {\n  int flexVal1 = analogRead(FLEX1);\n  int flexVal2 = analogRead(FLEX2);\n\n  int angle1 = map(flexVal1, 500, 900, 0, 180);\n  int angle2 = map(flexVal2, 500, 900, 0, 180);\n\n  finger1.write(constrain(angle1, 0, 180));\n  finger2.write(constrain(angle2, 0, 180));\n\n  delay(30);\n}",
+
+    "testing_output": "Finger servos mimic hand bending.",
+
+    "common_errors": "Wrong flex calibration, servo jitter.",
+
+    "improvements": "Add EMG sensors, force feedback.",
+
+    "mini_challenge": "Grip objects with controlled force.",
+
+    "advantages": "Low-cost assistive demo.",
+
+    "disadvantages": "Limited precision.",
+
+    "components": ["Arduino UNO", "Flex Sensors", "Servo Motors"],
+
+    "industrial_use": "Assistive technology research.",
+
+    "author_name": "NISHANTH",
+    "status": "Published",
+    "bom_cost": "₹3,600"
+  },
+  {
+    "id": 229,
+    "title": "Camera Controlled Car",
+    "level": "Intermediate",
+    "description": "A camera-controlled robotic car using ESP32-CAM that streams live video over Wi-Fi and allows remote directional control through a web interface.",
+    "category": "Robotics",
+    "sub_category": "Robotics (221-235)",
+    "estimatedTime": "8–10 Hours",
+    "tech": ["ESP32-CAM", "ESP32", "Wi-Fi", "L298N Motor Driver", "DC Motors"],
+
+    "problem_statement": "Remote navigation in unknown or hazardous environments requires visual feedback. Camera-controlled robots provide real-time situational awareness.",
+
+    "real_world_case": "Used in surveillance rovers, search-and-rescue robots, inspection bots, and teleoperated vehicles.",
+
+    "block_diagram": "graph TD; Camera-->|Video Stream|ESP32_CAM; Web_UI-->|Commands|ESP32; ESP32-->|Motor Control|L298N;",
+
+    "concept": "Live video streaming allows a human operator to visually guide the robot. Control commands are sent via HTTP requests to the ESP32.",
+
+    "working_principle": "1. ESP32-CAM streams video via Wi-Fi.\n2. User views stream on browser.\n3. Button commands sent to ESP32.\n4. Motors respond in real time.",
+
+    "pin_config": {
+      "esp32": [
+        { "module": "ESP32-CAM", "pinName": "5V", "mcuPin": "5V", "direction": "Power", "description": "Camera power" },
+        { "module": "ESP32-CAM", "pinName": "GND", "mcuPin": "GND", "direction": "Ground" },
+
+        { "module": "L298N", "pinName": "IN1", "mcuPin": "GPIO12", "direction": "Output", "description": "Left motor forward" },
+        { "module": "L298N", "pinName": "IN2", "mcuPin": "GPIO13", "direction": "Output", "description": "Left motor backward" },
+        { "module": "L298N", "pinName": "IN3", "mcuPin": "GPIO14", "direction": "Output", "description": "Right motor forward" },
+        { "module": "L298N", "pinName": "IN4", "mcuPin": "GPIO15", "direction": "Output", "description": "Right motor backward" }
+      ]
+    },
+
+    "code": "/* Project 229: Camera Controlled Car (ESP32-CAM + Web Control) */\n#include \"esp_camera.h\"\n#include <WiFi.h>\n#include <WebServer.h>\n\n#define L1 12\n#define L2 13\n#define R1 14\n#define R2 15\n\nconst char* ssid = \"YOUR_WIFI\";\nconst char* password = \"YOUR_PASS\";\n\nWebServer server(80);\n\nvoid moveForward() {\n  digitalWrite(L1, HIGH); digitalWrite(L2, LOW);\n  digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n}\nvoid stopCar() {\n  digitalWrite(L1, LOW); digitalWrite(L2, LOW);\n  digitalWrite(R1, LOW); digitalWrite(R2, LOW);\n}\n\nvoid setup() {\n  pinMode(L1, OUTPUT); pinMode(L2, OUTPUT);\n  pinMode(R1, OUTPUT); pinMode(R2, OUTPUT);\n\n  WiFi.begin(ssid, password);\n  while (WiFi.status() != WL_CONNECTED) delay(500);\n\n  server.on(\"/forward\", moveForward);\n  server.on(\"/stop\", stopCar);\n  server.begin();\n}\n\nvoid loop() {\n  server.handleClient();\n}",
+
+    "testing_output": "Live video stream visible; car responds to web commands.",
+
+    "common_errors": "Insufficient power for ESP32-CAM, Wi-Fi latency.",
+
+    "improvements": "Add watchdog timer, encrypted commands.",
+
+    "mini_challenge": "Add object detection on video stream.",
+
+    "advantages": "Visual teleoperation.",
+
+    "disadvantages": "Network-dependent.",
+
+    "components": ["ESP32-CAM", "ESP32", "L298N", "DC Motors"],
+
+    "industrial_use": "Surveillance and inspection robots.",
+
+    "author_name": "NISHANTH",
+    "status": "Published",
+    "bom_cost": "₹4,500"
+  },
+  {
+    "id": 230,
+    "title": "Edge Avoiding Robot",
+    "level": "Intermediate",
+    "description": "A safety-focused mobile robot using ESP32 that prevents falling by detecting surface edges using downward-facing IR sensors.",
+    "category": "Robotics",
+    "sub_category": "Robotics (221-235)",
+    "estimatedTime": "5–6 Hours",
+    "tech": ["ESP32", "IR Sensors", "L298N Motor Driver", "DC Motors"],
+
+    "problem_statement": "Mobile robots risk falling when operating on elevated surfaces. Edge avoidance ensures operational safety.",
+
+    "real_world_case": "Used in vacuum robots, inspection bots, and service robots.",
+
+    "block_diagram": "graph TD; IR_Sensors-->|Edge Detection|ESP32; ESP32-->|Motor Control|L298N;",
+
+    "concept": "Downward IR sensors detect reflected surface light. Absence of reflection indicates an edge.",
+
+    "working_principle": "1. IR sensors monitor ground reflection.\n2. ESP32 detects edge condition.\n3. Robot stops and retreats.\n4. Direction adjusted.",
+
+    "pin_config": {
+      "esp32": [
+        { "module": "IR Sensor Left", "pinName": "VCC", "mcuPin": "3V3", "direction": "Power" },
+        { "module": "IR Sensor Left", "pinName": "GND", "mcuPin": "GND", "direction": "Ground" },
+        { "module": "IR Sensor Left", "pinName": "OUT", "mcuPin": "GPIO34", "direction": "Input" },
+
+        { "module": "IR Sensor Right", "pinName": "OUT", "mcuPin": "GPIO35", "direction": "Input" },
+
+        { "module": "L298N", "pinName": "IN1", "mcuPin": "GPIO26", "direction": "Output" },
+        { "module": "L298N", "pinName": "IN2", "mcuPin": "GPIO27", "direction": "Output" },
+        { "module": "L298N", "pinName": "IN3", "mcuPin": "GPIO14", "direction": "Output" },
+        { "module": "L298N", "pinName": "IN4", "mcuPin": "GPIO12", "direction": "Output" }
+      ]
+    },
+
+    "code": "/* Project 230: Edge Avoiding Robot */\n#define IR_L 34\n#define IR_R 35\n\n#define L1 26\n#define L2 27\n#define R1 14\n#define R2 12\n\nvoid stopRobot() {\n  digitalWrite(L1, LOW); digitalWrite(L2, LOW);\n  digitalWrite(R1, LOW); digitalWrite(R2, LOW);\n}\n\nvoid setup() {\n  pinMode(IR_L, INPUT);\n  pinMode(IR_R, INPUT);\n  pinMode(L1, OUTPUT); pinMode(L2, OUTPUT);\n  pinMode(R1, OUTPUT); pinMode(R2, OUTPUT);\n}\n\nvoid loop() {\n  int left = digitalRead(IR_L);\n  int right = digitalRead(IR_R);\n\n  if (left == LOW || right == LOW) {\n    stopRobot();\n    delay(200);\n    // Reverse slightly\n    digitalWrite(L1, LOW); digitalWrite(L2, HIGH);\n    digitalWrite(R1, LOW); digitalWrite(R2, HIGH);\n    delay(400);\n  } else {\n    digitalWrite(L1, HIGH); digitalWrite(L2, LOW);\n    digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n  }\n}",
+
+    "testing_output": "Robot avoids falling from table edges.",
+
+    "common_errors": "Wrong sensor height, reflective surfaces.",
+
+    "improvements": "Combine with obstacle avoidance.",
+
+    "mini_challenge": "Detect stairs reliably.",
+
+    "advantages": "Critical safety layer.",
+
+    "disadvantages": "Sensitive to lighting.",
+
+    "components": ["ESP32", "IR Sensors", "L298N", "DC Motors"],
+
+    "industrial_use": "Service and inspection robots.",
+
+    "author_name": "NISHANTH",
+    "status": "Published",
+    "bom_cost": "₹2,200"
+  },
+  {
+    "id": 231,
+    "title": "Smart Vacuum Mapping Robot (Simple)",
+    "level": "Intermediate",
+    "description": "A smart vacuum robot using ESP32 that performs structured room coverage using basic mapping logic without complex SLAM algorithms.",
+    "category": "Robotics",
+    "sub_category": "Robotics (221-235)",
+    "estimatedTime": "9–10 Hours",
+    "tech": ["ESP32", "Ultrasonic Sensor", "IR Edge Sensors", "Relay Module", "L298N Motor Driver"],
+
+    "problem_statement": "Random navigation vacuum robots waste energy and time. Structured coverage improves cleaning efficiency.",
+
+    "real_world_case": "Used in entry-level vacuum robots and industrial floor-cleaning machines.",
+
+    "concept": "The robot maintains a simple directional state and follows a zig-zag pattern, changing direction when obstacles are detected.",
+
+    "working_principle": "1. Robot moves forward cleaning.\n2. Obstacle detected → rotate 90°.\n3. After fixed distance, direction flips.\n4. Area covered systematically.",
+
+    "pin_config": {
+      "esp32": [
+        { "module": "Ultrasonic", "pinName": "TRIG", "mcuPin": "GPIO18", "direction": "Output" },
+        { "module": "Ultrasonic", "pinName": "ECHO", "mcuPin": "GPIO19", "direction": "Input", "description": "Use voltage divider" },
+
+        { "module": "IR Edge Sensor", "pinName": "OUT", "mcuPin": "GPIO34", "direction": "Input" },
+
+        { "module": "Vacuum Relay", "pinName": "IN", "mcuPin": "GPIO25", "direction": "Output" },
+
+        { "module": "L298N", "pinName": "IN1", "mcuPin": "GPIO26" },
+        { "module": "L298N", "pinName": "IN2", "mcuPin": "GPIO27" },
+        { "module": "L298N", "pinName": "IN3", "mcuPin": "GPIO14" },
+        { "module": "L298N", "pinName": "IN4", "mcuPin": "GPIO12" }
+      ]
+    },
+
+    "code": "/* Project 231: Smart Vacuum Mapping Robot (Simple) */\n#define TRIG 18\n#define ECHO 19\n#define EDGE 34\n#define VACUUM 25\n\n#define L1 26\n#define L2 27\n#define R1 14\n#define R2 12\n\nlong getDistance() {\n  digitalWrite(TRIG, LOW);\n  delayMicroseconds(2);\n  digitalWrite(TRIG, HIGH);\n  delayMicroseconds(10);\n  digitalWrite(TRIG, LOW);\n  return pulseIn(ECHO, HIGH) * 0.034 / 2;\n}\n\nvoid forward() {\n  digitalWrite(L1, HIGH); digitalWrite(L2, LOW);\n  digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n}\n\nvoid rotateRight() {\n  digitalWrite(L1, HIGH); digitalWrite(L2, LOW);\n  digitalWrite(R1, LOW); digitalWrite(R2, HIGH);\n}\n\nvoid setup() {\n  pinMode(TRIG, OUTPUT);\n  pinMode(ECHO, INPUT);\n  pinMode(EDGE, INPUT);\n  pinMode(VACUUM, OUTPUT);\n\n  pinMode(L1, OUTPUT); pinMode(L2, OUTPUT);\n  pinMode(R1, OUTPUT); pinMode(R2, OUTPUT);\n\n  digitalWrite(VACUUM, HIGH); // Vacuum ON\n}\n\nvoid loop() {\n  long dist = getDistance();\n  int edge = digitalRead(EDGE);\n\n  if (edge == LOW || dist < 25) {\n    rotateRight();\n    delay(500);\n  } else {\n    forward();\n  }\n}",
+
+    "testing_output": "Robot cleans area in structured pattern.",
+
+    "common_errors": "Wheel slip, inaccurate turning angle.",
+
+    "improvements": "Add encoder-based distance tracking.",
+
+    "mini_challenge": "Store visited zones in EEPROM.",
+
+    "advantages": "Better coverage than random walk.",
+
+    "disadvantages": "No true map storage.",
+
+    "components": ["ESP32", "Ultrasonic", "IR Sensor", "Relay", "L298N", "DC Motors"],
+
+    "industrial_use": "Service robotics.",
+
+    "author_name": "NISHANTH",
+    "status": "Published",
+    "bom_cost": "₹5,200"
+  },
+  {
+    "id": 232,
+    "title": "Gesture Robotic Arm (Basic)",
+    "level": "Intermediate",
+    "description": "A gesture-controlled robotic arm using ESP32 and MPU6050 that mimics hand orientation in real time.",
+    "category": "Robotics",
+    "sub_category": "Robotics (221-235)",
+    "estimatedTime": "7–8 Hours",
+    "tech": ["ESP32", "MPU6050", "Servo Motors"],
+
+    "problem_statement": "Traditional joystick control is unintuitive. Gesture control enables natural human interaction with robotic arms.",
+
+    "real_world_case": "Used in assistive robotics, teleoperation systems, and industrial manipulators.",
+
+    "concept": "Hand tilt angles are mapped to servo angles for corresponding arm joints.",
+
+    "working_principle": "1. MPU6050 reads hand orientation.\n2. ESP32 maps angles to servos.\n3. Robotic arm mirrors hand motion.",
+
+    "pin_config": {
+      "esp32": [
+        { "module": "MPU6050", "pinName": "SDA", "mcuPin": "GPIO21" },
+        { "module": "MPU6050", "pinName": "SCL", "mcuPin": "GPIO22" },
+
+        { "module": "Servo Base", "pinName": "Signal", "mcuPin": "GPIO25" },
+        { "module": "Servo Shoulder", "pinName": "Signal", "mcuPin": "GPIO26" },
+        { "module": "Servo Elbow", "pinName": "Signal", "mcuPin": "GPIO27" }
+      ]
+    },
+
+    "code": "/* Project 232: Gesture Robotic Arm */\n#include <Wire.h>\n#include <Adafruit_MPU6050.h>\n#include <Servo.h>\n\nAdafruit_MPU6050 mpu;\nServo baseServo, shoulderServo, elbowServo;\n\nvoid setup() {\n  baseServo.attach(25);\n  shoulderServo.attach(26);\n  elbowServo.attach(27);\n\n  if (!mpu.begin()) {\n    while (1);\n  }\n}\n\nvoid loop() {\n  sensors_event_t a, g, t;\n  mpu.getEvent(&a, &g, &t);\n\n  int baseAngle = map(a.acceleration.y * 10, -90, 90, 0, 180);\n  int shoulderAngle = map(a.acceleration.x * 10, -90, 90, 0, 180);\n  int elbowAngle = map(a.acceleration.z * 10, -90, 90, 0, 180);\n\n  baseServo.write(constrain(baseAngle, 0, 180));\n  shoulderServo.write(constrain(shoulderAngle, 0, 180));\n  elbowServo.write(constrain(elbowAngle, 0, 180));\n\n  delay(30);\n}",
+
+    "testing_output": "Robotic arm follows hand motion smoothly.",
+
+    "common_errors": "Servo jitter, sensor noise.",
+
+    "improvements": "Add smoothing filters, wireless control.",
+
+    "mini_challenge": "Add gesture-based gripper control.",
+
+    "advantages": "Natural control.",
+
+    "disadvantages": "Requires steady hand.",
+
+    "components": ["ESP32", "MPU6050", "Servo Motors"],
+
+    "industrial_use": "Teleoperation systems.",
+
+    "author_name": "NISHANTH",
+    "status": "Published",
+    "bom_cost": "₹3,700"
+  },
+  {
+    "id": 232,
+    "title": "Gesture Robotic Arm (Basic)",
+    "level": "Intermediate",
+    "description": "A gesture-controlled robotic arm using ESP32 and MPU6050 that mimics hand orientation in real time.",
+    "category": "Robotics",
+    "sub_category": "Robotics (221-235)",
+    "estimatedTime": "7–8 Hours",
+    "tech": ["ESP32", "MPU6050", "Servo Motors"],
+
+    "problem_statement": "Traditional joystick control is unintuitive. Gesture control enables natural human interaction with robotic arms.",
+
+    "real_world_case": "Used in assistive robotics, teleoperation systems, and industrial manipulators.",
+
+    "concept": "Hand tilt angles are mapped to servo angles for corresponding arm joints.",
+
+    "working_principle": "1. MPU6050 reads hand orientation.\n2. ESP32 maps angles to servos.\n3. Robotic arm mirrors hand motion.",
+
+    "pin_config": {
+      "esp32": [
+        { "module": "MPU6050", "pinName": "SDA", "mcuPin": "GPIO21" },
+        { "module": "MPU6050", "pinName": "SCL", "mcuPin": "GPIO22" },
+
+        { "module": "Servo Base", "pinName": "Signal", "mcuPin": "GPIO25" },
+        { "module": "Servo Shoulder", "pinName": "Signal", "mcuPin": "GPIO26" },
+        { "module": "Servo Elbow", "pinName": "Signal", "mcuPin": "GPIO27" }
+      ]
+    },
+
+    "code": "/* Project 232: Gesture Robotic Arm */\n#include <Wire.h>\n#include <Adafruit_MPU6050.h>\n#include <Servo.h>\n\nAdafruit_MPU6050 mpu;\nServo baseServo, shoulderServo, elbowServo;\n\nvoid setup() {\n  baseServo.attach(25);\n  shoulderServo.attach(26);\n  elbowServo.attach(27);\n\n  if (!mpu.begin()) {\n    while (1);\n  }\n}\n\nvoid loop() {\n  sensors_event_t a, g, t;\n  mpu.getEvent(&a, &g, &t);\n\n  int baseAngle = map(a.acceleration.y * 10, -90, 90, 0, 180);\n  int shoulderAngle = map(a.acceleration.x * 10, -90, 90, 0, 180);\n  int elbowAngle = map(a.acceleration.z * 10, -90, 90, 0, 180);\n\n  baseServo.write(constrain(baseAngle, 0, 180));\n  shoulderServo.write(constrain(shoulderAngle, 0, 180));\n  elbowServo.write(constrain(elbowAngle, 0, 180));\n\n  delay(30);\n}",
+
+    "testing_output": "Robotic arm follows hand motion smoothly.",
+
+    "common_errors": "Servo jitter, sensor noise.",
+
+    "improvements": "Add smoothing filters, wireless control.",
+
+    "mini_challenge": "Add gesture-based gripper control.",
+
+    "advantages": "Natural control.",
+
+    "disadvantages": "Requires steady hand.",
+
+    "components": ["ESP32", "MPU6050", "Servo Motors"],
+
+    "industrial_use": "Teleoperation systems.",
+
+    "author_name": "NISHANTH",
+    "status": "Published",
+    "bom_cost": "₹3,700"
+  },
+  {
+    "id": 233,
+    "title": "RFID Guided Robot",
+    "level": "Intermediate",
+    "description": "An ESP32-based robot that navigates predefined routes by reading RFID tags placed along its path.",
+    "category": "Robotics",
+    "sub_category": "Robotics (221-235)",
+    "estimatedTime": "7–8 Hours",
+    "tech": ["ESP32", "RFID RC522", "L298N Motor Driver", "DC Motors"],
+
+    "problem_statement": "Line-following robots fail in dusty or worn environments. RFID guidance provides reliable navigation using digital checkpoints.",
+
+    "real_world_case": "Used in warehouses, manufacturing AGVs, hospital delivery robots.",
+
+    "concept": "RFID tags placed at junctions contain unique IDs mapped to movement commands like left, right, stop.",
+
+    "working_principle": "1. Robot moves forward continuously.\n2. RFID reader scans floor tags.\n3. ESP32 reads tag UID.\n4. UID mapped to navigation command.\n5. Robot executes command.",
+
+    "pin_config": {
+      "esp32": [
+        { "module": "RFID RC522", "pinName": "VCC", "mcuPin": "3V3", "direction": "Power" },
+        { "module": "RFID RC522", "pinName": "GND", "mcuPin": "GND", "direction": "Ground" },
+        { "module": "RFID RC522", "pinName": "SDA", "mcuPin": "GPIO5", "direction": "SPI_SS" },
+        { "module": "RFID RC522", "pinName": "SCK", "mcuPin": "GPIO18", "direction": "SPI_CLK" },
+        { "module": "RFID RC522", "pinName": "MOSI", "mcuPin": "GPIO23", "direction": "SPI_MOSI" },
+        { "module": "RFID RC522", "pinName": "MISO", "mcuPin": "GPIO19", "direction": "SPI_MISO" },
+
+        { "module": "L298N", "pinName": "IN1", "mcuPin": "GPIO26" },
+        { "module": "L298N", "pinName": "IN2", "mcuPin": "GPIO27" },
+        { "module": "L298N", "pinName": "IN3", "mcuPin": "GPIO14" },
+        { "module": "L298N", "pinName": "IN4", "mcuPin": "GPIO12" }
+      ]
+    },
+
+    "code": "/* Project 233: RFID Guided Robot */\n#include <SPI.h>\n#include <MFRC522.h>\n\n#define SS_PIN 5\n#define RST_PIN 22\n\n#define L1 26\n#define L2 27\n#define R1 14\n#define R2 12\n\nMFRC522 rfid(SS_PIN, RST_PIN);\n\nvoid setup() {\n  SPI.begin();\n  rfid.PCD_Init();\n\n  pinMode(L1, OUTPUT); pinMode(L2, OUTPUT);\n  pinMode(R1, OUTPUT); pinMode(R2, OUTPUT);\n}\n\nvoid forward() {\n  digitalWrite(L1, HIGH); digitalWrite(L2, LOW);\n  digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n}\n\nvoid leftTurn() {\n  digitalWrite(L1, LOW); digitalWrite(L2, LOW);\n  digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n  delay(400);\n}\n\nvoid rightTurn() {\n  digitalWrite(L1, HIGH); digitalWrite(L2, LOW);\n  digitalWrite(R1, LOW); digitalWrite(R2, LOW);\n  delay(400);\n}\n\nvoid loop() {\n  forward();\n\n  if (!rfid.PICC_IsNewCardPresent() || !rfid.PICC_ReadCardSerial()) return;\n\n  byte id = rfid.uid.uidByte[0];\n\n  if (id == 0xA1) leftTurn();\n  else if (id == 0xB2) rightTurn();\n}",
+
+    "testing_output": "Robot turns based on RFID tag UID.",
+
+    "common_errors": "Incorrect UID mapping, weak RFID placement.",
+
+    "improvements": "Add path memory, speed profiling.",
+
+    "mini_challenge": "Create multi-step route using tag sequence.",
+
+    "advantages": "Highly reliable navigation.",
+
+    "disadvantages": "Requires infrastructure setup.",
+
+    "components": ["ESP32", "RFID RC522", "L298N", "DC Motors"],
+
+    "industrial_use": "Automated guided vehicles (AGV).",
+
+    "author_name": "NISHANTH",
+    "status": "Published",
+    "bom_cost": "₹3,600"
+  },
+
+  {
+    "id": 234,
+    "title": "Wi-Fi Controlled Robot Car",
+    "level": "Intermediate",
+    "description": "A Wi-Fi controlled robot car using ESP32 that responds to commands from a web interface over a local network.",
+    "category": "Robotics",
+    "sub_category": "Robotics (221-235)",
+    "estimatedTime": "6–7 Hours",
+    "tech": ["ESP32", "Wi-Fi", "L298N Motor Driver", "DC Motors"],
+
+    "concept": "ESP32 hosts a web server that receives HTTP commands and translates them into motor actions.",
+
+    "pin_config": {
+      "esp32": [
+        { "module": "L298N", "pinName": "IN1", "mcuPin": "GPIO26" },
+        { "module": "L298N", "pinName": "IN2", "mcuPin": "GPIO27" },
+        { "module": "L298N", "pinName": "IN3", "mcuPin": "GPIO14" },
+        { "module": "L298N", "pinName": "IN4", "mcuPin": "GPIO12" }
+      ]
+    },
+
+    "code": "/* Project 234: Wi-Fi Controlled Robot Car */\n#include <WiFi.h>\n#include <WebServer.h>\n\n#define L1 26\n#define L2 27\n#define R1 14\n#define R2 12\n\nWebServer server(80);\n\nvoid forward() {\n  digitalWrite(L1, HIGH); digitalWrite(L2, LOW);\n  digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n}\n\nvoid stopCar() {\n  digitalWrite(L1, LOW); digitalWrite(L2, LOW);\n  digitalWrite(R1, LOW); digitalWrite(R2, LOW);\n}\n\nvoid setup() {\n  WiFi.begin(\"SSID\", \"PASSWORD\");\n  while (WiFi.status() != WL_CONNECTED) delay(500);\n\n  pinMode(L1, OUTPUT); pinMode(L2, OUTPUT);\n  pinMode(R1, OUTPUT); pinMode(R2, OUTPUT);\n\n  server.on(\"/forward\", forward);\n  server.on(\"/stop\", stopCar);\n  server.begin();\n}\n\nvoid loop() {\n  server.handleClient();\n}",
+
+    "advantages": "Longer range than Bluetooth.",
+
+    "improvements": "Add authentication, camera feed.",
+
+    "author_name": "NISHANTH",
+    "status": "Published",
+    "bom_cost": "₹2,800"
+  },
+  {
+    "id": 235,
+    "title": "Smart Campus Patrol Bot (Simple)",
+    "level": "Intermediate",
+    "description": "A patrol robot that autonomously navigates a campus area, detects obstacles, and raises alerts for unusual activity.",
+    "category": "Robotics",
+    "sub_category": "Robotics (221-235)",
+    "estimatedTime": "8 Hours",
+    "tech": ["ESP32", "Ultrasonic Sensor", "PIR Sensor", "Buzzer", "L298N"],
+
+    "concept": "The robot follows a patrol route and triggers alerts when motion is detected during patrol.",
+
+    "working_principle": "1. Robot patrols predefined route.\n2. Ultrasonic avoids obstacles.\n3. PIR detects human motion.\n4. Alert is triggered.",
+
+    "pin_config": {
+      "esp32": [
+        { "module": "Ultrasonic", "pinName": "TRIG", "mcuPin": "GPIO18" },
+        { "module": "Ultrasonic", "pinName": "ECHO", "mcuPin": "GPIO19" },
+        { "module": "PIR Sensor", "pinName": "OUT", "mcuPin": "GPIO34" },
+        { "module": "Buzzer", "pinName": "Signal", "mcuPin": "GPIO25" },
+
+        { "module": "L298N", "pinName": "IN1", "mcuPin": "GPIO26" },
+        { "module": "L298N", "pinName": "IN2", "mcuPin": "GPIO27" },
+        { "module": "L298N", "pinName": "IN3", "mcuPin": "GPIO14" },
+        { "module": "L298N", "pinName": "IN4", "mcuPin": "GPIO12" }
+      ]
+    },
+
+    "code": "/* Project 235: Smart Campus Patrol Bot */\n#define PIR 34\n#define BUZZER 25\n#define TRIG 18\n#define ECHO 19\n\n#define L1 26\n#define L2 27\n#define R1 14\n#define R2 12\n\nlong getDistance() {\n  digitalWrite(TRIG, LOW);\n  delayMicroseconds(2);\n  digitalWrite(TRIG, HIGH);\n  delayMicroseconds(10);\n  digitalWrite(TRIG, LOW);\n  return pulseIn(ECHO, HIGH) * 0.034 / 2;\n}\n\nvoid setup() {\n  pinMode(PIR, INPUT);\n  pinMode(BUZZER, OUTPUT);\n  pinMode(TRIG, OUTPUT);\n  pinMode(ECHO, INPUT);\n\n  pinMode(L1, OUTPUT); pinMode(L2, OUTPUT);\n  pinMode(R1, OUTPUT); pinMode(R2, OUTPUT);\n}\n\nvoid loop() {\n  long dist = getDistance();\n  int motion = digitalRead(PIR);\n\n  if (motion == HIGH) {\n    digitalWrite(BUZZER, HIGH);\n  } else {\n    digitalWrite(BUZZER, LOW);\n  }\n\n  if (dist < 30) {\n    digitalWrite(L1, LOW); digitalWrite(L2, HIGH);\n    digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n    delay(400);\n  } else {\n    digitalWrite(L1, HIGH); digitalWrite(L2, LOW);\n    digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n  }\n}",
+
+    "industrial_use": "Campus and facility security prototypes.",
+
+    "author_name": "NISHANTH",
+    "status": "Published",
+    "bom_cost": "₹4,100"
+  },
+
+  {
+    "id": 301,
+    "title": "Face Detection Door Lock using Raspberry Pi",
+    "level": "AI + Embedded (Foundation – Vision Systems)",
+    "category": "AI + Embedded + Machine Learning",
+    "estimatedTime": "8–10 Hours",
+    "problem_statement": "Traditional mechanical locks and RFID systems suffer from key loss, duplication, and unauthorized access. A vision-based door lock improves convenience by unlocking automatically when a human face is detected.",
+    "real_world_use_case": [
+      "Hostel room access",
+      "Home automation entry systems",
+      "Laboratory access control (non-critical)",
+      "Demo systems for computer vision learning"
+    ],
+    "note_on_security": "This project performs FACE DETECTION only, not face recognition. Any detected face can unlock the door. It is NOT suitable for high-security applications.",
+    "ai_concept": {
+      "type": "Computer Vision",
+      "task": "Face Detection",
+      "model": "Haar Cascade Classifier",
+      "training": "Pre-trained (OpenCV)",
+      "why_this_model": "Lightweight, fast, works on Raspberry Pi without GPU"
+    },
+    "system_block_flow": [
+      "Camera → Raspberry Pi",
+      "Image Processing → Face Detection",
+      "Decision Logic → GPIO Output",
+      "Relay → Door Lock"
+    ],
+    "components": [
+      {
+        "name": "Raspberry Pi 4 (2GB)",
+        "quantity": 1,
+        "specification": "Quad-core, 5V 3A",
+        "indian_cost": "₹2,800",
+        "alternatives": ["Raspberry Pi 3B+"]
+      },
+      {
+        "name": "USB Webcam / Pi Camera",
+        "quantity": 1,
+        "specification": "720p or higher",
+        "indian_cost": "₹700",
+        "alternatives": ["Pi Camera Module v2"]
+      },
+      {
+        "name": "1-Channel Relay Module",
+        "quantity": 1,
+        "specification": "5V relay, opto-isolated preferred",
+        "indian_cost": "₹120",
+        "alternatives": ["5V relay + transistor"]
+      },
+      {
+        "name": "Solenoid Door Lock",
+        "quantity": 1,
+        "specification": "12V DC, normally locked",
+        "indian_cost": "₹600",
+        "alternatives": ["Servo motor lock"]
+      },
+      {
+        "name": "Buzzer",
+        "quantity": 1,
+        "specification": "Active buzzer, 3.3V",
+        "indian_cost": "₹40"
+      },
+      {
+        "name": "12V Power Adapter",
+        "quantity": 1,
+        "specification": "For solenoid lock",
+        "indian_cost": "₹300"
+      },
+      {
+        "name": "Jumper Wires + Breadboard",
+        "quantity": 1,
+        "indian_cost": "₹150"
+      }
+    ],
+    "total_estimated_cost_india": "₹4,700 – ₹5,000",
+    "pin_configuration": {
+      "raspberry_pi": [
+        {
+          "module": "Relay",
+          "pinName": "IN",
+          "gpio": "GPIO17",
+          "voltage": "3.3V logic",
+          "direction": "Output",
+          "description": "Controls relay ON/OFF"
+        },
+        {
+          "module": "Relay",
+          "pinName": "VCC",
+          "gpio": "5V",
+          "voltage": "5V",
+          "direction": "Power",
+          "description": "Relay coil power"
+        },
+        {
+          "module": "Relay",
+          "pinName": "GND",
+          "gpio": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Common ground"
+        },
+        {
+          "module": "Buzzer",
+          "pinName": "IN",
+          "gpio": "GPIO27",
+          "voltage": "3.3V",
+          "direction": "Output",
+          "description": "Alert sound when face detected"
+        },
+        {
+          "module": "Buzzer",
+          "pinName": "GND",
+          "gpio": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Common ground"
+        }
+      ]
+    },
+    "working_explanation": [
+      "1. The Raspberry Pi continuously captures frames from the camera.",
+      "2. Each frame is converted from RGB to grayscale to reduce processing load.",
+      "3. Haar Cascade algorithm scans the image for face-like features.",
+      "4. If at least one face is detected, a logical TRUE condition is generated.",
+      "5. Raspberry Pi sets GPIO17 HIGH.",
+      "6. Relay module energizes and completes the circuit for the solenoid lock.",
+      "7. Door unlocks for a fixed delay (5 seconds).",
+      "8. After delay, GPIO17 goes LOW and door locks again.",
+      "9. Buzzer provides audible feedback during unlock."
+    ],
+    "software_stack": [
+      "Raspberry Pi OS",
+      "Python 3",
+      "OpenCV",
+      "RPi.GPIO"
+    ],
+    "code": {
+      "language": "Python",
+      "file": "face_detection_lock.py",
+      "content": "import cv2\nimport RPi.GPIO as GPIO\nimport time\n\nRELAY_PIN = 17\nBUZZER_PIN = 27\n\nGPIO.setmode(GPIO.BCM)\nGPIO.setup(RELAY_PIN, GPIO.OUT)\nGPIO.setup(BUZZER_PIN, GPIO.OUT)\n\nGPIO.output(RELAY_PIN, GPIO.LOW)\nGPIO.output(BUZZER_PIN, GPIO.LOW)\n\nface_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')\ncap = cv2.VideoCapture(0)\n\nwhile True:\n    ret, frame = cap.read()\n    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)\n    faces = face_cascade.detectMultiScale(gray, 1.3, 5)\n\n    if len(faces) > 0:\n        GPIO.output(RELAY_PIN, GPIO.HIGH)\n        GPIO.output(BUZZER_PIN, GPIO.HIGH)\n        time.sleep(5)\n        GPIO.output(RELAY_PIN, GPIO.LOW)\n        GPIO.output(BUZZER_PIN, GPIO.LOW)\n\n    if cv2.waitKey(1) & 0xFF == 27:\n        break\n\ncap.release()\nGPIO.cleanup()\ncv2.destroyAllWindows()"
+    },
+    "testing_and_output": [
+      "Run the Python script",
+      "Place a face in front of camera",
+      "Relay clicks and door unlocks",
+      "Door relocks after 5 seconds"
+    ],
+    "common_errors": [
+      "Insufficient lighting causing no detection",
+      "Using 3.3V relay instead of 5V relay",
+      "Forgetting common ground",
+      "Wrong camera index"
+    ],
+    "limitations": [
+      "Anyone's face can unlock the door",
+      "No spoof protection",
+      "Not suitable for secure environments"
+    ],
+    "improvements_next_level": [
+      "Upgrade to face recognition",
+      "Add liveness detection",
+      "Log access attempts to cloud",
+      "Add mobile notification"
+    ],
+    "mini_challenge_for_learner": "Modify the system to unlock only between specific time intervals.",
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 302,
+    "title": "Voice Controlled Home Automation using ESP32",
+    "level": "AI + Embedded (Foundation – Voice & IoT Systems)",
+    "category": "AI + Embedded + Machine Learning",
+    "estimatedTime": "7–9 Hours",
+
+    "problem_statement": "Manual operation of electrical appliances is inconvenient for elderly, disabled users, and inefficient for smart homes. Voice-controlled automation allows hands-free, remote control of appliances using natural language.",
+
+    "real_world_use_case": [
+      "Smart homes",
+      "Elderly and assisted living",
+      "Home automation startups",
+      "IoT product demonstrations"
+    ],
+
+    "note_on_ai_usage": "Voice recognition is handled by cloud-based AI (Google Assistant). ESP32 does NOT perform speech recognition; it only executes commands received from the cloud.",
+
+    "ai_concept": {
+      "type": "Speech Recognition + Intent Processing",
+      "platform": "Google Assistant",
+      "integration": "IFTTT Webhooks",
+      "reason_for_cloud_ai": "ESP32 cannot process speech locally due to memory and compute limits"
+    },
+
+    "system_block_flow": [
+      "User Voice → Google Assistant",
+      "Speech-to-Text + Intent Detection",
+      "IFTTT Webhook Trigger",
+      "HTTP Request → ESP32",
+      "GPIO Control → Relay",
+      "Appliance ON / OFF"
+    ],
+
+    "components": [
+      {
+        "name": "ESP32 Development Board",
+        "quantity": 1,
+        "specification": "WiFi + Bluetooth, 3.3V logic",
+        "indian_cost": "₹350",
+        "alternatives": ["NodeMCU ESP8266"]
+      },
+      {
+        "name": "1-Channel Relay Module",
+        "quantity": 1,
+        "specification": "5V relay, opto-isolated",
+        "indian_cost": "₹120",
+        "alternatives": ["4-channel relay (for expansion)"]
+      },
+      {
+        "name": "AC Bulb with Holder",
+        "quantity": 1,
+        "specification": "230V AC",
+        "indian_cost": "₹100"
+      },
+      {
+        "name": "5V Power Supply",
+        "quantity": 1,
+        "specification": "USB adapter for ESP32",
+        "indian_cost": "₹150"
+      },
+      {
+        "name": "Jumper Wires",
+        "quantity": 1,
+        "indian_cost": "₹100"
+      }
+    ],
+
+    "total_estimated_cost_india": "₹800 – ₹900",
+
+    "pin_configuration": {
+      "esp32": [
+        {
+          "module": "Relay",
+          "pinName": "IN",
+          "gpio": "GPIO26",
+          "voltage": "3.3V logic",
+          "direction": "Output",
+          "description": "Controls relay ON/OFF"
+        },
+        {
+          "module": "Relay",
+          "pinName": "VCC",
+          "gpio": "5V",
+          "voltage": "5V",
+          "direction": "Power",
+          "description": "Relay coil power (from ESP32 VIN or external 5V)"
+        },
+        {
+          "module": "Relay",
+          "pinName": "GND",
+          "gpio": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Common ground between ESP32 and relay"
+        }
+      ]
+    },
+
+    "working_explanation": [
+      "1. User gives a voice command such as 'Turn on the light' to Google Assistant.",
+      "2. Google Assistant converts speech to text and identifies the intent.",
+      "3. IFTTT applet is triggered based on the voice command.",
+      "4. IFTTT sends an HTTP request to the ESP32's IP address.",
+      "5. ESP32 web server receives the request (/on or /off).",
+      "6. ESP32 sets GPIO26 HIGH or LOW accordingly.",
+      "7. Relay module switches the AC appliance ON or OFF.",
+      "8. Appliance responds instantly to the voice command."
+    ],
+
+    "software_stack": [
+      "ESP32 Arduino Core",
+      "WiFi Library",
+      "WebServer Library",
+      "Google Assistant",
+      "IFTTT"
+    ],
+
+    "code": {
+      "language": "C++ (Arduino)",
+      "file": "voice_home_automation.ino",
+      "content": "#include <WiFi.h>\n#include <WebServer.h>\n\nconst char* ssid = \"YOUR_WIFI_NAME\";\nconst char* password = \"YOUR_WIFI_PASSWORD\";\n\n#define RELAY_PIN 26\n\nWebServer server(80);\n\nvoid handleOn() {\n  digitalWrite(RELAY_PIN, HIGH);\n  server.send(200, \"text/plain\", \"Light ON\");\n}\n\nvoid handleOff() {\n  digitalWrite(RELAY_PIN, LOW);\n  server.send(200, \"text/plain\", \"Light OFF\");\n}\n\nvoid setup() {\n  pinMode(RELAY_PIN, OUTPUT);\n  digitalWrite(RELAY_PIN, LOW);\n\n  WiFi.begin(ssid, password);\n  while (WiFi.status() != WL_CONNECTED) {\n    delay(500);\n  }\n\n  server.on(\"/on\", handleOn);\n  server.on(\"/off\", handleOff);\n  server.begin();\n}\n\nvoid loop() {\n  server.handleClient();\n}"
+    },
+
+    "testing_and_output": [
+      "Upload code to ESP32",
+      "Connect ESP32 to WiFi",
+      "Create IFTTT applet for voice command",
+      "Say 'Turn on the light'",
+      "Relay clicks and light turns ON",
+      "Say 'Turn off the light'",
+      "Light turns OFF"
+    ],
+
+    "common_errors": [
+      "Incorrect ESP32 IP address in IFTTT",
+      "Relay module not powered with 5V",
+      "Using GPIO pins that boot ESP32 incorrectly",
+      "No common ground"
+    ],
+
+    "limitations": [
+      "Requires internet connection",
+      "Voice processing depends on Google services",
+      "Single appliance control (expandable)"
+    ],
+
+    "improvements_next_level": [
+      "Control multiple appliances",
+      "Use MQTT instead of HTTP",
+      "Add authentication token",
+      "Offline voice assistant using Raspberry Pi"
+    ],
+
+    "mini_challenge_for_learner": "Modify the system to control two appliances using different voice commands.",
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 303,
+    "title": "Object Detection using OpenCV and Raspberry Pi",
+    "level": "AI + Embedded (Intermediate – Computer Vision)",
+    "category": "AI + Embedded + Machine Learning",
+    "estimatedTime": "9–11 Hours",
+
+    "problem_statement": "Conventional cameras can only record video and cannot understand what they see. Object detection enables machines to identify and locate real-world objects, which is essential for automation, surveillance, and robotics.",
+
+    "real_world_use_case": [
+      "Smart surveillance systems",
+      "Retail analytics (people and object monitoring)",
+      "Traffic monitoring",
+      "Robotics vision systems"
+    ],
+
+    "note_on_ai_usage": "This project uses a pre-trained deep learning model for object detection. No training is done on Raspberry Pi due to hardware limitations. Only inference (prediction) runs on the device.",
+
+    "ai_concept": {
+      "type": "Deep Learning – Computer Vision",
+      "task": "Object Detection",
+      "model": "MobileNet-SSD",
+      "dataset": "COCO / PASCAL VOC (pre-trained)",
+      "why_this_model": "Lightweight, optimized for low-power edge devices like Raspberry Pi"
+    },
+
+    "system_block_flow": [
+      "Camera → Raspberry Pi",
+      "Image Preprocessing → Blob Creation",
+      "Deep Learning Model Inference",
+      "Bounding Box + Class Label Output",
+      "Display / Decision Logic"
+    ],
+
+    "components": [
+      {
+        "name": "Raspberry Pi 4 (2GB)",
+        "quantity": 1,
+        "specification": "Quad-core ARM, 5V 3A",
+        "indian_cost": "₹2,800",
+        "alternatives": ["Raspberry Pi 3B+"]
+      },
+      {
+        "name": "USB Webcam / Pi Camera",
+        "quantity": 1,
+        "specification": "720p or higher resolution",
+        "indian_cost": "₹700",
+        "alternatives": ["Pi Camera Module v2"]
+      },
+      {
+        "name": "Micro SD Card",
+        "quantity": 1,
+        "specification": "16GB or higher, Class 10",
+        "indian_cost": "₹300"
+      },
+      {
+        "name": "5V Power Supply",
+        "quantity": 1,
+        "specification": "3A recommended",
+        "indian_cost": "₹300"
+      }
+    ],
+
+    "total_estimated_cost_india": "₹4,000 – ₹4,200",
+
+    "pin_configuration": {
+      "raspberry_pi": [
+        {
+          "module": "Camera",
+          "pinName": "USB / CSI",
+          "gpio": "USB / CSI Port",
+          "voltage": "5V (internal)",
+          "direction": "Input",
+          "description": "Video input to Raspberry Pi"
+        }
+      ]
+    },
+
+    "working_explanation": [
+      "1. Raspberry Pi captures live video frames from the camera.",
+      "2. Each frame is resized and normalized to match the input size of the neural network.",
+      "3. A blob is created from the image to prepare it for deep learning inference.",
+      "4. The MobileNet-SSD model processes the blob and detects objects.",
+      "5. For each detected object, the model outputs class ID, confidence score, and bounding box.",
+      "6. Only detections above a confidence threshold (e.g., 60%) are considered valid.",
+      "7. Bounding boxes and labels are drawn on the frame.",
+      "8. The annotated frame is displayed in real time."
+    ],
+
+    "software_stack": [
+      "Raspberry Pi OS",
+      "Python 3",
+      "OpenCV (with DNN module)",
+      "NumPy"
+    ],
+
+    "code": {
+      "language": "Python",
+      "file": "object_detection.py",
+      "content": "import cv2\nimport numpy as np\n\nprototxt = 'deploy.prototxt'\nmodel = 'mobilenet_iter_73000.caffemodel'\n\nnet = cv2.dnn.readNetFromCaffe(prototxt, model)\ncap = cv2.VideoCapture(0)\n\nCLASSES = ['background', 'aeroplane', 'bicycle', 'bird', 'boat', 'bottle',\n           'bus', 'car', 'cat', 'chair', 'cow', 'diningtable', 'dog', 'horse',\n           'motorbike', 'person', 'pottedplant', 'sheep', 'sofa', 'train', 'tvmonitor']\n\nwhile True:\n    ret, frame = cap.read()\n    if not ret:\n        break\n\n    (h, w) = frame.shape[:2]\n    blob = cv2.dnn.blobFromImage(frame, 0.007843, (300, 300), 127.5)\n    net.setInput(blob)\n    detections = net.forward()\n\n    for i in range(detections.shape[2]):\n        confidence = detections[0, 0, i, 2]\n        if confidence > 0.6:\n            idx = int(detections[0, 0, i, 1])\n            box = detections[0, 0, i, 3:7] * np.array([w, h, w, h])\n            (startX, startY, endX, endY) = box.astype('int')\n\n            label = f\"{CLASSES[idx]}: {confidence:.2f}\"\n            cv2.rectangle(frame, (startX, startY), (endX, endY), (0, 255, 0), 2)\n            cv2.putText(frame, label, (startX, startY - 10),\n                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)\n\n    cv2.imshow('Object Detection', frame)\n    if cv2.waitKey(1) & 0xFF == 27:\n        break\n\ncap.release()\ncv2.destroyAllWindows()"
+    },
+
+    "testing_and_output": [
+      "Run the Python script",
+      "Show different objects to the camera",
+      "Detected objects are highlighted with labels",
+      "Confidence score visible on screen"
+    ],
+
+    "common_errors": [
+      "Model files not found or wrong path",
+      "Low FPS due to high resolution",
+      "Insufficient lighting",
+      "Running on Raspberry Pi Zero (not supported)"
+    ],
+
+    "limitations": [
+      "Lower FPS compared to desktop systems",
+      "Limited number of detectable object classes",
+      "Accuracy depends on lighting and camera angle"
+    ],
+
+    "improvements_next_level": [
+      "Use TensorFlow Lite for better performance",
+      "Detect only specific objects (person-only detection)",
+      "Send detection data to cloud via MQTT",
+      "Add alert system for specific objects"
+    ],
+
+    "mini_challenge_for_learner": "Modify the system to detect only people and ignore all other objects.",
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+
+  {
+    "id": 304,
+    "title": "Smart Attendance System using Face Recognition",
+    "level": "AI + Embedded (Intermediate – Vision & Security Systems)",
+    "category": "AI + Embedded + Machine Learning",
+    "estimatedTime": "10–12 Hours",
+
+    "problem_statement": "Manual attendance systems are time-consuming, prone to proxy attendance, and inefficient. An automated face recognition-based attendance system improves accuracy, saves time, and provides digital records.",
+
+    "real_world_use_case": [
+      "Colleges and universities",
+      "Corporate offices",
+      "Training centers",
+      "Workshops and conferences"
+    ],
+
+    "note_on_ai_usage": "This project uses FACE RECOGNITION, not just face detection. The system identifies individuals by comparing facial features with a stored database.",
+
+    "ai_concept": {
+      "type": "Computer Vision + Pattern Recognition",
+      "task": "Face Recognition",
+      "technique": "Face Embeddings + Distance Matching",
+      "model": "HOG-based face detector + ResNet face encoder (dlib)",
+      "why_this_model": "Accurate and efficient for CPU-based systems like Raspberry Pi"
+    },
+
+    "system_block_flow": [
+      "Camera → Raspberry Pi",
+      "Face Detection → Face Encoding",
+      "Encoding Comparison with Database",
+      "Identity Match Decision",
+      "Attendance Logging (CSV / Database)"
+    ],
+
+    "components": [
+      {
+        "name": "Raspberry Pi 4 (2GB)",
+        "quantity": 1,
+        "specification": "Quad-core ARM, 5V 3A",
+        "indian_cost": "₹2,800",
+        "alternatives": ["Raspberry Pi 3B+"]
+      },
+      {
+        "name": "USB Webcam / Pi Camera",
+        "quantity": 1,
+        "specification": "720p or higher",
+        "indian_cost": "₹700",
+        "alternatives": ["Pi Camera Module v2"]
+      },
+      {
+        "name": "Micro SD Card",
+        "quantity": 1,
+        "specification": "16GB or higher",
+        "indian_cost": "₹300"
+      },
+      {
+        "name": "5V Power Adapter",
+        "quantity": 1,
+        "specification": "3A recommended",
+        "indian_cost": "₹300"
+      }
+    ],
+
+    "total_estimated_cost_india": "₹4,000 – ₹4,200",
+
+    "pin_configuration": {
+      "raspberry_pi": [
+        {
+          "module": "Camera",
+          "pinName": "USB / CSI",
+          "gpio": "USB / CSI Port",
+          "voltage": "5V (internal)",
+          "direction": "Input",
+          "description": "Video input to Raspberry Pi"
+        }
+      ]
+    },
+
+    "working_explanation": [
+      "1. The system starts by loading stored face images of authorized users.",
+      "2. Each stored image is processed to extract a unique face embedding (numerical feature vector).",
+      "3. The camera captures live video frames continuously.",
+      "4. Faces are detected in each frame using a HOG-based face detector.",
+      "5. For every detected face, a new face embedding is generated.",
+      "6. The new embedding is compared with stored embeddings using Euclidean distance.",
+      "7. If the distance is below a defined threshold, the person is identified.",
+      "8. Once identified, attendance is marked with name, date, and time.",
+      "9. Duplicate attendance for the same person on the same day is prevented."
+    ],
+
+    "software_stack": [
+      "Raspberry Pi OS",
+      "Python 3",
+      "OpenCV",
+      "face_recognition (dlib)",
+      "NumPy",
+      "CSV / SQLite"
+    ],
+
+    "code": {
+      "language": "Python",
+      "file": "face_attendance.py",
+      "content": "import face_recognition\nimport cv2\nimport os\nimport csv\nfrom datetime import datetime\n\nKNOWN_FACES_DIR = 'known_faces'\nATTENDANCE_FILE = 'attendance.csv'\n\nknown_encodings = []\nknown_names = []\n\nfor name in os.listdir(KNOWN_FACES_DIR):\n    image = face_recognition.load_image_file(f\"{KNOWN_FACES_DIR}/{name}\")\n    encoding = face_recognition.face_encodings(image)[0]\n    known_encodings.append(encoding)\n    known_names.append(os.path.splitext(name)[0])\n\ncap = cv2.VideoCapture(0)\nmarked_today = set()\n\nwith open(ATTENDANCE_FILE, 'a', newline='') as file:\n    writer = csv.writer(file)\n\n    while True:\n        ret, frame = cap.read()\n        rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)\n        locations = face_recognition.face_locations(rgb)\n        encodings = face_recognition.face_encodings(rgb, locations)\n\n        for encoding in encodings:\n            matches = face_recognition.compare_faces(known_encodings, encoding, tolerance=0.45)\n            if True in matches:\n                index = matches.index(True)\n                name = known_names[index]\n                if name not in marked_today:\n                    time_now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')\n                    writer.writerow([name, time_now])\n                    marked_today.add(name)\n\n        cv2.imshow('Attendance System', frame)\n        if cv2.waitKey(1) & 0xFF == 27:\n            break\n\ncap.release()\ncv2.destroyAllWindows()"
+    },
+
+    "testing_and_output": [
+      "Add authorized face images to known_faces folder",
+      "Run the script",
+      "Stand in front of camera",
+      "Name and timestamp added to attendance file",
+      "Attendance recorded only once per session"
+    ],
+
+    "common_errors": [
+      "Low-quality training images",
+      "Poor lighting causing false rejection",
+      "Multiple faces too close together",
+      "High CPU usage on Raspberry Pi"
+    ],
+
+    "limitations": [
+      "No liveness detection",
+      "Performance drops with many users",
+      "Sensitive to lighting changes"
+    ],
+
+    "improvements_next_level": [
+      "Add liveness detection (blink detection)",
+      "Use database instead of CSV",
+      "Upload attendance to cloud",
+      "Add admin dashboard"
+    ],
+
+    "mini_challenge_for_learner": "Prevent attendance marking if the same face appears again within 10 minutes.",
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 305,
+    "title": "Gesture Controlled Robot using MPU6050",
+    "level": "AI + Embedded (Intermediate – Human Machine Interface)",
+    "category": "AI + Embedded + Machine Learning",
+    "estimatedTime": "8–10 Hours",
+
+    "problem_statement": "Traditional button-based controllers are unintuitive and limit natural interaction. Gesture-controlled robots allow humans to control machines using natural hand movements, improving usability and response speed.",
+
+    "real_world_use_case": [
+      "Assistive robotics",
+      "Industrial robot teleoperation",
+      "Defense robots",
+      "VR and AR interaction systems",
+      "Hazardous environment robots"
+    ],
+
+    "note_on_ai_usage": "This project is a PRE-AI foundation project. Gesture control is rule-based here. It prepares data and logic required for future machine-learning-based gesture classification.",
+
+    "ai_concept": {
+      "type": "Sensor-based Motion Interpretation",
+      "current_method": "Rule-based orientation mapping",
+      "future_upgrade": "ML-based gesture classification (SVM / CNN)",
+      "why_this_stage": "Understanding raw sensor data is mandatory before applying ML models"
+    },
+
+    "system_block_flow": [
+      "Hand Movement → MPU6050 Sensor",
+      "Raw Accelerometer & Gyro Data",
+      "Orientation Calculation (Pitch & Roll)",
+      "Decision Logic",
+      "Motor Driver Control",
+      "Robot Movement"
+    ],
+
+    "components": [
+      {
+        "name": "ESP32 Development Board",
+        "quantity": 1,
+        "specification": "Dual-core MCU, 3.3V logic",
+        "indian_cost": "₹450",
+        "alternatives": ["Arduino Nano", "Arduino UNO"]
+      },
+      {
+        "name": "MPU6050 IMU Sensor",
+        "quantity": 1,
+        "specification": "3-axis Accelerometer + Gyroscope",
+        "indian_cost": "₹180"
+      },
+      {
+        "name": "L298N Motor Driver",
+        "quantity": 1,
+        "specification": "Dual H-Bridge, 5–35V",
+        "indian_cost": "₹250"
+      },
+      {
+        "name": "DC Motors",
+        "quantity": 2,
+        "specification": "150–300 RPM",
+        "indian_cost": "₹300"
+      },
+      {
+        "name": "Robot Chassis + Wheels",
+        "quantity": 1,
+        "specification": "2-wheel drive",
+        "indian_cost": "₹350"
+      },
+      {
+        "name": "Battery Pack",
+        "quantity": 1,
+        "specification": "7.4V Li-ion / 9V",
+        "indian_cost": "₹300"
+      }
+    ],
+
+    "total_estimated_cost_india": "₹1,700 – ₹2,000",
+
+    "pin_configuration": {
+      "esp32": [
+        {
+          "module": "MPU6050",
+          "pinName": "VCC",
+          "gpio": "3V3",
+          "voltage": "3.3V",
+          "direction": "Power",
+          "description": "Power supply for MPU6050"
+        },
+        {
+          "module": "MPU6050",
+          "pinName": "GND",
+          "gpio": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Common ground"
+        },
+        {
+          "module": "MPU6050",
+          "pinName": "SDA",
+          "gpio": "GPIO21",
+          "voltage": "3.3V logic",
+          "direction": "I2C Data",
+          "description": "I2C data line"
+        },
+        {
+          "module": "MPU6050",
+          "pinName": "SCL",
+          "gpio": "GPIO22",
+          "voltage": "3.3V logic",
+          "direction": "I2C Clock",
+          "description": "I2C clock line"
+        },
+        {
+          "module": "L298N",
+          "pinName": "IN1",
+          "gpio": "GPIO26",
+          "voltage": "3.3V logic",
+          "direction": "Output",
+          "description": "Left motor forward"
+        },
+        {
+          "module": "L298N",
+          "pinName": "IN2",
+          "gpio": "GPIO27",
+          "voltage": "3.3V logic",
+          "direction": "Output",
+          "description": "Left motor backward"
+        },
+        {
+          "module": "L298N",
+          "pinName": "IN3",
+          "gpio": "GPIO14",
+          "voltage": "3.3V logic",
+          "direction": "Output",
+          "description": "Right motor forward"
+        },
+        {
+          "module": "L298N",
+          "pinName": "IN4",
+          "gpio": "GPIO12",
+          "voltage": "3.3V logic",
+          "direction": "Output",
+          "description": "Right motor backward"
+        }
+      ]
+    },
+
+    "working_explanation": [
+      "1. The MPU6050 sensor is fixed on the user's hand.",
+      "2. Accelerometer data provides tilt direction (X and Y axes).",
+      "3. ESP32 reads raw acceleration values via I2C communication.",
+      "4. Threshold values are applied to determine hand tilt direction.",
+      "5. Each tilt direction is mapped to a robot movement command.",
+      "6. ESP32 sends control signals to the L298N motor driver.",
+      "7. Motors rotate accordingly, moving the robot.",
+      "8. Neutral hand position stops the robot."
+    ],
+
+    "software_stack": [
+      "Arduino IDE",
+      "ESP32 Board Package",
+      "Wire (I2C) Library",
+      "MPU6050 Library"
+    ],
+
+    "code": {
+      "language": "C++ (Arduino)",
+      "file": "gesture_robot.ino",
+      "content": "#include <Wire.h>\n#include <MPU6050.h>\n\nMPU6050 mpu;\n\n#define L1 26\n#define L2 27\n#define R1 14\n#define R2 12\n\nvoid setup() {\n  Wire.begin();\n  mpu.initialize();\n\n  pinMode(L1, OUTPUT);\n  pinMode(L2, OUTPUT);\n  pinMode(R1, OUTPUT);\n  pinMode(R2, OUTPUT);\n}\n\nvoid loop() {\n  int16_t ax, ay, az;\n  mpu.getAcceleration(&ax, &ay, &az);\n\n  if (ay > 8000) {\n    digitalWrite(L1, HIGH); digitalWrite(L2, LOW);\n    digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n  }\n  else if (ay < -8000) {\n    digitalWrite(L1, LOW); digitalWrite(L2, HIGH);\n    digitalWrite(R1, LOW); digitalWrite(R2, HIGH);\n  }\n  else if (ax > 8000) {\n    digitalWrite(L1, LOW); digitalWrite(L2, LOW);\n    digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n  }\n  else if (ax < -8000) {\n    digitalWrite(L1, HIGH); digitalWrite(L2, LOW);\n    digitalWrite(R1, LOW); digitalWrite(R2, LOW);\n  }\n  else {\n    digitalWrite(L1, LOW); digitalWrite(L2, LOW);\n    digitalWrite(R1, LOW); digitalWrite(R2, LOW);\n  }\n}"
+    },
+
+    "testing_and_output": [
+      "Wear the MPU6050 module on hand",
+      "Tilt hand forward → robot moves forward",
+      "Tilt backward → robot moves backward",
+      "Tilt left/right → robot turns",
+      "Neutral position → robot stops"
+    ],
+
+    "common_errors": [
+      "Improper MPU6050 calibration",
+      "Loose I2C connections",
+      "Noise causing unwanted movement",
+      "Battery voltage drop affecting motors"
+    ],
+
+    "limitations": [
+      "No gesture learning",
+      "Sensitive to hand shake",
+      "No wireless separation between hand and robot"
+    ],
+
+    "improvements_next_level": [
+      "Wireless control using ESP-NOW or Bluetooth",
+      "Kalman filter for noise reduction",
+      "ML-based gesture classification",
+      "Speed control using PWM"
+    ],
+
+    "mini_challenge_for_learner": "Add diagonal movement using combined X and Y axis gestures.",
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 306,
+    "title": "AI Voice Assistant using Raspberry Pi",
+    "level": "AI + Embedded (Intermediate – Voice & NLP Systems)",
+    "category": "AI + Embedded + Machine Learning",
+    "estimatedTime": "10–12 Hours",
+
+    "problem_statement": "Human–computer interaction using keyboards and screens is inefficient for many scenarios. Voice assistants enable hands-free, natural interaction, especially useful for accessibility, automation, and smart environments.",
+
+    "real_world_use_case": [
+      "Smart home control hubs",
+      "Assistive technology for elderly or disabled users",
+      "Voice-driven IoT dashboards",
+      "Hands-free industrial terminals",
+      "Educational AI systems"
+    ],
+
+    "ai_concept": {
+      "type": "Speech Recognition + Natural Language Processing",
+      "speech_to_text": "Google Speech API / Offline Vosk",
+      "intent_processing": "Rule-based NLP (can be upgraded to ML)",
+      "text_to_speech": "pyttsx3 (offline TTS)",
+      "ai_positioning": "Applied AI (Inference-based, not training)"
+    },
+
+    "system_block_flow": [
+      "Human Speech",
+      "Microphone",
+      "Speech-to-Text Engine",
+      "Text Processing & Intent Detection",
+      "Command Execution",
+      "Text-to-Speech Response"
+    ],
+
+    "components": [
+      {
+        "name": "Raspberry Pi 4 Model B",
+        "quantity": 1,
+        "specification": "4GB RAM recommended",
+        "indian_cost": "₹3,500",
+        "alternatives": ["Raspberry Pi 3B+"]
+      },
+      {
+        "name": "USB Microphone",
+        "quantity": 1,
+        "specification": "Plug-and-play condenser mic",
+        "indian_cost": "₹500"
+      },
+      {
+        "name": "Speaker",
+        "quantity": 1,
+        "specification": "3W / USB powered",
+        "indian_cost": "₹400"
+      },
+      {
+        "name": "Micro SD Card",
+        "quantity": 1,
+        "specification": "32GB Class 10",
+        "indian_cost": "₹350"
+      },
+      {
+        "name": "Power Supply",
+        "quantity": 1,
+        "specification": "5V 3A USB-C Adapter",
+        "indian_cost": "₹400"
+      }
+    ],
+
+    "total_estimated_cost_india": "₹5,000 – ₹5,500",
+
+    "pin_configuration": {
+      "raspberry_pi": [
+        {
+          "module": "USB Microphone",
+          "pinName": "USB",
+          "gpio": "USB Port",
+          "voltage": "5V (USB)",
+          "direction": "Input",
+          "description": "Captures user voice input"
+        },
+        {
+          "module": "Speaker",
+          "pinName": "USB / Audio Jack",
+          "gpio": "USB / 3.5mm",
+          "voltage": "5V / Audio Signal",
+          "direction": "Output",
+          "description": "Outputs synthesized voice response"
+        }
+      ]
+    },
+
+    "working_explanation": [
+      "1. User speaks a command near the USB microphone.",
+      "2. Microphone converts sound waves into digital audio signals.",
+      "3. SpeechRecognition library captures audio stream.",
+      "4. Audio is sent to speech-to-text engine (online or offline).",
+      "5. Converted text is analyzed using rule-based intent logic.",
+      "6. Matching command triggers corresponding system action.",
+      "7. Text-to-speech engine generates spoken response.",
+      "8. Speaker outputs the voice response to the user."
+    ],
+
+    "supported_commands_example": [
+      "What is the time",
+      "Open browser",
+      "Shutdown system",
+      "Say hello"
+    ],
+
+    "software_stack": [
+      "Raspberry Pi OS",
+      "Python 3",
+      "SpeechRecognition Library",
+      "pyttsx3",
+      "PyAudio",
+      "OS System Libraries"
+    ],
+
+    "code": {
+      "language": "Python",
+      "file": "voice_assistant.py",
+      "content": "import speech_recognition as sr\nimport pyttsx3\nimport datetime\nimport os\n\nengine = pyttsx3.init()\nrecognizer = sr.Recognizer()\n\ndef speak(text):\n    engine.say(text)\n    engine.runAndWait()\n\nspeak('Voice assistant started')\n\nwith sr.Microphone() as source:\n    recognizer.adjust_for_ambient_noise(source, duration=1)\n    audio = recognizer.listen(source)\n\ntry:\n    command = recognizer.recognize_google(audio).lower()\n\n    if 'time' in command:\n        now = datetime.datetime.now().strftime('%H:%M')\n        speak(f'The time is {now}')\n\n    elif 'open browser' in command:\n        os.system('chromium-browser &')\n        speak('Opening browser')\n\n    elif 'shutdown' in command:\n        speak('Shutting down system')\n        os.system('sudo shutdown now')\n\n    elif 'hello' in command:\n        speak('Hello, how can I help you')\n\n    else:\n        speak('Sorry, command not recognized')\n\nexcept sr.UnknownValueError:\n    speak('I could not understand')\nexcept sr.RequestError:\n    speak('Speech service unavailable')"
+    },
+
+    "testing_and_output": [
+      "Run Python script on Raspberry Pi",
+      "Speak supported command clearly",
+      "System executes command",
+      "Voice response confirms action"
+    ],
+
+    "common_errors": [
+      "Microphone not detected by OS",
+      "PyAudio installation failure",
+      "Internet required for Google STT",
+      "Ambient noise reducing accuracy"
+    ],
+
+    "limitations": [
+      "Depends on internet for online STT",
+      "Rule-based intent detection only",
+      "Single-command execution"
+    ],
+
+    "improvements_next_level": [
+      "Offline STT using Vosk",
+      "Wake-word detection",
+      "ESP32 / IoT device control",
+      "ML-based intent classification",
+      "Continuous listening mode"
+    ],
+
+    "mini_challenge_for_learner": "Add voice command to control an LED connected to GPIO.",
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 306,
+    "title": "AI Voice Assistant using Raspberry Pi",
+    "level": "AI + Embedded (Intermediate – Voice & NLP Systems)",
+    "category": "AI + Embedded + Machine Learning",
+    "estimatedTime": "10–12 Hours",
+
+    "problem_statement": "Human–computer interaction using keyboards and screens is inefficient for many scenarios. Voice assistants enable hands-free, natural interaction, especially useful for accessibility, automation, and smart environments.",
+
+    "real_world_use_case": [
+      "Smart home control hubs",
+      "Assistive technology for elderly or disabled users",
+      "Voice-driven IoT dashboards",
+      "Hands-free industrial terminals",
+      "Educational AI systems"
+    ],
+
+    "ai_concept": {
+      "type": "Speech Recognition + Natural Language Processing",
+      "speech_to_text": "Google Speech API / Offline Vosk",
+      "intent_processing": "Rule-based NLP (can be upgraded to ML)",
+      "text_to_speech": "pyttsx3 (offline TTS)",
+      "ai_positioning": "Applied AI (Inference-based, not training)"
+    },
+
+    "system_block_flow": [
+      "Human Speech",
+      "Microphone",
+      "Speech-to-Text Engine",
+      "Text Processing & Intent Detection",
+      "Command Execution",
+      "Text-to-Speech Response"
+    ],
+
+    "components": [
+      {
+        "name": "Raspberry Pi 4 Model B",
+        "quantity": 1,
+        "specification": "4GB RAM recommended",
+        "indian_cost": "₹3,500",
+        "alternatives": ["Raspberry Pi 3B+"]
+      },
+      {
+        "name": "USB Microphone",
+        "quantity": 1,
+        "specification": "Plug-and-play condenser mic",
+        "indian_cost": "₹500"
+      },
+      {
+        "name": "Speaker",
+        "quantity": 1,
+        "specification": "3W / USB powered",
+        "indian_cost": "₹400"
+      },
+      {
+        "name": "Micro SD Card",
+        "quantity": 1,
+        "specification": "32GB Class 10",
+        "indian_cost": "₹350"
+      },
+      {
+        "name": "Power Supply",
+        "quantity": 1,
+        "specification": "5V 3A USB-C Adapter",
+        "indian_cost": "₹400"
+      }
+    ],
+
+    "total_estimated_cost_india": "₹5,000 – ₹5,500",
+
+    "pin_configuration": {
+      "raspberry_pi": [
+        {
+          "module": "USB Microphone",
+          "pinName": "USB",
+          "gpio": "USB Port",
+          "voltage": "5V (USB)",
+          "direction": "Input",
+          "description": "Captures user voice input"
+        },
+        {
+          "module": "Speaker",
+          "pinName": "USB / Audio Jack",
+          "gpio": "USB / 3.5mm",
+          "voltage": "5V / Audio Signal",
+          "direction": "Output",
+          "description": "Outputs synthesized voice response"
+        }
+      ]
+    },
+
+    "working_explanation": [
+      "1. User speaks a command near the USB microphone.",
+      "2. Microphone converts sound waves into digital audio signals.",
+      "3. SpeechRecognition library captures audio stream.",
+      "4. Audio is sent to speech-to-text engine (online or offline).",
+      "5. Converted text is analyzed using rule-based intent logic.",
+      "6. Matching command triggers corresponding system action.",
+      "7. Text-to-speech engine generates spoken response.",
+      "8. Speaker outputs the voice response to the user."
+    ],
+
+    "supported_commands_example": [
+      "What is the time",
+      "Open browser",
+      "Shutdown system",
+      "Say hello"
+    ],
+
+    "software_stack": [
+      "Raspberry Pi OS",
+      "Python 3",
+      "SpeechRecognition Library",
+      "pyttsx3",
+      "PyAudio",
+      "OS System Libraries"
+    ],
+
+    "code": {
+      "language": "Python",
+      "file": "voice_assistant.py",
+      "content": "import speech_recognition as sr\nimport pyttsx3\nimport datetime\nimport os\n\nengine = pyttsx3.init()\nrecognizer = sr.Recognizer()\n\ndef speak(text):\n    engine.say(text)\n    engine.runAndWait()\n\nspeak('Voice assistant started')\n\nwith sr.Microphone() as source:\n    recognizer.adjust_for_ambient_noise(source, duration=1)\n    audio = recognizer.listen(source)\n\ntry:\n    command = recognizer.recognize_google(audio).lower()\n\n    if 'time' in command:\n        now = datetime.datetime.now().strftime('%H:%M')\n        speak(f'The time is {now}')\n\n    elif 'open browser' in command:\n        os.system('chromium-browser &')\n        speak('Opening browser')\n\n    elif 'shutdown' in command:\n        speak('Shutting down system')\n        os.system('sudo shutdown now')\n\n    elif 'hello' in command:\n        speak('Hello, how can I help you')\n\n    else:\n        speak('Sorry, command not recognized')\n\nexcept sr.UnknownValueError:\n    speak('I could not understand')\nexcept sr.RequestError:\n    speak('Speech service unavailable')"
+    },
+
+    "testing_and_output": [
+      "Run Python script on Raspberry Pi",
+      "Speak supported command clearly",
+      "System executes command",
+      "Voice response confirms action"
+    ],
+
+    "common_errors": [
+      "Microphone not detected by OS",
+      "PyAudio installation failure",
+      "Internet required for Google STT",
+      "Ambient noise reducing accuracy"
+    ],
+
+    "limitations": [
+      "Depends on internet for online STT",
+      "Rule-based intent detection only",
+      "Single-command execution"
+    ],
+
+    "improvements_next_level": [
+      "Offline STT using Vosk",
+      "Wake-word detection",
+      "ESP32 / IoT device control",
+      "ML-based intent classification",
+      "Continuous listening mode"
+    ],
+
+    "mini_challenge_for_learner": "Add voice command to control an LED connected to GPIO.",
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 307,
+    "title": "Emotion Detection using Webcam",
+    "level": "AI + Embedded (Intermediate – Computer Vision & Deep Learning)",
+    "category": "AI + Embedded + Machine Learning",
+    "estimatedTime": "10–12 Hours",
+
+    "problem_statement": "Machines cannot naturally understand human emotions. Lack of emotional awareness limits effective human–computer interaction in education, healthcare, and customer-facing systems.",
+
+    "real_world_use_case": [
+      "Smart classrooms (student engagement analysis)",
+      "Mental health monitoring tools",
+      "Customer sentiment analysis kiosks",
+      "Human–robot interaction systems",
+      "Driver monitoring systems"
+    ],
+
+    "ai_concept": {
+      "type": "Deep Learning – Facial Expression Recognition",
+      "model": "Convolutional Neural Network (CNN)",
+      "dataset": "FER-2013 (Facial Expression Recognition)",
+      "learning_type": "Supervised Learning",
+      "output_classes": [
+        "Angry",
+        "Disgust",
+        "Fear",
+        "Happy",
+        "Sad",
+        "Surprise",
+        "Neutral"
+      ]
+    },
+
+    "system_block_flow": [
+      "Webcam",
+      "Face Detection (Haar Cascade)",
+      "Face Preprocessing",
+      "CNN Emotion Classifier",
+      "Emotion Label Output"
+    ],
+
+    "components": [
+      {
+        "name": "Raspberry Pi 4 Model B",
+        "quantity": 1,
+        "specification": "4GB RAM recommended",
+        "indian_cost": "₹3,500",
+        "alternatives": ["Laptop / PC (for faster inference)"]
+      },
+      {
+        "name": "USB Webcam",
+        "quantity": 1,
+        "specification": "720p minimum",
+        "indian_cost": "₹700"
+      },
+      {
+        "name": "Micro SD Card",
+        "quantity": 1,
+        "specification": "32GB Class 10",
+        "indian_cost": "₹350"
+      },
+      {
+        "name": "Power Supply",
+        "quantity": 1,
+        "specification": "5V 3A Adapter",
+        "indian_cost": "₹400"
+      }
+    ],
+
+    "total_estimated_cost_india": "₹4,800 – ₹5,200",
+
+    "pin_configuration": {
+      "raspberry_pi": [
+        {
+          "module": "USB Webcam",
+          "pinName": "USB",
+          "gpio": "USB Port",
+          "voltage": "5V (USB)",
+          "direction": "Input",
+          "description": "Captures live facial images"
+        }
+      ]
+    },
+
+    "working_explanation": [
+      "1. Webcam continuously captures live video frames.",
+      "2. Each frame is converted to grayscale for faster processing.",
+      "3. Haar Cascade classifier detects face regions in the frame.",
+      "4. Detected face is cropped and resized to 48×48 pixels.",
+      "5. Image is normalized and reshaped for CNN input.",
+      "6. CNN predicts emotion probabilities for each class.",
+      "7. Emotion with highest probability is selected.",
+      "8. Emotion label is displayed on the video stream."
+    ],
+
+    "software_stack": [
+      "Raspberry Pi OS",
+      "Python 3",
+      "OpenCV",
+      "TensorFlow / Keras",
+      "NumPy"
+    ],
+
+    "model_details": {
+      "input_shape": "48×48×1 (Grayscale)",
+      "architecture": [
+        "Conv2D",
+        "MaxPooling",
+        "Dropout",
+        "Fully Connected Layers",
+        "Softmax Output"
+      ],
+      "inference_type": "Edge inference (on Raspberry Pi)"
+    },
+
+    "code": {
+      "language": "Python",
+      "file": "emotion_detection.py",
+      "content": "import cv2\nimport numpy as np\nfrom tensorflow.keras.models import load_model\n\n# Load trained emotion model\nmodel = load_model('emotion_model.h5')\n\n# Load Haar Cascade for face detection\nface_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')\n\nemotion_labels = ['Angry', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral']\n\ncap = cv2.VideoCapture(0)\n\nwhile True:\n    ret, frame = cap.read()\n    if not ret:\n        break\n\n    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)\n    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.3, minNeighbors=5)\n\n    for (x, y, w, h) in faces:\n        roi_gray = gray[y:y+h, x:x+w]\n        roi_gray = cv2.resize(roi_gray, (48, 48))\n        roi_gray = roi_gray / 255.0\n        roi_gray = roi_gray.reshape(1, 48, 48, 1)\n\n        predictions = model.predict(roi_gray)\n        emotion_index = np.argmax(predictions)\n        emotion_text = emotion_labels[emotion_index]\n\n        cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)\n        cv2.putText(frame, emotion_text, (x, y-10),\n                    cv2.FONT_HERSHEY_SIMPLEX, 0.9, (255, 0, 0), 2)\n\n    cv2.imshow('Emotion Detection', frame)\n\n    if cv2.waitKey(1) & 0xFF == 27:\n        break\n\ncap.release()\ncv2.destroyAllWindows()"
+    },
+
+    "testing_and_output": [
+      "Run Python script",
+      "Show face clearly to webcam",
+      "Detected emotion appears above face",
+      "Real-time emotion updates with facial change"
+    ],
+
+    "common_errors": [
+      "Low lighting causing misclassification",
+      "Wrong input image size to model",
+      "Model file path incorrect",
+      "High CPU usage on Raspberry Pi"
+    ],
+
+    "limitations": [
+      "Accuracy depends on lighting and camera quality",
+      "Emotion prediction is probabilistic",
+      "Not suitable for medical diagnosis"
+    ],
+
+    "improvements_next_level": [
+      "Use TensorFlow Lite for faster inference",
+      "Temporal smoothing over multiple frames",
+      "Combine audio emotion detection",
+      "Deploy on Edge TPU",
+      "Emotion-triggered automation"
+    ],
+
+    "mini_challenge_for_learner": "Trigger different LED colors for different detected emotions.",
+
+    "ethical_note": "Emotion detection should not be used for decision-making affecting personal rights.",
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 308,
+    "title": "Intruder Detection using AI Camera",
+    "level": "AI + Embedded (Intermediate – Vision-based Security Systems)",
+    "category": "AI + Embedded + Machine Learning",
+    "estimatedTime": "10–12 Hours",
+
+    "problem_statement": "Traditional motion sensors trigger false alarms due to pets, shadows, or lighting changes. A vision-based AI system can accurately distinguish humans from other movements, improving security reliability.",
+
+    "real_world_use_case": [
+      "Home security systems",
+      "Office surveillance",
+      "Warehouse intrusion monitoring",
+      "Restricted-area protection",
+      "Smart campus security"
+    ],
+
+    "ai_concept": {
+      "type": "Computer Vision – Object Detection",
+      "model": "MobileNet-SSD / YOLOv5 (Person class)",
+      "learning_type": "Supervised Learning (Pre-trained model)",
+      "inference_location": "Edge (Raspberry Pi)"
+    },
+
+    "system_block_flow": [
+      "Camera",
+      "Frame Capture",
+      "AI Object Detection",
+      "Human (Person) Classification",
+      "Decision Logic",
+      "Alert / Actuator Trigger"
+    ],
+
+    "components": [
+      {
+        "name": "Raspberry Pi 4 Model B",
+        "quantity": 1,
+        "specification": "4GB RAM recommended",
+        "indian_cost": "₹3,500",
+        "alternatives": ["Raspberry Pi 3B+"]
+      },
+      {
+        "name": "USB Webcam / Pi Camera",
+        "quantity": 1,
+        "specification": "720p or higher",
+        "indian_cost": "₹700"
+      },
+      {
+        "name": "Active Buzzer",
+        "quantity": 1,
+        "specification": "3.3V compatible",
+        "indian_cost": "₹80"
+      },
+      {
+        "name": "Micro SD Card",
+        "quantity": 1,
+        "specification": "32GB Class 10",
+        "indian_cost": "₹350"
+      },
+      {
+        "name": "Power Supply",
+        "quantity": 1,
+        "specification": "5V 3A Adapter",
+        "indian_cost": "₹400"
+      }
+    ],
+
+    "total_estimated_cost_india": "₹5,000 – ₹5,200",
+
+    "pin_configuration": {
+      "raspberry_pi": [
+        {
+          "module": "Buzzer",
+          "pinName": "VCC",
+          "gpio": "3.3V",
+          "voltage": "3.3V",
+          "direction": "Power",
+          "description": "Supplies power to buzzer"
+        },
+        {
+          "module": "Buzzer",
+          "pinName": "GND",
+          "gpio": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Common ground"
+        },
+        {
+          "module": "Buzzer",
+          "pinName": "IN",
+          "gpio": "GPIO18",
+          "voltage": "3.3V Logic",
+          "direction": "Output",
+          "description": "Triggers buzzer when intruder detected"
+        },
+        {
+          "module": "Camera",
+          "pinName": "USB / CSI",
+          "gpio": "USB Port / CSI Slot",
+          "voltage": "5V / CSI",
+          "direction": "Input",
+          "description": "Captures live video feed"
+        }
+      ]
+    },
+
+    "working_explanation": [
+      "1. Camera continuously captures live video frames.",
+      "2. Each frame is resized and preprocessed for AI inference.",
+      "3. Object detection model analyzes the frame.",
+      "4. Detected objects are classified into predefined classes.",
+      "5. System filters detections to 'Person' class only.",
+      "6. Confidence score is compared against threshold.",
+      "7. If human detected consistently, alert is triggered.",
+      "8. Buzzer activates and message is displayed/logged."
+    ],
+
+    "software_stack": [
+      "Raspberry Pi OS",
+      "Python 3",
+      "OpenCV",
+      "TensorFlow Lite / YOLO",
+      "RPi.GPIO",
+      "NumPy"
+    ],
+
+    "model_details": {
+      "input_resolution": "300×300 (MobileNet-SSD)",
+      "fps": "8–12 FPS on Raspberry Pi 4",
+      "confidence_threshold": "0.6",
+      "target_class": "Person"
+    },
+
+    "code": {
+      "language": "Python",
+      "file": "intruder_detection.py",
+      "content": "import cv2\nimport RPi.GPIO as GPIO\nimport time\n\nBUZZER = 18\nGPIO.setmode(GPIO.BCM)\nGPIO.setup(BUZZER, GPIO.OUT)\nGPIO.output(BUZZER, GPIO.LOW)\n\nnet = cv2.dnn.readNetFromCaffe(\n    'deploy.prototxt',\n    'mobilenet_iter_73000.caffemodel'\n)\n\ncap = cv2.VideoCapture(0)\n\nwhile True:\n    ret, frame = cap.read()\n    if not ret:\n        break\n\n    blob = cv2.dnn.blobFromImage(frame, 0.007843, (300, 300), 127.5)\n    net.setInput(blob)\n    detections = net.forward()\n\n    intruder_detected = False\n\n    for i in range(detections.shape[2]):\n        confidence = detections[0, 0, i, 2]\n        class_id = int(detections[0, 0, i, 1])\n\n        if class_id == 15 and confidence > 0.6:  # Person class\n            intruder_detected = True\n\n    if intruder_detected:\n        GPIO.output(BUZZER, GPIO.HIGH)\n        cv2.putText(frame, 'INTRUDER DETECTED', (20, 40),\n                    cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 3)\n    else:\n        GPIO.output(BUZZER, GPIO.LOW)\n\n    cv2.imshow('Intruder Detection', frame)\n\n    if cv2.waitKey(1) & 0xFF == 27:\n        break\n\ncap.release()\nGPIO.cleanup()\ncv2.destroyAllWindows()"
+    },
+
+    "testing_and_output": [
+      "Run the script on Raspberry Pi",
+      "Walk in front of the camera",
+      "Human detection triggers buzzer",
+      "Non-human movement ignored"
+    ],
+
+    "common_errors": [
+      "Wrong model files path",
+      "Low FPS due to high resolution",
+      "False positives due to reflections",
+      "GPIO permission issues"
+    ],
+
+    "limitations": [
+      "Performance drops in low light",
+      "Single camera coverage",
+      "CPU-intensive on Raspberry Pi"
+    ],
+
+    "improvements_next_level": [
+      "Add PIR sensor for sensor fusion",
+      "Send alerts via MQTT / Telegram",
+      "Enable night vision IR camera",
+      "Use Edge TPU for acceleration",
+      "Cloud-based event logging"
+    ],
+
+    "mini_challenge_for_learner": "Trigger alert only if person is detected for 3 consecutive seconds.",
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 309,
+    "title": "Automatic Hand Sanitizer Dispenser with IR Sensor",
+    "level": "AI + Embedded (Foundation – Smart Automation System)",
+    "category": "AI + Embedded + Machine Learning",
+    "estimatedTime": "4–6 Hours",
+
+    "problem_statement": "Manual sanitizer dispensers increase the risk of cross-contamination and are inefficient in public places. A contactless automated dispenser improves hygiene and reduces disease transmission.",
+
+    "real_world_use_case": [
+      "Hospitals and clinics",
+      "Schools and colleges",
+      "Airports and railway stations",
+      "Office buildings",
+      "Shopping malls"
+    ],
+
+    "ai_concept": {
+      "type": "Rule-based Embedded Intelligence",
+      "reason": "This application requires deterministic, fast response rather than probabilistic AI",
+      "upgrade_path": "Can be extended with usage analytics or AI-based people counting"
+    },
+
+    "system_block_flow": [
+      "IR Proximity Sensor",
+      "Signal Conditioning",
+      "Microcontroller (ESP32 / Arduino)",
+      "Relay / Motor Driver",
+      "Pump / Servo Motor",
+      "Sanitizer Dispensing"
+    ],
+
+    "components": [
+      {
+        "name": "ESP32 Development Board",
+        "quantity": 1,
+        "specification": "WiFi-enabled microcontroller",
+        "indian_cost": "₹350",
+        "alternatives": ["Arduino UNO"]
+      },
+      {
+        "name": "IR Proximity Sensor Module",
+        "quantity": 1,
+        "specification": "Digital output, adjustable sensitivity",
+        "indian_cost": "₹80"
+      },
+      {
+        "name": "Relay Module (5V, Single Channel)",
+        "quantity": 1,
+        "specification": "Opto-isolated relay",
+        "indian_cost": "₹120",
+        "alternatives": ["Logic-level MOSFET module"]
+      },
+      {
+        "name": "DC Water Pump / Mini Pump",
+        "quantity": 1,
+        "specification": "5–6V DC pump",
+        "indian_cost": "₹250"
+      },
+      {
+        "name": "Power Supply",
+        "quantity": 1,
+        "specification": "5V 2A Adapter / Battery Pack",
+        "indian_cost": "₹200"
+      }
+    ],
+
+    "total_estimated_cost_india": "₹900 – ₹1,100",
+
+    "pin_configuration": {
+      "esp32": [
+        {
+          "module": "IR Sensor",
+          "pinName": "VCC",
+          "gpio": "3V3",
+          "voltage": "3.3V",
+          "direction": "Power",
+          "description": "Supplies power to IR sensor"
+        },
+        {
+          "module": "IR Sensor",
+          "pinName": "GND",
+          "gpio": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Common ground reference"
+        },
+        {
+          "module": "IR Sensor",
+          "pinName": "OUT",
+          "gpio": "GPIO34",
+          "voltage": "3.3V Logic",
+          "direction": "Input",
+          "description": "Goes LOW when hand is detected"
+        },
+        {
+          "module": "Relay Module",
+          "pinName": "VCC",
+          "gpio": "5V",
+          "voltage": "5V",
+          "direction": "Power",
+          "description": "Relay operating voltage"
+        },
+        {
+          "module": "Relay Module",
+          "pinName": "GND",
+          "gpio": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Common ground with ESP32"
+        },
+        {
+          "module": "Relay Module",
+          "pinName": "IN",
+          "gpio": "GPIO25",
+          "voltage": "3.3V Logic",
+          "direction": "Output",
+          "description": "Controls ON/OFF state of pump"
+        }
+      ]
+    },
+
+    "working_explanation": [
+      "1. IR proximity sensor continuously emits infrared light.",
+      "2. When a hand is placed near the sensor, IR light reflects back.",
+      "3. Sensor output pin changes logic state (LOW).",
+      "4. ESP32 reads the sensor output via GPIO.",
+      "5. When detection is confirmed, ESP32 activates relay output.",
+      "6. Relay switches ON the DC pump.",
+      "7. Pump dispenses sanitizer for a fixed duration.",
+      "8. ESP32 switches OFF relay and enforces cooldown time."
+    ],
+
+    "software_stack": [
+      "ESP32 Arduino Core",
+      "Embedded C/C++"
+    ],
+
+    "code": {
+      "language": "C++ (Arduino)",
+      "file": "auto_sanitizer.ino",
+      "content": "#define IR_PIN 34\n#define RELAY_PIN 25\n\nunsigned long lastTrigger = 0;\nconst unsigned long cooldownTime = 3000;\n\nvoid setup() {\n  pinMode(IR_PIN, INPUT);\n  pinMode(RELAY_PIN, OUTPUT);\n  digitalWrite(RELAY_PIN, LOW);\n}\n\nvoid loop() {\n  if (digitalRead(IR_PIN) == LOW) {\n    if (millis() - lastTrigger > cooldownTime) {\n      digitalWrite(RELAY_PIN, HIGH);\n      delay(800);  // dispense duration\n      digitalWrite(RELAY_PIN, LOW);\n      lastTrigger = millis();\n    }\n  }\n}"
+    },
+
+    "testing_and_output": [
+      "Power ON the system",
+      "Place hand near IR sensor",
+      "Pump activates automatically",
+      "Sanitizer dispensed once per detection"
+    ],
+
+    "common_errors": [
+      "IR sensor sensitivity not calibrated",
+      "Insufficient power supply for pump",
+      "Relay not sharing common ground",
+      "Continuous triggering without cooldown"
+    ],
+
+    "limitations": [
+      "Cannot detect liquid level",
+      "No usage tracking",
+      "Rule-based logic only"
+    ],
+
+    "improvements_next_level": [
+      "Add ultrasonic sensor for liquid level",
+      "ESP32 WiFi dashboard for usage stats",
+      "Battery-powered solar version",
+      "AI-based people counting integration"
+    ],
+
+    "mini_challenge_for_learner": "Add an OLED display to show daily usage count.",
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 310,
+    "title": "Smart Security Camera with Motion Detection",
+    "level": "AI + Embedded (Intermediate – Vision-based Monitoring)",
+    "category": "AI + Embedded + Machine Learning",
+    "estimatedTime": "6–8 Hours",
+
+    "problem_statement": "Continuous video recording wastes storage, power, and makes event analysis difficult. A motion-based smart camera records and alerts only when meaningful activity occurs.",
+
+    "real_world_use_case": [
+      "Home CCTV systems",
+      "Office surveillance",
+      "Retail shop security",
+      "Warehouse monitoring",
+      "Hostel and campus security"
+    ],
+
+    "ai_concept": {
+      "type": "Computer Vision (Classical Vision)",
+      "technique": "Frame Differencing + Contour Analysis",
+      "reason": "Lightweight and suitable for Raspberry Pi",
+      "upgrade_path": "AI-based human detection using deep learning"
+    },
+
+    "system_block_flow": [
+      "Camera",
+      "Frame Capture",
+      "Grayscale Conversion",
+      "Frame Differencing",
+      "Thresholding & Contour Detection",
+      "Motion Decision Logic",
+      "Alert / Recording Trigger"
+    ],
+
+    "components": [
+      {
+        "name": "Raspberry Pi 4 Model B",
+        "quantity": 1,
+        "specification": "2GB / 4GB RAM",
+        "indian_cost": "₹3,500",
+        "alternatives": ["Raspberry Pi 3B+"]
+      },
+      {
+        "name": "USB Webcam / Pi Camera",
+        "quantity": 1,
+        "specification": "720p resolution",
+        "indian_cost": "₹700"
+      },
+      {
+        "name": "Active Buzzer",
+        "quantity": 1,
+        "specification": "3.3V compatible",
+        "indian_cost": "₹80"
+      },
+      {
+        "name": "Micro SD Card",
+        "quantity": 1,
+        "specification": "32GB Class 10",
+        "indian_cost": "₹350"
+      },
+      {
+        "name": "Power Adapter",
+        "quantity": 1,
+        "specification": "5V 3A",
+        "indian_cost": "₹400"
+      }
+    ],
+
+    "total_estimated_cost_india": "₹5,000 – ₹5,200",
+
+    "pin_configuration": {
+      "raspberry_pi": [
+        {
+          "module": "Buzzer",
+          "pinName": "VCC",
+          "gpio": "3.3V",
+          "voltage": "3.3V",
+          "direction": "Power",
+          "description": "Supplies power to buzzer"
+        },
+        {
+          "module": "Buzzer",
+          "pinName": "GND",
+          "gpio": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Common ground"
+        },
+        {
+          "module": "Buzzer",
+          "pinName": "IN",
+          "gpio": "GPIO23",
+          "voltage": "3.3V Logic",
+          "direction": "Output",
+          "description": "Activated when motion is detected"
+        },
+        {
+          "module": "Camera",
+          "pinName": "USB / CSI",
+          "gpio": "USB Port / CSI Slot",
+          "voltage": "5V / CSI",
+          "direction": "Input",
+          "description": "Captures live video feed"
+        }
+      ]
+    },
+
+    "working_explanation": [
+      "1. Camera continuously captures video frames.",
+      "2. Two consecutive frames are converted to grayscale.",
+      "3. Absolute difference between frames is calculated.",
+      "4. Noise is reduced using Gaussian blur.",
+      "5. Thresholding converts differences into binary image.",
+      "6. Contours are extracted from thresholded image.",
+      "7. Large contour area indicates motion.",
+      "8. Motion event triggers buzzer and on-screen alert."
+    ],
+
+    "software_stack": [
+      "Raspberry Pi OS",
+      "Python 3",
+      "OpenCV",
+      "RPi.GPIO"
+    ],
+
+    "motion_detection_parameters": {
+      "min_contour_area": "3000 pixels",
+      "threshold_value": "20",
+      "blur_kernel": "5x5",
+      "fps": "12–15 FPS"
+    },
+
+    "code": {
+      "language": "Python",
+      "file": "motion_camera.py",
+      "content": "import cv2\nimport RPi.GPIO as GPIO\n\nBUZZER = 23\nGPIO.setmode(GPIO.BCM)\nGPIO.setup(BUZZER, GPIO.OUT)\nGPIO.output(BUZZER, GPIO.LOW)\n\ncap = cv2.VideoCapture(0)\nret, frame1 = cap.read()\nret, frame2 = cap.read()\n\nwhile True:\n    diff = cv2.absdiff(frame1, frame2)\n    gray = cv2.cvtColor(diff, cv2.COLOR_BGR2GRAY)\n    blur = cv2.GaussianBlur(gray, (5, 5), 0)\n    _, thresh = cv2.threshold(blur, 20, 255, cv2.THRESH_BINARY)\n    dilated = cv2.dilate(thresh, None, iterations=3)\n    contours, _ = cv2.findContours(dilated, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)\n\n    motion_detected = False\n    for contour in contours:\n        if cv2.contourArea(contour) > 3000:\n            motion_detected = True\n            break\n\n    if motion_detected:\n        GPIO.output(BUZZER, GPIO.HIGH)\n        cv2.putText(frame1, 'MOTION DETECTED', (20, 40),\n                    cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 3)\n    else:\n        GPIO.output(BUZZER, GPIO.LOW)\n\n    cv2.imshow('Security Camera', frame1)\n    frame1 = frame2\n    ret, frame2 = cap.read()\n\n    if cv2.waitKey(1) & 0xFF == 27:\n        break\n\ncap.release()\nGPIO.cleanup()\ncv2.destroyAllWindows()"
+    },
+
+    "testing_and_output": [
+      "Run the Python script",
+      "Move in front of camera",
+      "Motion text appears on screen",
+      "Buzzer activates on motion"
+    ],
+
+    "common_errors": [
+      "False triggers due to lighting change",
+      "Incorrect contour area threshold",
+      "Camera noise in low light",
+      "GPIO permission denied"
+    ],
+
+    "limitations": [
+      "Cannot differentiate human vs object",
+      "Sensitive to lighting changes",
+      "Single-camera coverage"
+    ],
+
+    "improvements_next_level": [
+      "Add AI-based person detection",
+      "Record video clips on motion",
+      "Send alerts via Telegram / MQTT",
+      "Integrate PIR + vision fusion",
+      "Night vision camera support"
+    ],
+
+    "mini_challenge_for_learner": "Save a video clip automatically when motion is detected.",
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 311,
+    "title": "Voice Recognition using Arduino + Bluetooth",
+    "level": "AI + Embedded (Foundation – Voice-Controlled Systems)",
+    "category": "AI + Embedded + Machine Learning",
+    "estimatedTime": "5–6 Hours",
+
+    "problem_statement": "Low-cost microcontrollers like Arduino cannot perform speech recognition due to limited memory and processing power. By offloading speech recognition to a smartphone and using Bluetooth for communication, voice-controlled embedded systems become feasible and affordable.",
+
+    "real_world_use_case": [
+      "Voice-controlled robots",
+      "Home automation modules",
+      "Assistive devices for disabled users",
+      "Hands-free industrial controls",
+      "Educational robotics kits"
+    ],
+
+    "ai_concept": {
+      "type": "Speech Recognition (Cloud / Smartphone-based)",
+      "speech_processing_location": "Smartphone (Google Speech Engine)",
+      "embedded_role": "Command parsing and execution",
+      "learning_type": "Pre-trained speech model (no on-device training)"
+    },
+
+    "system_block_flow": [
+      "Human Voice",
+      "Smartphone Microphone",
+      "Speech-to-Text Engine",
+      "Bluetooth Transmission",
+      "Arduino Command Parsing",
+      "Actuator Control"
+    ],
+
+    "components": [
+      {
+        "name": "Arduino UNO",
+        "quantity": 1,
+        "specification": "ATmega328P",
+        "indian_cost": "₹450",
+        "alternatives": ["Arduino Nano"]
+      },
+      {
+        "name": "HC-05 Bluetooth Module",
+        "quantity": 1,
+        "specification": "Classic Bluetooth, 9600 baud",
+        "indian_cost": "₹250"
+      },
+      {
+        "name": "Relay Module / LED",
+        "quantity": 1,
+        "specification": "5V logic",
+        "indian_cost": "₹120"
+      },
+      {
+        "name": "Resistor Divider",
+        "quantity": 2,
+        "specification": "1.8kΩ + 3.3kΩ",
+        "indian_cost": "₹20"
+      },
+      {
+        "name": "Power Supply",
+        "quantity": 1,
+        "specification": "USB / 7–12V Adapter",
+        "indian_cost": "₹150"
+      }
+    ],
+
+    "total_estimated_cost_india": "₹900 – ₹1,000",
+
+    "pin_configuration": {
+      "arduino": [
+        {
+          "module": "HC-05",
+          "pinName": "VCC",
+          "gpio": "5V",
+          "voltage": "5V",
+          "direction": "Power",
+          "description": "Supplies power to Bluetooth module"
+        },
+        {
+          "module": "HC-05",
+          "pinName": "GND",
+          "gpio": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Common ground reference"
+        },
+        {
+          "module": "HC-05",
+          "pinName": "TXD",
+          "gpio": "D10",
+          "voltage": "3.3V Logic",
+          "direction": "Input",
+          "description": "Bluetooth data to Arduino RX"
+        },
+        {
+          "module": "HC-05",
+          "pinName": "RXD",
+          "gpio": "D11",
+          "voltage": "3.3V Logic",
+          "direction": "Output",
+          "description": "Arduino TX via voltage divider"
+        },
+        {
+          "module": "Relay / LED",
+          "pinName": "IN",
+          "gpio": "D8",
+          "voltage": "5V Logic",
+          "direction": "Output",
+          "description": "Controls external device"
+        }
+      ]
+    },
+
+    "working_explanation": [
+      "1. User speaks a command into a smartphone.",
+      "2. Mobile app converts speech to text using Google Speech Engine.",
+      "3. Text command is sent via Bluetooth (HC-05).",
+      "4. Arduino receives command through SoftwareSerial.",
+      "5. Command string is parsed and matched.",
+      "6. Corresponding GPIO pin is switched ON or OFF.",
+      "7. Relay or LED responds to the voice command."
+    ],
+
+    "software_stack": [
+      "Arduino IDE",
+      "SoftwareSerial Library",
+      "Bluetooth Voice Control Android App"
+    ],
+
+    "supported_commands_example": [
+      "on",
+      "off"
+    ],
+
+    "code": {
+      "language": "C++ (Arduino)",
+      "file": "voice_bt_control.ino",
+      "content": "#include <SoftwareSerial.h>\n\nSoftwareSerial bt(10, 11); // RX, TX\n#define DEVICE_PIN 8\n\nvoid setup() {\n  pinMode(DEVICE_PIN, OUTPUT);\n  digitalWrite(DEVICE_PIN, LOW);\n  bt.begin(9600);\n}\n\nvoid loop() {\n  if (bt.available()) {\n    String command = bt.readStringUntil('\\n');\n    command.trim();\n\n    if (command == \"on\") {\n      digitalWrite(DEVICE_PIN, HIGH);\n    } else if (command == \"off\") {\n      digitalWrite(DEVICE_PIN, LOW);\n    }\n  }\n}"
+    },
+
+    "testing_and_output": [
+      "Pair smartphone with HC-05",
+      "Open voice control app",
+      "Speak 'on' or 'off'",
+      "Connected device responds correctly"
+    ],
+
+    "common_errors": [
+      "HC-05 RX pin not level-shifted",
+      "Incorrect baud rate",
+      "Bluetooth pairing failure",
+      "Extra newline characters in command"
+    ],
+
+    "limitations": [
+      "Depends on smartphone for AI",
+      "Limited vocabulary",
+      "No authentication"
+    ],
+
+    "improvements_next_level": [
+      "Add command confirmation feedback",
+      "Control multiple devices",
+      "Password-protected commands",
+      "Upgrade to ESP32 with on-device WiFi"
+    ],
+
+    "mini_challenge_for_learner": "Add voice command to control fan speed levels.",
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 312,
+    "title": "Number Plate Detection System",
+    "level": "AI + Embedded (Intermediate – Computer Vision & OCR)",
+    "category": "AI + Embedded + Machine Learning",
+    "estimatedTime": "10–12 Hours",
+
+    "problem_statement": "Manual vehicle identification is slow, error-prone, and not scalable. An automated number plate detection system enables fast, accurate vehicle identification for traffic management and security systems.",
+
+    "real_world_use_case": [
+      "Smart parking systems",
+      "Toll booth automation",
+      "Traffic law enforcement",
+      "Campus vehicle access control",
+      "Apartment security gates"
+    ],
+
+    "ai_concept": {
+      "type": "Computer Vision + Optical Character Recognition (OCR)",
+      "plate_detection": "Contour-based localization (classical vision)",
+      "text_recognition": "Tesseract OCR",
+      "learning_type": "Pre-trained OCR model",
+      "upgrade_path": "Deep learning-based plate detection (YOLO)"
+    },
+
+    "system_block_flow": [
+      "Camera",
+      "Image Capture",
+      "Preprocessing (Grayscale, Blur)",
+      "Edge Detection",
+      "Number Plate Localization",
+      "OCR Text Extraction",
+      "Result Display / Logging"
+    ],
+
+    "components": [
+      {
+        "name": "Raspberry Pi 4 Model B",
+        "quantity": 1,
+        "specification": "4GB RAM",
+        "indian_cost": "₹3,500",
+        "alternatives": ["Laptop / PC"]
+      },
+      {
+        "name": "USB Webcam / Pi Camera",
+        "quantity": 1,
+        "specification": "1080p preferred for clarity",
+        "indian_cost": "₹1,000"
+      },
+      {
+        "name": "Micro SD Card",
+        "quantity": 1,
+        "specification": "32GB Class 10",
+        "indian_cost": "₹350"
+      },
+      {
+        "name": "Power Adapter",
+        "quantity": 1,
+        "specification": "5V 3A",
+        "indian_cost": "₹400"
+      }
+    ],
+
+    "total_estimated_cost_india": "₹5,200 – ₹5,500",
+
+    "pin_configuration": {
+      "raspberry_pi": [
+        {
+          "module": "Camera",
+          "pinName": "USB / CSI",
+          "gpio": "USB Port / CSI Slot",
+          "voltage": "5V / CSI",
+          "direction": "Input",
+          "description": "Captures vehicle images"
+        }
+      ]
+    },
+
+    "working_explanation": [
+      "1. Camera captures an image of the vehicle.",
+      "2. Image is converted to grayscale for processing.",
+      "3. Bilateral filter removes noise while preserving edges.",
+      "4. Canny edge detection highlights sharp transitions.",
+      "5. Contours are detected from edge image.",
+      "6. Quadrilateral contours are filtered as number plate candidates.",
+      "7. Plate region is cropped from original image.",
+      "8. OCR engine extracts alphanumeric text.",
+      "9. Detected number plate is displayed or stored."
+    ],
+
+    "software_stack": [
+      "Raspberry Pi OS",
+      "Python 3",
+      "OpenCV",
+      "Tesseract OCR",
+      "pytesseract"
+    ],
+
+    "ocr_configuration": {
+      "psm_mode": "8 (Single word)",
+      "language": "English",
+      "preprocessing": "Grayscale + thresholding"
+    },
+
+    "code": {
+      "language": "Python",
+      "file": "number_plate_detection.py",
+      "content": "import cv2\nimport pytesseract\n\n# Load image\nimg = cv2.imread('vehicle.jpg')\n\n# Preprocessing\ngray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)\nblur = cv2.bilateralFilter(gray, 11, 17, 17)\nedged = cv2.Canny(blur, 30, 200)\n\n# Find contours\ncontours, _ = cv2.findContours(edged, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)\ncontours = sorted(contours, key=cv2.contourArea, reverse=True)[:10]\nplate = None\n\nfor cnt in contours:\n    approx = cv2.approxPolyDP(cnt, 10, True)\n    if len(approx) == 4:\n        x, y, w, h = cv2.boundingRect(cnt)\n        plate = gray[y:y+h, x:x+w]\n        cv2.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 2)\n        break\n\nif plate is not None:\n    text = pytesseract.image_to_string(plate, config='--psm 8')\n    print('Detected Plate:', text)\n\ncv2.imshow('Result', img)\ncv2.waitKey(0)\ncv2.destroyAllWindows()"
+    },
+
+    "testing_and_output": [
+      "Place a vehicle image in project folder",
+      "Run Python script",
+      "Detected plate highlighted",
+      "Plate number printed on console"
+    ],
+
+    "common_errors": [
+      "Low-resolution images reduce OCR accuracy",
+      "Skewed or tilted plates not detected",
+      "Tesseract not installed correctly",
+      "Poor lighting conditions"
+    ],
+
+    "limitations": [
+      "Not robust for fast-moving vehicles",
+      "Fails in extreme angles",
+      "OCR errors for dirty plates"
+    ],
+
+    "improvements_next_level": [
+      "YOLO-based number plate detection",
+      "Real-time video processing",
+      "Indian plate dataset fine-tuning",
+      "Database + cloud integration"
+    ],
+
+    "mini_challenge_for_learner": "Detect and log multiple number plates from a video feed.",
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 313,
+    "title": "Speech-to-Text Conversion using Raspberry Pi",
+    "level": "AI + Embedded (Intermediate – Speech Processing Systems)",
+    "category": "AI + Embedded + Machine Learning",
+    "estimatedTime": "6–8 Hours",
+
+    "problem_statement": "Machines cannot inherently understand spoken language. Converting speech into text enables voice-driven automation, accessibility solutions, and data analysis in embedded systems.",
+
+    "real_world_use_case": [
+      "Voice assistants",
+      "Meeting transcription systems",
+      "Accessibility tools for speech-impaired users",
+      "Voice-controlled IoT systems",
+      "Smart kiosks and terminals"
+    ],
+
+    "ai_concept": {
+      "type": "Automatic Speech Recognition (ASR)",
+      "models": [
+        "Google Speech API (Online)",
+        "Vosk (Offline ASR)"
+      ],
+      "learning_type": "Pre-trained Deep Learning Models",
+      "inference_location": "Edge device with optional cloud support"
+    },
+
+    "system_block_flow": [
+      "Human Speech",
+      "Microphone",
+      "Audio Signal Capture",
+      "Speech-to-Text Engine",
+      "Text Output / Storage"
+    ],
+
+    "components": [
+      {
+        "name": "Raspberry Pi 4 Model B",
+        "quantity": 1,
+        "specification": "2GB / 4GB RAM",
+        "indian_cost": "₹3,500",
+        "alternatives": ["Raspberry Pi 3B+"]
+      },
+      {
+        "name": "USB Microphone",
+        "quantity": 1,
+        "specification": "Condenser mic, plug-and-play",
+        "indian_cost": "₹500"
+      },
+      {
+        "name": "Micro SD Card",
+        "quantity": 1,
+        "specification": "32GB Class 10",
+        "indian_cost": "₹350"
+      },
+      {
+        "name": "Power Adapter",
+        "quantity": 1,
+        "specification": "5V 3A",
+        "indian_cost": "₹400"
+      }
+    ],
+
+    "total_estimated_cost_india": "₹4,700 – ₹5,000",
+
+    "pin_configuration": {
+      "raspberry_pi": [
+        {
+          "module": "USB Microphone",
+          "pinName": "USB",
+          "gpio": "USB Port",
+          "voltage": "5V (USB)",
+          "direction": "Input",
+          "description": "Captures audio input from user"
+        }
+      ]
+    },
+
+    "working_explanation": [
+      "1. User speaks into the USB microphone.",
+      "2. Microphone converts sound waves into digital audio samples.",
+      "3. Audio stream is captured using PyAudio backend.",
+      "4. SpeechRecognition library sends audio to ASR engine.",
+      "5. ASR model converts speech waveform into text.",
+      "6. Transcribed text is printed, saved, or forwarded to other systems."
+    ],
+
+    "software_stack": [
+      "Raspberry Pi OS",
+      "Python 3",
+      "SpeechRecognition Library",
+      "PyAudio",
+      "Vosk (Offline ASR)",
+      "Google Speech API (Optional)"
+    ],
+
+    "asr_comparison": {
+      "online": {
+        "engine": "Google Speech API",
+        "accuracy": "High",
+        "internet_required": true
+      },
+      "offline": {
+        "engine": "Vosk",
+        "accuracy": "Moderate",
+        "internet_required": false
+      }
+    },
+
+    "code": {
+      "language": "Python",
+      "file": "speech_to_text.py",
+      "content": "import speech_recognition as sr\n\nrecognizer = sr.Recognizer()\n\nwith sr.Microphone() as source:\n    print('Speak now...')\n    recognizer.adjust_for_ambient_noise(source, duration=1)\n    audio = recognizer.listen(source)\n\ntry:\n    text = recognizer.recognize_google(audio)\n    print('Recognized Text:', text)\nexcept sr.UnknownValueError:\n    print('Speech not understood')\nexcept sr.RequestError:\n    print('Speech service unavailable')"
+    },
+
+    "testing_and_output": [
+      "Connect USB microphone",
+      "Run Python script",
+      "Speak a sentence clearly",
+      "Converted text appears on terminal"
+    ],
+
+    "common_errors": [
+      "Microphone not detected by OS",
+      "PyAudio installation failure",
+      "Internet unavailable for online ASR",
+      "High background noise"
+    ],
+
+    "limitations": [
+      "Accuracy affected by noise",
+      "Online ASR depends on internet",
+      "Offline ASR has limited vocabulary"
+    ],
+
+    "improvements_next_level": [
+      "Wake-word detection",
+      "Noise suppression filters",
+      "Language auto-detection",
+      "Direct command-to-action mapping"
+    ],
+
+    "mini_challenge_for_learner": "Store converted speech into a text file with timestamp.",
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 314,
+    "title": "Mask Detection during COVID-19",
+    "level": "AI + Embedded (Intermediate – Public Safety Computer Vision)",
+    "category": "AI + Embedded + Machine Learning",
+    "estimatedTime": "8–10 Hours",
+
+    "problem_statement": "Manual enforcement of mask compliance in public spaces is inefficient and unsafe. An automated vision-based system can continuously monitor and identify whether individuals are wearing masks, enabling safer public environments.",
+
+    "real_world_use_case": [
+      "Hospitals and clinics",
+      "Airports and railway stations",
+      "Office buildings",
+      "Shopping malls",
+      "Educational institutions"
+    ],
+
+    "ai_concept": {
+      "type": "Image Classification + Face Detection",
+      "pipeline": [
+        "Face Detection",
+        "Face Region Extraction",
+        "Mask / No-Mask Classification"
+      ],
+      "model": "Convolutional Neural Network (CNN)",
+      "learning_type": "Supervised Learning",
+      "dataset": "MaskedFace-Net / Custom Mask Dataset"
+    },
+
+    "system_block_flow": [
+      "Camera",
+      "Frame Capture",
+      "Face Detection",
+      "Face Preprocessing",
+      "CNN Mask Classifier",
+      "Decision Logic",
+      "Alert / Display"
+    ],
+
+    "components": [
+      {
+        "name": "Raspberry Pi 4 Model B",
+        "quantity": 1,
+        "specification": "4GB RAM recommended",
+        "indian_cost": "₹3,500",
+        "alternatives": ["Laptop / PC"]
+      },
+      {
+        "name": "USB Webcam / Pi Camera",
+        "quantity": 1,
+        "specification": "720p or higher",
+        "indian_cost": "₹700"
+      },
+      {
+        "name": "Active Buzzer",
+        "quantity": 1,
+        "specification": "3.3V compatible",
+        "indian_cost": "₹80"
+      },
+      {
+        "name": "Micro SD Card",
+        "quantity": 1,
+        "specification": "32GB Class 10",
+        "indian_cost": "₹350"
+      },
+      {
+        "name": "Power Adapter",
+        "quantity": 1,
+        "specification": "5V 3A",
+        "indian_cost": "₹400"
+      }
+    ],
+
+    "total_estimated_cost_india": "₹5,000 – ₹5,300",
+
+    "pin_configuration": {
+      "raspberry_pi": [
+        {
+          "module": "Buzzer",
+          "pinName": "VCC",
+          "gpio": "3.3V",
+          "voltage": "3.3V",
+          "direction": "Power",
+          "description": "Supplies power to buzzer"
+        },
+        {
+          "module": "Buzzer",
+          "pinName": "GND",
+          "gpio": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Common ground"
+        },
+        {
+          "module": "Buzzer",
+          "pinName": "IN",
+          "gpio": "GPIO24",
+          "voltage": "3.3V Logic",
+          "direction": "Output",
+          "description": "Activated when no-mask is detected"
+        },
+        {
+          "module": "Camera",
+          "pinName": "USB / CSI",
+          "gpio": "USB Port / CSI Slot",
+          "voltage": "5V / CSI",
+          "direction": "Input",
+          "description": "Captures live video feed"
+        }
+      ]
+    },
+
+    "working_explanation": [
+      "1. Camera continuously captures live video frames.",
+      "2. Each frame is converted to RGB and grayscale formats.",
+      "3. Face detection algorithm locates face regions.",
+      "4. Each face region is cropped and resized.",
+      "5. Face image is normalized for CNN input.",
+      "6. CNN classifies face as 'Mask' or 'No Mask'.",
+      "7. Decision logic evaluates prediction confidence.",
+      "8. Alert is triggered if 'No Mask' is detected."
+    ],
+
+    "software_stack": [
+      "Raspberry Pi OS",
+      "Python 3",
+      "OpenCV",
+      "TensorFlow / Keras",
+      "NumPy",
+      "RPi.GPIO"
+    ],
+
+    "model_details": {
+      "input_shape": "128×128×3",
+      "output_classes": ["Mask", "No Mask"],
+      "loss_function": "Categorical Crossentropy",
+      "optimizer": "Adam"
+    },
+
+    "code": {
+      "language": "Python",
+      "file": "mask_detection.py",
+      "content": "import cv2\nimport numpy as np\nfrom tensorflow.keras.models import load_model\nimport RPi.GPIO as GPIO\n\nBUZZER = 24\nGPIO.setmode(GPIO.BCM)\nGPIO.setup(BUZZER, GPIO.OUT)\nGPIO.output(BUZZER, GPIO.LOW)\n\nmodel = load_model('mask_model.h5')\nface_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')\nlabels = ['Mask', 'No Mask']\n\ncap = cv2.VideoCapture(0)\n\nwhile True:\n    ret, frame = cap.read()\n    if not ret:\n        break\n\n    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)\n    faces = face_cascade.detectMultiScale(gray, 1.3, 5)\n\n    for (x, y, w, h) in faces:\n        face = frame[y:y+h, x:x+w]\n        face = cv2.resize(face, (128, 128))\n        face = face / 255.0\n        face = np.reshape(face, (1, 128, 128, 3))\n\n        prediction = model.predict(face)\n        class_index = np.argmax(prediction)\n        label = labels[class_index]\n\n        color = (0, 255, 0) if label == 'Mask' else (0, 0, 255)\n        cv2.rectangle(frame, (x, y), (x+w, y+h), color, 2)\n        cv2.putText(frame, label, (x, y-10),\n                    cv2.FONT_HERSHEY_SIMPLEX, 0.9, color, 2)\n\n        if label == 'No Mask':\n            GPIO.output(BUZZER, GPIO.HIGH)\n        else:\n            GPIO.output(BUZZER, GPIO.LOW)\n\n    cv2.imshow('Mask Detection', frame)\n    if cv2.waitKey(1) & 0xFF == 27:\n        break\n\ncap.release()\nGPIO.cleanup()\ncv2.destroyAllWindows()"
+    },
+
+    "testing_and_output": [
+      "Run Python script",
+      "Stand in front of camera",
+      "Mask status displayed above face",
+      "Buzzer activates for no-mask condition"
+    ],
+
+    "common_errors": [
+      "Model input size mismatch",
+      "Low lighting causing misclassification",
+      "False detection due to face covering styles",
+      "Incorrect GPIO pin numbering"
+    ],
+
+    "limitations": [
+      "Accuracy depends on dataset quality",
+      "Cannot detect transparent masks",
+      "Ethical concerns if misused"
+    ],
+
+    "improvements_next_level": [
+      "TensorFlow Lite optimization",
+      "Multi-face tracking with ID assignment",
+      "Cloud-based compliance reporting",
+      "Thermal camera integration"
+    ],
+
+    "mini_challenge_for_learner": "Log timestamp and image when a no-mask event occurs.",
+
+    "ethical_note": "This system should be used for safety awareness, not punitive surveillance.",
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 315,
+    "title": "Object Tracking Car using OpenCV",
+    "level": "AI + Embedded (Intermediate – Vision-Based Control)",
+    "category": "AI + Embedded + Machine Learning",
+    "estimatedTime": "12–14 Hours",
+
+    "problem_statement": "Traditional robotic cars follow fixed paths or manual commands. They cannot dynamically react to moving objects. Object tracking enables robots to visually follow a target, making them suitable for real-world interaction and autonomous navigation.",
+
+    "real_world_use_case": [
+      "Human-following robots",
+      "Autonomous delivery carts",
+      "Surveillance robots",
+      "Warehouse assistance robots",
+      "Educational robotics platforms"
+    ],
+
+    "ai_concept": {
+      "type": "Computer Vision",
+      "task": "Object Tracking",
+      "method": "Color-based segmentation + contour tracking",
+      "learning": "Rule-based vision (no training)",
+      "upgrade_path": "Deep learning object tracking (YOLO + SORT)"
+    },
+
+    "hardware": {
+      "processor": "Raspberry Pi 4",
+      "camera": "Pi Camera v2 / USB Webcam",
+      "motor_driver": "L298N",
+      "motors": "DC Geared Motors (2 or 4)",
+      "chassis": "Robot car chassis",
+      "power": "12V battery (motors) + 5V buck converter"
+    },
+
+    "working_principle": [
+      "Camera captures live video frames",
+      "Frame converted from BGR to HSV color space",
+      "Target color isolated using HSV thresholding",
+      "Largest contour selected as target object",
+      "Centroid position calculated",
+      "Horizontal error computed relative to frame center",
+      "Motor commands generated to follow the object"
+    ],
+
+    "control_logic": {
+      "center_tolerance": "±40 pixels",
+      "left_turn": "Object centroid < center - tolerance",
+      "right_turn": "Object centroid > center + tolerance",
+      "forward_motion": "Object within tolerance",
+      "stop_condition": "No object detected"
+    },
+
+    "pin_config": {
+      "raspberry_pi": [
+        {
+          "module": "L298N",
+          "pinName": "IN1",
+          "pin": "GPIO17",
+          "voltage": "3.3V",
+          "direction": "Output",
+          "description": "Left motor forward control"
+        },
+        {
+          "module": "L298N",
+          "pinName": "IN2",
+          "pin": "GPIO27",
+          "voltage": "3.3V",
+          "direction": "Output",
+          "description": "Left motor reverse control"
+        },
+        {
+          "module": "L298N",
+          "pinName": "IN3",
+          "pin": "GPIO22",
+          "voltage": "3.3V",
+          "direction": "Output",
+          "description": "Right motor forward control"
+        },
+        {
+          "module": "L298N",
+          "pinName": "IN4",
+          "pin": "GPIO23",
+          "voltage": "3.3V",
+          "direction": "Output",
+          "description": "Right motor reverse control"
+        },
+        {
+          "module": "Camera",
+          "pinName": "CSI",
+          "pin": "CSI Port",
+          "voltage": "3.3V",
+          "direction": "Input",
+          "description": "Video input from Pi Camera"
+        }
+      ]
+    },
+
+    "software_stack": [
+      "Python 3",
+      "OpenCV",
+      "NumPy",
+      "RPi.GPIO"
+    ],
+
+    "code": {
+      "language": "Python",
+      "file": "object_tracking_car.py",
+      "content": "import cv2\nimport numpy as np\nimport RPi.GPIO as GPIO\n\nGPIO.setmode(GPIO.BCM)\nL1, L2, R1, R2 = 17, 27, 22, 23\nfor pin in [L1, L2, R1, R2]:\n    GPIO.setup(pin, GPIO.OUT)\n    GPIO.output(pin, GPIO.LOW)\n\ncap = cv2.VideoCapture(0)\nFRAME_CENTER_TOL = 40\n\nwhile True:\n    ret, frame = cap.read()\n    if not ret:\n        break\n\n    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)\n\n    lower = np.array([25, 150, 80])\n    upper = np.array([35, 255, 255])\n    mask = cv2.inRange(hsv, lower, upper)\n\n    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)\n\n    if contours:\n        c = max(contours, key=cv2.contourArea)\n        x, y, w, h = cv2.boundingRect(c)\n        cx = x + w // 2\n        frame_center = frame.shape[1] // 2\n\n        if cx < frame_center - FRAME_CENTER_TOL:\n            GPIO.output(L1, GPIO.LOW)\n            GPIO.output(L2, GPIO.HIGH)\n            GPIO.output(R1, GPIO.HIGH)\n            GPIO.output(R2, GPIO.LOW)\n        elif cx > frame_center + FRAME_CENTER_TOL:\n            GPIO.output(L1, GPIO.HIGH)\n            GPIO.output(L2, GPIO.LOW)\n            GPIO.output(R1, GPIO.LOW)\n            GPIO.output(R2, GPIO.HIGH)\n        else:\n            GPIO.output(L1, GPIO.HIGH)\n            GPIO.output(L2, GPIO.LOW)\n            GPIO.output(R1, GPIO.HIGH)\n            GPIO.output(R2, GPIO.LOW)\n    else:\n        for pin in [L1, L2, R1, R2]:\n            GPIO.output(pin, GPIO.LOW)\n\n    if cv2.waitKey(1) == 27:\n        break\n\ncap.release()\nGPIO.cleanup()\ncv2.destroyAllWindows()"
+    },
+
+    "testing_output": "Robot continuously follows the colored target object and stops when the object disappears.",
+
+    "common_errors": [
+      "Incorrect HSV values for lighting conditions",
+      "Motor power insufficient",
+      "Camera lag causing oscillation",
+      "No common ground between Pi and motor driver"
+    ],
+
+    "improvements": [
+      "PID control for smoother tracking",
+      "Distance estimation using object size",
+      "YOLO-based person tracking",
+      "ESP32 offloading motor control"
+    ],
+
+    "mini_challenge": "Track a moving person instead of a colored object.",
+
+    "estimated_cost_india": {
+      "raspberry_pi": "₹3,500",
+      "camera": "₹800",
+      "motor_driver": "₹250",
+      "dc_motors": "₹600",
+      "chassis": "₹700",
+      "battery_and_converter": "₹600",
+      "total": "₹6,450 (approx)"
+    },
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 316,
+    "title": "Automatic Pet Feeder with AI-based Detection",
+    "level": "AI + Embedded (Intermediate – Intelligent Automation)",
+    "category": "AI + Embedded + Machine Learning",
+    "estimatedTime": "12–14 Hours",
+
+    "problem_statement": "Conventional automatic pet feeders dispense food at fixed times, which can cause overfeeding, food wastage, or feeding in the absence of the pet. An AI-based pet feeder ensures food is dispensed only when the pet is actually present.",
+
+    "real_world_use_case": [
+      "Smart pet care systems",
+      "Home automation for pet owners",
+      "Veterinary observation setups",
+      "Animal shelters",
+      "Research on animal behavior"
+    ],
+
+    "ai_concept": {
+      "type": "Computer Vision – Object Detection",
+      "model": "MobileNet-SSD / YOLOv5 (Person/Animal classes)",
+      "learning": "Pre-trained model (COCO dataset)",
+      "reason": "Lightweight enough for Raspberry Pi edge inference",
+      "upgrade_path": "Pet-specific fine-tuned model (Dog/Cat classification)"
+    },
+
+    "hardware": {
+      "processor": "Raspberry Pi 4 (4GB recommended)",
+      "camera": "Pi Camera v2 / USB Webcam",
+      "actuator": "Servo Motor (SG90 / MG995)",
+      "mechanism": "Rotary food dispenser flap",
+      "power": "5V 3A power supply",
+      "optional": "Load cell for portion verification"
+    },
+
+    "working_principle": [
+      "Camera continuously monitors feeding area",
+      "Video frames are passed to the AI object detection model",
+      "Model detects presence of pet (dog/cat)",
+      "Confidence threshold validated to avoid false triggers",
+      "If pet detected → servo rotates to dispense food",
+      "Cooldown timer prevents repeated dispensing",
+      "System returns to monitoring state"
+    ],
+
+    "decision_logic": {
+      "detection_confidence": "≥ 0.6",
+      "dispense_duration": "0.8 – 1.2 seconds",
+      "cooldown_period": "10 minutes",
+      "fail_safe": "No dispense if camera feed fails"
+    },
+
+    "pin_config": {
+      "raspberry_pi": [
+        {
+          "module": "Servo Motor",
+          "pinName": "Signal",
+          "pin": "GPIO18",
+          "voltage": "3.3V (PWM)",
+          "direction": "Output",
+          "description": "Controls servo rotation for food dispensing"
+        },
+        {
+          "module": "Servo Motor",
+          "pinName": "VCC",
+          "pin": "5V",
+          "voltage": "5V",
+          "direction": "Power",
+          "description": "Provides power to servo motor (use external supply)"
+        },
+        {
+          "module": "Servo Motor",
+          "pinName": "GND",
+          "pin": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Common ground with Raspberry Pi"
+        },
+        {
+          "module": "Camera",
+          "pinName": "CSI",
+          "pin": "CSI Port",
+          "voltage": "3.3V",
+          "direction": "Input",
+          "description": "Video input from Pi Camera"
+        }
+      ]
+    },
+
+    "software_stack": [
+      "Python 3",
+      "OpenCV",
+      "TensorFlow Lite",
+      "RPi.GPIO",
+      "NumPy"
+    ],
+
+    "code": {
+      "language": "Python",
+      "file": "ai_pet_feeder.py",
+      "content": "import cv2\nimport time\nimport RPi.GPIO as GPIO\n\nSERVO_PIN = 18\nGPIO.setmode(GPIO.BCM)\nGPIO.setup(SERVO_PIN, GPIO.OUT)\n\npwm = GPIO.PWM(SERVO_PIN, 50)\npwm.start(0)\n\ncap = cv2.VideoCapture(0)\nlast_dispense = 0\nCOOLDOWN = 600  # seconds\n\n\ndef dispense_food():\n    pwm.ChangeDutyCycle(7.5)\n    time.sleep(1)\n    pwm.ChangeDutyCycle(2.5)\n\nwhile True:\n    ret, frame = cap.read()\n    if not ret:\n        continue\n\n    pet_detected = True  # replace with AI detection output\n\n    if pet_detected and (time.time() - last_dispense > COOLDOWN):\n        dispense_food()\n        last_dispense = time.time()\n\n    if cv2.waitKey(1) == 27:\n        break\n\ncap.release()\npwm.stop()\nGPIO.cleanup()"
+    },
+
+    "testing_output": "When a pet is detected near the feeder, food is dispensed once and locked for the cooldown period.",
+
+    "common_errors": [
+      "Servo drawing too much current from Pi",
+      "False detection due to background movement",
+      "Improper servo angle calibration",
+      "No common ground between servo supply and Pi"
+    ],
+
+    "improvements": [
+      "Pet face recognition (individual pet feeding)",
+      "Portion control using load cell",
+      "Mobile app feeding logs",
+      "Night vision camera support"
+    ],
+
+    "mini_challenge": "Feed different pets with different portion sizes based on recognition.",
+
+    "estimated_cost_india": {
+      "raspberry_pi_4": "₹3,500",
+      "camera": "₹700",
+      "servo_motor": "₹250",
+      "power_supply": "₹400",
+      "mechanical_parts": "₹500",
+      "total": "₹5,350 (approx)"
+    },
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 317,
+    "title": "Face Recognition Door Unlock System",
+    "level": "AI + Embedded (Intermediate–Advanced Security System)",
+    "category": "AI + Embedded + Machine Learning",
+    "estimatedTime": "14–16 Hours",
+
+    "problem_statement": "Basic door locks and face-detection-based systems cannot verify identity and are vulnerable to unauthorized access. A face recognition-based door unlock system ensures that only registered individuals can unlock the door, improving security and access control.",
+
+    "real_world_use_case": [
+      "Smart home security",
+      "Office access control",
+      "Research labs",
+      "Hostel and PG entrances",
+      "Restricted rooms in institutions"
+    ],
+
+    "ai_concept": {
+      "type": "Face Recognition (Identification)",
+      "method": "Face embeddings + distance comparison",
+      "model": "HOG-based face encoding (dlib)",
+      "learning": "Feature-based (no online training required)",
+      "reason": "Accurate and efficient for Raspberry Pi edge inference"
+    },
+
+    "hardware": {
+      "processor": "Raspberry Pi 4 (4GB recommended)",
+      "camera": "Pi Camera v2 / USB Webcam",
+      "actuator": "Solenoid Lock / Servo Lock via Relay",
+      "alert": "Buzzer (optional)",
+      "power": "5V 3A Adapter (separate supply for lock recommended)"
+    },
+
+    "working_principle": [
+      "Authorized users are registered by capturing face images",
+      "Face encodings are generated and stored securely",
+      "Camera captures live video frames continuously",
+      "Detected faces are encoded in real time",
+      "Live encodings are compared with stored encodings",
+      "If distance is within threshold → access granted",
+      "Relay activates lock for fixed duration",
+      "System automatically relocks after timeout"
+    ],
+
+    "security_logic": {
+      "matching_metric": "Euclidean distance",
+      "acceptance_threshold": "≤ 0.45",
+      "unlock_duration": "5 seconds",
+      "retry_limit": "Unlimited (can be restricted)",
+      "fail_safe": "Door remains locked on camera or system failure"
+    },
+
+    "pin_config": {
+      "raspberry_pi": [
+        {
+          "module": "Relay Module",
+          "pinName": "VCC",
+          "pin": "5V",
+          "voltage": "5V",
+          "direction": "Power",
+          "description": "Power supply for relay module"
+        },
+        {
+          "module": "Relay Module",
+          "pinName": "GND",
+          "pin": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Common ground with Raspberry Pi"
+        },
+        {
+          "module": "Relay Module",
+          "pinName": "IN",
+          "pin": "GPIO17",
+          "voltage": "3.3V",
+          "direction": "Output",
+          "description": "Controls door lock ON/OFF"
+        },
+        {
+          "module": "Buzzer",
+          "pinName": "VCC",
+          "pin": "3.3V",
+          "voltage": "3.3V",
+          "direction": "Power",
+          "description": "Power for alert buzzer"
+        },
+        {
+          "module": "Buzzer",
+          "pinName": "GND",
+          "pin": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Ground connection"
+        },
+        {
+          "module": "Buzzer",
+          "pinName": "IN",
+          "pin": "GPIO27",
+          "voltage": "3.3V",
+          "direction": "Output",
+          "description": "Triggers alert on unauthorized attempt"
+        }
+      ]
+    },
+
+    "software_stack": [
+      "Python 3",
+      "OpenCV",
+      "face_recognition (dlib)",
+      "RPi.GPIO",
+      "NumPy"
+    ],
+
+    "code": {
+      "language": "Python",
+      "file": "face_unlock_system.py",
+      "content": "import cv2\nimport face_recognition\nimport RPi.GPIO as GPIO\nimport time\n\nLOCK_PIN = 17\nBUZZER_PIN = 27\n\nGPIO.setmode(GPIO.BCM)\nGPIO.setup(LOCK_PIN, GPIO.OUT)\nGPIO.setup(BUZZER_PIN, GPIO.OUT)\nGPIO.output(LOCK_PIN, GPIO.LOW)\n\nknown_image = face_recognition.load_image_file('authorized_user.jpg')\nknown_encoding = face_recognition.face_encodings(known_image)[0]\n\ncap = cv2.VideoCapture(0)\n\nwhile True:\n    ret, frame = cap.read()\n    if not ret:\n        continue\n\n    rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)\n    locations = face_recognition.face_locations(rgb)\n    encodings = face_recognition.face_encodings(rgb, locations)\n\n    for encoding in encodings:\n        distance = face_recognition.face_distance([known_encoding], encoding)[0]\n        if distance <= 0.45:\n            GPIO.output(LOCK_PIN, GPIO.HIGH)\n            time.sleep(5)\n            GPIO.output(LOCK_PIN, GPIO.LOW)\n        else:\n            GPIO.output(BUZZER_PIN, GPIO.HIGH)\n            time.sleep(1)\n            GPIO.output(BUZZER_PIN, GPIO.LOW)\n\n    if cv2.waitKey(1) == 27:\n        break\n\ncap.release()\nGPIO.cleanup()\ncv2.destroyAllWindows()"
+    },
+
+    "testing_output": "Authorized face unlocks door for 5 seconds; unauthorized face triggers buzzer and no unlock.",
+
+    "common_errors": [
+      "Poor lighting causing false rejection",
+      "Improper camera angle",
+      "Relay powered directly from Pi without isolation",
+      "Using face detection instead of recognition"
+    ],
+
+    "improvements": [
+      "Multiple user database support",
+      "Anti-spoofing using blink detection",
+      "Access logging with timestamps",
+      "Mobile notification on failed attempts"
+    ],
+
+    "mini_challenge": "Add OTP fallback if face recognition fails three times.",
+
+    "estimated_cost_india": {
+      "raspberry_pi_4": "₹3,500",
+      "camera": "₹700",
+      "relay_module": "₹150",
+      "solenoid_lock": "₹800",
+      "buzzer": "₹100",
+      "power_supply": "₹400",
+      "miscellaneous": "₹250",
+      "total": "₹5,900 (approx)"
+    },
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 318,
+    "title": "Smart Mirror with Voice Commands",
+    "level": "AI + Embedded (Intermediate–Advanced Human–Machine Interface)",
+    "category": "AI + Embedded + Machine Learning",
+    "estimatedTime": "14–16 Hours",
+
+    "problem_statement": "Traditional information displays require active interaction and distract users. A smart mirror provides passive, hands-free access to information such as time, weather, and reminders using voice commands, improving daily efficiency.",
+
+    "real_world_use_case": [
+      "Smart homes",
+      "Hotel rooms",
+      "Gym and fitness centers",
+      "Retail smart displays",
+      "Personal productivity systems"
+    ],
+
+    "ai_concept": {
+      "type": "Speech Recognition + Intent Processing",
+      "speech_to_text": "Google Speech API / Vosk (offline)",
+      "intent_logic": "Rule-based NLP",
+      "text_to_speech": "pyttsx3",
+      "reason": "Reliable voice interaction without heavy ML models on edge"
+    },
+
+    "hardware": {
+      "processor": "Raspberry Pi 4 (4GB recommended)",
+      "display": "HDMI Monitor behind two-way mirror",
+      "audio_input": "USB Microphone",
+      "audio_output": "USB / AUX Speaker",
+      "power": "5V 3A Adapter"
+    },
+
+    "working_principle": [
+      "User speaks a voice command in front of the mirror",
+      "Microphone captures the audio signal",
+      "Speech-to-text engine converts speech into text",
+      "Intent parser matches command keywords",
+      "Requested information is fetched or generated",
+      "Information is displayed visually on the mirror",
+      "Voice feedback is provided via speaker"
+    ],
+
+    "supported_commands": [
+      "What is the time?",
+      "What is the date?",
+      "What is today’s weather?",
+      "Say hello",
+      "Shutdown mirror"
+    ],
+
+    "pin_config": {
+      "raspberry_pi": [
+        {
+          "module": "Display (HDMI)",
+          "pinName": "HDMI",
+          "pin": "HDMI Port",
+          "voltage": "5V (internal)",
+          "direction": "Output",
+          "description": "Video output to monitor"
+        },
+        {
+          "module": "USB Microphone",
+          "pinName": "USB",
+          "pin": "USB Port",
+          "voltage": "5V",
+          "direction": "Input",
+          "description": "Captures voice commands"
+        },
+        {
+          "module": "Speaker",
+          "pinName": "USB / AUX",
+          "pin": "USB / 3.5mm Jack",
+          "voltage": "5V",
+          "direction": "Output",
+          "description": "Plays voice responses"
+        }
+      ]
+    },
+
+    "software_stack": [
+      "Raspberry Pi OS",
+      "Python 3",
+      "SpeechRecognition",
+      "pyttsx3",
+      "Tkinter (GUI)",
+      "Requests (API calls)"
+    ],
+
+    "code": {
+      "language": "Python",
+      "file": "smart_mirror.py",
+      "content": "import speech_recognition as sr\nimport pyttsx3\nimport datetime\nimport tkinter as tk\n\nengine = pyttsx3.init()\nrecognizer = sr.Recognizer()\n\nroot = tk.Tk()\nroot.attributes('-fullscreen', True)\nlabel = tk.Label(root, font=('Helvetica', 48), fg='white', bg='black')\nlabel.pack(expand=True)\n\nengine.say('Smart mirror ready')\nengine.runAndWait()\n\nwith sr.Microphone() as source:\n    recognizer.adjust_for_ambient_noise(source)\n\n    while True:\n        audio = recognizer.listen(source)\n        try:\n            command = recognizer.recognize_google(audio).lower()\n\n            if 'time' in command:\n                now = datetime.datetime.now().strftime('%H:%M:%S')\n                label.config(text=f'Time: {now}')\n                engine.say(f'The time is {now}')\n\n            elif 'date' in command:\n                today = datetime.date.today().strftime('%d %B %Y')\n                label.config(text=f'Date: {today}')\n                engine.say(f'Today is {today}')\n\n            elif 'hello' in command:\n                label.config(text='Hello!')\n                engine.say('Hello, have a great day')\n\n            elif 'shutdown' in command:\n                engine.say('Shutting down smart mirror')\n                engine.runAndWait()\n                break\n\n            engine.runAndWait()\n\n        except sr.UnknownValueError:\n            pass\n\nroot.destroy()"
+    },
+
+    "testing_output": "Voice command is recognized, information is displayed on mirror, and audio response is played.",
+
+    "common_errors": [
+      "Microphone not detected",
+      "Ambient noise causing recognition failure",
+      "Display not rotating correctly",
+      "Audio feedback loop"
+    ],
+
+    "improvements": [
+      "Weather API integration",
+      "Face recognition for user personalization",
+      "Calendar and reminder sync",
+      "Gesture-based interaction"
+    ],
+
+    "mini_challenge": "Display personalized greeting using face recognition.",
+
+    "estimated_cost_india": {
+      "raspberry_pi_4": "₹3,500",
+      "monitor": "₹2,000",
+      "two_way_mirror": "₹1,200",
+      "usb_microphone": "₹500",
+      "speaker": "₹400",
+      "power_adapter": "₹400",
+      "miscellaneous": "₹300",
+      "total": "₹8,300 (approx)"
+    },
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 319,
+    "title": "Real-Time Object Counting System",
+    "level": "AI + Embedded (Intermediate–Advanced Computer Vision Analytics)",
+    "category": "AI + Embedded + Machine Learning",
+    "estimatedTime": "12–14 Hours",
+
+    "problem_statement": "Manual counting of people or objects in crowded environments is inaccurate and inefficient. A real-time object counting system automates counting using computer vision, enabling data-driven decisions for space management and analytics.",
+
+    "real_world_use_case": [
+      "Retail footfall analytics",
+      "Crowd monitoring in public places",
+      "Smart building occupancy tracking",
+      "Event management",
+      "Transport hubs (bus/metro stations)"
+    ],
+
+    "ai_concept": {
+      "type": "Object Detection + Object Tracking",
+      "detection_model": "MobileNet-SSD / YOLOv5",
+      "tracking_method": "Centroid-based tracking",
+      "logic": "Virtual line crossing",
+      "reason": "Balances accuracy and real-time performance on edge devices"
+    },
+
+    "hardware": {
+      "processor": "Raspberry Pi 4 (4GB recommended)",
+      "camera": "Pi Camera v2 / USB Webcam",
+      "display": "HDMI Monitor (optional)",
+      "network": "WiFi / Ethernet (optional for cloud logging)",
+      "power": "5V 3A Adapter"
+    },
+
+    "working_principle": [
+      "Camera captures continuous video frames",
+      "AI model detects target objects (e.g., person)",
+      "Each detected object is assigned a unique ID",
+      "Centroid of each object is tracked across frames",
+      "A virtual counting line is defined in the frame",
+      "When an object crosses the line in a specific direction, the counter increments",
+      "Duplicate counting is prevented using object IDs",
+      "Count is displayed and optionally logged"
+    ],
+
+    "counting_logic": {
+      "line_position": "Horizontal line at mid-frame height",
+      "direction": "Top-to-bottom (entry) / bottom-to-top (exit)",
+      "debounce": "One count per unique object ID",
+      "reset_condition": "Object leaves frame"
+    },
+
+    "pin_config": {
+      "raspberry_pi": [
+        {
+          "module": "Camera",
+          "pinName": "CSI / USB",
+          "pin": "Camera Interface",
+          "voltage": "5V (internal)",
+          "direction": "Input",
+          "description": "Captures live video stream"
+        },
+        {
+          "module": "Display",
+          "pinName": "HDMI",
+          "pin": "HDMI Port",
+          "voltage": "5V (internal)",
+          "direction": "Output",
+          "description": "Displays live feed and count overlay"
+        }
+      ]
+    },
+
+    "software_stack": [
+      "Raspberry Pi OS",
+      "Python 3",
+      "OpenCV",
+      "NumPy",
+      "Pre-trained Object Detection Model"
+    ],
+
+    "code": {
+      "language": "Python",
+      "file": "object_counter.py",
+      "content": "import cv2\nimport numpy as np\n\ncap = cv2.VideoCapture(0)\ncount = 0\nline_y = 240\ntracked = {}\nobject_id = 0\n\nwhile True:\n    ret, frame = cap.read()\n    if not ret:\n        break\n\n    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)\n    blur = cv2.GaussianBlur(gray, (5,5), 0)\n    _, thresh = cv2.threshold(blur, 200, 255, cv2.THRESH_BINARY_INV)\n\n    contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)\n\n    for cnt in contours:\n        if cv2.contourArea(cnt) < 1500:\n            continue\n\n        x,y,w,h = cv2.boundingRect(cnt)\n        cx = x + w // 2\n        cy = y + h // 2\n\n        if cy > line_y and object_id not in tracked:\n            count += 1\n            tracked[object_id] = True\n            object_id += 1\n\n        cv2.rectangle(frame, (x,y), (x+w,y+h), (0,255,0), 2)\n        cv2.circle(frame, (cx,cy), 4, (0,0,255), -1)\n\n    cv2.line(frame, (0,line_y), (640,line_y), (255,0,0), 2)\n    cv2.putText(frame, f'Count: {count}', (20,40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,255), 2)\n\n    cv2.imshow('Object Counter', frame)\n    if cv2.waitKey(1) == 27:\n        break\n\ncap.release()\ncv2.destroyAllWindows()"
+    },
+
+    "testing_output": "Each object crossing the virtual line increases the counter by one without duplication.",
+
+    "common_errors": [
+      "Double counting due to improper tracking logic",
+      "Lighting changes affecting detection",
+      "Camera angle causing occlusion",
+      "Low FPS on high-resolution input"
+    ],
+
+    "improvements": [
+      "Replace contour detection with YOLO-based person detection",
+      "Add entry vs exit counters",
+      "Store counts in database",
+      "Cloud dashboard visualization"
+    ],
+
+    "mini_challenge": "Implement separate IN and OUT counters using direction-based tracking.",
+
+    "estimated_cost_india": {
+      "raspberry_pi_4": "₹3,500",
+      "camera": "₹700",
+      "power_adapter": "₹400",
+      "display_optional": "₹2,000",
+      "miscellaneous": "₹300",
+      "total": "₹4,900 (without display)"
+    },
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 320,
+    "title": "Smart Energy Meter with AI Prediction",
+    "level": "AI + Embedded (Intermediate–Advanced Energy Analytics)",
+    "category": "AI + Embedded + Machine Learning",
+    "estimatedTime": "14–16 Hours",
+
+    "problem_statement": "Conventional energy meters only provide historical consumption data and do not help users anticipate future usage or optimize power consumption. A smart energy meter with AI prediction enables users to forecast energy demand and reduce electricity costs proactively.",
+
+    "real_world_use_case": [
+      "Residential smart energy monitoring",
+      "Industrial power usage optimization",
+      "Smart grid demand forecasting",
+      "Hostel and apartment energy analytics",
+      "Renewable energy management systems"
+    ],
+
+    "ai_concept": {
+      "type": "Time-Series Prediction",
+      "models": [
+        "Linear Regression (baseline)",
+        "LSTM (advanced)"
+      ],
+      "features": [
+        "Timestamp",
+        "Current consumption",
+        "Voltage",
+        "Historical energy usage"
+      ],
+      "reason": "Time-series models effectively capture consumption patterns and trends"
+    },
+
+    "hardware": {
+      "controller": "ESP32",
+      "current_sensor": "ACS712 (20A / 30A)",
+      "voltage_sensor": "ZMPT101B",
+      "connectivity": "WiFi",
+      "power": "5V 2A Adapter"
+    },
+
+    "working_principle": [
+      "Current and voltage sensors continuously measure load parameters",
+      "ESP32 samples analog sensor data at fixed intervals",
+      "Instantaneous power is calculated using voltage and current",
+      "Energy consumption is accumulated over time (kWh)",
+      "Data is logged locally or sent to cloud/database",
+      "Historical data is used to train a prediction model",
+      "AI model predicts future energy consumption",
+      "Predicted values are displayed or visualized on dashboard"
+    ],
+
+    "energy_calculation": {
+      "power_formula": "P = V × I",
+      "energy_formula": "Energy (kWh) = Power × Time / 1000",
+      "sampling_interval": "1 second",
+      "aggregation": "Hourly / Daily"
+    },
+
+    "pin_config": {
+      "esp32": [
+        {
+          "module": "ACS712 Current Sensor",
+          "pinName": "VCC",
+          "pin": "5V",
+          "voltage": "5V",
+          "direction": "Power",
+          "description": "Powers the current sensor module"
+        },
+        {
+          "module": "ACS712 Current Sensor",
+          "pinName": "GND",
+          "pin": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Common ground with ESP32"
+        },
+        {
+          "module": "ACS712 Current Sensor",
+          "pinName": "OUT",
+          "pin": "GPIO34",
+          "voltage": "0–3.3V (analog)",
+          "direction": "Analog Input",
+          "description": "Outputs analog signal proportional to current"
+        },
+        {
+          "module": "ZMPT101B Voltage Sensor",
+          "pinName": "VCC",
+          "pin": "5V",
+          "voltage": "5V",
+          "direction": "Power",
+          "description": "Power for voltage sensing module"
+        },
+        {
+          "module": "ZMPT101B Voltage Sensor",
+          "pinName": "GND",
+          "pin": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Ground reference"
+        },
+        {
+          "module": "ZMPT101B Voltage Sensor",
+          "pinName": "OUT",
+          "pin": "GPIO35",
+          "voltage": "0–3.3V (analog)",
+          "direction": "Analog Input",
+          "description": "Outputs scaled AC voltage signal"
+        }
+      ]
+    },
+
+    "software_stack": [
+      "ESP32 Arduino Core",
+      "WiFi",
+      "HTTP / MQTT",
+      "Python (for ML model)",
+      "NumPy",
+      "Pandas",
+      "Scikit-learn / TensorFlow"
+    ],
+
+    "code": {
+      "language": "C++ (ESP32) + Python (AI)",
+      "file": "energy_meter.ino",
+      "content": "#define CURRENT_PIN 34\n#define VOLTAGE_PIN 35\n\nfloat current, voltage, power;\n\nvoid setup() {\n  Serial.begin(9600);\n}\n\nvoid loop() {\n  int rawCurrent = analogRead(CURRENT_PIN);\n  int rawVoltage = analogRead(VOLTAGE_PIN);\n\n  current = (rawCurrent - 2048) * 0.026; // calibration needed\n  voltage = (rawVoltage / 4095.0) * 230.0;\n\n  power = voltage * current;\n\n  Serial.print(\"Power: \");\n  Serial.println(power);\n  delay(1000);\n}"
+    },
+
+    "testing_output": "Real-time power values are printed to Serial Monitor and logged for AI prediction.",
+
+    "common_errors": [
+      "Incorrect sensor calibration",
+      "Noisy analog readings",
+      "Ground mismatch between sensors",
+      "Insufficient sampling resolution"
+    ],
+
+    "improvements": [
+      "Use RMS calculation for AC accuracy",
+      "Add cloud dashboard (Firebase / ThingsBoard)",
+      "Deploy TensorFlow Lite prediction on ESP32",
+      "Tariff-based cost estimation"
+    ],
+
+    "mini_challenge": "Predict next 24-hour energy consumption using past 7 days of data.",
+
+    "estimated_cost_india": {
+      "esp32": "₹400",
+      "acs712": "₹250",
+      "zmpt101b": "₹200",
+      "power_adapter": "₹300",
+      "pcb_and_wires": "₹250",
+      "enclosure": "₹300",
+      "miscellaneous": "₹200",
+      "total": "₹1,900 (approx)"
+    },
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 321,
+    "title": "Human Detection using PIR and AI Model",
+    "level": "AI + Embedded (Intermediate–Advanced Sensor Fusion)",
+    "category": "AI + Embedded + Machine Learning",
+    "estimatedTime": "12–14 Hours",
+
+    "problem_statement": "Standalone PIR sensors trigger false alarms due to heat sources, while AI-only camera systems consume high power and compute continuously. Combining PIR sensing with AI-based human detection reduces false positives and optimizes power and processing efficiency.",
+
+    "real_world_use_case": [
+      "Smart home security systems",
+      "Battery-powered surveillance cameras",
+      "Warehouse safety monitoring",
+      "Office after-hours intrusion detection",
+      "Smart street-side monitoring units"
+    ],
+
+    "ai_concept": {
+      "type": "Sensor Fusion (PIR + Computer Vision)",
+      "vision_model": "MobileNet-SSD / YOLOv5 (Person class)",
+      "fusion_logic": "PIR-triggered AI confirmation",
+      "reason": "Run AI inference only when motion is detected to save power and CPU"
+    },
+
+    "hardware": {
+      "processor": "Raspberry Pi 4 (4GB recommended)",
+      "motion_sensor": "PIR Sensor (HC-SR501)",
+      "camera": "Pi Camera v2 / USB Webcam",
+      "alert": "Buzzer / Relay / Notification",
+      "power": "5V 3A Adapter"
+    },
+
+    "working_principle": [
+      "PIR sensor continuously monitors for motion",
+      "When PIR output goes HIGH, camera and AI pipeline are activated",
+      "Camera captures one or more frames",
+      "AI model performs human (person) detection",
+      "If human is confirmed, alert is triggered",
+      "If no human is detected, system returns to idle",
+      "This fusion avoids false alarms and unnecessary AI computation"
+    ],
+
+    "fusion_logic": {
+      "stage_1": "PIR motion detection (low power, fast response)",
+      "stage_2": "AI-based human confirmation",
+      "decision_rule": "Alert only if both PIR = HIGH and AI = Person detected",
+      "cooldown": "30 seconds between alerts"
+    },
+
+    "pin_config": {
+      "raspberry_pi": [
+        {
+          "module": "PIR Sensor (HC-SR501)",
+          "pinName": "VCC",
+          "pin": "5V",
+          "voltage": "5V",
+          "direction": "Power",
+          "description": "Supplies power to PIR motion sensor"
+        },
+        {
+          "module": "PIR Sensor (HC-SR501)",
+          "pinName": "GND",
+          "pin": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Common ground with Raspberry Pi"
+        },
+        {
+          "module": "PIR Sensor (HC-SR501)",
+          "pinName": "OUT",
+          "pin": "GPIO24",
+          "voltage": "3.3V",
+          "direction": "Input",
+          "description": "Goes HIGH when motion is detected"
+        },
+        {
+          "module": "Buzzer",
+          "pinName": "VCC",
+          "pin": "3.3V",
+          "voltage": "3.3V",
+          "direction": "Power",
+          "description": "Power supply for alert buzzer"
+        },
+        {
+          "module": "Buzzer",
+          "pinName": "GND",
+          "pin": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Ground connection"
+        },
+        {
+          "module": "Buzzer",
+          "pinName": "IN",
+          "pin": "GPIO18",
+          "voltage": "3.3V",
+          "direction": "Output",
+          "description": "Activates buzzer on confirmed human detection"
+        }
+      ]
+    },
+
+    "software_stack": [
+      "Raspberry Pi OS",
+      "Python 3",
+      "OpenCV",
+      "TensorFlow Lite / YOLO",
+      "RPi.GPIO",
+      "NumPy"
+    ],
+
+    "code": {
+      "language": "Python",
+      "file": "pir_ai_human_detection.py",
+      "content": "import RPi.GPIO as GPIO\nimport cv2\nimport time\n\nPIR_PIN = 24\nBUZZER_PIN = 18\n\nGPIO.setmode(GPIO.BCM)\nGPIO.setup(PIR_PIN, GPIO.IN)\nGPIO.setup(BUZZER_PIN, GPIO.OUT)\n\ncap = cv2.VideoCapture(0)\nlast_alert = 0\nCOOLDOWN = 30\n\nwhile True:\n    if GPIO.input(PIR_PIN):\n        ret, frame = cap.read()\n        if not ret:\n            continue\n\n        # --- AI HUMAN DETECTION PLACE ---\n        # Replace this block with YOLO / MobileNet person detection\n        human_detected = False\n\n        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)\n        if gray.mean() > 40:  # basic sanity check\n            human_detected = True\n\n        if human_detected and (time.time() - last_alert) > COOLDOWN:\n            GPIO.output(BUZZER_PIN, GPIO.HIGH)\n            time.sleep(2)\n            GPIO.output(BUZZER_PIN, GPIO.LOW)\n            last_alert = time.time()\n\n    time.sleep(0.2)"
+    },
+
+    "testing_output": "Motion detected → AI confirms human → buzzer alerts. Motion without human → no alert.",
+
+    "common_errors": [
+      "PIR sensitivity set too high",
+      "Camera field of view not aligned with PIR",
+      "Low-light causing AI false negatives",
+      "Ground not common between modules"
+    ],
+
+    "improvements": [
+      "Replace basic logic with YOLOv5 person detection",
+      "Add night vision camera",
+      "Send alerts via MQTT or Telegram",
+      "Log detection timestamps to cloud"
+    ],
+
+    "mini_challenge": "Trigger alert only if human is detected in 3 consecutive frames.",
+
+    "estimated_cost_india": {
+      "raspberry_pi_4": "₹3,500",
+      "pir_sensor": "₹150",
+      "camera": "₹700",
+      "buzzer": "₹100",
+      "power_adapter": "₹400",
+      "wires_and_mounts": "₹200",
+      "miscellaneous": "₹250",
+      "total": "₹5,300 (approx)"
+    },
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 322,
+    "title": "Image-based Fire Detection System",
+    "level": "AI + Embedded (Intermediate–Advanced Safety System)",
+    "category": "AI + Embedded + Machine Learning",
+    "estimatedTime": "12–14 Hours",
+
+    "problem_statement": "Traditional fire detection systems such as smoke or heat sensors often detect fire only after significant damage has occurred. An image-based fire detection system using AI can visually identify flames at an early stage, enabling faster response and damage prevention.",
+
+    "real_world_use_case": [
+      "Industrial safety monitoring",
+      "Warehouse fire prevention",
+      "Forest fire early warning systems",
+      "Data centers and server rooms",
+      "Smart building safety systems"
+    ],
+
+    "ai_concept": {
+      "type": "Computer Vision – Image Classification",
+      "model": "CNN (Fire vs No-Fire)",
+      "framework": "TensorFlow / TensorFlow Lite",
+      "training_data": "Fire image dataset (day/night conditions)",
+      "reason": "CNN models learn flame texture, color, and motion patterns better than rule-based methods"
+    },
+
+    "hardware": {
+      "processor": "Raspberry Pi 4 (4GB recommended)",
+      "camera": "Pi Camera v2 / USB Webcam",
+      "alert": "Buzzer / Siren / Relay",
+      "indicator": "LED (optional)",
+      "power": "5V 3A Adapter"
+    },
+
+    "working_principle": [
+      "Camera continuously captures video frames",
+      "Each frame is resized and normalized",
+      "CNN model processes the frame",
+      "Model predicts probability of fire presence",
+      "If probability exceeds threshold, fire is confirmed",
+      "Alert devices (buzzer/siren) are activated",
+      "System continues monitoring until fire clears"
+    ],
+
+    "decision_logic": {
+      "prediction_threshold": "≥ 0.70",
+      "temporal_validation": "Fire detected in 3 consecutive frames",
+      "false_alarm_filter": "Ignore single-frame detections",
+      "alert_latch": "Alert remains ON until manual reset"
+    },
+
+    "pin_config": {
+      "raspberry_pi": [
+        {
+          "module": "Buzzer / Siren",
+          "pinName": "VCC",
+          "pin": "5V",
+          "voltage": "5V",
+          "direction": "Power",
+          "description": "Power supply for audible alert"
+        },
+        {
+          "module": "Buzzer / Siren",
+          "pinName": "GND",
+          "pin": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Common ground reference"
+        },
+        {
+          "module": "Buzzer / Siren",
+          "pinName": "IN",
+          "pin": "GPIO23",
+          "voltage": "3.3V",
+          "direction": "Output",
+          "description": "Activates alert on confirmed fire detection"
+        },
+        {
+          "module": "Status LED (Optional)",
+          "pinName": "ANODE",
+          "pin": "GPIO24",
+          "voltage": "3.3V",
+          "direction": "Output",
+          "description": "Visual indicator for fire alert status"
+        }
+      ]
+    },
+
+    "software_stack": [
+      "Raspberry Pi OS",
+      "Python 3",
+      "OpenCV",
+      "TensorFlow / TensorFlow Lite",
+      "RPi.GPIO",
+      "NumPy"
+    ],
+
+    "code": {
+      "language": "Python",
+      "file": "fire_detection_ai.py",
+      "content": "import cv2\nimport numpy as np\nimport RPi.GPIO as GPIO\nfrom tensorflow.keras.models import load_model\n\nBUZZER_PIN = 23\nLED_PIN = 24\nTHRESHOLD = 0.7\n\nGPIO.setmode(GPIO.BCM)\nGPIO.setup(BUZZER_PIN, GPIO.OUT)\nGPIO.setup(LED_PIN, GPIO.OUT)\n\nmodel = load_model('fire_model.h5')\ncap = cv2.VideoCapture(0)\nconsecutive = 0\n\nwhile True:\n    ret, frame = cap.read()\n    if not ret:\n        continue\n\n    img = cv2.resize(frame, (128, 128))\n    img = img / 255.0\n    img = img.reshape(1, 128, 128, 3)\n\n    prediction = model.predict(img)[0][0]\n\n    if prediction >= THRESHOLD:\n        consecutive += 1\n    else:\n        consecutive = 0\n\n    if consecutive >= 3:\n        GPIO.output(BUZZER_PIN, GPIO.HIGH)\n        GPIO.output(LED_PIN, GPIO.HIGH)\n        cv2.putText(frame, 'FIRE DETECTED', (20,40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 3)\n    else:\n        GPIO.output(BUZZER_PIN, GPIO.LOW)\n        GPIO.output(LED_PIN, GPIO.LOW)\n\n    cv2.imshow('Fire Detection', frame)\n    if cv2.waitKey(1) == 27:\n        break\n\ncap.release()\nGPIO.cleanup()\ncv2.destroyAllWindows()"
+    },
+
+    "testing_output": "Fire appears in camera view → confirmed after 3 frames → buzzer and LED activate continuously.",
+
+    "common_errors": [
+      "Bright lights causing false positives",
+      "Poor dataset diversity",
+      "Low FPS causing delayed detection",
+      "Incorrect model input dimensions"
+    ],
+
+    "improvements": [
+      "Combine smoke sensor + AI vision",
+      "Use infrared/thermal camera",
+      "Send SMS/Telegram alerts",
+      "Deploy TensorFlow Lite for faster inference"
+    ],
+
+    "mini_challenge": "Detect fire only if flame area increases across frames.",
+
+    "estimated_cost_india": {
+      "raspberry_pi_4": "₹3,500",
+      "camera": "₹700",
+      "buzzer_or_siren": "₹200",
+      "led_and_resistors": "₹100",
+      "power_adapter": "₹400",
+      "mount_and_wiring": "₹250",
+      "miscellaneous": "₹250",
+      "total": "₹5,400 (approx)"
+    },
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 323,
+    "title": "Smart Baby Monitoring using AI Camera",
+    "level": "AI + Embedded (Intermediate–Advanced Care & Safety System)",
+    "category": "AI + Embedded + Machine Learning",
+    "estimatedTime": "14–16 Hours",
+
+    "problem_statement": "Continuous manual monitoring of infants is impractical and error-prone. Traditional baby monitors only stream video without intelligence. An AI-based baby monitoring system can detect presence, posture, and abnormal inactivity, providing early alerts to caregivers.",
+
+    "real_world_use_case": [
+      "Home baby monitoring",
+      "Neonatal care units",
+      "Smart nurseries",
+      "Hospital infant wards",
+      "Remote caregiving systems"
+    ],
+
+    "ai_concept": {
+      "type": "Computer Vision + Temporal Analysis",
+      "vision_model": "Person detection (MobileNet-SSD / YOLO)",
+      "posture_logic": "Region-of-interest + motion consistency",
+      "reason": "Lightweight models enable real-time edge inference with acceptable accuracy"
+    },
+
+    "hardware": {
+      "processor": "Raspberry Pi 4 (4GB recommended)",
+      "camera": "Pi Camera v2 / USB Webcam",
+      "alert": "Buzzer + LED",
+      "optional_modules": "WiFi notification / Mobile app",
+      "power": "5V 3A Adapter"
+    },
+
+    "working_principle": [
+      "Camera continuously monitors the crib or sleeping area",
+      "AI model detects baby presence (person class)",
+      "Motion is analyzed across consecutive frames",
+      "System tracks duration of inactivity",
+      "Unsafe conditions are evaluated (no motion, edge proximity)",
+      "If abnormal condition persists, alert is triggered",
+      "System continues monitoring until reset or condition clears"
+    ],
+
+    "safety_logic": {
+      "no_motion_timeout": "10 seconds (configurable)",
+      "edge_zone_alert": "Triggered if baby centroid enters boundary region",
+      "false_alarm_filter": "Require condition persistence across multiple frames",
+      "fail_safe": "Alert if camera feed is lost"
+    },
+
+    "pin_config": {
+      "raspberry_pi": [
+        {
+          "module": "Buzzer",
+          "pinName": "VCC",
+          "pin": "3.3V",
+          "voltage": "3.3V",
+          "direction": "Power",
+          "description": "Power supply for audible alert"
+        },
+        {
+          "module": "Buzzer",
+          "pinName": "GND",
+          "pin": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Common ground"
+        },
+        {
+          "module": "Buzzer",
+          "pinName": "IN",
+          "pin": "GPIO22",
+          "voltage": "3.3V",
+          "direction": "Output",
+          "description": "Activates alert on abnormal condition"
+        },
+        {
+          "module": "Status LED",
+          "pinName": "ANODE",
+          "pin": "GPIO23",
+          "voltage": "3.3V",
+          "direction": "Output",
+          "description": "Visual alert indicator"
+        }
+      ]
+    },
+
+    "software_stack": [
+      "Raspberry Pi OS",
+      "Python 3",
+      "OpenCV",
+      "TensorFlow Lite",
+      "RPi.GPIO",
+      "NumPy"
+    ],
+
+    "code": {
+      "language": "Python",
+      "file": "baby_monitor_ai.py",
+      "content": "import cv2\nimport time\nimport RPi.GPIO as GPIO\n\nBUZZER_PIN = 22\nLED_PIN = 23\nNO_MOTION_LIMIT = 10\n\nGPIO.setmode(GPIO.BCM)\nGPIO.setup(BUZZER_PIN, GPIO.OUT)\nGPIO.setup(LED_PIN, GPIO.OUT)\n\ncap = cv2.VideoCapture(0)\nlast_motion_time = time.time()\n\nwhile True:\n    ret, frame = cap.read()\n    if not ret:\n        GPIO.output(BUZZER_PIN, GPIO.HIGH)\n        continue\n\n    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)\n    motion_metric = gray.var()\n\n    if motion_metric > 20:\n        last_motion_time = time.time()\n        GPIO.output(BUZZER_PIN, GPIO.LOW)\n        GPIO.output(LED_PIN, GPIO.LOW)\n    else:\n        if time.time() - last_motion_time > NO_MOTION_LIMIT:\n            GPIO.output(BUZZER_PIN, GPIO.HIGH)\n            GPIO.output(LED_PIN, GPIO.HIGH)\n            cv2.putText(frame, 'NO MOTION ALERT', (20,40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 3)\n\n    cv2.imshow('Baby Monitor', frame)\n    if cv2.waitKey(1) == 27:\n        break\n\ncap.release()\nGPIO.cleanup()\ncv2.destroyAllWindows()"
+    },
+
+    "testing_output": "Normal baby movement → no alert. Prolonged inactivity → buzzer and LED alert activated.",
+
+    "common_errors": [
+      "Camera angle not covering full crib",
+      "Low light reducing motion detection accuracy",
+      "Overly sensitive thresholds causing false alarms",
+      "Power interruptions"
+    ],
+
+    "improvements": [
+      "Add cry detection using audio AI",
+      "Night vision camera integration",
+      "Send alerts to mobile app",
+      "Posture classification (sleeping on back vs stomach)"
+    ],
+
+    "mini_challenge": "Trigger alert only if no motion is detected for 15 consecutive seconds.",
+
+    "ethical_note": "This system assists caregivers and must not replace human supervision.",
+
+    "estimated_cost_india": {
+      "raspberry_pi_4": "₹3,500",
+      "camera": "₹700",
+      "buzzer": "₹100",
+      "led_and_resistors": "₹100",
+      "power_adapter": "₹400",
+      "mounting_and_wires": "₹250",
+      "miscellaneous": "₹250",
+      "total": "₹5,300 (approx)"
+    },
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 324,
+    "title": "AI Intrusion Alarm System",
+    "level": "AI + Embedded (Intermediate–Advanced Security System)",
+    "category": "AI + Embedded + Machine Learning",
+    "estimatedTime": "14–16 Hours",
+
+    "problem_statement": "Conventional intrusion alarms rely only on motion or infrared sensors, leading to frequent false alarms caused by animals, shadows, or environmental changes. An AI-based intrusion alarm system verifies actual human presence before triggering alerts, increasing reliability and trust.",
+
+    "real_world_use_case": [
+      "Residential home security",
+      "Office and commercial buildings",
+      "Warehouses and storage facilities",
+      "Laboratories and restricted areas",
+      "After-hours campus security"
+    ],
+
+    "ai_concept": {
+      "type": "Computer Vision – Human Detection",
+      "model": "YOLOv5 / MobileNet-SSD (Person class)",
+      "decision_logic": "Human detection + time-based authorization",
+      "reason": "Human-class verification drastically reduces false alarms"
+    },
+
+    "hardware": {
+      "processor": "Raspberry Pi 4 (4GB recommended)",
+      "camera": "Pi Camera v2 / USB Webcam",
+      "alert": "High-power siren via relay",
+      "indicator": "Status LED",
+      "optional": "GSM / WiFi notification module",
+      "power": "5V 3A Adapter (separate siren supply recommended)"
+    },
+
+    "working_principle": [
+      "System runs continuously in monitoring mode",
+      "Camera captures live video frames",
+      "AI model performs human detection on each frame",
+      "Detected humans are evaluated against security rules",
+      "If detection occurs during restricted time window, intrusion is confirmed",
+      "Alarm siren and indicators are activated",
+      "System remains in alarm state until manually reset"
+    ],
+
+    "security_logic": {
+      "armed_hours": "22:00 – 06:00",
+      "confirmation_frames": "3 consecutive detections",
+      "cooldown": "60 seconds between alerts",
+      "fail_safe": "Alarm if camera feed is lost during armed hours"
+    },
+
+    "pin_config": {
+      "raspberry_pi": [
+        {
+          "module": "Relay Module (Siren Control)",
+          "pinName": "VCC",
+          "pin": "5V",
+          "voltage": "5V",
+          "direction": "Power",
+          "description": "Power for relay module"
+        },
+        {
+          "module": "Relay Module (Siren Control)",
+          "pinName": "GND",
+          "pin": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Common ground with Raspberry Pi"
+        },
+        {
+          "module": "Relay Module (Siren Control)",
+          "pinName": "IN",
+          "pin": "GPIO21",
+          "voltage": "3.3V",
+          "direction": "Output",
+          "description": "Activates siren when intrusion is confirmed"
+        },
+        {
+          "module": "Status LED",
+          "pinName": "ANODE",
+          "pin": "GPIO20",
+          "voltage": "3.3V",
+          "direction": "Output",
+          "description": "Indicates alarm active state"
+        }
+      ]
+    },
+
+    "software_stack": [
+      "Raspberry Pi OS",
+      "Python 3",
+      "OpenCV",
+      "YOLOv5 / TensorFlow Lite",
+      "RPi.GPIO",
+      "NumPy",
+      "Datetime"
+    ],
+
+    "code": {
+      "language": "Python",
+      "file": "ai_intrusion_alarm.py",
+      "content": "import cv2\nimport time\nimport datetime\nimport RPi.GPIO as GPIO\n\nSIREN_PIN = 21\nLED_PIN = 20\n\nGPIO.setmode(GPIO.BCM)\nGPIO.setup(SIREN_PIN, GPIO.OUT)\nGPIO.setup(LED_PIN, GPIO.OUT)\n\ncap = cv2.VideoCapture(0)\nconfirm_count = 0\nCOOLDOWN = 60\nlast_alert = 0\n\nwhile True:\n    ret, frame = cap.read()\n    if not ret:\n        continue\n\n    hour = datetime.datetime.now().hour\n    armed = hour >= 22 or hour <= 6\n\n    # ---- AI HUMAN DETECTION PLACE ----\n    # Replace with YOLO / MobileNet inference\n    human_detected = True\n\n    if armed and human_detected:\n        confirm_count += 1\n    else:\n        confirm_count = 0\n\n    if confirm_count >= 3 and (time.time() - last_alert) > COOLDOWN:\n        GPIO.output(SIREN_PIN, GPIO.HIGH)\n        GPIO.output(LED_PIN, GPIO.HIGH)\n        last_alert = time.time()\n\n    cv2.imshow('Intrusion Monitor', frame)\n    if cv2.waitKey(1) == 27:\n        break\n\ncap.release()\nGPIO.cleanup()\ncv2.destroyAllWindows()"
+    },
+
+    "testing_output": "Human detected during armed hours → siren and LED activate after confirmation frames.",
+
+    "common_errors": [
+      "Incorrect time configuration",
+      "Camera blind spots",
+      "Relay powered from Pi causing instability",
+      "False positives due to reflections"
+    ],
+
+    "improvements": [
+      "Face recognition for authorized users",
+      "Cloud-based alert notifications",
+      "Multi-camera coverage",
+      "Battery backup system"
+    ],
+
+    "mini_challenge": "Disable alarm automatically during authorized maintenance window.",
+
+    "estimated_cost_india": {
+      "raspberry_pi_4": "₹3,500",
+      "camera": "₹700",
+      "relay_module": "₹150",
+      "siren": "₹500",
+      "status_led": "₹100",
+      "power_adapter": "₹400",
+      "wiring_and_mounts": "₹250",
+      "miscellaneous": "₹300",
+      "total": "₹5,900 (approx)"
+    },
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+
+
+  {
+    "id": 325,
+    "title": "Object Recognition using TensorFlow Lite on ESP32",
+    "level": "AI + Embedded (Advanced – Edge AI Systems)",
+    "category": "AI + Embedded + Machine Learning",
+    "estimatedTime": "16–18 Hours",
+
+    "problem_statement": "Most AI vision systems rely on cloud or high-power processors like Raspberry Pi. This increases latency, power consumption, and cost. Running object recognition directly on an ESP32 enables ultra-low-power, real-time edge AI suitable for IoT deployments.",
+
+    "real_world_use_case": [
+      "Smart IoT cameras",
+      "Battery-powered security devices",
+      "Industrial edge inspection",
+      "Smart retail shelves",
+      "Wearable vision devices"
+    ],
+
+    "ai_concept": {
+      "type": "Embedded Machine Learning (TinyML)",
+      "model": "TensorFlow Lite Micro (Image Classification)",
+      "architecture": "MobileNetV1 (quantized)",
+      "input_size": "96x96x3",
+      "learning": "Offline trained, on-device inference",
+      "reason": "ESP32 has limited RAM/Flash, requiring quantized lightweight models"
+    },
+
+    "hardware": {
+      "controller": "ESP32-WROVER (PSRAM recommended)",
+      "camera": "OV2640 Camera Module",
+      "storage": "On-chip Flash",
+      "indicator": "LED / Serial Output",
+      "power": "5V via USB / Battery (3.7V Li-ion + boost)"
+    },
+
+    "working_principle": [
+      "Camera captures low-resolution image frames",
+      "Image is resized and normalized on ESP32",
+      "TensorFlow Lite Micro model performs inference",
+      "Model outputs class probabilities",
+      "Highest-confidence class is selected",
+      "Result is displayed via Serial or LED indication",
+      "System repeats inference at fixed intervals"
+    ],
+
+    "model_constraints": {
+      "quantization": "INT8",
+      "flash_usage": "~300–500 KB",
+      "ram_usage": "~200 KB",
+      "inference_time": "150–300 ms (approx)"
+    },
+
+    "pin_config": {
+      "esp32": [
+        {
+          "module": "OV2640 Camera",
+          "pinName": "VCC",
+          "pin": "3.3V",
+          "voltage": "3.3V",
+          "direction": "Power",
+          "description": "Power supply for camera module"
+        },
+        {
+          "module": "OV2640 Camera",
+          "pinName": "GND",
+          "pin": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Common ground"
+        },
+        {
+          "module": "OV2640 Camera",
+          "pinName": "D0–D7",
+          "pin": "GPIO32–GPIO39",
+          "voltage": "3.3V",
+          "direction": "Input",
+          "description": "Parallel camera data lines"
+        },
+        {
+          "module": "OV2640 Camera",
+          "pinName": "XCLK",
+          "pin": "GPIO0",
+          "voltage": "3.3V",
+          "direction": "Output",
+          "description": "Camera clock signal"
+        },
+        {
+          "module": "Status LED",
+          "pinName": "ANODE",
+          "pin": "GPIO2",
+          "voltage": "3.3V",
+          "direction": "Output",
+          "description": "Indicates detection result"
+        }
+      ]
+    },
+
+    "software_stack": [
+      "ESP32 Arduino Core",
+      "TensorFlow Lite for Microcontrollers",
+      "ESP32 Camera Library",
+      "Arduino IDE",
+      "Python (for model training)"
+    ],
+
+    "training_pipeline": [
+      "Collect labeled images",
+      "Train CNN using TensorFlow",
+      "Quantize model to INT8",
+      "Convert to .tflite",
+      "Convert model to C array",
+      "Deploy to ESP32 firmware"
+    ],
+
+    "code": {
+      "language": "C++ (ESP32 Arduino)",
+      "file": "esp32_tflite_object_recognition.ino",
+      "content": "#include \"esp_camera.h\"\n#include \"model.h\" // TFLite model array\n#include \"tensorflow/lite/micro/all_ops_resolver.h\"\n#include \"tensorflow/lite/micro/micro_interpreter.h\"\n\n#define LED_PIN 2\n\nvoid setup() {\n  Serial.begin(115200);\n  pinMode(LED_PIN, OUTPUT);\n\n  // Camera init omitted for brevity\n  Serial.println(\"ESP32 Object Recognition Ready\");\n}\n\nvoid loop() {\n  // Capture frame\n  // Preprocess image\n  // Run inference\n\n  int detected_class = 1; // Example output\n\n  if (detected_class == 1) {\n    digitalWrite(LED_PIN, HIGH);\n  } else {\n    digitalWrite(LED_PIN, LOW);\n  }\n\n  delay(500);\n}"
+    },
+
+    "testing_output": "ESP32 identifies object classes and toggles LED or prints result via Serial Monitor.",
+
+    "common_errors": [
+      "Model too large for ESP32 memory",
+      "Incorrect image preprocessing",
+      "Camera initialization failure",
+      "Heap fragmentation without PSRAM"
+    ],
+
+    "limitations": [
+      "Limited accuracy compared to full-scale models",
+      "Low resolution input images",
+      "Single-object classification per frame"
+    ],
+
+    "improvements": [
+      "Use ESP32-S3 for faster AI acceleration",
+      "Add WiFi result transmission",
+      "Optimize model with pruning",
+      "Integrate motion trigger to save power"
+    ],
+
+    "mini_challenge": "Recognize at least 3 object classes using a custom dataset.",
+
+    "estimated_cost_india": {
+      "esp32_wrover": "₹650",
+      "ov2640_camera": "₹450",
+      "battery_and_boost": "₹350",
+      "pcb_and_wires": "₹250",
+      "miscellaneous": "₹300",
+      "total": "₹2,000 (approx)"
+    },
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 326,
+    "title": "AI Traffic Light Controller using Computer Vision",
+    "level": "AI + Embedded (Advanced – Smart Infrastructure)",
+    "category": "AI + Embedded + Machine Learning",
+    "estimatedTime": "18–20 Hours",
+
+    "problem_statement": "Conventional traffic signals operate on fixed timers, causing unnecessary congestion and idle waiting. An AI-based traffic controller dynamically adjusts signal timing based on real-time traffic density to improve flow efficiency.",
+
+    "real_world_use_case": [
+      "Smart city traffic management",
+      "Urban intersections",
+      "Campus road systems",
+      "Traffic simulation research"
+    ],
+
+    "ai_concept": {
+      "type": "Computer Vision + Decision Logic",
+      "model": "YOLO / MobileNet-SSD (Vehicle Detection)",
+      "task": "Vehicle counting per lane",
+      "learning": "Pre-trained model with fine-tuning option",
+      "decision_logic": "Density-based adaptive timing"
+    },
+
+    "hardware": {
+      "processor": "Raspberry Pi 4 (4GB recommended)",
+      "camera": "USB Camera / Pi Camera v2",
+      "signal_output": "Traffic Light LEDs / Relay Module",
+      "power": "5V 3A Adapter",
+      "optional": "ESP32 as signal driver"
+    },
+
+    "working_principle": [
+      "Camera captures live video of road lanes",
+      "Video frames resized and normalized",
+      "AI model detects and counts vehicles per lane",
+      "Traffic density calculated for each direction",
+      "Green signal duration computed dynamically",
+      "Traffic LEDs switched based on priority",
+      "Cycle repeats continuously"
+    ],
+
+    "decision_algorithm": {
+      "vehicle_count_thresholds": {
+        "low": "0–5 vehicles",
+        "medium": "6–12 vehicles",
+        "high": "13+ vehicles"
+      },
+      "green_time_mapping": {
+        "low": "10 seconds",
+        "medium": "25 seconds",
+        "high": "45 seconds"
+      },
+      "constraints": [
+        "Minimum green time enforced",
+        "Maximum green time capped",
+        "Fair rotation between lanes"
+      ]
+    },
+
+    "pin_config": {
+      "raspberry_pi": [
+        {
+          "module": "Red LED",
+          "pinName": "IN",
+          "pin": "GPIO17",
+          "voltage": "3.3V",
+          "direction": "Output",
+          "description": "Stops traffic on current lane"
+        },
+        {
+          "module": "Yellow LED",
+          "pinName": "IN",
+          "pin": "GPIO27",
+          "voltage": "3.3V",
+          "direction": "Output",
+          "description": "Transition warning signal"
+        },
+        {
+          "module": "Green LED",
+          "pinName": "IN",
+          "pin": "GPIO22",
+          "voltage": "3.3V",
+          "direction": "Output",
+          "description": "Allows traffic movement"
+        },
+        {
+          "module": "Common Ground",
+          "pinName": "GND",
+          "pin": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Shared ground reference"
+        }
+      ]
+    },
+
+    "software_stack": [
+      "Python 3",
+      "OpenCV",
+      "TensorFlow Lite / YOLO",
+      "RPi.GPIO",
+      "NumPy"
+    ],
+
+    "traffic_density_logic": {
+      "input": "Vehicle bounding boxes",
+      "processing": "Count vehicles inside ROI per lane",
+      "output": "Dynamic green time",
+      "update_rate": "Every signal cycle"
+    },
+
+    "code": {
+      "language": "Python",
+      "file": "ai_traffic_controller.py",
+      "content": "import cv2\nimport time\nimport RPi.GPIO as GPIO\n\nRED, YELLOW, GREEN = 17, 27, 22\nGPIO.setmode(GPIO.BCM)\nGPIO.setup([RED, YELLOW, GREEN], GPIO.OUT)\n\nvehicle_count = 12  # Example from AI detection\n\ndef calculate_green_time(count):\n    if count <= 5:\n        return 10\n    elif count <= 12:\n        return 25\n    else:\n        return 45\n\nwhile True:\n    green_time = calculate_green_time(vehicle_count)\n\n    GPIO.output(GREEN, True)\n    time.sleep(green_time)\n\n    GPIO.output(GREEN, False)\n    GPIO.output(YELLOW, True)\n    time.sleep(3)\n\n    GPIO.output(YELLOW, False)\n    GPIO.output(RED, True)\n    time.sleep(5)\n    GPIO.output(RED, False)"
+    },
+
+    "testing_output": "Traffic lights dynamically adjust green duration based on vehicle density.",
+
+    "common_errors": [
+      "Incorrect camera angle causing miscount",
+      "Vehicle overlap in dense traffic",
+      "GPIO pin conflicts"
+    ],
+
+    "safety_constraints": [
+      "Failsafe fixed-timer fallback",
+      "Manual override option",
+      "Minimum green time guarantee"
+    ],
+
+    "improvements": [
+      "Multi-lane simultaneous detection",
+      "Emergency vehicle priority using siren detection",
+      "Cloud traffic analytics dashboard",
+      "Integration with V2I systems"
+    ],
+
+    "mini_challenge": "Give emergency vehicles instant green using sound or RF detection.",
+
+    "estimated_cost_india": {
+      "raspberry_pi_4": "₹3,200",
+      "camera_module": "₹1,200",
+      "led_signal_module": "₹600",
+      "power_supply": "₹400",
+      "wires_and_mount": "₹400",
+      "total": "₹5,800 (approx)"
+    },
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 326,
+    "title": "AI Traffic Light Controller using Computer Vision",
+    "level": "AI + Embedded (Advanced – Smart Infrastructure)",
+    "category": "AI + Embedded + Machine Learning",
+    "estimatedTime": "18–20 Hours",
+
+    "problem_statement": "Conventional traffic signals operate on fixed timers, causing unnecessary congestion and idle waiting. An AI-based traffic controller dynamically adjusts signal timing based on real-time traffic density to improve flow efficiency.",
+
+    "real_world_use_case": [
+      "Smart city traffic management",
+      "Urban intersections",
+      "Campus road systems",
+      "Traffic simulation research"
+    ],
+
+    "ai_concept": {
+      "type": "Computer Vision + Decision Logic",
+      "model": "YOLO / MobileNet-SSD (Vehicle Detection)",
+      "task": "Vehicle counting per lane",
+      "learning": "Pre-trained model with fine-tuning option",
+      "decision_logic": "Density-based adaptive timing"
+    },
+
+    "hardware": {
+      "processor": "Raspberry Pi 4 (4GB recommended)",
+      "camera": "USB Camera / Pi Camera v2",
+      "signal_output": "Traffic Light LEDs / Relay Module",
+      "power": "5V 3A Adapter",
+      "optional": "ESP32 as signal driver"
+    },
+
+    "working_principle": [
+      "Camera captures live video of road lanes",
+      "Video frames resized and normalized",
+      "AI model detects and counts vehicles per lane",
+      "Traffic density calculated for each direction",
+      "Green signal duration computed dynamically",
+      "Traffic LEDs switched based on priority",
+      "Cycle repeats continuously"
+    ],
+
+    "decision_algorithm": {
+      "vehicle_count_thresholds": {
+        "low": "0–5 vehicles",
+        "medium": "6–12 vehicles",
+        "high": "13+ vehicles"
+      },
+      "green_time_mapping": {
+        "low": "10 seconds",
+        "medium": "25 seconds",
+        "high": "45 seconds"
+      },
+      "constraints": [
+        "Minimum green time enforced",
+        "Maximum green time capped",
+        "Fair rotation between lanes"
+      ]
+    },
+
+    "pin_config": {
+      "raspberry_pi": [
+        {
+          "module": "Red LED",
+          "pinName": "IN",
+          "pin": "GPIO17",
+          "voltage": "3.3V",
+          "direction": "Output",
+          "description": "Stops traffic on current lane"
+        },
+        {
+          "module": "Yellow LED",
+          "pinName": "IN",
+          "pin": "GPIO27",
+          "voltage": "3.3V",
+          "direction": "Output",
+          "description": "Transition warning signal"
+        },
+        {
+          "module": "Green LED",
+          "pinName": "IN",
+          "pin": "GPIO22",
+          "voltage": "3.3V",
+          "direction": "Output",
+          "description": "Allows traffic movement"
+        },
+        {
+          "module": "Common Ground",
+          "pinName": "GND",
+          "pin": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Shared ground reference"
+        }
+      ]
+    },
+
+    "software_stack": [
+      "Python 3",
+      "OpenCV",
+      "TensorFlow Lite / YOLO",
+      "RPi.GPIO",
+      "NumPy"
+    ],
+
+    "traffic_density_logic": {
+      "input": "Vehicle bounding boxes",
+      "processing": "Count vehicles inside ROI per lane",
+      "output": "Dynamic green time",
+      "update_rate": "Every signal cycle"
+    },
+
+    "code": {
+      "language": "Python",
+      "file": "ai_traffic_controller.py",
+      "content": "import cv2\nimport time\nimport RPi.GPIO as GPIO\n\nRED, YELLOW, GREEN = 17, 27, 22\nGPIO.setmode(GPIO.BCM)\nGPIO.setup([RED, YELLOW, GREEN], GPIO.OUT)\n\nvehicle_count = 12  # Example from AI detection\n\ndef calculate_green_time(count):\n    if count <= 5:\n        return 10\n    elif count <= 12:\n        return 25\n    else:\n        return 45\n\nwhile True:\n    green_time = calculate_green_time(vehicle_count)\n\n    GPIO.output(GREEN, True)\n    time.sleep(green_time)\n\n    GPIO.output(GREEN, False)\n    GPIO.output(YELLOW, True)\n    time.sleep(3)\n\n    GPIO.output(YELLOW, False)\n    GPIO.output(RED, True)\n    time.sleep(5)\n    GPIO.output(RED, False)"
+    },
+
+    "testing_output": "Traffic lights dynamically adjust green duration based on vehicle density.",
+
+    "common_errors": [
+      "Incorrect camera angle causing miscount",
+      "Vehicle overlap in dense traffic",
+      "GPIO pin conflicts"
+    ],
+
+    "safety_constraints": [
+      "Failsafe fixed-timer fallback",
+      "Manual override option",
+      "Minimum green time guarantee"
+    ],
+
+    "improvements": [
+      "Multi-lane simultaneous detection",
+      "Emergency vehicle priority using siren detection",
+      "Cloud traffic analytics dashboard",
+      "Integration with V2I systems"
+    ],
+
+    "mini_challenge": "Give emergency vehicles instant green using sound or RF detection.",
+
+    "estimated_cost_india": {
+      "raspberry_pi_4": "₹3,200",
+      "camera_module": "₹1,200",
+      "led_signal_module": "₹600",
+      "power_supply": "₹400",
+      "wires_and_mount": "₹400",
+      "total": "₹5,800 (approx)"
+    },
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 327,
+    "title": "Smart Home Camera with AI Detection and MQTT Alerts",
+    "level": "AI + Embedded (Advanced – Connected AI Systems)",
+    "category": "AI + Embedded + Machine Learning",
+    "estimatedTime": "16–18 Hours",
+
+    "problem_statement": "Conventional CCTV systems only record footage and require manual monitoring. They lack real-time intelligence and system-level integration. An AI-enabled camera with MQTT allows instant alerts and seamless communication with other IoT systems.",
+
+    "real_world_use_case": [
+      "Smart home security",
+      "Apartment surveillance",
+      "Industrial safety monitoring",
+      "Remote property monitoring"
+    ],
+
+    "ai_concept": {
+      "type": "Computer Vision",
+      "model": "MobileNet-SSD / YOLO (Person Detection)",
+      "task": "Human detection with confidence threshold",
+      "learning": "Pre-trained model",
+      "edge_processing": "On-device inference (Raspberry Pi)"
+    },
+
+    "iot_concept": {
+      "protocol": "MQTT",
+      "architecture": "Publish–Subscribe",
+      "role": "Event-based alert communication",
+      "qos_level": 1
+    },
+
+    "hardware": {
+      "processor": "Raspberry Pi 4 (4GB)",
+      "camera": "Pi Camera v2 / USB Webcam",
+      "alert_output": "Buzzer / LED (local)",
+      "network": "WiFi / Ethernet",
+      "power": "5V 3A Adapter"
+    },
+
+    "working_principle": [
+      "Camera captures continuous video stream",
+      "Frames preprocessed and resized",
+      "AI model detects human presence",
+      "Detection confidence validated",
+      "Event message published to MQTT broker",
+      "Subscriber devices receive alert",
+      "Optional local alarm triggered"
+    ],
+
+    "mqtt_architecture": {
+      "broker": "Mosquitto (Local / Cloud)",
+      "publish_topic": "home/security/camera1",
+      "payload": {
+        "event": "human_detected",
+        "confidence": "0.87",
+        "timestamp": "ISO-8601"
+      },
+      "subscribers": [
+        "Mobile app",
+        "Home Assistant",
+        "Cloud dashboard"
+      ]
+    },
+
+    "pin_config": {
+      "raspberry_pi": [
+        {
+          "module": "Buzzer",
+          "pinName": "IN",
+          "pin": "GPIO18",
+          "voltage": "3.3V",
+          "direction": "Output",
+          "description": "Local audible alert on detection"
+        },
+        {
+          "module": "Buzzer",
+          "pinName": "VCC",
+          "pin": "3.3V",
+          "voltage": "3.3V",
+          "direction": "Power",
+          "description": "Power supply for buzzer"
+        },
+        {
+          "module": "Buzzer",
+          "pinName": "GND",
+          "pin": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Common ground reference"
+        }
+      ]
+    },
+
+    "software_stack": [
+      "Python 3",
+      "OpenCV",
+      "TensorFlow Lite / YOLO",
+      "paho-mqtt",
+      "RPi.GPIO",
+      "NumPy"
+    ],
+
+    "event_logic": {
+      "trigger_condition": "Person detected with confidence > 0.6",
+      "debounce": "One alert per 10 seconds",
+      "fallback": "Local buzzer if MQTT fails"
+    },
+
+    "code": {
+      "language": "Python",
+      "file": "ai_camera_mqtt.py",
+      "content": "import cv2\nimport time\nimport paho.mqtt.client as mqtt\nimport RPi.GPIO as GPIO\n\nBROKER = 'localhost'\nTOPIC = 'home/security/camera1'\nBUZZER = 18\n\nGPIO.setmode(GPIO.BCM)\nGPIO.setup(BUZZER, GPIO.OUT)\n\nclient = mqtt.Client()\nclient.connect(BROKER, 1883, 60)\n\ncap = cv2.VideoCapture(0)\nlast_publish = 0\n\nwhile True:\n    ret, frame = cap.read()\n    human_detected = True  # placeholder for AI detection\n\n    if human_detected and time.time() - last_publish > 10:\n        payload = '{\"event\":\"human_detected\",\"confidence\":0.85}'\n        client.publish(TOPIC, payload, qos=1)\n        GPIO.output(BUZZER, True)\n        time.sleep(1)\n        GPIO.output(BUZZER, False)\n        last_publish = time.time()\n\n    cv2.imshow('Smart Camera', frame)\n    if cv2.waitKey(1) == 27:\n        break\n\ncap.release()\nGPIO.cleanup()"
+    },
+
+    "testing_output": "Human detected → MQTT alert published → subscribers receive notification.",
+
+    "common_errors": [
+      "MQTT broker not running",
+      "Incorrect topic configuration",
+      "High CPU usage during AI inference",
+      "Network latency"
+    ],
+
+    "security_considerations": [
+      "Use MQTT authentication",
+      "Enable TLS encryption",
+      "Restrict broker access"
+    ],
+
+    "improvements": [
+      "Send image snapshot via MQTT",
+      "Integrate with Home Assistant",
+      "Add face recognition for authorization",
+      "Edge TPU acceleration"
+    ],
+
+    "mini_challenge": "Trigger alert only if person remains for more than 5 seconds.",
+
+    "estimated_cost_india": {
+      "raspberry_pi_4": "₹3,200",
+      "camera_module": "₹1,200",
+      "buzzer_led": "₹150",
+      "power_supply": "₹400",
+      "miscellaneous": "₹350",
+      "total": "₹5,300 (approx)"
+    },
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 328,
+    "title": "AI-Based Waste Segregation System using Image Classification",
+    "level": "AI + Embedded (Advanced – Sustainability & Automation)",
+    "category": "AI + Embedded + Machine Learning",
+    "estimatedTime": "18–20 Hours",
+
+    "problem_statement": "Manual waste segregation is inefficient, unsafe, and inaccurate, leading to poor recycling rates. An AI-powered system can automatically identify waste type and physically route it to the correct bin, improving recycling efficiency and hygiene.",
+
+    "real_world_use_case": [
+      "Smart city waste management",
+      "Automated recycling centers",
+      "Apartment waste systems",
+      "Educational AI + Robotics labs"
+    ],
+
+    "ai_concept": {
+      "type": "Image Classification",
+      "model": "Convolutional Neural Network (CNN)",
+      "framework": "TensorFlow / TensorFlow Lite",
+      "classes": [
+        "Organic",
+        "Plastic",
+        "Metal",
+        "Paper"
+      ],
+      "training_data": "Custom dataset (local waste images)",
+      "deployment": "Edge inference on Raspberry Pi"
+    },
+
+    "embedded_concept": {
+      "actuation": "Servo-controlled mechanical flaps",
+      "decision_logic": "Class → Bin mapping",
+      "latency_requirement": "< 1 second per classification"
+    },
+
+    "hardware": {
+      "processor": "Raspberry Pi 4 (4GB)",
+      "camera": "Pi Camera v2 / USB Webcam",
+      "actuators": "SG90 Servo Motors (3–4 units)",
+      "power": {
+        "logic": "5V 3A Adapter",
+        "motors": "External 5V 2A Supply"
+      },
+      "structure": "Mechanical chute with rotating flaps"
+    },
+
+    "working_principle": [
+      "Waste object placed in input tray",
+      "Camera captures top-view image",
+      "Image resized and normalized",
+      "CNN model classifies waste type",
+      "Classification confidence verified",
+      "Corresponding servo motor activated",
+      "Waste directed into appropriate bin",
+      "System resets for next object"
+    ],
+
+    "classification_logic": {
+      "confidence_threshold": 0.65,
+      "fallback_action": "Send to general waste bin",
+      "cooldown_time": "3 seconds between operations"
+    },
+
+    "pin_config": {
+      "raspberry_pi": [
+        {
+          "module": "Camera",
+          "pinName": "CSI",
+          "pin": "CSI Port",
+          "voltage": "3.3V",
+          "direction": "Data",
+          "description": "Image acquisition for AI inference"
+        },
+        {
+          "module": "Servo - Organic Bin",
+          "pinName": "Signal",
+          "pin": "GPIO17",
+          "voltage": "3.3V",
+          "direction": "Output",
+          "description": "Rotates flap to organic waste bin"
+        },
+        {
+          "module": "Servo - Plastic Bin",
+          "pinName": "Signal",
+          "pin": "GPIO27",
+          "voltage": "3.3V",
+          "direction": "Output",
+          "description": "Routes plastic waste"
+        },
+        {
+          "module": "Servo - Metal Bin",
+          "pinName": "Signal",
+          "pin": "GPIO22",
+          "voltage": "3.3V",
+          "direction": "Output",
+          "description": "Routes metal waste"
+        },
+        {
+          "module": "Servo Motors",
+          "pinName": "VCC",
+          "pin": "External 5V",
+          "voltage": "5V",
+          "direction": "Power",
+          "description": "Dedicated power supply for servos"
+        },
+        {
+          "module": "Servo Motors",
+          "pinName": "GND",
+          "pin": "Common GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Shared ground between Pi and motor supply"
+        }
+      ]
+    },
+
+    "software_stack": [
+      "Python 3",
+      "OpenCV",
+      "TensorFlow / TensorFlow Lite",
+      "RPi.GPIO",
+      "NumPy"
+    ],
+
+    "mechanical_design": {
+      "input_mechanism": "Slanted tray for single-object placement",
+      "sorting_mechanism": "Servo-driven diverter flaps",
+      "bin_alignment": "Radial bin placement"
+    },
+
+    "code": {
+      "language": "Python",
+      "file": "waste_segregation.py",
+      "content": "import cv2\nimport numpy as np\nimport RPi.GPIO as GPIO\nfrom tensorflow.keras.models import load_model\nimport time\n\nSERVO_ORG = 17\nSERVO_PLA = 27\nSERVO_MET = 22\n\nGPIO.setmode(GPIO.BCM)\nGPIO.setup([SERVO_ORG, SERVO_PLA, SERVO_MET], GPIO.OUT)\n\npwm_org = GPIO.PWM(SERVO_ORG, 50)\npwm_pla = GPIO.PWM(SERVO_PLA, 50)\npwm_met = GPIO.PWM(SERVO_MET, 50)\n\npwm_org.start(0)\npwm_pla.start(0)\npwm_met.start(0)\n\nmodel = load_model('waste_classifier.h5')\ncap = cv2.VideoCapture(0)\n\nlabels = ['Organic', 'Plastic', 'Metal', 'Paper']\n\nwhile True:\n    ret, frame = cap.read()\n    img = cv2.resize(frame, (128,128)) / 255.0\n    img = img.reshape(1,128,128,3)\n\n    prediction = model.predict(img)\n    class_id = np.argmax(prediction)\n    confidence = prediction[0][class_id]\n\n    if confidence > 0.65:\n        if labels[class_id] == 'Organic':\n            pwm_org.ChangeDutyCycle(7)\n        elif labels[class_id] == 'Plastic':\n            pwm_pla.ChangeDutyCycle(7)\n        elif labels[class_id] == 'Metal':\n            pwm_met.ChangeDutyCycle(7)\n\n        time.sleep(1)\n        pwm_org.ChangeDutyCycle(0)\n        pwm_pla.ChangeDutyCycle(0)\n        pwm_met.ChangeDutyCycle(0)\n        time.sleep(3)\n\n    if cv2.waitKey(1) == 27:\n        break\n\ncap.release()\nGPIO.cleanup()"
+    },
+
+    "testing_output": "Waste item classified → corresponding bin flap activates → waste correctly routed.",
+
+    "common_errors": [
+      "Servo jitter due to insufficient power",
+      "Low accuracy from poor dataset",
+      "Lighting variation affecting classification",
+      "Camera misalignment"
+    ],
+
+    "dataset_guidelines": [
+      "Minimum 300 images per class",
+      "Different lighting conditions",
+      "Multiple orientations",
+      "Real waste samples (not stock images)"
+    ],
+
+    "improvements": [
+      "Add weight sensor for verification",
+      "Reject mixed waste",
+      "Cloud waste analytics dashboard",
+      "Retrain model periodically"
+    ],
+
+    "mini_challenge": "Achieve >90% classification accuracy on local waste samples.",
+
+    "estimated_cost_india": {
+      "raspberry_pi_4": "₹3,200",
+      "camera_module": "₹1,200",
+      "servo_motors_3": "₹450",
+      "power_supply": "₹500",
+      "mechanical_structure": "₹800",
+      "miscellaneous": "₹350",
+      "total": "₹6,500 (approx)"
+    },
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+
+  {
+    "id": 329,
+    "title": "Smart Doorbell with Face Recognition",
+    "level": "AI + Embedded (Advanced – Smart Security Product)",
+    "category": "AI + Embedded + Machine Learning",
+    "estimatedTime": "16–18 Hours",
+
+    "problem_statement": "Conventional doorbells cannot identify visitors, forcing users to manually check every alert. A face-recognition-enabled doorbell can automatically distinguish known and unknown visitors, improving security and convenience.",
+
+    "real_world_use_case": [
+      "Smart homes",
+      "Apartments and gated communities",
+      "Rental properties (Airbnb)",
+      "Elderly and assisted-living homes"
+    ],
+
+    "ai_concept": {
+      "type": "Face Recognition",
+      "pipeline": [
+        "Face detection",
+        "Face encoding generation",
+        "Embedding comparison",
+        "Identity decision"
+      ],
+      "model": "HOG + CNN face encoders (dlib)",
+      "decision_metric": "Euclidean distance threshold"
+    },
+
+    "embedded_concept": {
+      "event_trigger": "Physical doorbell press",
+      "real_time_constraint": "< 2 seconds response",
+      "fail_safe": "Always ring bell if AI fails"
+    },
+
+    "hardware": {
+      "processor": "Raspberry Pi 4 (4GB recommended)",
+      "camera": "Pi Camera v2 / USB Webcam (720p minimum)",
+      "input": "Momentary Push Button (Doorbell)",
+      "output": [
+        "Active Buzzer / Chime",
+        "LED Indicator"
+      ],
+      "power": "5V 3A Adapter"
+    },
+
+    "working_principle": [
+      "Visitor presses doorbell button",
+      "Camera captures high-resolution face image",
+      "Face detected and cropped",
+      "Face encoding generated",
+      "Encoding compared with stored known faces",
+      "If known → soft alert / silent notification",
+      "If unknown → buzzer + security alert",
+      "Optional snapshot saved locally or sent to cloud"
+    ],
+
+    "security_logic": {
+      "distance_threshold": 0.45,
+      "retry_attempts": 3,
+      "cooldown_time": "10 seconds",
+      "unknown_face_action": [
+        "Ring bell",
+        "Save snapshot",
+        "Send alert"
+      ]
+    },
+
+    "pin_config": {
+      "raspberry_pi": [
+        {
+          "module": "Doorbell Push Button",
+          "pinName": "Signal",
+          "pin": "GPIO23",
+          "voltage": "3.3V",
+          "direction": "Input",
+          "description": "Triggers face recognition pipeline"
+        },
+        {
+          "module": "Doorbell Button",
+          "pinName": "GND",
+          "pin": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Common ground"
+        },
+        {
+          "module": "Buzzer",
+          "pinName": "IN",
+          "pin": "GPIO24",
+          "voltage": "3.3V",
+          "direction": "Output",
+          "description": "Audible alert for unknown visitors"
+        },
+        {
+          "module": "Buzzer",
+          "pinName": "VCC",
+          "pin": "3.3V",
+          "voltage": "3.3V",
+          "direction": "Power",
+          "description": "Buzzer power supply"
+        },
+        {
+          "module": "Status LED",
+          "pinName": "IN",
+          "pin": "GPIO18",
+          "voltage": "3.3V",
+          "direction": "Output",
+          "description": "Visual feedback (green = known, red = unknown)"
+        }
+      ]
+    },
+
+    "software_stack": [
+      "Python 3",
+      "OpenCV",
+      "face_recognition (dlib)",
+      "RPi.GPIO",
+      "NumPy",
+      "Optional: MQTT / HTTP API"
+    ],
+
+    "dataset_structure": {
+      "known_faces": "dataset/known/<person_name>/*.jpg",
+      "unknown_faces": "captured/unknown/",
+      "image_requirements": [
+        "Multiple angles",
+        "Different lighting",
+        "Neutral facial expression"
+      ]
+    },
+
+    "code": {
+      "language": "Python",
+      "file": "smart_doorbell.py",
+      "content": "import face_recognition\nimport cv2\nimport RPi.GPIO as GPIO\nimport time\nimport os\n\nBUTTON = 23\nBUZZER = 24\nLED = 18\n\nGPIO.setmode(GPIO.BCM)\nGPIO.setup(BUTTON, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)\nGPIO.setup(BUZZER, GPIO.OUT)\nGPIO.setup(LED, GPIO.OUT)\n\nknown_encodings = []\nknown_names = []\n\nfor person in os.listdir('dataset/known'):\n    for img_name in os.listdir(f'dataset/known/{person}'):\n        img = face_recognition.load_image_file(f'dataset/known/{person}/{img_name}')\n        enc = face_recognition.face_encodings(img)\n        if enc:\n            known_encodings.append(enc[0])\n            known_names.append(person)\n\ncap = cv2.VideoCapture(0)\n\nwhile True:\n    if GPIO.input(BUTTON):\n        ret, frame = cap.read()\n        rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)\n        locations = face_recognition.face_locations(rgb)\n        encodings = face_recognition.face_encodings(rgb, locations)\n\n        recognized = False\n\n        for encoding in encodings:\n            distances = face_recognition.face_distance(known_encodings, encoding)\n            if len(distances) > 0 and min(distances) < 0.45:\n                idx = distances.argmin()\n                GPIO.output(LED, GPIO.HIGH)\n                print(f\"Known visitor: {known_names[idx]}\")\n                recognized = True\n                break\n\n        if not recognized:\n            GPIO.output(BUZZER, GPIO.HIGH)\n            cv2.imwrite('captured/unknown/visitor.jpg', frame)\n            time.sleep(2)\n            GPIO.output(BUZZER, GPIO.LOW)\n\n        GPIO.output(LED, GPIO.LOW)\n        time.sleep(10)\n\ncap.release()\nGPIO.cleanup()"
+    },
+
+    "testing_output": "Known face → silent acknowledgment | Unknown face → buzzer alert + image saved.",
+
+    "common_errors": [
+      "Incorrect face distance threshold",
+      "Insufficient dataset images",
+      "Button bounce triggering multiple captures",
+      "Poor camera angle"
+    ],
+
+    "working_explanation_step_by_step": [
+      "GPIO waits for doorbell press",
+      "Camera captures visitor image",
+      "Face locations detected",
+      "Encodings generated",
+      "Encodings compared with database",
+      "Decision made using distance metric",
+      "Correct alert path executed"
+    ],
+
+    "improvements": [
+      "Mobile app notifications",
+      "Cloud image upload",
+      "Face spoof detection (liveness)",
+      "Multiple camera angles"
+    ],
+
+    "mini_challenge": "Send unknown visitor image to phone using MQTT or WhatsApp API.",
+
+    "estimated_cost_india": {
+      "raspberry_pi_4": "₹3,200",
+      "camera_module": "₹1,200",
+      "push_button": "₹40",
+      "buzzer": "₹60",
+      "led_and_resistors": "₹50",
+      "power_supply": "₹500",
+      "miscellaneous": "₹300",
+      "total": "₹5,350 (approx)"
+    },
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 330,
+    "title": "AI-Based Animal Detection System for Farmland Protection",
+    "level": "AI + Embedded (Advanced – AgriTech & Safety)",
+    "category": "AI + Embedded + Machine Learning",
+    "estimatedTime": "18–20 Hours",
+
+    "problem_statement": "Farmers suffer major crop losses due to wild animals entering farmland, especially at night. Traditional fencing and scare methods are unreliable. An AI-based detection system can identify animals early and trigger non-lethal alerts to protect crops.",
+
+    "real_world_use_case": [
+      "Agricultural farmlands near forests",
+      "Village boundary protection",
+      "Plantation estates",
+      "Smart agriculture projects",
+      "Government AgriTech initiatives"
+    ],
+
+    "ai_concept": {
+      "type": "Object Detection",
+      "model": "YOLOv5 / MobileNet-SSD (custom trained)",
+      "target_classes": [
+        "Cow",
+        "Buffalo",
+        "Dog",
+        "Boar",
+        "Deer",
+        "Elephant"
+      ],
+      "training_data": "Animal images captured in Indian rural environments",
+      "deployment": "Edge inference on Raspberry Pi"
+    },
+
+    "embedded_concept": {
+      "trigger_logic": "AI confirmation + confidence threshold",
+      "alert_strategy": "Multi-output deterrent system",
+      "power_constraint": "Outdoor, low-maintenance system"
+    },
+
+    "hardware": {
+      "processor": "Raspberry Pi 4 (4GB)",
+      "camera": "IR Night Vision Camera (USB / Pi Camera)",
+      "alert_devices": [
+        "High-power Buzzer",
+        "Flood Light / Strobe Light"
+      ],
+      "communication": "Optional GSM module (SMS alert)",
+      "power": {
+        "primary": "5V 3A Adapter",
+        "optional": "Solar panel + battery backup"
+      },
+      "enclosure": "Weatherproof outdoor casing (IP65)"
+    },
+
+    "working_principle": [
+      "Camera continuously monitors farm boundary",
+      "Frames captured at fixed intervals",
+      "AI model detects objects in frame",
+      "Detected objects filtered for animal classes",
+      "Confidence score evaluated",
+      "If animal detected above threshold:",
+      "→ Activate buzzer and flood light",
+      "→ Save image with timestamp",
+      "→ (Optional) Send SMS alert to farmer",
+      "System resets after cooldown period"
+    ],
+
+    "decision_logic": {
+      "confidence_threshold": 0.6,
+      "verification_frames": 3,
+      "cooldown_time": "30 seconds",
+      "night_mode": "Always active",
+      "day_mode": "Optional (user configurable)"
+    },
+
+    "pin_config": {
+      "raspberry_pi": [
+        {
+          "module": "Night Vision Camera",
+          "pinName": "USB / CSI",
+          "pin": "Camera Port",
+          "voltage": "5V",
+          "direction": "Data",
+          "description": "Captures images for AI detection"
+        },
+        {
+          "module": "High-Power Buzzer (via Relay)",
+          "pinName": "IN",
+          "pin": "GPIO18",
+          "voltage": "3.3V",
+          "direction": "Output",
+          "description": "Activates sound deterrent when animal detected"
+        },
+        {
+          "module": "Flood Light Relay",
+          "pinName": "IN",
+          "pin": "GPIO21",
+          "voltage": "3.3V",
+          "direction": "Output",
+          "description": "Turns ON bright light to scare animals"
+        },
+        {
+          "module": "Relay Module",
+          "pinName": "VCC",
+          "pin": "5V",
+          "voltage": "5V",
+          "direction": "Power",
+          "description": "Relay power supply"
+        },
+        {
+          "module": "Relay Module",
+          "pinName": "GND",
+          "pin": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Common ground with Raspberry Pi"
+        }
+      ]
+    },
+
+    "software_stack": [
+      "Python 3",
+      "OpenCV",
+      "YOLOv5 / TensorFlow Lite",
+      "RPi.GPIO",
+      "NumPy",
+      "Optional: GSM (pySerial)"
+    ],
+
+    "dataset_guidelines": {
+      "source": [
+        "Local farmland cameras",
+        "Forest boundary images",
+        "Day and night samples"
+      ],
+      "minimum_images_per_class": 500,
+      "augmentation": [
+        "Brightness variation",
+        "Motion blur",
+        "Night IR noise"
+      ]
+    },
+
+    "code": {
+      "language": "Python",
+      "file": "animal_detection.py",
+      "content": "import cv2\nimport time\nimport RPi.GPIO as GPIO\n\nBUZZER = 18\nLIGHT = 21\n\nGPIO.setmode(GPIO.BCM)\nGPIO.setup(BUZZER, GPIO.OUT)\nGPIO.setup(LIGHT, GPIO.OUT)\n\ncap = cv2.VideoCapture(0)\n\nCONFIDENCE_THRESHOLD = 0.6\nCOOLDOWN = 30\nlast_trigger = 0\n\nwhile True:\n    ret, frame = cap.read()\n    \n    # --- AI MODEL INFERENCE SHOULD BE HERE ---\n    # Assume animal detected with confidence\n    animal_detected = True\n    confidence = 0.72\n\n    current_time = time.time()\n\n    if animal_detected and confidence > CONFIDENCE_THRESHOLD:\n        if current_time - last_trigger > COOLDOWN:\n            GPIO.output(BUZZER, GPIO.HIGH)\n            GPIO.output(LIGHT, GPIO.HIGH)\n            cv2.imwrite(f\"captures/animal_{int(current_time)}.jpg\", frame)\n            time.sleep(5)\n            GPIO.output(BUZZER, GPIO.LOW)\n            GPIO.output(LIGHT, GPIO.LOW)\n            last_trigger = current_time\n\n    if cv2.waitKey(1) == 27:\n        break\n\ncap.release()\nGPIO.cleanup()"
+    },
+
+    "testing_output": "Animal detected → buzzer and light activated → image saved → farmer alerted.",
+
+    "common_errors": [
+      "False positives from humans or vehicles",
+      "Poor night illumination",
+      "Camera fogging or rain interference",
+      "Insufficient dataset diversity"
+    ],
+
+    "working_explanation_step_by_step": [
+      "System boots and initializes GPIO and camera",
+      "Camera captures live frames",
+      "AI model processes each frame",
+      "Detection results filtered for animals",
+      "Confidence evaluated over multiple frames",
+      "Alert outputs activated",
+      "System enters cooldown to prevent repeat alerts"
+    ],
+
+    "improvements": [
+      "Thermal camera integration",
+      "Animal-specific alert sounds",
+      "Solar-powered autonomous system",
+      "Mobile app with live feed",
+      "Cloud-based incident analytics"
+    ],
+
+    "mini_challenge": "Generate different alert patterns for different animal types.",
+
+    "estimated_cost_india": {
+      "raspberry_pi_4": "₹3,200",
+      "night_vision_camera": "₹1,800",
+      "relay_module": "₹150",
+      "buzzer": "₹250",
+      "flood_light": "₹600",
+      "power_supply": "₹500",
+      "weatherproof_enclosure": "₹700",
+      "miscellaneous": "₹400",
+      "total": "₹7,600 (approx)"
+    },
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  {
+    "id": 401,
+    "title": "LED Blinking using Arduino",
+    "level": "Beginner (Embedded Systems Foundation)",
+    "category": "Embedded Systems Projects",
+    "estimatedTime": "45–60 Minutes",
+
+    "problem_statement": "Understanding basic microcontroller I/O control is essential before building complex embedded systems. LED blinking is the fundamental project to learn GPIO configuration, timing control, and embedded program flow.",
+
+    "real_world_use_case": [
+      "Status indication in embedded devices",
+      "Power ON / OFF indicators",
+      "Error and fault signaling",
+      "Heartbeat indicator in controllers",
+      "Debugging and testing hardware boards"
+    ],
+
+    "embedded_concept": {
+      "core_topics": [
+        "GPIO configuration",
+        "Digital output control",
+        "Delay-based timing",
+        "Embedded program loop"
+      ],
+      "controller_role": "Arduino generates digital HIGH/LOW signals to control an external load (LED)"
+    },
+
+    "hardware": {
+      "microcontroller": "Arduino UNO (ATmega328P)",
+      "input": "None",
+      "output": "LED",
+      "passive_components": [
+        "220Ω Resistor"
+      ],
+      "power_source": "USB / 5V Adapter"
+    },
+
+    "working_principle": [
+      "Arduino initializes a GPIO pin as OUTPUT",
+      "GPIO pin is set HIGH to turn LED ON",
+      "Controller waits for a fixed delay",
+      "GPIO pin is set LOW to turn LED OFF",
+      "Process repeats continuously inside loop()"
+    ],
+
+    "block_diagram_logic": [
+      "Power ON",
+      "Arduino Initialization",
+      "GPIO HIGH → LED ON",
+      "Delay",
+      "GPIO LOW → LED OFF",
+      "Delay",
+      "Repeat"
+    ],
+
+    "pin_config": {
+      "arduino_uno": [
+        {
+          "module": "LED",
+          "pinName": "Anode (+)",
+          "mcuPin": "D13",
+          "voltage": "5V",
+          "direction": "Output",
+          "description": "Digital output pin to control LED state"
+        },
+        {
+          "module": "LED",
+          "pinName": "Cathode (−)",
+          "mcuPin": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Completes current path for LED"
+        },
+        {
+          "module": "Resistor",
+          "pinName": "Current Limiter",
+          "mcuPin": "Series with LED",
+          "voltage": "Drops excess voltage",
+          "direction": "Passive",
+          "description": "Prevents LED damage due to excess current"
+        }
+      ]
+    },
+
+    "circuit_connection": [
+      "Arduino D13 → 220Ω Resistor → LED Anode",
+      "LED Cathode → Arduino GND"
+    ],
+
+    "software_stack": [
+      "Arduino IDE",
+      "AVR-GCC Compiler",
+      "USB Serial Driver"
+    ],
+
+    "code": {
+      "language": "C++ (Arduino)",
+      "file": "led_blink.ino",
+      "content": "// Project 401: LED Blinking using Arduino\n\nint ledPin = 13;   // Built-in LED pin\n\nvoid setup() {\n  pinMode(ledPin, OUTPUT); // Configure pin as output\n}\n\nvoid loop() {\n  digitalWrite(ledPin, HIGH); // LED ON\n  delay(1000);                // 1 second delay\n\n  digitalWrite(ledPin, LOW);  // LED OFF\n  delay(1000);                // 1 second delay\n}"
+    },
+
+    "testing_and_output": [
+      "LED turns ON for 1 second",
+      "LED turns OFF for 1 second",
+      "Blinking repeats continuously",
+      "No serial output required"
+    ],
+
+    "common_errors": [
+      "LED connected in reverse polarity",
+      "Missing current-limiting resistor",
+      "Wrong GPIO pin selected in code",
+      "Faulty USB cable or board not selected in IDE"
+    ],
+
+    "debugging_tips": [
+      "Use built-in LED on pin D13 for testing",
+      "Verify board and COM port in Arduino IDE",
+      "Check resistor value (220Ω–330Ω recommended)"
+    ],
+
+    "improvements": [
+      "Change blink rate using variables",
+      "Use millis() instead of delay()",
+      "Control LED using push button",
+      "Add multiple LEDs with different patterns"
+    ],
+
+    "mini_challenge": "Blink the LED in Morse code for SOS (··· ––– ···).",
+
+    "estimated_cost_india": {
+      "arduino_uno": "₹350",
+      "led": "₹5",
+      "resistor": "₹2",
+      "jumper_wires": "₹20",
+      "usb_cable": "₹50",
+      "total": "₹427 (approx)"
+    },
+
+    "learning_outcomes": [
+      "Understand Arduino program structure",
+      "Learn digital output control",
+      "Gain confidence in hardware connections",
+      "Foundation for all embedded projects"
+    ],
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 402,
+    "title": "Digital Dice using 8051 Microcontroller",
+    "level": "Beginner–Intermediate (Embedded Systems Core)",
+    "category": "Embedded Systems Projects",
+    "estimatedTime": "2–3 Hours",
+
+    "problem_statement": "Mechanical dice are prone to bias, wear, and lack repeatability. A digital dice using a microcontroller generates pseudo-random numbers reliably and helps students understand timers, I/O ports, and embedded logic design.",
+
+    "real_world_use_case": [
+      "Electronic board games",
+      "Random number generation systems",
+      "Educational embedded labs",
+      "Simulation and testing systems"
+    ],
+
+    "embedded_concept": {
+      "core_topics": [
+        "8051 GPIO port configuration",
+        "Pseudo-random number generation",
+        "Timer-based delay",
+        "Seven-segment display interfacing"
+      ],
+      "controller_role": "8051 generates a random number (1–6) and drives a display to show the result"
+    },
+
+    "hardware": {
+      "microcontroller": "8051 (AT89S52 / AT89C51)",
+      "input": "Push Button (Roll Trigger)",
+      "output": "Single Seven-Segment Display",
+      "passive_components": [
+        "330Ω Resistors (segment current limiting)",
+        "10kΩ Resistor (pull-down / pull-up)"
+      ],
+      "clock": "11.0592 MHz Crystal Oscillator",
+      "power_source": "5V Regulated Supply"
+    },
+
+    "working_principle": [
+      "System powers ON and initializes ports",
+      "Button press triggers dice roll",
+      "Controller rapidly cycles numbers 1–6",
+      "Timer delay creates randomness",
+      "Final number is latched and displayed",
+      "System waits for next button press"
+    ],
+
+    "block_diagram_logic": [
+      "Power Supply",
+      "8051 Microcontroller",
+      "Push Button Input",
+      "Random Number Logic",
+      "Seven-Segment Display Output"
+    ],
+
+    "pin_config": {
+      "8051": [
+        {
+          "module": "Seven Segment Display",
+          "pinName": "Segment A–G",
+          "mcuPin": "P2.0–P2.6",
+          "voltage": "5V",
+          "direction": "Output",
+          "description": "Controls individual segments of display"
+        },
+        {
+          "module": "Push Button",
+          "pinName": "Signal",
+          "mcuPin": "P3.2",
+          "voltage": "5V",
+          "direction": "Input",
+          "description": "Triggers dice roll on press"
+        },
+        {
+          "module": "Push Button",
+          "pinName": "GND",
+          "mcuPin": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Button ground reference"
+        },
+        {
+          "module": "Crystal Oscillator",
+          "pinName": "XTAL1 / XTAL2",
+          "mcuPin": "Pins 18 & 19",
+          "voltage": "—",
+          "direction": "Clock",
+          "description": "Provides system clock to 8051"
+        },
+        {
+          "module": "Power",
+          "pinName": "VCC",
+          "mcuPin": "Pin 40",
+          "voltage": "5V",
+          "direction": "Power",
+          "description": "Supplies operating voltage to controller"
+        },
+        {
+          "module": "Power",
+          "pinName": "GND",
+          "mcuPin": "Pin 20",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Common ground reference"
+        }
+      ]
+    },
+
+    "circuit_connection": [
+      "Seven-segment display connected to Port 2 via 330Ω resistors",
+      "Push button connected to P3.2 with pull-down resistor",
+      "Crystal oscillator connected across XTAL1 and XTAL2",
+      "Reset circuit connected using capacitor and resistor"
+    ],
+
+    "software_stack": [
+      "Keil µVision IDE",
+      "Embedded C (C51)",
+      "8051 Programmer (USBASP / ISP)"
+    ],
+
+    "code": {
+      "language": "Embedded C (8051)",
+      "file": "digital_dice.c",
+      "content": "#include <reg51.h>\n\nsbit button = P3^2;\n\nunsigned char dice[6] = {0x06,0x5B,0x4F,0x66,0x6D,0x7D};\n\nvoid delay(unsigned int ms) {\n  unsigned int i, j;\n  for(i=0;i<ms;i++)\n    for(j=0;j<1275;j++);\n}\n\nvoid main() {\n  unsigned char i = 0;\n  P2 = 0x00;\n\n  while(1) {\n    if(button == 1) {\n      for(i=0;i<20;i++) {\n        P2 = dice[i % 6];\n        delay(50);\n      }\n      delay(1000);\n    }\n  }\n}"
+    },
+
+    "testing_and_output": [
+      "Press button → numbers roll rapidly",
+      "Final number between 1 and 6 displayed",
+      "Display remains stable until next press"
+    ],
+
+    "common_errors": [
+      "Incorrect seven-segment type (common anode vs cathode)",
+      "Missing current-limiting resistors",
+      "Button bouncing causing false triggers",
+      "Incorrect crystal frequency settings"
+    ],
+
+    "debugging_tips": [
+      "Test each segment individually",
+      "Use debounce delay for button",
+      "Verify Port 2 wiring",
+      "Check power supply regulation"
+    ],
+
+    "improvements": [
+      "Add LCD display",
+      "Use timer interrupt for randomness",
+      "Add sound (buzzer) on roll",
+      "Use dual seven-segment displays"
+    ],
+
+    "mini_challenge": "Implement dice roll using timer interrupt instead of delay.",
+
+    "estimated_cost_india": {
+      "8051_microcontroller": "₹120",
+      "seven_segment_display": "₹40",
+      "push_button": "₹10",
+      "crystal_oscillator": "₹20",
+      "resistors_capacitors": "₹30",
+      "power_supply": "₹150",
+      "miscellaneous": "₹50",
+      "total": "₹420 (approx)"
+    },
+
+    "learning_outcomes": [
+      "Understand 8051 port operation",
+      "Learn display interfacing",
+      "Implement pseudo-random logic",
+      "Gain confidence with Keil IDE"
+    ],
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 403,
+    "title": "Temperature Controlled Fan using Microcontroller",
+    "level": "Beginner–Intermediate (Embedded Systems + Sensors)",
+    "category": "Embedded Systems Projects",
+    "estimatedTime": "3–4 Hours",
+
+    "problem_statement": "Manual control of fans leads to energy wastage and discomfort. An automatic temperature-controlled fan adjusts its operation based on ambient temperature, improving comfort and power efficiency.",
+
+    "real_world_use_case": [
+      "Smart homes",
+      "Server rooms",
+      "Industrial control panels",
+      "Automatic cooling systems",
+      "Electronic device thermal management"
+    ],
+
+    "embedded_concept": {
+      "core_topics": [
+        "Analog sensor interfacing",
+        "ADC conversion",
+        "Threshold-based control",
+        "Relay / transistor driver circuits"
+      ],
+      "controller_role": "Microcontroller reads temperature sensor data and controls fan ON/OFF automatically"
+    },
+
+    "hardware": {
+      "microcontroller": "Arduino UNO (ATmega328P)",
+      "sensor": "LM35 Temperature Sensor",
+      "actuator": "DC Fan (5V / 12V)",
+      "driver": "Relay Module / NPN Transistor (TIP122)",
+      "passive_components": [
+        "1kΩ Resistor (base resistor)",
+        "Diode (flyback protection)"
+      ],
+      "power_source": "USB (logic) + External supply (fan)"
+    },
+
+    "working_principle": [
+      "LM35 senses ambient temperature",
+      "Sensor outputs analog voltage proportional to temperature",
+      "Arduino reads voltage using ADC",
+      "Temperature calculated in degree Celsius",
+      "If temperature exceeds threshold → fan turns ON",
+      "If temperature drops below threshold → fan turns OFF"
+    ],
+
+    "block_diagram_logic": [
+      "Temperature Sensor (LM35)",
+      "ADC Conversion",
+      "Decision Logic",
+      "Fan Driver Circuit",
+      "DC Fan"
+    ],
+
+    "pin_config": {
+      "arduino_uno": [
+        {
+          "module": "LM35 Sensor",
+          "pinName": "VCC",
+          "mcuPin": "5V",
+          "voltage": "5V",
+          "direction": "Power",
+          "description": "Supplies operating voltage to LM35"
+        },
+        {
+          "module": "LM35 Sensor",
+          "pinName": "OUT",
+          "mcuPin": "A0",
+          "voltage": "0–1.5V",
+          "direction": "Analog Input",
+          "description": "Analog voltage proportional to temperature (10mV/°C)"
+        },
+        {
+          "module": "LM35 Sensor",
+          "pinName": "GND",
+          "mcuPin": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Common ground reference"
+        },
+        {
+          "module": "Relay / Transistor",
+          "pinName": "Control",
+          "mcuPin": "D8",
+          "voltage": "5V",
+          "direction": "Output",
+          "description": "Controls fan ON/OFF state"
+        },
+        {
+          "module": "DC Fan",
+          "pinName": "VCC",
+          "mcuPin": "External Supply",
+          "voltage": "5V / 12V",
+          "direction": "Power",
+          "description": "Provides required power to fan"
+        },
+        {
+          "module": "DC Fan",
+          "pinName": "GND",
+          "mcuPin": "Common GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Shared ground with Arduino"
+        }
+      ]
+    },
+
+    "circuit_connection": [
+      "LM35 VCC → Arduino 5V",
+      "LM35 OUT → Arduino A0",
+      "LM35 GND → Arduino GND",
+      "Arduino D8 → Relay / Transistor base",
+      "Fan connected via relay or transistor with diode protection"
+    ],
+
+    "software_stack": [
+      "Arduino IDE",
+      "AVR-GCC Compiler",
+      "Serial Monitor (for debugging)"
+    ],
+
+    "code": {
+      "language": "C++ (Arduino)",
+      "file": "temperature_controlled_fan.ino",
+      "content": "// Project 403: Temperature Controlled Fan\n\nconst int tempPin = A0;\nconst int fanPin = 8;\nfloat temperature;\n\nvoid setup() {\n  pinMode(fanPin, OUTPUT);\n  Serial.begin(9600);\n}\n\nvoid loop() {\n  int sensorValue = analogRead(tempPin);\n  float voltage = sensorValue * (5.0 / 1023.0);\n  temperature = voltage * 100; // LM35: 10mV per degree\n\n  Serial.print(\"Temperature: \");\n  Serial.print(temperature);\n  Serial.println(\" °C\");\n\n  if (temperature >= 30) {\n    digitalWrite(fanPin, HIGH); // Fan ON\n  } else {\n    digitalWrite(fanPin, LOW);  // Fan OFF\n  }\n\n  delay(1000);\n}"
+    },
+
+    "testing_and_output": [
+      "Fan turns ON when temperature ≥ 30°C",
+      "Fan turns OFF when temperature < 30°C",
+      "Temperature displayed on Serial Monitor"
+    ],
+
+    "common_errors": [
+      "Wrong sensor orientation",
+      "No common ground between fan and Arduino",
+      "Fan drawing excessive current from Arduino pin",
+      "Incorrect ADC conversion formula"
+    ],
+
+    "debugging_tips": [
+      "Check LM35 output using multimeter",
+      "Test relay/transistor separately",
+      "Print ADC values for calibration",
+      "Ensure diode across fan terminals"
+    ],
+
+    "improvements": [
+      "PWM-based speed control",
+      "LCD temperature display",
+      "Multiple temperature thresholds",
+      "Use DHT11/DHT22 for humidity sensing"
+    ],
+
+    "mini_challenge": "Implement fan speed control using PWM instead of ON/OFF.",
+
+    "estimated_cost_india": {
+      "arduino_uno": "₹350",
+      "lm35_sensor": "₹80",
+      "relay_module": "₹120",
+      "dc_fan": "₹150",
+      "diode_resistors": "₹30",
+      "power_supply": "₹150",
+      "miscellaneous": "₹50",
+      "total": "₹930 (approx)"
+    },
+
+    "learning_outcomes": [
+      "Understand analog sensors",
+      "Learn ADC conversion",
+      "Implement control logic",
+      "Interface high-power devices safely"
+    ],
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 404,
+    "title": "Automatic Room Light Controller using Sensor",
+    "level": "Beginner–Intermediate (Embedded Automation)",
+    "category": "Embedded Systems Projects",
+    "estimatedTime": "3–4 Hours",
+
+    "problem_statement": "Lights are often left ON unnecessarily, leading to energy wastage. An automatic room light controller turns lights ON only when a person is present, improving energy efficiency and convenience.",
+
+    "real_world_use_case": [
+      "Smart homes",
+      "Office buildings",
+      "Classrooms and corridors",
+      "Restrooms",
+      "Energy-saving public infrastructure"
+    ],
+
+    "embedded_concept": {
+      "core_topics": [
+        "Digital sensor interfacing",
+        "Presence detection",
+        "Relay-based AC load control",
+        "Embedded decision logic"
+      ],
+      "controller_role": "Microcontroller detects human presence using a sensor and controls room lighting automatically"
+    },
+
+    "hardware": {
+      "microcontroller": "Arduino UNO (ATmega328P)",
+      "sensor": "PIR Motion Sensor (HC-SR501) / IR Obstacle Sensor",
+      "actuator": "AC Bulb / Lamp",
+      "driver": "Relay Module (5V)",
+      "power_source": "USB (Arduino) + AC mains (lamp)"
+    },
+
+    "working_principle": [
+      "Sensor continuously monitors room",
+      "When motion/presence detected, sensor output goes HIGH",
+      "Arduino reads sensor output",
+      "Arduino activates relay",
+      "Room light turns ON",
+      "If no motion detected for a set time, light turns OFF automatically"
+    ],
+
+    "block_diagram_logic": [
+      "Presence Sensor",
+      "Microcontroller",
+      "Relay Driver",
+      "Room Light"
+    ],
+
+    "pin_config": {
+      "arduino_uno": [
+        {
+          "module": "PIR Sensor",
+          "pinName": "VCC",
+          "mcuPin": "5V",
+          "voltage": "5V",
+          "direction": "Power",
+          "description": "Supplies power to PIR sensor"
+        },
+        {
+          "module": "PIR Sensor",
+          "pinName": "OUT",
+          "mcuPin": "D2",
+          "voltage": "3.3V (HIGH)",
+          "direction": "Input",
+          "description": "Goes HIGH when motion is detected"
+        },
+        {
+          "module": "PIR Sensor",
+          "pinName": "GND",
+          "mcuPin": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Common ground reference"
+        },
+        {
+          "module": "Relay Module",
+          "pinName": "IN",
+          "mcuPin": "D8",
+          "voltage": "5V",
+          "direction": "Output",
+          "description": "Controls AC light ON/OFF"
+        },
+        {
+          "module": "Relay Module",
+          "pinName": "VCC",
+          "mcuPin": "5V",
+          "voltage": "5V",
+          "direction": "Power",
+          "description": "Power supply for relay coil"
+        },
+        {
+          "module": "Relay Module",
+          "pinName": "GND",
+          "mcuPin": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Common ground with Arduino"
+        }
+      ]
+    },
+
+    "circuit_connection": [
+      "PIR VCC → Arduino 5V",
+      "PIR OUT → Arduino D2",
+      "PIR GND → Arduino GND",
+      "Arduino D8 → Relay IN",
+      "AC Live wire routed through relay COM and NO contacts"
+    ],
+
+    "software_stack": [
+      "Arduino IDE",
+      "AVR-GCC Compiler",
+      "Serial Monitor (optional debugging)"
+    ],
+
+    "code": {
+      "language": "C++ (Arduino)",
+      "file": "automatic_room_light.ino",
+      "content": "// Project 404: Automatic Room Light Controller\n\nconst int pirPin = 2;\nconst int relayPin = 8;\nunsigned long lastMotionTime = 0;\nconst unsigned long delayTime = 10000; // 10 seconds\n\nvoid setup() {\n  pinMode(pirPin, INPUT);\n  pinMode(relayPin, OUTPUT);\n  digitalWrite(relayPin, LOW);\n}\n\nvoid loop() {\n  int motion = digitalRead(pirPin);\n\n  if (motion == HIGH) {\n    digitalWrite(relayPin, HIGH); // Light ON\n    lastMotionTime = millis();\n  }\n\n  if (millis() - lastMotionTime > delayTime) {\n    digitalWrite(relayPin, LOW); // Light OFF\n  }\n}"
+    },
+
+    "testing_and_output": [
+      "Light turns ON when motion is detected",
+      "Light stays ON while movement continues",
+      "Light turns OFF after 10 seconds of no motion"
+    ],
+
+    "common_errors": [
+      "PIR sensor not calibrated",
+      "Relay wired incorrectly to AC load",
+      "No common ground",
+      "False triggering due to heat sources"
+    ],
+
+    "debugging_tips": [
+      "Adjust PIR sensitivity and delay knobs",
+      "Test PIR output using Serial Monitor",
+      "Use LED instead of AC lamp for testing",
+      "Ensure proper insulation for AC wiring"
+    ],
+
+    "improvements": [
+      "Add LDR to prevent daytime activation",
+      "Use dimming control instead of ON/OFF",
+      "Add manual override switch",
+      "IoT-based remote monitoring"
+    ],
+
+    "mini_challenge": "Modify the system to count number of people entering the room.",
+
+    "estimated_cost_india": {
+      "arduino_uno": "₹350",
+      "pir_sensor": "₹150",
+      "relay_module": "₹120",
+      "ac_bulb_holder": "₹100",
+      "wires_connectors": "₹60",
+      "power_supply": "₹150",
+      "miscellaneous": "₹50",
+      "total": "₹980 (approx)"
+    },
+
+    "learning_outcomes": [
+      "Understand motion sensing",
+      "Implement time-based logic",
+      "Safely control AC loads",
+      "Design energy-efficient embedded systems"
+    ],
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 405,
+    "title": "DC Motor Speed Control using PWM",
+    "level": "Beginner–Intermediate (Embedded Motor Control)",
+    "category": "Embedded Systems Projects",
+    "estimatedTime": "3–4 Hours",
+
+    "problem_statement": "DC motors running at constant speed waste power and limit control flexibility. Speed control using Pulse Width Modulation (PWM) enables efficient, smooth, and precise motor operation in embedded systems.",
+
+    "real_world_use_case": [
+      "Robotics wheel control",
+      "Cooling fans",
+      "Conveyor belt systems",
+      "Automated curtains",
+      "Speed-regulated tools"
+    ],
+
+    "embedded_concept": {
+      "core_topics": [
+        "PWM signal generation",
+        "Motor driver interfacing",
+        "Analog input reading",
+        "Power electronics safety"
+      ],
+      "controller_role": "Microcontroller generates PWM signal to control average voltage applied to DC motor"
+    },
+
+    "hardware": {
+      "microcontroller": "Arduino UNO (ATmega328P)",
+      "actuator": "DC Motor (6V–12V)",
+      "driver": "L298N Motor Driver Module / TIP122 Transistor",
+      "input": "Potentiometer (10kΩ)",
+      "power_source": {
+        "logic": "USB / 5V",
+        "motor": "External 6V–12V Supply"
+      }
+    },
+
+    "working_principle": [
+      "Potentiometer provides variable analog voltage",
+      "Arduino reads voltage using ADC",
+      "ADC value mapped to PWM duty cycle",
+      "PWM signal applied to motor driver",
+      "Motor speed varies proportional to duty cycle"
+    ],
+
+    "block_diagram_logic": [
+      "Potentiometer Input",
+      "ADC Conversion",
+      "PWM Generator",
+      "Motor Driver",
+      "DC Motor"
+    ],
+
+    "pin_config": {
+      "arduino_uno": [
+        {
+          "module": "Potentiometer",
+          "pinName": "VCC",
+          "mcuPin": "5V",
+          "voltage": "5V",
+          "direction": "Power",
+          "description": "Supplies reference voltage to potentiometer"
+        },
+        {
+          "module": "Potentiometer",
+          "pinName": "Wiper",
+          "mcuPin": "A0",
+          "voltage": "0–5V",
+          "direction": "Analog Input",
+          "description": "Provides variable voltage for speed control"
+        },
+        {
+          "module": "Potentiometer",
+          "pinName": "GND",
+          "mcuPin": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Common ground"
+        },
+        {
+          "module": "Motor Driver (L298N)",
+          "pinName": "ENA",
+          "mcuPin": "D9",
+          "voltage": "5V PWM",
+          "direction": "Output",
+          "description": "PWM enable pin for speed control"
+        },
+        {
+          "module": "Motor Driver (L298N)",
+          "pinName": "IN1",
+          "mcuPin": "D8",
+          "voltage": "5V",
+          "direction": "Output",
+          "description": "Motor direction control"
+        },
+        {
+          "module": "Motor Driver (L298N)",
+          "pinName": "IN2",
+          "mcuPin": "D7",
+          "voltage": "5V",
+          "direction": "Output",
+          "description": "Motor direction control"
+        },
+        {
+          "module": "DC Motor",
+          "pinName": "VCC",
+          "mcuPin": "External Supply",
+          "voltage": "6V–12V",
+          "direction": "Power",
+          "description": "Motor power source"
+        },
+        {
+          "module": "DC Motor",
+          "pinName": "GND",
+          "mcuPin": "Common GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Shared ground with Arduino and driver"
+        }
+      ]
+    },
+
+    "circuit_connection": [
+      "Potentiometer ends → 5V and GND",
+      "Potentiometer wiper → Arduino A0",
+      "Arduino D9 → L298N ENA",
+      "Arduino D8, D7 → L298N IN1, IN2",
+      "Motor connected to L298N OUT terminals",
+      "External motor supply connected to L298N"
+    ],
+
+    "software_stack": [
+      "Arduino IDE",
+      "AVR-GCC Compiler"
+    ],
+
+    "code": {
+      "language": "C++ (Arduino)",
+      "file": "dc_motor_pwm.ino",
+      "content": "// Project 405: DC Motor Speed Control using PWM\n\nconst int potPin = A0;\nconst int enablePin = 9;\nconst int in1 = 8;\nconst int in2 = 7;\n\nvoid setup() {\n  pinMode(enablePin, OUTPUT);\n  pinMode(in1, OUTPUT);\n  pinMode(in2, OUTPUT);\n\n  digitalWrite(in1, HIGH);\n  digitalWrite(in2, LOW); // Set motor direction\n}\n\nvoid loop() {\n  int potValue = analogRead(potPin);\n  int pwmValue = map(potValue, 0, 1023, 0, 255);\n\n  analogWrite(enablePin, pwmValue); // Speed control\n  delay(50);\n}"
+    },
+
+    "testing_and_output": [
+      "Motor speed increases when potentiometer rotated clockwise",
+      "Motor speed decreases when rotated counter-clockwise",
+      "Smooth speed variation without jerks"
+    ],
+
+    "common_errors": [
+      "Motor powered directly from Arduino",
+      "No common ground between supplies",
+      "Incorrect PWM pin selection",
+      "Driver overheating due to load"
+    ],
+
+    "debugging_tips": [
+      "Test PWM using LED before motor",
+      "Measure motor voltage using multimeter",
+      "Add heat sink to driver",
+      "Reduce load during testing"
+    ],
+
+    "improvements": [
+      "Closed-loop speed control using encoder",
+      "Bidirectional speed control",
+      "LCD speed display",
+      "IoT-based motor monitoring"
+    ],
+
+    "mini_challenge": "Maintain constant motor speed under varying load using PID control.",
+
+    "estimated_cost_india": {
+      "arduino_uno": "₹350",
+      "dc_motor": "₹150",
+      "l298n_driver": "₹180",
+      "potentiometer": "₹20",
+      "external_power_supply": "₹200",
+      "wires_and_connectors": "₹80",
+      "miscellaneous": "₹50",
+      "total": "₹1,030 (approx)"
+    },
+
+    "learning_outcomes": [
+      "Understand PWM fundamentals",
+      "Safely control motors",
+      "Learn power interfacing",
+      "Foundation for robotics projects"
+    ],
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 406,
+    "title": "Ultrasonic Distance Measurement using Microcontroller",
+    "level": "Beginner–Intermediate (Sensor Interfacing)",
+    "category": "Embedded Systems Projects",
+    "estimatedTime": "3–4 Hours",
+
+    "problem_statement": "Accurate distance measurement is essential in automation, robotics, and safety systems. Traditional mechanical methods are unreliable and wear out. Ultrasonic sensing provides a non-contact, precise distance measurement solution.",
+
+    "real_world_use_case": [
+      "Obstacle avoidance robots",
+      "Smart parking systems",
+      "Water tank level monitoring",
+      "Industrial distance sensing",
+      "Blind assistance devices"
+    ],
+
+    "embedded_concept": {
+      "core_topics": [
+        "Ultrasonic wave propagation",
+        "Time-of-Flight (ToF) measurement",
+        "Microsecond timing",
+        "Digital I/O control"
+      ],
+      "sensor_principle": "Distance calculated by measuring echo return time of ultrasonic pulse"
+    },
+
+    "hardware": {
+      "microcontroller": "Arduino UNO (ATmega328P)",
+      "sensor": "HC-SR04 Ultrasonic Sensor",
+      "display": "Serial Monitor (optional LCD)",
+      "power_source": "USB 5V"
+    },
+
+    "working_principle": [
+      "Trigger pin sends 10µs ultrasonic pulse",
+      "Ultrasonic wave travels through air",
+      "Wave reflects back from obstacle",
+      "Echo pin goes HIGH for duration of return time",
+      "Distance calculated using speed of sound"
+    ],
+
+    "distance_formula": {
+      "formula": "Distance = (Time × Speed of Sound) / 2",
+      "speed_of_sound": "343 m/s (at room temperature)",
+      "unit_conversion": "Distance in cm = Time (µs) / 58"
+    },
+
+    "block_diagram_logic": [
+      "Microcontroller Trigger",
+      "Ultrasonic Transmission",
+      "Echo Reception",
+      "Time Measurement",
+      "Distance Calculation",
+      "Display Output"
+    ],
+
+    "pin_config": {
+      "arduino_uno": [
+        {
+          "module": "HC-SR04",
+          "pinName": "VCC",
+          "mcuPin": "5V",
+          "voltage": "5V",
+          "direction": "Power",
+          "description": "Supplies operating voltage to ultrasonic sensor"
+        },
+        {
+          "module": "HC-SR04",
+          "pinName": "Trig",
+          "mcuPin": "D9",
+          "voltage": "5V",
+          "direction": "Output",
+          "description": "Sends trigger pulse to start ultrasonic burst"
+        },
+        {
+          "module": "HC-SR04",
+          "pinName": "Echo",
+          "mcuPin": "D8",
+          "voltage": "5V",
+          "direction": "Input",
+          "description": "Receives echo pulse duration from sensor"
+        },
+        {
+          "module": "HC-SR04",
+          "pinName": "GND",
+          "mcuPin": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Common ground reference"
+        }
+      ]
+    },
+
+    "circuit_connection": [
+      "HC-SR04 VCC → Arduino 5V",
+      "HC-SR04 GND → Arduino GND",
+      "HC-SR04 Trig → Arduino D9",
+      "HC-SR04 Echo → Arduino D8"
+    ],
+
+    "software_stack": [
+      "Arduino IDE",
+      "AVR-GCC Compiler"
+    ],
+
+    "code": {
+      "language": "C++ (Arduino)",
+      "file": "ultrasonic_distance.ino",
+      "content": "// Project 406: Ultrasonic Distance Measurement\n\nconst int trigPin = 9;\nconst int echoPin = 8;\n\nvoid setup() {\n  pinMode(trigPin, OUTPUT);\n  pinMode(echoPin, INPUT);\n  Serial.begin(9600);\n}\n\nvoid loop() {\n  long duration;\n  int distance;\n\n  digitalWrite(trigPin, LOW);\n  delayMicroseconds(2);\n\n  digitalWrite(trigPin, HIGH);\n  delayMicroseconds(10);\n  digitalWrite(trigPin, LOW);\n\n  duration = pulseIn(echoPin, HIGH);\n  distance = duration / 58;\n\n  Serial.print(\"Distance: \");\n  Serial.print(distance);\n  Serial.println(\" cm\");\n\n  delay(500);\n}"
+    },
+
+    "testing_and_output": [
+      "Distance displayed on Serial Monitor",
+      "Measurement updates every 0.5 seconds",
+      "Accurate readings between 2 cm and 400 cm"
+    ],
+
+    "common_errors": [
+      "Echo pin floating due to loose connection",
+      "Incorrect trigger pulse duration",
+      "Using 3.3V microcontroller without level compatibility",
+      "Sensor facing absorbent surfaces"
+    ],
+
+    "debugging_tips": [
+      "Check echo pin using oscilloscope or logic analyzer",
+      "Test sensor using known distance object",
+      "Ensure no multiple reflections nearby",
+      "Use stable 5V supply"
+    ],
+
+    "limitations": [
+      "Affected by temperature and humidity",
+      "Soft surfaces absorb ultrasonic waves",
+      "Not reliable for very small objects"
+    ],
+
+    "improvements": [
+      "Add LCD display",
+      "Temperature compensation",
+      "Multiple sensor scanning",
+      "Obstacle alert buzzer"
+    ],
+
+    "mini_challenge": "Trigger a buzzer when distance goes below 20 cm.",
+
+    "estimated_cost_india": {
+      "arduino_uno": "₹350",
+      "hc_sr04": "₹120",
+      "jumper_wires": "₹80",
+      "breadboard": "₹100",
+      "miscellaneous": "₹50",
+      "total": "₹700 (approx)"
+    },
+
+    "learning_outcomes": [
+      "Understand ultrasonic sensing",
+      "Learn time-based measurements",
+      "Gain sensor interfacing skills",
+      "Foundation for robotics and automation"
+    ],
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 407,
+    "title": "RFID-based Door Lock System using Microcontroller",
+    "level": "Intermediate (Security & Access Control)",
+    "category": "Embedded Systems Projects",
+    "estimatedTime": "4–6 Hours",
+
+    "problem_statement": "Traditional lock-and-key systems are insecure due to key loss, duplication, and wear. An RFID-based door lock provides contactless, programmable, and scalable access control.",
+
+    "real_world_use_case": [
+      "Office access control",
+      "College laboratories",
+      "Hostel rooms",
+      "Smart homes",
+      "Restricted industrial areas"
+    ],
+
+    "embedded_concept": {
+      "core_topics": [
+        "RFID communication (SPI)",
+        "Unique ID (UID) authentication",
+        "Digital output control",
+        "Electromechanical locking"
+      ],
+      "security_principle": "Access granted only to authorized RFID tag UIDs"
+    },
+
+    "hardware": {
+      "microcontroller": "Arduino UNO (ATmega328P)",
+      "rfid_module": "MFRC522 (13.56 MHz)",
+      "actuator": "Relay Module / Solenoid Lock",
+      "alert": "Buzzer",
+      "power_source": "5V Adapter / USB"
+    },
+
+    "working_principle": [
+      "RFID reader continuously scans for nearby tags",
+      "Tag UID is read via SPI communication",
+      "UID compared with stored authorized UID list",
+      "If matched → relay activates and unlocks door",
+      "If not matched → buzzer alerts and access denied"
+    ],
+
+    "authentication_logic": {
+      "method": "UID matching",
+      "storage": "Hardcoded UID (basic level)",
+      "upgrade_path": "EEPROM / Database storage"
+    },
+
+    "block_diagram_logic": [
+      "RFID Tag",
+      "RFID Reader (MFRC522)",
+      "Microcontroller Authentication",
+      "Relay Driver",
+      "Door Lock Actuation"
+    ],
+
+    "pin_config": {
+      "arduino_uno": [
+        {
+          "module": "MFRC522",
+          "pinName": "VCC",
+          "mcuPin": "3.3V",
+          "voltage": "3.3V",
+          "direction": "Power",
+          "description": "Supplies operating voltage to RFID reader (DO NOT use 5V)"
+        },
+        {
+          "module": "MFRC522",
+          "pinName": "GND",
+          "mcuPin": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Common ground reference"
+        },
+        {
+          "module": "MFRC522",
+          "pinName": "RST",
+          "mcuPin": "D9",
+          "voltage": "5V logic",
+          "direction": "Output",
+          "description": "Resets RFID module"
+        },
+        {
+          "module": "MFRC522",
+          "pinName": "SDA (SS)",
+          "mcuPin": "D10",
+          "voltage": "5V logic",
+          "direction": "Output",
+          "description": "SPI slave select"
+        },
+        {
+          "module": "MFRC522",
+          "pinName": "MOSI",
+          "mcuPin": "D11",
+          "voltage": "5V logic",
+          "direction": "Output",
+          "description": "SPI data from Arduino to RFID"
+        },
+        {
+          "module": "MFRC522",
+          "pinName": "MISO",
+          "mcuPin": "D12",
+          "voltage": "5V logic",
+          "direction": "Input",
+          "description": "SPI data from RFID to Arduino"
+        },
+        {
+          "module": "MFRC522",
+          "pinName": "SCK",
+          "mcuPin": "D13",
+          "voltage": "5V logic",
+          "direction": "Output",
+          "description": "SPI clock signal"
+        },
+        {
+          "module": "Relay Module",
+          "pinName": "VCC",
+          "mcuPin": "5V",
+          "voltage": "5V",
+          "direction": "Power",
+          "description": "Relay coil power"
+        },
+        {
+          "module": "Relay Module",
+          "pinName": "GND",
+          "mcuPin": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Relay ground"
+        },
+        {
+          "module": "Relay Module",
+          "pinName": "IN",
+          "mcuPin": "D7",
+          "voltage": "5V logic",
+          "direction": "Output",
+          "description": "Controls lock ON/OFF"
+        },
+        {
+          "module": "Buzzer",
+          "pinName": "VCC",
+          "mcuPin": "5V",
+          "voltage": "5V",
+          "direction": "Power",
+          "description": "Powers buzzer"
+        },
+        {
+          "module": "Buzzer",
+          "pinName": "GND",
+          "mcuPin": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Buzzer ground"
+        },
+        {
+          "module": "Buzzer",
+          "pinName": "IN",
+          "mcuPin": "D6",
+          "voltage": "5V logic",
+          "direction": "Output",
+          "description": "Activates buzzer on invalid access"
+        }
+      ]
+    },
+
+    "circuit_connection": [
+      "RFID VCC → Arduino 3.3V",
+      "RFID GND → Arduino GND",
+      "RFID SDA → Arduino D10",
+      "RFID RST → Arduino D9",
+      "Relay IN → Arduino D7",
+      "Buzzer IN → Arduino D6"
+    ],
+
+    "software_stack": [
+      "Arduino IDE",
+      "MFRC522 Library",
+      "SPI Library"
+    ],
+
+    "code": {
+      "language": "C++ (Arduino)",
+      "file": "rfid_door_lock.ino",
+      "content": "#include <SPI.h>\n#include <MFRC522.h>\n\n#define SS_PIN 10\n#define RST_PIN 9\n#define RELAY 7\n#define BUZZER 6\n\nMFRC522 rfid(SS_PIN, RST_PIN);\nbyte authorizedUID[4] = {0xDE, 0xAD, 0xBE, 0xEF};\n\nvoid setup() {\n  Serial.begin(9600);\n  SPI.begin();\n  rfid.PCD_Init();\n\n  pinMode(RELAY, OUTPUT);\n  pinMode(BUZZER, OUTPUT);\n  digitalWrite(RELAY, LOW);\n}\n\nvoid loop() {\n  if (!rfid.PICC_IsNewCardPresent()) return;\n  if (!rfid.PICC_ReadCardSerial()) return;\n\n  bool accessGranted = true;\n  for (byte i = 0; i < 4; i++) {\n    if (rfid.uid.uidByte[i] != authorizedUID[i]) {\n      accessGranted = false;\n      break;\n    }\n  }\n\n  if (accessGranted) {\n    digitalWrite(RELAY, HIGH);\n    delay(3000);\n    digitalWrite(RELAY, LOW);\n  } else {\n    digitalWrite(BUZZER, HIGH);\n    delay(1000);\n    digitalWrite(BUZZER, LOW);\n  }\n\n  rfid.PICC_HaltA();\n}"
+    },
+
+    "testing_and_output": [
+      "Authorized card unlocks door for 3 seconds",
+      "Unauthorized card triggers buzzer alert",
+      "UID visible in Serial Monitor (debug mode)"
+    ],
+
+    "common_errors": [
+      "Using 5V on RFID VCC (damages module)",
+      "Loose SPI connections",
+      "Wrong UID comparison",
+      "Relay not isolated properly"
+    ],
+
+    "debugging_tips": [
+      "Print UID bytes to Serial Monitor",
+      "Test relay independently",
+      "Check RFID antenna orientation",
+      "Ensure common ground"
+    ],
+
+    "limitations": [
+      "UID cloning possible (basic RFID)",
+      "Single-factor authentication",
+      "Limited read range (~3–5 cm)"
+    ],
+
+    "improvements": [
+      "EEPROM-based UID storage",
+      "Add keypad + RFID (2FA)",
+      "Wi-Fi logging (IoT upgrade)",
+      "Encrypted RFID (DESFire)"
+    ],
+
+    "mini_challenge": "Store and manage at least 5 authorized RFID cards.",
+
+    "estimated_cost_india": {
+      "arduino_uno": "₹350",
+      "rfid_mfrc522": "₹180",
+      "relay_module": "₹120",
+      "buzzer": "₹50",
+      "solenoid_lock": "₹350",
+      "wires_misc": "₹100",
+      "total": "₹1,150 (approx)"
+    },
+
+    "learning_outcomes": [
+      "Understand RFID authentication",
+      "Learn SPI communication",
+      "Build access control systems",
+      "Foundation for smart security products"
+    ],
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 408,
+    "title": "Password Based Door Lock System using Keypad",
+    "level": "Intermediate (Embedded Security)",
+    "category": "Embedded Systems Projects",
+    "estimatedTime": "4–6 Hours",
+
+    "problem_statement": "Mechanical locks and single-factor access systems are insecure and inconvenient. A password-based electronic door lock improves security by allowing configurable, changeable access without physical keys.",
+
+    "real_world_use_case": [
+      "Home main doors",
+      "Office cabins",
+      "Hostel rooms",
+      "Laboratory access",
+      "Locker systems"
+    ],
+
+    "embedded_concept": {
+      "core_topics": [
+        "Matrix keypad scanning",
+        "Password authentication logic",
+        "Digital I/O control",
+        "Electromechanical actuation"
+      ],
+      "security_principle": "Access granted only when entered password matches stored password"
+    },
+
+    "hardware": {
+      "microcontroller": "Arduino UNO (ATmega328P)",
+      "input_device": "4x4 Matrix Keypad",
+      "display": "16x2 LCD (optional but recommended)",
+      "actuator": "Relay Module + Solenoid Lock",
+      "alert": "Buzzer",
+      "power_source": "5V Adapter / USB"
+    },
+
+    "working_principle": [
+      "User enters password using keypad",
+      "Microcontroller scans keypad row-column matrix",
+      "Entered digits stored sequentially",
+      "Password compared with stored password",
+      "If correct → relay activates to unlock door",
+      "If incorrect → buzzer alerts and access denied"
+    ],
+
+    "authentication_logic": {
+      "password_type": "Numeric",
+      "storage_method": "Hardcoded (basic)",
+      "attempt_limit": "Unlimited (basic version)",
+      "upgrade_path": "EEPROM-based password storage"
+    },
+
+    "block_diagram_logic": [
+      "Keypad Input",
+      "Microcontroller Password Logic",
+      "LCD Display Feedback",
+      "Relay Driver",
+      "Door Lock Actuation"
+    ],
+
+    "pin_config": {
+      "arduino_uno": [
+        {
+          "module": "4x4 Keypad",
+          "pinName": "R1",
+          "mcuPin": "D9",
+          "voltage": "5V logic",
+          "direction": "Input",
+          "description": "Keypad row 1"
+        },
+        {
+          "module": "4x4 Keypad",
+          "pinName": "R2",
+          "mcuPin": "D8",
+          "voltage": "5V logic",
+          "direction": "Input",
+          "description": "Keypad row 2"
+        },
+        {
+          "module": "4x4 Keypad",
+          "pinName": "R3",
+          "mcuPin": "D7",
+          "voltage": "5V logic",
+          "direction": "Input",
+          "description": "Keypad row 3"
+        },
+        {
+          "module": "4x4 Keypad",
+          "pinName": "R4",
+          "mcuPin": "D6",
+          "voltage": "5V logic",
+          "direction": "Input",
+          "description": "Keypad row 4"
+        },
+        {
+          "module": "4x4 Keypad",
+          "pinName": "C1",
+          "mcuPin": "D5",
+          "voltage": "5V logic",
+          "direction": "Input",
+          "description": "Keypad column 1"
+        },
+        {
+          "module": "4x4 Keypad",
+          "pinName": "C2",
+          "mcuPin": "D4",
+          "voltage": "5V logic",
+          "direction": "Input",
+          "description": "Keypad column 2"
+        },
+        {
+          "module": "4x4 Keypad",
+          "pinName": "C3",
+          "mcuPin": "D3",
+          "voltage": "5V logic",
+          "direction": "Input",
+          "description": "Keypad column 3"
+        },
+        {
+          "module": "4x4 Keypad",
+          "pinName": "C4",
+          "mcuPin": "D2",
+          "voltage": "5V logic",
+          "direction": "Input",
+          "description": "Keypad column 4"
+        },
+        {
+          "module": "Relay Module",
+          "pinName": "VCC",
+          "mcuPin": "5V",
+          "voltage": "5V",
+          "direction": "Power",
+          "description": "Relay coil supply"
+        },
+        {
+          "module": "Relay Module",
+          "pinName": "GND",
+          "mcuPin": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Relay ground"
+        },
+        {
+          "module": "Relay Module",
+          "pinName": "IN",
+          "mcuPin": "D10",
+          "voltage": "5V logic",
+          "direction": "Output",
+          "description": "Controls door lock ON/OFF"
+        },
+        {
+          "module": "Buzzer",
+          "pinName": "VCC",
+          "mcuPin": "5V",
+          "voltage": "5V",
+          "direction": "Power",
+          "description": "Buzzer power"
+        },
+        {
+          "module": "Buzzer",
+          "pinName": "GND",
+          "mcuPin": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Buzzer ground"
+        },
+        {
+          "module": "Buzzer",
+          "pinName": "IN",
+          "mcuPin": "D11",
+          "voltage": "5V logic",
+          "direction": "Output",
+          "description": "Error alert on wrong password"
+        }
+      ]
+    },
+
+    "circuit_connection": [
+      "Keypad rows and columns connected to digital pins D2–D9",
+      "Relay IN → Arduino D10",
+      "Buzzer IN → Arduino D11",
+      "Common ground shared between all modules"
+    ],
+
+    "software_stack": [
+      "Arduino IDE",
+      "Keypad Library",
+      "LiquidCrystal Library (optional LCD)"
+    ],
+
+    "code": {
+      "language": "C++ (Arduino)",
+      "file": "password_door_lock.ino",
+      "content": "#include <Keypad.h>\n\n#define RELAY 10\n#define BUZZER 11\n\nconst byte rows = 4;\nconst byte cols = 4;\n\nchar keys[rows][cols] = {\n  {'1','2','3','A'},\n  {'4','5','6','B'},\n  {'7','8','9','C'},\n  {'*','0','#','D'}\n};\n\nbyte rowPins[rows] = {9,8,7,6};\nbyte colPins[cols] = {5,4,3,2};\n\nKeypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, rows, cols);\n\nString password = \"1234\";\nString input = \"\";\n\nvoid setup() {\n  pinMode(RELAY, OUTPUT);\n  pinMode(BUZZER, OUTPUT);\n  digitalWrite(RELAY, LOW);\n}\n\nvoid loop() {\n  char key = keypad.getKey();\n\n  if (key) {\n    if (key == '#') {\n      if (input == password) {\n        digitalWrite(RELAY, HIGH);\n        delay(3000);\n        digitalWrite(RELAY, LOW);\n      } else {\n        digitalWrite(BUZZER, HIGH);\n        delay(1000);\n        digitalWrite(BUZZER, LOW);\n      }\n      input = \"\";\n    }\n    else if (key == '*') {\n      input = \"\";\n    }\n    else {\n      input += key;\n    }\n  }\n}"
+    },
+
+    "testing_and_output": [
+      "Correct password unlocks door for 3 seconds",
+      "Wrong password triggers buzzer alert",
+      "Reset key (*) clears input buffer"
+    ],
+
+    "common_errors": [
+      "Keypad wiring mismatch",
+      "Floating input pins",
+      "Relay not switching due to insufficient current",
+      "No debounce handling"
+    ],
+
+    "debugging_tips": [
+      "Print entered password via Serial",
+      "Test keypad keys individually",
+      "Verify relay click sound",
+      "Ensure solenoid has separate power if needed"
+    ],
+
+    "limitations": [
+      "Password visible during entry",
+      "Hardcoded password",
+      "No brute-force protection"
+    ],
+
+    "improvements": [
+      "EEPROM password storage",
+      "Attempt limit with lockout",
+      "LCD masked password display",
+      "Add RFID + password (2FA)"
+    ],
+
+    "mini_challenge": "Implement password change mode using master key.",
+
+    "estimated_cost_india": {
+      "arduino_uno": "₹350",
+      "4x4_keypad": "₹150",
+      "relay_module": "₹120",
+      "buzzer": "₹50",
+      "solenoid_lock": "₹350",
+      "wires_misc": "₹100",
+      "total": "₹1,120 (approx)"
+    },
+
+    "learning_outcomes": [
+      "Keypad scanning techniques",
+      "Password authentication logic",
+      "Access control design",
+      "Foundation for ATM & locker systems"
+    ],
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 409,
+    "title": "IR-based Object Counter System",
+    "level": "Intermediate (Embedded Sensing)",
+    "category": "Embedded Systems Projects",
+    "estimatedTime": "3–5 Hours",
+
+    "problem_statement": "Manual counting of objects or people is inaccurate and impractical in real-time environments. An automatic object counter using sensors improves accuracy, speed, and reliability.",
+
+    "real_world_use_case": [
+      "People counting at mall entrances",
+      "Production line item counting",
+      "Parking vehicle count",
+      "Classroom or lab occupancy tracking"
+    ],
+
+    "embedded_concept": {
+      "core_topics": [
+        "Infrared sensing",
+        "Interrupt / polling-based detection",
+        "Digital signal processing",
+        "Counter logic"
+      ],
+      "detection_principle": "Object interrupts IR beam causing a digital state change"
+    },
+
+    "hardware": {
+      "microcontroller": "Arduino UNO (ATmega328P)",
+      "sensor": "IR Obstacle Detection Sensor",
+      "display": "16x2 LCD",
+      "alert": "Buzzer (optional)",
+      "power_source": "5V Adapter / USB"
+    },
+
+    "working_principle": [
+      "IR transmitter emits infrared beam continuously",
+      "IR receiver monitors reflected IR light",
+      "When object passes, IR beam is interrupted",
+      "Sensor output changes logic level",
+      "Microcontroller increments count value",
+      "Updated count displayed on LCD"
+    ],
+
+    "counting_logic": {
+      "trigger_type": "Edge detection (LOW to HIGH)",
+      "debounce_time": "300 ms",
+      "counter_reset": "Manual reset via reset button (optional)"
+    },
+
+    "block_diagram_logic": [
+      "IR Sensor",
+      "Microcontroller Counter Logic",
+      "LCD Display",
+      "Optional Alert Unit"
+    ],
+
+    "pin_config": {
+      "arduino_uno": [
+        {
+          "module": "IR Sensor",
+          "pinName": "VCC",
+          "mcuPin": "5V",
+          "voltage": "5V",
+          "direction": "Power",
+          "description": "Power supply for IR module"
+        },
+        {
+          "module": "IR Sensor",
+          "pinName": "GND",
+          "mcuPin": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Common ground"
+        },
+        {
+          "module": "IR Sensor",
+          "pinName": "OUT",
+          "mcuPin": "D2",
+          "voltage": "5V logic",
+          "direction": "Input",
+          "description": "Goes LOW when object detected"
+        },
+        {
+          "module": "LCD 16x2",
+          "pinName": "RS",
+          "mcuPin": "D7",
+          "voltage": "5V logic",
+          "direction": "Output",
+          "description": "LCD register select"
+        },
+        {
+          "module": "LCD 16x2",
+          "pinName": "EN",
+          "mcuPin": "D6",
+          "voltage": "5V logic",
+          "direction": "Output",
+          "description": "LCD enable pin"
+        },
+        {
+          "module": "LCD 16x2",
+          "pinName": "D4",
+          "mcuPin": "D5",
+          "voltage": "5V logic",
+          "direction": "Output",
+          "description": "LCD data line"
+        },
+        {
+          "module": "LCD 16x2",
+          "pinName": "D5",
+          "mcuPin": "D4",
+          "voltage": "5V logic",
+          "direction": "Output",
+          "description": "LCD data line"
+        },
+        {
+          "module": "LCD 16x2",
+          "pinName": "D6",
+          "mcuPin": "D3",
+          "voltage": "5V logic",
+          "direction": "Output",
+          "description": "LCD data line"
+        },
+        {
+          "module": "LCD 16x2",
+          "pinName": "D7",
+          "mcuPin": "D8",
+          "voltage": "5V logic",
+          "direction": "Output",
+          "description": "LCD data line"
+        }
+      ]
+    },
+
+    "circuit_connection": [
+      "IR sensor OUT connected to Arduino D2",
+      "LCD connected in 4-bit mode",
+      "10k potentiometer used for LCD contrast",
+      "All grounds connected together"
+    ],
+
+    "software_stack": [
+      "Arduino IDE",
+      "LiquidCrystal Library"
+    ],
+
+    "code": {
+      "language": "C++ (Arduino)",
+      "file": "ir_object_counter.ino",
+      "content": "#include <LiquidCrystal.h>\n\nLiquidCrystal lcd(7, 6, 5, 4, 3, 8);\n\n#define IR_SENSOR 2\n\nint count = 0;\nint lastState = HIGH;\n\nvoid setup() {\n  pinMode(IR_SENSOR, INPUT);\n  lcd.begin(16, 2);\n  lcd.print(\"Object Count:\");\n}\n\nvoid loop() {\n  int currentState = digitalRead(IR_SENSOR);\n\n  if (lastState == HIGH && currentState == LOW) {\n    count++;\n    lcd.setCursor(0, 1);\n    lcd.print(\"Count: \");\n    lcd.print(count);\n    delay(300); // debounce\n  }\n\n  lastState = currentState;\n}"
+    },
+
+    "testing_and_output": [
+      "Each object passing increases count by 1",
+      "LCD updates count instantly",
+      "No double counting due to debounce delay"
+    ],
+
+    "common_errors": [
+      "IR sensor sensitivity not calibrated",
+      "Ambient light interference",
+      "Double counting due to no debounce"
+    ],
+
+    "debugging_tips": [
+      "Use Serial Monitor to print sensor state",
+      "Adjust IR potentiometer sensitivity",
+      "Test with slow and fast object movement"
+    ],
+
+    "limitations": [
+      "Cannot detect direction",
+      "Multiple objects together counted as one",
+      "Affected by sunlight"
+    ],
+
+    "improvements": [
+      "Use two IR sensors for direction detection",
+      "Add EEPROM storage",
+      "Send data via Bluetooth or WiFi",
+      "Convert to people counter with bidirectional logic"
+    ],
+
+    "mini_challenge": "Modify the system to count IN and OUT separately using two IR sensors.",
+
+    "estimated_cost_india": {
+      "arduino_uno": "₹350",
+      "ir_sensor": "₹120",
+      "lcd_16x2": "₹180",
+      "potentiometer": "₹30",
+      "wires_misc": "₹80",
+      "total": "₹760 (approx)"
+    },
+
+    "learning_outcomes": [
+      "Infrared sensor working",
+      "Edge detection logic",
+      "Real-time embedded counting systems",
+      "Foundation for people counting solutions"
+    ],
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 410,
+    "title": "Digital Stopwatch using Microcontroller",
+    "level": "Intermediate (Embedded Timing Systems)",
+    "category": "Embedded Systems Projects",
+    "estimatedTime": "4–6 Hours",
+
+    "problem_statement": "Manual time measurement using mechanical stopwatches is error-prone and limited. A digital stopwatch provides accurate, programmable, and reliable time measurement using embedded systems.",
+
+    "real_world_use_case": [
+      "Sports timing systems",
+      "Laboratory experiments",
+      "Industrial process timing",
+      "Educational electronics labs"
+    ],
+
+    "embedded_concept": {
+      "core_topics": [
+        "Microcontroller timers",
+        "Interrupt handling",
+        "Debounced push-button input",
+        "Time calculation and display"
+      ],
+      "timing_principle": "Hardware timer generates precise periodic interrupts"
+    },
+
+    "hardware": {
+      "microcontroller": "Arduino UNO (ATmega328P)",
+      "display": "16x2 LCD",
+      "input_controls": "Push Buttons (Start / Stop / Reset)",
+      "power_source": "5V Adapter / USB"
+    },
+
+    "working_principle": [
+      "Microcontroller timer configured to generate 1-second interrupts",
+      "Interrupt Service Routine increments seconds counter",
+      "Minutes and hours calculated from seconds",
+      "Push buttons control start, stop, and reset operations",
+      "Time displayed in MM:SS format on LCD"
+    ],
+
+    "time_logic": {
+      "base_unit": "1 second",
+      "max_time": "99 minutes 59 seconds",
+      "accuracy": "Depends on crystal oscillator stability",
+      "control_method": "Button-triggered state machine"
+    },
+
+    "block_diagram_logic": [
+      "Push Button Inputs",
+      "Microcontroller Timer",
+      "Time Calculation Logic",
+      "LCD Display Output"
+    ],
+
+    "pin_config": {
+      "arduino_uno": [
+        {
+          "module": "Start Button",
+          "pinName": "Signal",
+          "mcuPin": "D2",
+          "voltage": "5V logic",
+          "direction": "Input",
+          "description": "Starts the stopwatch"
+        },
+        {
+          "module": "Stop Button",
+          "pinName": "Signal",
+          "mcuPin": "D3",
+          "voltage": "5V logic",
+          "direction": "Input",
+          "description": "Pauses the stopwatch"
+        },
+        {
+          "module": "Reset Button",
+          "pinName": "Signal",
+          "mcuPin": "D4",
+          "voltage": "5V logic",
+          "direction": "Input",
+          "description": "Resets time to zero"
+        },
+        {
+          "module": "LCD 16x2",
+          "pinName": "RS",
+          "mcuPin": "D8",
+          "voltage": "5V logic",
+          "direction": "Output",
+          "description": "LCD register select"
+        },
+        {
+          "module": "LCD 16x2",
+          "pinName": "EN",
+          "mcuPin": "D9",
+          "voltage": "5V logic",
+          "direction": "Output",
+          "description": "LCD enable"
+        },
+        {
+          "module": "LCD 16x2",
+          "pinName": "D4",
+          "mcuPin": "D10",
+          "voltage": "5V logic",
+          "direction": "Output",
+          "description": "LCD data line"
+        },
+        {
+          "module": "LCD 16x2",
+          "pinName": "D5",
+          "mcuPin": "D11",
+          "voltage": "5V logic",
+          "direction": "Output",
+          "description": "LCD data line"
+        },
+        {
+          "module": "LCD 16x2",
+          "pinName": "D6",
+          "mcuPin": "D12",
+          "voltage": "5V logic",
+          "direction": "Output",
+          "description": "LCD data line"
+        },
+        {
+          "module": "LCD 16x2",
+          "pinName": "D7",
+          "mcuPin": "D13",
+          "voltage": "5V logic",
+          "direction": "Output",
+          "description": "LCD data line"
+        }
+      ]
+    },
+
+    "circuit_connection": [
+      "Push buttons connected with pull-down resistors",
+      "LCD connected in 4-bit mode",
+      "10k potentiometer used for LCD contrast",
+      "All grounds connected together"
+    ],
+
+    "software_stack": [
+      "Arduino IDE",
+      "LiquidCrystal Library",
+      "TimerOne Library (optional)"
+    ],
+
+    "code": {
+      "language": "C++ (Arduino)",
+      "file": "digital_stopwatch.ino",
+      "content": "#include <LiquidCrystal.h>\n\nLiquidCrystal lcd(8, 9, 10, 11, 12, 13);\n\n#define START_BTN 2\n#define STOP_BTN 3\n#define RESET_BTN 4\n\nunsigned int seconds = 0;\nbool running = false;\nunsigned long lastMillis = 0;\n\nvoid setup() {\n  pinMode(START_BTN, INPUT);\n  pinMode(STOP_BTN, INPUT);\n  pinMode(RESET_BTN, INPUT);\n\n  lcd.begin(16, 2);\n  lcd.print(\"Stopwatch\");\n}\n\nvoid loop() {\n  if (digitalRead(START_BTN)) running = true;\n  if (digitalRead(STOP_BTN)) running = false;\n\n  if (digitalRead(RESET_BTN)) {\n    running = false;\n    seconds = 0;\n    lcd.setCursor(0, 1);\n    lcd.print(\"00:00\");\n    delay(300);\n  }\n\n  if (running && millis() - lastMillis >= 1000) {\n    lastMillis = millis();\n    seconds++;\n\n    int mins = seconds / 60;\n    int secs = seconds % 60;\n\n    lcd.setCursor(0, 1);\n    if (mins < 10) lcd.print('0');\n    lcd.print(mins);\n    lcd.print(':');\n    if (secs < 10) lcd.print('0');\n    lcd.print(secs);\n  }\n}"
+    },
+
+    "testing_and_output": [
+      "Start button begins counting",
+      "Stop button pauses time",
+      "Reset clears time to 00:00",
+      "Time increments accurately every second"
+    ],
+
+    "common_errors": [
+      "Button bounce causing multiple triggers",
+      "Incorrect LCD wiring",
+      "Timing drift due to delay-based logic"
+    ],
+
+    "debugging_tips": [
+      "Add Serial prints for seconds value",
+      "Use hardware debouncing or delay",
+      "Verify timer accuracy with external stopwatch"
+    ],
+
+    "limitations": [
+      "Limited to minutes and seconds",
+      "No lap time support",
+      "Accuracy depends on oscillator"
+    ],
+
+    "improvements": [
+      "Use hardware timer interrupt",
+      "Add lap/reset memory",
+      "Upgrade to RTC module",
+      "7-segment display version"
+    ],
+
+    "mini_challenge": "Add lap timing feature with additional button.",
+
+    "estimated_cost_india": {
+      "arduino_uno": "₹350",
+      "lcd_16x2": "₹180",
+      "push_buttons": "₹60",
+      "resistors": "₹40",
+      "potentiometer": "₹30",
+      "wires_misc": "₹80",
+      "total": "₹740 (approx)"
+    },
+
+    "learning_outcomes": [
+      "Timer-based programming",
+      "State-machine logic",
+      "Button interfacing",
+      "Embedded timekeeping fundamentals"
+    ],
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 410,
+    "title": "Digital Stopwatch using Microcontroller",
+    "level": "Intermediate (Embedded Timing Systems)",
+    "category": "Embedded Systems Projects",
+    "estimatedTime": "4–6 Hours",
+
+    "problem_statement": "Manual time measurement using mechanical stopwatches is error-prone and limited. A digital stopwatch provides accurate, programmable, and reliable time measurement using embedded systems.",
+
+    "real_world_use_case": [
+      "Sports timing systems",
+      "Laboratory experiments",
+      "Industrial process timing",
+      "Educational electronics labs"
+    ],
+
+    "embedded_concept": {
+      "core_topics": [
+        "Microcontroller timers",
+        "Interrupt handling",
+        "Debounced push-button input",
+        "Time calculation and display"
+      ],
+      "timing_principle": "Hardware timer generates precise periodic interrupts"
+    },
+
+    "hardware": {
+      "microcontroller": "Arduino UNO (ATmega328P)",
+      "display": "16x2 LCD",
+      "input_controls": "Push Buttons (Start / Stop / Reset)",
+      "power_source": "5V Adapter / USB"
+    },
+
+    "working_principle": [
+      "Microcontroller timer configured to generate 1-second interrupts",
+      "Interrupt Service Routine increments seconds counter",
+      "Minutes and hours calculated from seconds",
+      "Push buttons control start, stop, and reset operations",
+      "Time displayed in MM:SS format on LCD"
+    ],
+
+    "time_logic": {
+      "base_unit": "1 second",
+      "max_time": "99 minutes 59 seconds",
+      "accuracy": "Depends on crystal oscillator stability",
+      "control_method": "Button-triggered state machine"
+    },
+
+    "block_diagram_logic": [
+      "Push Button Inputs",
+      "Microcontroller Timer",
+      "Time Calculation Logic",
+      "LCD Display Output"
+    ],
+
+    "pin_config": {
+      "arduino_uno": [
+        {
+          "module": "Start Button",
+          "pinName": "Signal",
+          "mcuPin": "D2",
+          "voltage": "5V logic",
+          "direction": "Input",
+          "description": "Starts the stopwatch"
+        },
+        {
+          "module": "Stop Button",
+          "pinName": "Signal",
+          "mcuPin": "D3",
+          "voltage": "5V logic",
+          "direction": "Input",
+          "description": "Pauses the stopwatch"
+        },
+        {
+          "module": "Reset Button",
+          "pinName": "Signal",
+          "mcuPin": "D4",
+          "voltage": "5V logic",
+          "direction": "Input",
+          "description": "Resets time to zero"
+        },
+        {
+          "module": "LCD 16x2",
+          "pinName": "RS",
+          "mcuPin": "D8",
+          "voltage": "5V logic",
+          "direction": "Output",
+          "description": "LCD register select"
+        },
+        {
+          "module": "LCD 16x2",
+          "pinName": "EN",
+          "mcuPin": "D9",
+          "voltage": "5V logic",
+          "direction": "Output",
+          "description": "LCD enable"
+        },
+        {
+          "module": "LCD 16x2",
+          "pinName": "D4",
+          "mcuPin": "D10",
+          "voltage": "5V logic",
+          "direction": "Output",
+          "description": "LCD data line"
+        },
+        {
+          "module": "LCD 16x2",
+          "pinName": "D5",
+          "mcuPin": "D11",
+          "voltage": "5V logic",
+          "direction": "Output",
+          "description": "LCD data line"
+        },
+        {
+          "module": "LCD 16x2",
+          "pinName": "D6",
+          "mcuPin": "D12",
+          "voltage": "5V logic",
+          "direction": "Output",
+          "description": "LCD data line"
+        },
+        {
+          "module": "LCD 16x2",
+          "pinName": "D7",
+          "mcuPin": "D13",
+          "voltage": "5V logic",
+          "direction": "Output",
+          "description": "LCD data line"
+        }
+      ]
+    },
+
+    "circuit_connection": [
+      "Push buttons connected with pull-down resistors",
+      "LCD connected in 4-bit mode",
+      "10k potentiometer used for LCD contrast",
+      "All grounds connected together"
+    ],
+
+    "software_stack": [
+      "Arduino IDE",
+      "LiquidCrystal Library",
+      "TimerOne Library (optional)"
+    ],
+
+    "code": {
+      "language": "C++ (Arduino)",
+      "file": "digital_stopwatch.ino",
+      "content": "#include <LiquidCrystal.h>\n\nLiquidCrystal lcd(8, 9, 10, 11, 12, 13);\n\n#define START_BTN 2\n#define STOP_BTN 3\n#define RESET_BTN 4\n\nunsigned int seconds = 0;\nbool running = false;\nunsigned long lastMillis = 0;\n\nvoid setup() {\n  pinMode(START_BTN, INPUT);\n  pinMode(STOP_BTN, INPUT);\n  pinMode(RESET_BTN, INPUT);\n\n  lcd.begin(16, 2);\n  lcd.print(\"Stopwatch\");\n}\n\nvoid loop() {\n  if (digitalRead(START_BTN)) running = true;\n  if (digitalRead(STOP_BTN)) running = false;\n\n  if (digitalRead(RESET_BTN)) {\n    running = false;\n    seconds = 0;\n    lcd.setCursor(0, 1);\n    lcd.print(\"00:00\");\n    delay(300);\n  }\n\n  if (running && millis() - lastMillis >= 1000) {\n    lastMillis = millis();\n    seconds++;\n\n    int mins = seconds / 60;\n    int secs = seconds % 60;\n\n    lcd.setCursor(0, 1);\n    if (mins < 10) lcd.print('0');\n    lcd.print(mins);\n    lcd.print(':');\n    if (secs < 10) lcd.print('0');\n    lcd.print(secs);\n  }\n}"
+    },
+
+    "testing_and_output": [
+      "Start button begins counting",
+      "Stop button pauses time",
+      "Reset clears time to 00:00",
+      "Time increments accurately every second"
+    ],
+
+    "common_errors": [
+      "Button bounce causing multiple triggers",
+      "Incorrect LCD wiring",
+      "Timing drift due to delay-based logic"
+    ],
+
+    "debugging_tips": [
+      "Add Serial prints for seconds value",
+      "Use hardware debouncing or delay",
+      "Verify timer accuracy with external stopwatch"
+    ],
+
+    "limitations": [
+      "Limited to minutes and seconds",
+      "No lap time support",
+      "Accuracy depends on oscillator"
+    ],
+
+    "improvements": [
+      "Use hardware timer interrupt",
+      "Add lap/reset memory",
+      "Upgrade to RTC module",
+      "7-segment display version"
+    ],
+
+    "mini_challenge": "Add lap timing feature with additional button.",
+
+    "estimated_cost_india": {
+      "arduino_uno": "₹350",
+      "lcd_16x2": "₹180",
+      "push_buttons": "₹60",
+      "resistors": "₹40",
+      "potentiometer": "₹30",
+      "wires_misc": "₹80",
+      "total": "₹740 (approx)"
+    },
+
+    "learning_outcomes": [
+      "Timer-based programming",
+      "State-machine logic",
+      "Button interfacing",
+      "Embedded timekeeping fundamentals"
+    ],
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 430,
+    "title": "Smart Ultrasonic Blind Stick",
+    "level": "Advanced (Assistive Embedded Systems)",
+    "category": "Embedded Systems Projects",
+    "estimatedTime": "14–18 Hours",
+
+    "problem_statement": "Visually impaired individuals face serious risks due to unseen obstacles, stairs, pits, and moving objects. Traditional white canes provide limited range and no hazard classification. An intelligent blind stick using embedded sensing improves mobility, safety, and independence.",
+
+    "real_world_use_case": [
+      "Visually impaired users",
+      "Rehabilitation centers",
+      "Smart healthcare devices",
+      "Government assistive technology programs"
+    ],
+
+    "embedded_concept": {
+      "core_topics": [
+        "Ultrasonic ranging",
+        "Haptic feedback systems",
+        "Multi-zone obstacle detection",
+        "Low-power embedded design",
+        "Human–machine interaction"
+      ],
+      "design_priority": "Reliability, low latency, safety"
+    },
+
+    "system_architecture": {
+      "sensing_layer": "Ultrasonic + water + IR sensors",
+      "processing_layer": "Distance evaluation & risk logic",
+      "feedback_layer": "Vibration + buzzer alerts",
+      "power_layer": "Battery + protection circuitry"
+    },
+
+    "hardware": {
+      "microcontroller": "ESP32 / Arduino UNO",
+      "ultrasonic_sensor": "HC-SR04",
+      "water_sensor": "Rain / Water Detection Module",
+      "haptic": "Vibration Motor",
+      "audio_alert": "Piezo Buzzer",
+      "power": "Li-ion 18650 + TP4056",
+      "optional": "GPS + GSM for emergency alerts"
+    },
+
+    "working_principle": [
+      "Ultrasonic sensor scans forward obstacles",
+      "Distance calculated in real time",
+      "Risk zones classified (near / warning / safe)",
+      "Vibration intensity varies with distance",
+      "Water sensor detects puddles or open drains",
+      "Emergency alert triggered manually (optional)"
+    ],
+
+    "risk_classification": {
+      "safe_zone": ">120 cm",
+      "warning_zone": "60–120 cm",
+      "danger_zone": "<60 cm",
+      "critical_zone": "<30 cm"
+    },
+
+    "pin_config": {
+      "esp32": [
+        {
+          "module": "HC-SR04",
+          "pinName": "VCC",
+          "mcuPin": "5V",
+          "voltage": "5V",
+          "direction": "Power",
+          "description": "Ultrasonic sensor power"
+        },
+        {
+          "module": "HC-SR04",
+          "pinName": "TRIG",
+          "mcuPin": "GPIO5",
+          "voltage": "3.3V logic",
+          "direction": "Output",
+          "description": "Trigger pulse generation"
+        },
+        {
+          "module": "HC-SR04",
+          "pinName": "ECHO",
+          "mcuPin": "GPIO18",
+          "voltage": "5V → 3.3V (via divider)",
+          "direction": "Input",
+          "description": "Echo pulse width input"
+        },
+        {
+          "module": "Vibration Motor",
+          "pinName": "IN",
+          "mcuPin": "GPIO25",
+          "voltage": "5V (via transistor)",
+          "direction": "Output",
+          "description": "Haptic feedback control"
+        },
+        {
+          "module": "Buzzer",
+          "pinName": "IN",
+          "mcuPin": "GPIO26",
+          "voltage": "3.3V",
+          "direction": "Output",
+          "description": "Audio alert for critical danger"
+        },
+        {
+          "module": "Water Sensor",
+          "pinName": "OUT",
+          "mcuPin": "GPIO34",
+          "voltage": "0–3.3V",
+          "direction": "Input",
+          "description": "Detects water or wet surface"
+        }
+      ]
+    },
+
+    "electrical_safety_and_design": [
+      "Echo pin voltage reduced using divider",
+      "Motor driven using transistor + diode",
+      "Battery protected using TP4056",
+      "Low-current design for extended battery life"
+    ],
+
+    "software_stack": [
+      "Arduino / ESP32 Core",
+      "Timer-based ultrasonic measurement",
+      "PWM-based vibration control"
+    ],
+
+    "feedback_logic": {
+      "distance_to_feedback": {
+        "<30cm": "Continuous vibration + buzzer",
+        "30–60cm": "Strong vibration",
+        "60–120cm": "Soft vibration",
+        ">120cm": "No feedback"
+      },
+      "water_detected": "Immediate vibration + beep"
+    },
+
+    "code": {
+      "language": "C++ (Arduino / ESP32)",
+      "file": "blind_stick_430.ino",
+      "content": "#define TRIG 5\n#define ECHO 18\n#define VIB 25\n#define BUZZ 26\n#define WATER 34\n\nvoid setup() {\n  pinMode(TRIG, OUTPUT);\n  pinMode(ECHO, INPUT);\n  pinMode(VIB, OUTPUT);\n  pinMode(BUZZ, OUTPUT);\n}\n\nlong getDistance() {\n  digitalWrite(TRIG, LOW);\n  delayMicroseconds(2);\n  digitalWrite(TRIG, HIGH);\n  delayMicroseconds(10);\n  digitalWrite(TRIG, LOW);\n  long duration = pulseIn(ECHO, HIGH, 30000);\n  return duration * 0.034 / 2;\n}\n\nvoid loop() {\n  long d = getDistance();\n  int water = analogRead(WATER);\n\n  if (water > 1500 || d < 30) {\n    digitalWrite(VIB, HIGH);\n    digitalWrite(BUZZ, HIGH);\n  } else if (d < 60) {\n    digitalWrite(VIB, HIGH);\n    digitalWrite(BUZZ, LOW);\n  } else {\n    digitalWrite(VIB, LOW);\n    digitalWrite(BUZZ, LOW);\n  }\n  delay(100);\n}"
+    },
+
+    "testing_and_validation": [
+      "Obstacle detection accuracy verified",
+      "Water detection tested on wet surfaces",
+      "Latency <100 ms",
+      "Battery backup >6 hours"
+    ],
+
+    "common_errors": [
+      "No echo voltage level shifting",
+      "False readings on soft surfaces",
+      "Motor noise affecting sensor"
+    ],
+
+    "debugging_strategy": [
+      "Test ultrasonic independently",
+      "Use serial distance logging",
+      "Tune vibration thresholds",
+      "Check battery voltage drop"
+    ],
+
+    "limitations": [
+      "Cannot detect transparent glass reliably",
+      "No height classification",
+      "Limited slope detection"
+    ],
+
+    "future_improvements": [
+      "ML-based obstacle classification",
+      "LIDAR integration",
+      "Voice feedback module",
+      "GPS emergency SOS"
+    ],
+
+    "mini_challenge": "Add stair and pit detection using dual ultrasonic sensors.",
+
+    "estimated_cost_india": {
+      "esp32": "₹320",
+      "hc_sr04": "₹90",
+      "vibration_motor": "₹60",
+      "water_sensor": "₹80",
+      "buzzer": "₹30",
+      "battery_and_charger": "₹250",
+      "misc_components": "₹150",
+      "total": "₹980 (approx)"
+    },
+
+    "learning_outcomes": [
+      "Assistive embedded system design",
+      "Human safety focused engineering",
+      "Low-power device development",
+      "Ethical technology development"
+    ],
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+
+  {
+    "id": 412,
+    "title": "IoT-based Smart Switch (Local + Cloud Control)",
+    "level": "Advanced (Embedded + IoT Systems)",
+    "category": "Embedded Systems Projects",
+    "estimatedTime": "7–9 Hours",
+
+    "problem_statement": "Conventional electrical switches require physical presence and provide no feedback or automation. A smart IoT switch enables remote control, monitoring, and automation of electrical appliances while still supporting local manual operation.",
+
+    "real_world_use_case": [
+      "Smart homes",
+      "Office automation",
+      "Elderly and disabled assistance",
+      "Energy-efficient buildings",
+      "Industrial remote switching"
+    ],
+
+    "embedded_concept": {
+      "core_topics": [
+        "WiFi-based embedded systems",
+        "Cloud + local control coexistence",
+        "Relay isolation for AC loads",
+        "Fail-safe embedded design"
+      ],
+      "iot_principle": "Embedded device communicates with cloud while maintaining local autonomy"
+    },
+
+    "hardware": {
+      "microcontroller": "ESP32 (Dual-core Xtensa)",
+      "switching_device": "5V Single-Channel Relay Module (Opto-isolated)",
+      "local_input": "Push Button (Manual Override)",
+      "load": "AC Appliance (Light / Fan)",
+      "connectivity": "WiFi (2.4 GHz)",
+      "power_source": "5V SMPS / Buck Converter"
+    },
+
+    "working_principle": [
+      "ESP32 connects to configured WiFi network",
+      "Device registers with cloud platform (Blynk / MQTT)",
+      "User sends ON/OFF command via mobile app or dashboard",
+      "ESP32 receives command and toggles relay output",
+      "Relay safely switches AC appliance",
+      "Local push button can toggle load even if internet fails",
+      "Device synchronizes state with cloud when connectivity returns"
+    ],
+
+    "control_logic": {
+      "control_modes": [
+        "Cloud control (App / Dashboard)",
+        "Local manual override"
+      ],
+      "priority_logic": "Local switch has highest priority for safety",
+      "fail_safe_behavior": "If WiFi fails, local control continues to work"
+    },
+
+    "block_diagram_logic": [
+      "Mobile App / Web Dashboard",
+      "Cloud Server (Blynk / MQTT)",
+      "WiFi Network",
+      "ESP32 Controller",
+      "Relay Driver",
+      "AC Load"
+    ],
+
+    "pin_config": {
+      "esp32": [
+        {
+          "module": "Relay Module",
+          "pinName": "VCC",
+          "mcuPin": "5V",
+          "voltage": "5V",
+          "direction": "Power",
+          "description": "Supplies relay coil (use external 5V source)"
+        },
+        {
+          "module": "Relay Module",
+          "pinName": "GND",
+          "mcuPin": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Common ground with ESP32"
+        },
+        {
+          "module": "Relay Module",
+          "pinName": "IN",
+          "mcuPin": "GPIO26",
+          "voltage": "3.3V logic",
+          "direction": "Output",
+          "description": "Controls relay ON/OFF"
+        },
+        {
+          "module": "Push Button",
+          "pinName": "One Side",
+          "mcuPin": "GPIO27",
+          "voltage": "3.3V logic",
+          "direction": "Input",
+          "description": "Manual toggle input (pull-up enabled)"
+        },
+        {
+          "module": "Push Button",
+          "pinName": "Other Side",
+          "mcuPin": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Button ground reference"
+        }
+      ]
+    },
+
+    "circuit_connection": [
+      "Relay module connected to ESP32 GPIO26",
+      "Push button connected to GPIO27 with internal pull-up",
+      "Relay COM and NO terminals connected in series with AC load",
+      "ESP32 powered via regulated 5V supply",
+      "Opto-isolated relay ensures AC–DC isolation"
+    ],
+
+    "software_stack": [
+      "Arduino IDE",
+      "ESP32 Arduino Core",
+      "WiFi Library",
+      "Blynk / MQTT Library"
+    ],
+
+    "code": {
+      "language": "C++ (ESP32 Arduino)",
+      "file": "iot_smart_switch.ino",
+      "content": "#define RELAY_PIN 26\n#define BUTTON_PIN 27\n\nbool relayState = false;\nbool lastButtonState = HIGH;\n\nvoid setup() {\n  pinMode(RELAY_PIN, OUTPUT);\n  pinMode(BUTTON_PIN, INPUT_PULLUP);\n  digitalWrite(RELAY_PIN, LOW);\n}\n\nvoid loop() {\n  bool buttonState = digitalRead(BUTTON_PIN);\n\n  if (lastButtonState == HIGH && buttonState == LOW) {\n    relayState = !relayState;\n    digitalWrite(RELAY_PIN, relayState);\n    delay(300); // debounce\n  }\n\n  lastButtonState = buttonState;\n}\n"
+    },
+
+    "testing_and_output": [
+      "Cloud app toggles appliance remotely",
+      "Local button toggles appliance instantly",
+      "Relay click confirms switching action",
+      "System works even without internet"
+    ],
+
+    "common_errors": [
+      "Using 5V logic directly on ESP32 GPIO",
+      "No isolation between AC and DC",
+      "WiFi blocking main loop",
+      "Button bounce causing multiple toggles"
+    ],
+
+    "debugging_tips": [
+      "Test relay using manual button first",
+      "Check GPIO voltage with multimeter",
+      "Use Serial Monitor for WiFi debug",
+      "Verify relay LED indicator"
+    ],
+
+    "limitations": [
+      "Single appliance control",
+      "No power monitoring",
+      "Dependent on WiFi for cloud features"
+    ],
+
+    "improvements": [
+      "Add current sensor (ACS712)",
+      "Energy monitoring dashboard",
+      "Voice assistant integration",
+      "Multiple relay expansion",
+      "OTA firmware updates"
+    ],
+
+    "mini_challenge": "Add a timer feature to automatically turn OFF the appliance after a set duration.",
+
+    "estimated_cost_india": {
+      "esp32": "₹450",
+      "relay_module": "₹120",
+      "push_button": "₹20",
+      "smps_5v": "₹150",
+      "wires_misc": "₹80",
+      "total": "₹820 (approx)"
+    },
+
+    "learning_outcomes": [
+      "IoT system architecture",
+      "Safe AC load switching",
+      "Cloud + local hybrid control",
+      "Fail-safe embedded design"
+    ],
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 413,
+    "title": "Alcohol Detection System for Vehicle Ignition",
+    "level": "Advanced (Embedded Automotive Safety System)",
+    "category": "Embedded Systems Projects",
+    "estimatedTime": "6–8 Hours",
+
+    "problem_statement": "Drunk driving is a major cause of road accidents and fatalities. Traditional enforcement methods detect alcohol only after incidents occur. An embedded alcohol detection system prevents vehicle ignition when alcohol concentration exceeds a safe threshold, thereby proactively reducing accidents.",
+
+    "real_world_use_case": [
+      "Automobiles (cars, bikes, trucks)",
+      "Commercial transport vehicles",
+      "School buses",
+      "Fleet safety systems",
+      "Driver monitoring systems"
+    ],
+
+    "embedded_concept": {
+      "core_topics": [
+        "Gas sensor interfacing",
+        "Analog signal processing",
+        "Threshold-based decision logic",
+        "Automotive relay control",
+        "Fail-safe embedded design"
+      ],
+      "safety_principle": "Vehicle ignition allowed only when alcohol level is below permissible limit"
+    },
+
+    "hardware": {
+      "microcontroller": "Arduino UNO (ATmega328P)",
+      "alcohol_sensor": "MQ-3 Alcohol Sensor Module",
+      "actuator": "5V Relay Module (Ignition Lock)",
+      "alert": "Buzzer",
+      "display": "16x2 LCD (optional but recommended)",
+      "power_source": "Vehicle battery via 12V → 5V Buck Converter"
+    },
+
+    "sensor_characteristics": {
+      "sensor_type": "Semiconductor gas sensor",
+      "target_gas": "Ethanol (Alcohol)",
+      "output_type": "Analog voltage (0–5V)",
+      "warmup_time": "20–30 seconds (critical for accuracy)",
+      "detection_range": "0.05 mg/L – 10 mg/L"
+    },
+
+    "working_principle": [
+      "MQ-3 sensor heats its sensing element to detect alcohol vapor",
+      "Alcohol presence changes sensor resistance",
+      "Analog voltage proportional to alcohol concentration generated",
+      "Microcontroller reads analog voltage via ADC",
+      "ADC value compared with calibrated threshold",
+      "If alcohol detected → relay disables ignition + buzzer alert",
+      "If safe → ignition relay remains enabled"
+    ],
+
+    "control_logic": {
+      "input_type": "Analog (ADC)",
+      "decision_type": "Threshold comparison",
+      "response_time": "Less than 1 second after stabilization",
+      "default_state": "Ignition OFF (fail-safe)"
+    },
+
+    "block_diagram_logic": [
+      "MQ-3 Alcohol Sensor",
+      "Analog-to-Digital Conversion",
+      "Decision Logic",
+      "Relay Driver",
+      "Vehicle Ignition Control",
+      "Alert Indicator"
+    ],
+
+    "pin_config": {
+      "arduino_uno": [
+        {
+          "module": "MQ-3 Sensor",
+          "pinName": "VCC",
+          "mcuPin": "5V",
+          "voltage": "5V",
+          "direction": "Power",
+          "description": "Sensor heater and circuit supply"
+        },
+        {
+          "module": "MQ-3 Sensor",
+          "pinName": "GND",
+          "mcuPin": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Common ground reference"
+        },
+        {
+          "module": "MQ-3 Sensor",
+          "pinName": "AO",
+          "mcuPin": "A0",
+          "voltage": "0–5V analog",
+          "direction": "Input",
+          "description": "Analog alcohol concentration output"
+        },
+        {
+          "module": "Relay Module",
+          "pinName": "VCC",
+          "mcuPin": "5V",
+          "voltage": "5V",
+          "direction": "Power",
+          "description": "Relay coil supply"
+        },
+        {
+          "module": "Relay Module",
+          "pinName": "GND",
+          "mcuPin": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Relay ground"
+        },
+        {
+          "module": "Relay Module",
+          "pinName": "IN",
+          "mcuPin": "D8",
+          "voltage": "5V logic",
+          "direction": "Output",
+          "description": "Controls ignition enable/disable"
+        },
+        {
+          "module": "Buzzer",
+          "pinName": "IN",
+          "mcuPin": "D9",
+          "voltage": "5V logic",
+          "direction": "Output",
+          "description": "Audio alert on alcohol detection"
+        }
+      ]
+    },
+
+    "circuit_connection": [
+      "MQ-3 AO connected to Arduino A0",
+      "Relay IN connected to D8",
+      "Relay COM and NC used to interrupt ignition circuit",
+      "Buzzer connected to D9",
+      "All grounds connected together",
+      "Buck converter ensures stable 5V from vehicle battery"
+    ],
+
+    "software_stack": [
+      "Arduino IDE",
+      "AnalogRead (ADC)",
+      "LiquidCrystal Library (optional)"
+    ],
+
+    "code": {
+      "language": "C++ (Arduino)",
+      "file": "alcohol_ignition_lock.ino",
+      "content": "#define MQ3_PIN A0\n#define RELAY_PIN 8\n#define BUZZER_PIN 9\n\nint threshold = 400; // Calibrate experimentally\n\nvoid setup() {\n  pinMode(RELAY_PIN, OUTPUT);\n  pinMode(BUZZER_PIN, OUTPUT);\n  digitalWrite(RELAY_PIN, LOW); // Ignition OFF by default\n}\n\nvoid loop() {\n  int sensorValue = analogRead(MQ3_PIN);\n\n  if (sensorValue > threshold) {\n    digitalWrite(RELAY_PIN, LOW);   // Block ignition\n    digitalWrite(BUZZER_PIN, HIGH); // Alert\n  } else {\n    digitalWrite(RELAY_PIN, HIGH);  // Allow ignition\n    digitalWrite(BUZZER_PIN, LOW);\n  }\n\n  delay(200);\n}"
+    },
+
+    "testing_and_output": [
+      "No alcohol → ignition relay enabled",
+      "Alcohol exposure → ignition disabled",
+      "Buzzer sounds immediately on detection",
+      "System resets automatically when alcohol clears"
+    ],
+
+    "calibration_procedure": [
+      "Power sensor for at least 30 seconds",
+      "Record ADC value in clean air",
+      "Expose sensor to alcohol vapor",
+      "Set threshold between clean-air and alcohol values"
+    ],
+
+    "common_errors": [
+      "Skipping sensor warm-up",
+      "Incorrect threshold selection",
+      "Power noise from vehicle battery",
+      "Using NO instead of NC relay terminal"
+    ],
+
+    "debugging_tips": [
+      "Print ADC value via Serial Monitor",
+      "Test relay switching sound",
+      "Verify sensor heating",
+      "Use regulated power supply"
+    ],
+
+    "limitations": [
+      "Cannot identify individual driver",
+      "Sensitive to strong perfumes",
+      "Environmental factors affect readings"
+    ],
+
+    "improvements": [
+      "Add fingerprint driver authentication",
+      "Use multiple sensors for redundancy",
+      "Data logging for legal evidence",
+      "GSM alert to owner or authorities",
+      "Temperature compensation"
+    ],
+
+    "mini_challenge": "Add delay logic so ignition unlocks only after continuous clean reading for 10 seconds.",
+
+    "estimated_cost_india": {
+      "arduino_uno": "₹350",
+      "mq3_sensor": "₹200",
+      "relay_module": "₹120",
+      "buzzer": "₹50",
+      "buck_converter": "₹150",
+      "wires_misc": "₹80",
+      "total": "₹950 (approx)"
+    },
+
+    "learning_outcomes": [
+      "Automotive embedded safety design",
+      "Analog sensor calibration",
+      "Fail-safe system implementation",
+      "Real-world embedded decision logic"
+    ],
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 414,
+    "title": "Fire Detection System with GSM Alert",
+    "level": "Advanced (Embedded Safety + Communication)",
+    "category": "Embedded Systems Projects",
+    "estimatedTime": "7–9 Hours",
+
+    "problem_statement": "Fire accidents cause severe loss of life and property, especially when detection is delayed. Manual fire monitoring is unreliable. An embedded fire detection system with GSM alert enables early warning and immediate remote notification.",
+
+    "real_world_use_case": [
+      "Homes and apartments",
+      "Industrial plants",
+      "Warehouses",
+      "Server rooms",
+      "Schools and hospitals"
+    ],
+
+    "embedded_concept": {
+      "core_topics": [
+        "Fire and gas sensing",
+        "Analog + digital sensor fusion",
+        "GSM communication (SMS)",
+        "Interrupt-driven emergency response",
+        "Fail-safe embedded design"
+      ],
+      "safety_principle": "Detect fire early and alert humans instantly, even without internet"
+    },
+
+    "hardware": {
+      "microcontroller": "Arduino UNO (ATmega328P)",
+      "fire_sensor": "Flame Sensor Module (IR-based)",
+      "smoke_sensor": "MQ-2 Gas & Smoke Sensor",
+      "communication": "SIM800L GSM Module",
+      "alert": "Buzzer",
+      "display": "16x2 LCD (optional)",
+      "power_source": "12V Adapter → Buck Converter (5V & 4V)"
+    },
+
+    "sensor_characteristics": {
+      "flame_sensor": {
+        "detection_range": "760–1100 nm (IR flame spectrum)",
+        "output": "Digital (LOW on flame detection)",
+        "response_time": "<15 ms"
+      },
+      "mq2_sensor": {
+        "target_gases": ["Smoke", "LPG", "Methane"],
+        "output": "Analog (0–5V)",
+        "warmup_time": "20–30 seconds"
+      }
+    },
+
+    "working_principle": [
+      "Flame sensor detects infrared radiation from fire",
+      "MQ-2 detects smoke or combustible gases",
+      "Microcontroller continuously monitors both sensors",
+      "If either sensor exceeds threshold → fire confirmed",
+      "Buzzer activated immediately for local alert",
+      "GSM module sends SMS alert to predefined numbers",
+      "System remains in alert state until manually reset"
+    ],
+
+    "decision_logic": {
+      "logic_type": "OR-based safety logic",
+      "trigger_condition": "Flame detected OR smoke above threshold",
+      "response_priority": "Local alert → GSM alert → system lock"
+    },
+
+    "block_diagram_logic": [
+      "Flame Sensor",
+      "Smoke Sensor",
+      "Microcontroller Decision Unit",
+      "Buzzer Alarm",
+      "GSM Module",
+      "User Mobile Phone"
+    ],
+
+    "pin_config": {
+      "arduino_uno": [
+        {
+          "module": "Flame Sensor",
+          "pinName": "VCC",
+          "mcuPin": "5V",
+          "voltage": "5V",
+          "direction": "Power",
+          "description": "Supplies power to flame sensor"
+        },
+        {
+          "module": "Flame Sensor",
+          "pinName": "GND",
+          "mcuPin": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Common ground"
+        },
+        {
+          "module": "Flame Sensor",
+          "pinName": "DO",
+          "mcuPin": "D2",
+          "voltage": "5V logic",
+          "direction": "Input",
+          "description": "Goes LOW when flame is detected"
+        },
+        {
+          "module": "MQ-2 Sensor",
+          "pinName": "VCC",
+          "mcuPin": "5V",
+          "voltage": "5V",
+          "direction": "Power",
+          "description": "Sensor heater and circuit supply"
+        },
+        {
+          "module": "MQ-2 Sensor",
+          "pinName": "GND",
+          "mcuPin": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Common ground reference"
+        },
+        {
+          "module": "MQ-2 Sensor",
+          "pinName": "AO",
+          "mcuPin": "A0",
+          "voltage": "0–5V analog",
+          "direction": "Input",
+          "description": "Analog smoke/gas concentration output"
+        },
+        {
+          "module": "GSM SIM800L",
+          "pinName": "VCC",
+          "mcuPin": "External 4.0V",
+          "voltage": "3.7–4.2V",
+          "direction": "Power",
+          "description": "Dedicated high-current GSM power supply"
+        },
+        {
+          "module": "GSM SIM800L",
+          "pinName": "GND",
+          "mcuPin": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Common ground with Arduino"
+        },
+        {
+          "module": "GSM SIM800L",
+          "pinName": "TX",
+          "mcuPin": "D8",
+          "voltage": "2.8–3V logic",
+          "direction": "Output",
+          "description": "Data from GSM to Arduino"
+        },
+        {
+          "module": "GSM SIM800L",
+          "pinName": "RX",
+          "mcuPin": "D9 (via voltage divider)",
+          "voltage": "2.8–3V logic",
+          "direction": "Input",
+          "description": "Data from Arduino to GSM (level shifted)"
+        },
+        {
+          "module": "Buzzer",
+          "pinName": "IN",
+          "mcuPin": "D10",
+          "voltage": "5V logic",
+          "direction": "Output",
+          "description": "Local fire alert alarm"
+        }
+      ]
+    },
+
+    "circuit_connection": [
+      "Flame sensor DO connected to Arduino D2",
+      "MQ-2 AO connected to Arduino A0",
+      "SIM800L powered via separate 4V supply",
+      "Voltage divider used for Arduino TX → GSM RX",
+      "Buzzer connected to D10",
+      "All grounds connected together"
+    ],
+
+    "software_stack": [
+      "Arduino IDE",
+      "SoftwareSerial Library",
+      "AT Command Interface"
+    ],
+
+    "code": {
+      "language": "C++ (Arduino)",
+      "file": "fire_gsm_alert.ino",
+      "content": "#include <SoftwareSerial.h>\n\n#define FLAME_PIN 2\n#define SMOKE_PIN A0\n#define BUZZER 10\n\nSoftwareSerial gsm(8, 9); // RX, TX\n\nint smokeThreshold = 300;\n\nvoid setup() {\n  pinMode(FLAME_PIN, INPUT);\n  pinMode(BUZZER, OUTPUT);\n\n  gsm.begin(9600);\n  delay(2000);\n}\n\nvoid sendSMS() {\n  gsm.println(\"AT+CMGF=1\");\n  delay(500);\n  gsm.println(\"AT+CMGS=\\\"+91XXXXXXXXXX\\\"\");\n  delay(500);\n  gsm.print(\"FIRE ALERT! Immediate action required.\");\n  gsm.write(26);\n}\n\nvoid loop() {\n  int flame = digitalRead(FLAME_PIN);\n  int smoke = analogRead(SMOKE_PIN);\n\n  if (flame == LOW || smoke > smokeThreshold) {\n    digitalWrite(BUZZER, HIGH);\n    sendSMS();\n    delay(10000); // avoid repeated SMS\n  }\n}"
+    },
+
+    "testing_and_output": [
+      "Flame detected → buzzer ON",
+      "Smoke detected → buzzer ON",
+      "SMS alert received within 5–10 seconds",
+      "System remains active until power reset"
+    ],
+
+    "calibration_procedure": [
+      "Warm MQ-2 sensor for 30 seconds",
+      "Record clean-air analog value",
+      "Expose to smoke",
+      "Set threshold slightly above clean-air value"
+    ],
+
+    "common_errors": [
+      "Powering SIM800L from Arduino 5V",
+      "Skipping GSM antenna",
+      "No voltage level shifting",
+      "Repeated SMS spamming"
+    ],
+
+    "debugging_tips": [
+      "Test GSM with basic AT commands",
+      "Use Serial Monitor for smoke values",
+      "Check flame sensor LED indicator",
+      "Measure GSM supply voltage during transmission"
+    ],
+
+    "limitations": [
+      "No fire size estimation",
+      "GSM network dependency",
+      "False alarms from heat sources"
+    ],
+
+    "improvements": [
+      "Add temperature sensor (DS18B20)",
+      "Multiple phone number alerts",
+      "IoT dashboard integration",
+      "Automatic sprinkler activation",
+      "Battery backup"
+    ],
+
+    "mini_challenge": "Add EEPROM-based event logging with timestamp.",
+
+    "estimated_cost_india": {
+      "arduino_uno": "₹350",
+      "flame_sensor": "₹120",
+      "mq2_sensor": "₹200",
+      "sim800l": "₹450",
+      "buck_converter": "₹150",
+      "buzzer": "₹50",
+      "wires_misc": "₹100",
+      "total": "₹1,420 (approx)"
+    },
+
+    "learning_outcomes": [
+      "Design safety-critical embedded systems",
+      "GSM communication using AT commands",
+      "Multi-sensor decision logic",
+      "Power management for high-current modules"
+    ],
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 415,
+    "title": "Digital Tachometer using Microcontroller",
+    "level": "Advanced (Embedded Measurement & Instrumentation)",
+    "category": "Embedded Systems Projects",
+    "estimatedTime": "6–8 Hours",
+
+    "problem_statement": "Measuring rotational speed (RPM) accurately is essential in motors, engines, and industrial machines. Mechanical tachometers are inaccurate and wear out over time. A digital tachometer provides precise, non-contact RPM measurement.",
+
+    "real_world_use_case": [
+      "Electric motor speed measurement",
+      "Industrial machinery monitoring",
+      "Automotive engine testing",
+      "Conveyor belt systems",
+      "Laboratory instrumentation"
+    ],
+
+    "embedded_concept": {
+      "core_topics": [
+        "Pulse counting",
+        "Interrupt-based measurement",
+        "Time-window sampling",
+        "Signal conditioning"
+      ],
+      "measurement_principle": "RPM calculated by counting pulses generated per rotation over a fixed time interval"
+    },
+
+    "hardware": {
+      "microcontroller": "Arduino UNO (ATmega328P)",
+      "speed_sensor": "IR Slot Sensor / IR Obstacle Sensor / Hall Effect Sensor",
+      "display": "16x2 LCD",
+      "rotating_element": "DC Motor / Shaft with reflective marker",
+      "power_source": "5V Adapter / USB"
+    },
+
+    "sensor_options": {
+      "ir_reflective": {
+        "method": "Reflective pulse detection",
+        "requires": "White tape on shaft",
+        "accuracy": "Medium"
+      },
+      "hall_effect": {
+        "method": "Magnetic field detection",
+        "requires": "Small magnet on shaft",
+        "accuracy": "High (recommended)"
+      }
+    },
+
+    "working_principle": [
+      "A marker (reflective tape or magnet) is fixed on rotating shaft",
+      "Each full rotation generates one pulse",
+      "Sensor outputs a digital pulse per rotation",
+      "Microcontroller counts pulses using interrupt",
+      "RPM calculated using time-based formula",
+      "RPM value displayed on LCD in real time"
+    ],
+
+    "rpm_calculation": {
+      "formula": "RPM = (Pulse_Count × 60) / Measurement_Time(seconds)",
+      "example": "If 20 pulses in 2 seconds → RPM = (20×60)/2 = 600",
+      "sampling_window": "1 second (configurable)"
+    },
+
+    "block_diagram_logic": [
+      "Rotating Shaft",
+      "Speed Sensor",
+      "Interrupt Counter",
+      "RPM Calculation Logic",
+      "LCD Display"
+    ],
+
+    "pin_config": {
+      "arduino_uno": [
+        {
+          "module": "Speed Sensor",
+          "pinName": "VCC",
+          "mcuPin": "5V",
+          "voltage": "5V",
+          "direction": "Power",
+          "description": "Supplies power to IR / Hall sensor"
+        },
+        {
+          "module": "Speed Sensor",
+          "pinName": "GND",
+          "mcuPin": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Common ground reference"
+        },
+        {
+          "module": "Speed Sensor",
+          "pinName": "OUT",
+          "mcuPin": "D2 (INT0)",
+          "voltage": "5V logic",
+          "direction": "Input",
+          "description": "Pulse output per rotation (interrupt pin)"
+        },
+        {
+          "module": "LCD 16x2",
+          "pinName": "RS",
+          "mcuPin": "D8",
+          "voltage": "5V logic",
+          "direction": "Output",
+          "description": "LCD register select"
+        },
+        {
+          "module": "LCD 16x2",
+          "pinName": "EN",
+          "mcuPin": "D9",
+          "voltage": "5V logic",
+          "direction": "Output",
+          "description": "LCD enable"
+        },
+        {
+          "module": "LCD 16x2",
+          "pinName": "D4",
+          "mcuPin": "D10",
+          "voltage": "5V logic",
+          "direction": "Output",
+          "description": "LCD data bit 4"
+        },
+        {
+          "module": "LCD 16x2",
+          "pinName": "D5",
+          "mcuPin": "D11",
+          "voltage": "5V logic",
+          "direction": "Output",
+          "description": "LCD data bit 5"
+        },
+        {
+          "module": "LCD 16x2",
+          "pinName": "D6",
+          "mcuPin": "D12",
+          "voltage": "5V logic",
+          "direction": "Output",
+          "description": "LCD data bit 6"
+        },
+        {
+          "module": "LCD 16x2",
+          "pinName": "D7",
+          "mcuPin": "D13",
+          "voltage": "5V logic",
+          "direction": "Output",
+          "description": "LCD data bit 7"
+        }
+      ]
+    },
+
+    "circuit_connection": [
+      "Sensor OUT connected to Arduino D2 (hardware interrupt)",
+      "Reflective tape or magnet fixed to rotating shaft",
+      "LCD connected in 4-bit mode",
+      "10k potentiometer used for LCD contrast",
+      "All grounds connected together"
+    ],
+
+    "software_stack": [
+      "Arduino IDE",
+      "LiquidCrystal Library",
+      "Hardware Interrupts"
+    ],
+
+    "code": {
+      "language": "C++ (Arduino)",
+      "file": "digital_tachometer.ino",
+      "content": "#include <LiquidCrystal.h>\n\nLiquidCrystal lcd(8, 9, 10, 11, 12, 13);\n\n#define SENSOR_PIN 2\n\nvolatile unsigned long pulseCount = 0;\nunsigned long lastTime = 0;\nunsigned int rpm = 0;\n\nvoid pulseISR() {\n  pulseCount++;\n}\n\nvoid setup() {\n  pinMode(SENSOR_PIN, INPUT);\n  attachInterrupt(digitalPinToInterrupt(SENSOR_PIN), pulseISR, FALLING);\n\n  lcd.begin(16, 2);\n  lcd.print(\"RPM Meter\");\n}\n\nvoid loop() {\n  if (millis() - lastTime >= 1000) {\n    noInterrupts();\n    unsigned long pulses = pulseCount;\n    pulseCount = 0;\n    interrupts();\n\n    rpm = pulses * 60; // 1 pulse per revolution\n\n    lcd.setCursor(0, 1);\n    lcd.print(\"RPM: \");\n    lcd.print(rpm);\n    lcd.print(\"   \");\n\n    lastTime = millis();\n  }\n}"
+    },
+
+    "testing_and_output": [
+      "RPM value updates every second",
+      "Stable readings at constant speed",
+      "Instant response to speed changes"
+    ],
+
+    "calibration_procedure": [
+      "Ensure exactly one pulse per rotation",
+      "Check sensor alignment",
+      "Verify interrupt triggering",
+      "Compare readings with reference tachometer"
+    ],
+
+    "common_errors": [
+      "Multiple pulses per rotation",
+      "Using polling instead of interrupt",
+      "Noise causing false pulses",
+      "Incorrect sampling window"
+    ],
+
+    "debugging_tips": [
+      "Print pulse count via Serial Monitor",
+      "Use oscilloscope to view sensor output",
+      "Add debounce or software filtering",
+      "Shield sensor from ambient light"
+    ],
+
+    "limitations": [
+      "Accuracy depends on pulse stability",
+      "Very high RPM may exceed interrupt handling",
+      "Single-point measurement only"
+    ],
+
+    "improvements": [
+      "Use averaging for noise reduction",
+      "Multi-pulse per rotation for high RPM",
+      "Data logging via SD card",
+      "Wireless RPM monitoring",
+      "Graphical display"
+    ],
+
+    "mini_challenge": "Modify code to measure RPM with two pulses per rotation.",
+
+    "estimated_cost_india": {
+      "arduino_uno": "₹350",
+      "ir_sensor_or_hall": "₹120",
+      "lcd_16x2": "₹180",
+      "potentiometer": "₹30",
+      "wires_misc": "₹80",
+      "total": "₹760 (approx)"
+    },
+
+    "learning_outcomes": [
+      "Interrupt-based measurement",
+      "Real-time signal counting",
+      "Instrumentation system design",
+      "Industrial RPM monitoring fundamentals"
+    ],
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 416,
+    "title": "Smart Helmet with Accident Alert System",
+    "level": "Advanced (Safety-Critical Embedded System)",
+    "category": "Embedded Systems Projects",
+    "estimatedTime": "10–12 Hours",
+
+    "problem_statement": "In road accidents, delayed medical assistance is a major cause of fatalities. Victims may be unconscious and unable to call for help. A smart helmet that automatically detects accidents and sends alerts can significantly reduce response time.",
+
+    "real_world_use_case": [
+      "Two-wheeler rider safety",
+      "Highway accident response systems",
+      "Delivery rider monitoring",
+      "Smart transportation systems"
+    ],
+
+    "embedded_concept": {
+      "core_topics": [
+        "MEMS sensor data analysis",
+        "Threshold-based event detection",
+        "GSM communication",
+        "Fail-safe embedded design"
+      ],
+      "safety_classification": "Life-critical alert system (false positives must be minimized)"
+    },
+
+    "hardware": {
+      "microcontroller": "Arduino UNO (ATmega328P)",
+      "motion_sensor": "MPU6050 (3-axis Accelerometer + Gyroscope)",
+      "communication": "SIM800L GSM Module",
+      "alert_unit": "Buzzer",
+      "user_input": "Emergency Cancel Push Button",
+      "power": "Li-ion Battery + Buck Converter (5V regulated)"
+    },
+
+    "accident_detection_logic": {
+      "primary_trigger": "Sudden high-G acceleration",
+      "secondary_trigger": "Abnormal tilt angle after impact",
+      "confirmation_window": "5–8 seconds (user cancellation allowed)",
+      "false_positive_handling": "Cancel button + dual-condition validation"
+    },
+
+    "working_principle": [
+      "Helmet continuously monitors acceleration and orientation",
+      "Normal riding produces smooth acceleration values",
+      "Accident causes sudden spike in acceleration (impact)",
+      "System checks if helmet remains tilted abnormally",
+      "Buzzer alerts rider for cancellation window",
+      "If not cancelled, GSM sends emergency SMS",
+      "Location and alert sent automatically"
+    ],
+
+    "accident_detection_thresholds": {
+      "acceleration_g": "≥ 3.0g (configurable)",
+      "tilt_angle": "≥ 60 degrees for >3 seconds",
+      "cancel_timeout": "7 seconds"
+    },
+
+    "block_diagram_logic": [
+      "MPU6050 Sensor",
+      "Accident Detection Algorithm",
+      "User Cancel Window",
+      "GSM Communication",
+      "Emergency Alert"
+    ],
+
+    "pin_config": {
+      "arduino_uno": [
+        {
+          "module": "MPU6050",
+          "pinName": "VCC",
+          "mcuPin": "3.3V",
+          "voltage": "3.3V",
+          "direction": "Power",
+          "description": "MPU6050 operates at 3.3V only"
+        },
+        {
+          "module": "MPU6050",
+          "pinName": "GND",
+          "mcuPin": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Common ground reference"
+        },
+        {
+          "module": "MPU6050",
+          "pinName": "SDA",
+          "mcuPin": "A4",
+          "voltage": "3.3V I2C",
+          "direction": "Bidirectional",
+          "description": "I2C data line"
+        },
+        {
+          "module": "MPU6050",
+          "pinName": "SCL",
+          "mcuPin": "A5",
+          "voltage": "3.3V I2C",
+          "direction": "Bidirectional",
+          "description": "I2C clock line"
+        },
+        {
+          "module": "SIM800L",
+          "pinName": "VCC",
+          "mcuPin": "External 4.0V",
+          "voltage": "3.8–4.2V",
+          "direction": "Power",
+          "description": "Direct Li-ion supply (NOT 5V)"
+        },
+        {
+          "module": "SIM800L",
+          "pinName": "GND",
+          "mcuPin": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Common ground"
+        },
+        {
+          "module": "SIM800L",
+          "pinName": "TXD",
+          "mcuPin": "D10",
+          "voltage": "2.8V logic",
+          "direction": "Output",
+          "description": "GSM to Arduino RX"
+        },
+        {
+          "module": "SIM800L",
+          "pinName": "RXD",
+          "mcuPin": "D11 (via divider)",
+          "voltage": "2.8V logic",
+          "direction": "Input",
+          "description": "Arduino TX reduced using voltage divider"
+        },
+        {
+          "module": "Buzzer",
+          "pinName": "IN",
+          "mcuPin": "D8",
+          "voltage": "5V logic",
+          "direction": "Output",
+          "description": "Alert sound before SMS"
+        },
+        {
+          "module": "Cancel Button",
+          "pinName": "Signal",
+          "mcuPin": "D7",
+          "voltage": "5V logic",
+          "direction": "Input",
+          "description": "User cancels false alarm"
+        }
+      ]
+    },
+
+    "software_stack": [
+      "Arduino IDE",
+      "Wire (I2C)",
+      "MPU6050 Library",
+      "SoftwareSerial (GSM)"
+    ],
+
+    "accident_algorithm": [
+      "Read acceleration values",
+      "Compute resultant acceleration vector",
+      "Check against impact threshold",
+      "Verify tilt persistence",
+      "Start cancel timer",
+      "Send SMS if not cancelled"
+    ],
+
+    "code": {
+      "language": "C++ (Arduino)",
+      "file": "smart_helmet.ino",
+      "content": "#include <Wire.h>\n#include <MPU6050.h>\n#include <SoftwareSerial.h>\n\nMPU6050 mpu;\nSoftwareSerial gsm(10, 11);\n\n#define BUZZER 8\n#define CANCEL 7\n\nvoid setup() {\n  Wire.begin();\n  mpu.initialize();\n  pinMode(BUZZER, OUTPUT);\n  pinMode(CANCEL, INPUT_PULLUP);\n  gsm.begin(9600);\n}\n\nvoid loop() {\n  int16_t ax, ay, az;\n  mpu.getAcceleration(&ax, &ay, &az);\n\n  float gForce = sqrt(ax*ax + ay*ay + az*az) / 16384.0;\n\n  if (gForce > 3.0) {\n    digitalWrite(BUZZER, HIGH);\n    unsigned long start = millis();\n\n    while (millis() - start < 7000) {\n      if (digitalRead(CANCEL) == LOW) {\n        digitalWrite(BUZZER, LOW);\n        return;\n      }\n    }\n\n    sendSMS();\n    digitalWrite(BUZZER, LOW);\n  }\n}\n\nvoid sendSMS() {\n  gsm.println(\"AT+CMGF=1\");\n  delay(1000);\n  gsm.println(\"AT+CMGS=\\\"+91XXXXXXXXXX\\\"\");\n  delay(1000);\n  gsm.println(\"Accident detected! Immediate help needed.\");\n  gsm.write(26);\n}"
+    },
+
+    "testing_and_validation": [
+      "Drop test with safety padding",
+      "Tilt-only false trigger test",
+      "High-speed vibration test",
+      "GSM network delay verification"
+    ],
+
+    "common_errors": [
+      "Powering SIM800L from 5V",
+      "No cancel delay window",
+      "Improper sensor calibration",
+      "Ignoring false positives"
+    ],
+
+    "safety_notes": [
+      "Never test on-road",
+      "Use dummy load for drop tests",
+      "Shield GSM antenna properly"
+    ],
+
+    "improvements": [
+      "GPS module for live location",
+      "Mobile app integration",
+      "Cloud emergency dashboard",
+      "Machine-learning based accident classification"
+    ],
+
+    "mini_challenge": "Add GPS coordinates to SMS alert.",
+
+    "estimated_cost_india": {
+      "arduino_uno": "₹350",
+      "mpu6050": "₹180",
+      "sim800l": "₹750",
+      "battery_and_regulator": "₹300",
+      "buzzer_button_misc": "₹120",
+      "total": "₹1,700 (approx)"
+    },
+
+    "learning_outcomes": [
+      "Safety-critical embedded design",
+      "Sensor fusion fundamentals",
+      "Real accident detection logic",
+      "Power and voltage discipline",
+      "Embedded GSM communication"
+    ],
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 417,
+    "title": "Electronic Voting Machine (EVM)",
+    "level": "Advanced (Secure Embedded Systems)",
+    "category": "Embedded Systems Projects",
+    "estimatedTime": "8–10 Hours",
+
+    "problem_statement": "Manual paper-based voting systems are slow, error-prone, and vulnerable to invalid votes. An electronic voting machine ensures faster counting, vote accuracy, and controlled voting with minimal human intervention.",
+
+    "real_world_use_case": [
+      "Student council elections",
+      "Corporate board voting",
+      "Local organization polls",
+      "Training models for election systems"
+    ],
+
+    "embedded_concept": {
+      "core_topics": [
+        "Debounced human input handling",
+        "One-person-one-vote logic",
+        "Non-volatile vote storage",
+        "System lock and reset control",
+        "Tamper-aware embedded design"
+      ],
+      "security_scope": "Educational EVM (not for public elections)"
+    },
+
+    "hardware": {
+      "microcontroller": "Arduino UNO (ATmega328P)",
+      "input": "Push Buttons (Candidates + Control)",
+      "output": "16x2 LCD + Buzzer",
+      "memory": "Internal EEPROM",
+      "power_source": "5V regulated supply / Power bank"
+    },
+
+    "system_roles": {
+      "control_unit": "Enables and disables voting session",
+      "ballot_unit": "Accepts candidate votes",
+      "display_unit": "Shows system status and results"
+    },
+
+    "working_principle": [
+      "System starts in LOCKED state",
+      "Admin presses START button to enable voting",
+      "Voter presses exactly one candidate button",
+      "Vote stored in EEPROM immediately",
+      "System locks input until next voter",
+      "After polling ends, RESULT button displays counts",
+      "RESET clears EEPROM for next election"
+    ],
+
+    "vote_integrity_logic": {
+      "vote_acceptance": "Only one vote per enable cycle",
+      "debounce_time": "200 ms (software)",
+      "double_vote_prevention": "Ballot lock after vote",
+      "power_failure_safety": "Votes stored in EEPROM instantly"
+    },
+
+    "block_diagram_logic": [
+      "Candidate Buttons",
+      "Debounce & Validation Logic",
+      "EEPROM Vote Storage",
+      "LCD Status Display",
+      "Buzzer Feedback"
+    ],
+
+    "pin_config": {
+      "arduino_uno": [
+        {
+          "module": "Candidate Button 1",
+          "pinName": "Signal",
+          "mcuPin": "D2",
+          "voltage": "5V logic",
+          "direction": "Input",
+          "description": "Vote input for Candidate A"
+        },
+        {
+          "module": "Candidate Button 2",
+          "pinName": "Signal",
+          "mcuPin": "D3",
+          "voltage": "5V logic",
+          "direction": "Input",
+          "description": "Vote input for Candidate B"
+        },
+        {
+          "module": "Candidate Button 3",
+          "pinName": "Signal",
+          "mcuPin": "D4",
+          "voltage": "5V logic",
+          "direction": "Input",
+          "description": "Vote input for Candidate C"
+        },
+        {
+          "module": "START Button",
+          "pinName": "Signal",
+          "mcuPin": "D5",
+          "voltage": "5V logic",
+          "direction": "Input",
+          "description": "Enables voting for one voter"
+        },
+        {
+          "module": "RESULT Button",
+          "pinName": "Signal",
+          "mcuPin": "D6",
+          "voltage": "5V logic",
+          "direction": "Input",
+          "description": "Displays final results"
+        },
+        {
+          "module": "RESET Button",
+          "pinName": "Signal",
+          "mcuPin": "D7",
+          "voltage": "5V logic",
+          "direction": "Input",
+          "description": "Clears all stored votes"
+        },
+        {
+          "module": "Buzzer",
+          "pinName": "IN",
+          "mcuPin": "D8",
+          "voltage": "5V logic",
+          "direction": "Output",
+          "description": "Audio confirmation for valid vote"
+        },
+        {
+          "module": "LCD 16x2",
+          "pinName": "RS",
+          "mcuPin": "D9",
+          "voltage": "5V logic",
+          "direction": "Output",
+          "description": "LCD register select"
+        },
+        {
+          "module": "LCD 16x2",
+          "pinName": "EN",
+          "mcuPin": "D10",
+          "voltage": "5V logic",
+          "direction": "Output",
+          "description": "LCD enable"
+        },
+        {
+          "module": "LCD 16x2",
+          "pinName": "D4–D7",
+          "mcuPin": "D11–D13",
+          "voltage": "5V logic",
+          "direction": "Output",
+          "description": "LCD data lines (4-bit mode)"
+        }
+      ]
+    },
+
+    "circuit_connection": [
+      "All buttons connected using pull-down resistors",
+      "EEPROM used for persistent vote storage",
+      "LCD contrast set using 10k potentiometer",
+      "Buzzer driven via GPIO (optional transistor)"
+    ],
+
+    "software_stack": [
+      "Arduino IDE",
+      "LiquidCrystal Library",
+      "EEPROM Library"
+    ],
+
+    "code": {
+      "language": "C++ (Arduino)",
+      "file": "evm.ino",
+      "content": "#include <LiquidCrystal.h>\n#include <EEPROM.h>\n\nLiquidCrystal lcd(9, 10, 11, 12, 13, A0);\n\n#define C1 2\n#define C2 3\n#define C3 4\n#define START 5\n#define RESULT 6\n#define RESET 7\n#define BUZZER 8\n\nbool votingEnabled = false;\n\nvoid setup() {\n  pinMode(C1, INPUT);\n  pinMode(C2, INPUT);\n  pinMode(C3, INPUT);\n  pinMode(START, INPUT);\n  pinMode(RESULT, INPUT);\n  pinMode(RESET, INPUT);\n  pinMode(BUZZER, OUTPUT);\n\n  lcd.begin(16, 2);\n  lcd.print(\"EVM READY\");\n}\n\nvoid loop() {\n  if (digitalRead(START)) {\n    votingEnabled = true;\n    lcd.clear();\n    lcd.print(\"VOTE NOW\");\n    delay(300);\n  }\n\n  if (votingEnabled) {\n    if (digitalRead(C1)) castVote(0);\n    else if (digitalRead(C2)) castVote(1);\n    else if (digitalRead(C3)) castVote(2);\n  }\n\n  if (digitalRead(RESULT)) showResults();\n  if (digitalRead(RESET)) resetVotes();\n}\n\nvoid castVote(int addr) {\n  int count = EEPROM.read(addr);\n  EEPROM.write(addr, count + 1);\n  digitalWrite(BUZZER, HIGH);\n  delay(200);\n  digitalWrite(BUZZER, LOW);\n  votingEnabled = false;\n  lcd.clear();\n  lcd.print(\"VOTE CAST\");\n  delay(1000);\n}\n\nvoid showResults() {\n  lcd.clear();\n  lcd.print(\"A:\"); lcd.print(EEPROM.read(0));\n  lcd.setCursor(0, 1);\n  lcd.print(\"B:\"); lcd.print(EEPROM.read(1));\n}\n\nvoid resetVotes() {\n  EEPROM.write(0, 0);\n  EEPROM.write(1, 0);\n  EEPROM.write(2, 0);\n  lcd.clear();\n  lcd.print(\"RESET DONE\");\n  delay(1000);\n}"
+    },
+
+    "testing_and_validation": [
+      "Button debounce stress test",
+      "Power failure recovery test",
+      "Vote count consistency test",
+      "Multiple election cycle test"
+    ],
+
+    "common_errors": [
+      "No EEPROM usage (data loss)",
+      "Button bounce causing double votes",
+      "No vote lock mechanism",
+      "Unsafe reset logic"
+    ],
+
+    "limitations": [
+      "Not cryptographically secure",
+      "Limited candidates",
+      "Educational use only"
+    ],
+
+    "improvements": [
+      "Candidate expansion via matrix keypad",
+      "Encrypted vote storage",
+      "Audit log with timestamps",
+      "External memory card"
+    ],
+
+    "mini_challenge": "Add voter count limit and auto-lock voting after limit reached.",
+
+    "estimated_cost_india": {
+      "arduino_uno": "₹350",
+      "lcd_16x2": "₹180",
+      "push_buttons": "₹120",
+      "buzzer_misc": "₹80",
+      "wires_pcb": "₹150",
+      "total": "₹880 (approx)"
+    },
+
+    "learning_outcomes": [
+      "Secure embedded input handling",
+      "EEPROM-based data persistence",
+      "Debounce-safe system design",
+      "Voting system logic"
+    ],
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+
+  {
+    "id": 418,
+    "title": "Currency Counter and Fake Currency Detection System",
+    "level": "Advanced (Embedded Instrumentation + Sensor Fusion)",
+    "category": "Embedded Systems Projects",
+    "estimatedTime": "9–11 Hours",
+
+    "problem_statement": "Manual currency counting is slow and error-prone, and counterfeit notes pose financial risks. An embedded system that automatically counts currency notes and detects fake notes improves accuracy, speed, and security.",
+
+    "real_world_use_case": [
+      "Banks and financial institutions",
+      "Retail cash counters",
+      "ATMs and cash kiosks",
+      "Cash handling training labs",
+      "Small businesses"
+    ],
+
+    "embedded_concept": {
+      "core_topics": [
+        "Optical sensing",
+        "UV-based security feature detection",
+        "Pulse counting",
+        "Threshold-based classification",
+        "Sensor fusion decision logic"
+      ],
+      "design_philosophy": "Count every note reliably and flag suspicious notes early"
+    },
+
+    "hardware": {
+      "microcontroller": "Arduino UNO (ATmega328P)",
+      "note_counter_sensor": "IR Slot Sensor (Transmissive type)",
+      "fake_note_sensor": "UV LED + UV Photodiode / LDR",
+      "display": "16x2 LCD",
+      "alert": "Buzzer",
+      "mechanism": "Roller-based note feeder (manual or motorized)",
+      "power_source": "5V regulated supply"
+    },
+
+    "sensor_principle": {
+      "ir_slot_sensor": {
+        "purpose": "Counts notes",
+        "working": "IR beam interrupted by passing note",
+        "output": "Digital pulse"
+      },
+      "uv_detection": {
+        "purpose": "Detects security thread / ink",
+        "working": "Original notes fluoresce under UV",
+        "output": "Analog intensity value"
+      }
+    },
+
+    "working_principle": [
+      "Currency notes are passed one by one through slot",
+      "IR slot sensor generates one pulse per note",
+      "Pulse count increments total note count",
+      "Simultaneously, UV light illuminates the note",
+      "UV sensor measures reflected fluorescence",
+      "If UV response below threshold → note flagged as fake",
+      "Buzzer alerts operator immediately",
+      "LCD displays count and authenticity status"
+    ],
+
+    "decision_logic": {
+      "count_logic": "Each uninterrupted IR pulse = 1 note",
+      "fake_detection_logic": "UV intensity < calibrated threshold",
+      "system_behavior": "Counting continues even if fake detected"
+    },
+
+    "block_diagram_logic": [
+      "Currency Note Path",
+      "IR Slot Sensor (Counting)",
+      "UV Illumination + Sensor",
+      "Decision Logic Unit",
+      "LCD Display + Buzzer"
+    ],
+
+    "pin_config": {
+      "arduino_uno": [
+        {
+          "module": "IR Slot Sensor",
+          "pinName": "VCC",
+          "mcuPin": "5V",
+          "voltage": "5V",
+          "direction": "Power",
+          "description": "Power for IR transmitter and receiver"
+        },
+        {
+          "module": "IR Slot Sensor",
+          "pinName": "GND",
+          "mcuPin": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Common ground"
+        },
+        {
+          "module": "IR Slot Sensor",
+          "pinName": "OUT",
+          "mcuPin": "D2 (INT0)",
+          "voltage": "5V logic",
+          "direction": "Input",
+          "description": "Pulse output per note (interrupt driven)"
+        },
+        {
+          "module": "UV LED",
+          "pinName": "Anode",
+          "mcuPin": "5V (via 220Ω)",
+          "voltage": "5V",
+          "direction": "Power",
+          "description": "UV illumination source"
+        },
+        {
+          "module": "UV LED",
+          "pinName": "Cathode",
+          "mcuPin": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "UV LED ground"
+        },
+        {
+          "module": "UV Sensor (LDR/Photodiode)",
+          "pinName": "VCC",
+          "mcuPin": "5V",
+          "voltage": "5V",
+          "direction": "Power",
+          "description": "Sensor supply"
+        },
+        {
+          "module": "UV Sensor (LDR/Photodiode)",
+          "pinName": "GND",
+          "mcuPin": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Common ground"
+        },
+        {
+          "module": "UV Sensor (LDR/Photodiode)",
+          "pinName": "OUT",
+          "mcuPin": "A0",
+          "voltage": "0–5V analog",
+          "direction": "Input",
+          "description": "UV reflection intensity from note"
+        },
+        {
+          "module": "LCD 16x2",
+          "pinName": "RS",
+          "mcuPin": "D8",
+          "voltage": "5V logic",
+          "direction": "Output",
+          "description": "LCD register select"
+        },
+        {
+          "module": "LCD 16x2",
+          "pinName": "EN",
+          "mcuPin": "D9",
+          "voltage": "5V logic",
+          "direction": "Output",
+          "description": "LCD enable"
+        },
+        {
+          "module": "LCD 16x2",
+          "pinName": "D4–D7",
+          "mcuPin": "D10–D13",
+          "voltage": "5V logic",
+          "direction": "Output",
+          "description": "LCD data lines (4-bit mode)"
+        },
+        {
+          "module": "Buzzer",
+          "pinName": "IN",
+          "mcuPin": "D7",
+          "voltage": "5V logic",
+          "direction": "Output",
+          "description": "Fake note alert"
+        }
+      ]
+    },
+
+    "circuit_connection": [
+      "IR slot sensor aligned perpendicular to note path",
+      "UV LED placed to illuminate security features",
+      "UV sensor placed near reflection region",
+      "LCD connected in 4-bit mode",
+      "All sensor grounds common"
+    ],
+
+    "software_stack": [
+      "Arduino IDE",
+      "LiquidCrystal Library",
+      "Hardware Interrupts"
+    ],
+
+    "code": {
+      "language": "C++ (Arduino)",
+      "file": "currency_counter_fake_detect.ino",
+      "content": "#include <LiquidCrystal.h>\n\nLiquidCrystal lcd(8, 9, 10, 11, 12, 13);\n\n#define COUNT_SENSOR 2\n#define UV_SENSOR A0\n#define BUZZER 7\n\nvolatile unsigned int noteCount = 0;\nint uvThreshold = 300;\n\nvoid countISR() {\n  noteCount++;\n}\n\nvoid setup() {\n  pinMode(COUNT_SENSOR, INPUT);\n  pinMode(BUZZER, OUTPUT);\n  attachInterrupt(digitalPinToInterrupt(COUNT_SENSOR), countISR, FALLING);\n\n  lcd.begin(16, 2);\n  lcd.print(\"Currency Counter\");\n}\n\nvoid loop() {\n  int uvValue = analogRead(UV_SENSOR);\n\n  lcd.setCursor(0, 1);\n  lcd.print(\"Count: \");\n  lcd.print(noteCount);\n  lcd.print(\"   \");\n\n  if (uvValue < uvThreshold) {\n    digitalWrite(BUZZER, HIGH);\n    lcd.setCursor(10, 1);\n    lcd.print(\"FAKE\");\n  } else {\n    digitalWrite(BUZZER, LOW);\n    lcd.setCursor(10, 1);\n    lcd.print(\"OK  \");\n  }\n\n  delay(200);\n}"
+    },
+
+    "testing_and_output": [
+      "Each note increments count by 1",
+      "Original note shows OK status",
+      "Fake note triggers buzzer and FAKE label",
+      "Stable counting at moderate feed speed"
+    ],
+
+    "calibration_procedure": [
+      "Measure UV value for genuine note",
+      "Measure UV value for fake note",
+      "Set threshold midway",
+      "Test with multiple denominations"
+    ],
+
+    "common_errors": [
+      "Improper UV sensor placement",
+      "Ambient light interference",
+      "Fast note feeding causing missed pulses",
+      "Wrong threshold selection"
+    ],
+
+    "debugging_tips": [
+      "Print UV values via Serial Monitor",
+      "Use black enclosure for UV section",
+      "Reduce note speed",
+      "Add RC filtering if noisy"
+    ],
+
+    "limitations": [
+      "Educational-level fake detection",
+      "Cannot detect high-quality counterfeits",
+      "Single security feature check"
+    ],
+
+    "improvements": [
+      "Add magnetic ink detection",
+      "Multiple UV wavelength sensing",
+      "Motorized feeder with speed control",
+      "SD card logging",
+      "AI-based image verification"
+    ],
+
+    "mini_challenge": "Add denomination recognition using note length sensing.",
+
+    "estimated_cost_india": {
+      "arduino_uno": "₹350",
+      "ir_slot_sensor": "₹150",
+      "uv_led_sensor": "₹200",
+      "lcd_16x2": "₹180",
+      "buzzer_misc": "₹100",
+      "mechanical_parts": "₹250",
+      "total": "₹1,230 (approx)"
+    },
+
+    "learning_outcomes": [
+      "Sensor fusion in embedded systems",
+      "Interrupt-based counting",
+      "Threshold-based classification",
+      "Embedded instrumentation design"
+    ],
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 419,
+    "title": "Wireless Notice Board using Bluetooth",
+    "level": "Intermediate–Advanced (Embedded Communication Systems)",
+    "category": "Embedded Systems Projects",
+    "estimatedTime": "6–8 Hours",
+
+    "problem_statement": "Traditional notice boards require manual updates, which are slow and inefficient. A wireless notice board allows instant message updates remotely, improving communication speed and flexibility.",
+
+    "real_world_use_case": [
+      "Educational institutions",
+      "Railway stations and bus stands",
+      "Hospitals",
+      "Corporate offices",
+      "Public information displays"
+    ],
+
+    "embedded_concept": {
+      "core_topics": [
+        "Serial communication",
+        "Bluetooth protocol handling",
+        "Message buffering",
+        "Display interfacing",
+        "Input validation"
+      ],
+      "design_goal": "Reliable wireless message update with zero data corruption"
+    },
+
+    "hardware": {
+      "microcontroller": "Arduino UNO (ATmega328P)",
+      "wireless_module": "HC-05 Bluetooth Module",
+      "display": "16x2 LCD / LED Matrix (optional upgrade)",
+      "input_device": "Android smartphone",
+      "power_source": "5V regulated supply / USB"
+    },
+
+    "communication_principle": {
+      "medium": "Bluetooth Classic (SPP profile)",
+      "data_type": "ASCII text",
+      "baud_rate": "9600 bps",
+      "direction": "Bidirectional (receive-focused)"
+    },
+
+    "working_principle": [
+      "Smartphone sends text via Bluetooth app",
+      "HC-05 receives serial data wirelessly",
+      "Microcontroller reads data into buffer",
+      "Message validated for length and format",
+      "Display cleared and updated with new text",
+      "Previous message overwritten safely"
+    ],
+
+    "message_handling_logic": {
+      "max_length": "32 characters (16x2 LCD)",
+      "termination": "Newline character '\\n'",
+      "overflow_handling": "Extra characters discarded",
+      "refresh_policy": "Update only after full message received"
+    },
+
+    "block_diagram_logic": [
+      "Mobile Phone",
+      "Bluetooth Transmission",
+      "HC-05 Module",
+      "UART Buffer",
+      "LCD Display"
+    ],
+
+    "pin_config": {
+      "arduino_uno": [
+        {
+          "module": "HC-05 Bluetooth",
+          "pinName": "VCC",
+          "mcuPin": "5V",
+          "voltage": "5V",
+          "direction": "Power",
+          "description": "Power supply for Bluetooth module"
+        },
+        {
+          "module": "HC-05 Bluetooth",
+          "pinName": "GND",
+          "mcuPin": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Common ground reference"
+        },
+        {
+          "module": "HC-05 Bluetooth",
+          "pinName": "TXD",
+          "mcuPin": "D2",
+          "voltage": "3.3V logic",
+          "direction": "Output",
+          "description": "Bluetooth data to Arduino RX"
+        },
+        {
+          "module": "HC-05 Bluetooth",
+          "pinName": "RXD",
+          "mcuPin": "D3 (via voltage divider)",
+          "voltage": "3.3V logic",
+          "direction": "Input",
+          "description": "Arduino TX reduced to 3.3V"
+        },
+        {
+          "module": "LCD 16x2",
+          "pinName": "RS",
+          "mcuPin": "D8",
+          "voltage": "5V logic",
+          "direction": "Output",
+          "description": "LCD register select"
+        },
+        {
+          "module": "LCD 16x2",
+          "pinName": "EN",
+          "mcuPin": "D9",
+          "voltage": "5V logic",
+          "direction": "Output",
+          "description": "LCD enable"
+        },
+        {
+          "module": "LCD 16x2",
+          "pinName": "D4–D7",
+          "mcuPin": "D10–D13",
+          "voltage": "5V logic",
+          "direction": "Output",
+          "description": "LCD data lines (4-bit mode)"
+        }
+      ]
+    },
+
+    "circuit_connection": [
+      "HC-05 RX connected via 1.8kΩ–3.3kΩ voltage divider",
+      "Bluetooth antenna kept unobstructed",
+      "LCD contrast adjusted using 10k potentiometer",
+      "All grounds connected together"
+    ],
+
+    "software_stack": [
+      "Arduino IDE",
+      "SoftwareSerial Library",
+      "LiquidCrystal Library"
+    ],
+
+    "code": {
+      "language": "C++ (Arduino)",
+      "file": "bluetooth_notice_board.ino",
+      "content": "#include <SoftwareSerial.h>\n#include <LiquidCrystal.h>\n\nSoftwareSerial bt(2, 3); // RX, TX\nLiquidCrystal lcd(8, 9, 10, 11, 12, 13);\n\nchar message[33];\nint index = 0;\n\nvoid setup() {\n  bt.begin(9600);\n  lcd.begin(16, 2);\n  lcd.print(\"Notice Board\");\n}\n\nvoid loop() {\n  while (bt.available()) {\n    char c = bt.read();\n\n    if (c == '\\n' || index >= 32) {\n      message[index] = '\\0';\n      lcd.clear();\n      lcd.print(message);\n      index = 0;\n    } else {\n      message[index++] = c;\n    }\n  }\n}"
+    },
+
+    "testing_and_output": [
+      "Message sent from phone appears on LCD",
+      "Old message replaced cleanly",
+      "No partial display on transmission",
+      "Stable operation within 10 m range"
+    ],
+
+    "calibration_procedure": [
+      "Set Bluetooth baud rate to 9600",
+      "Verify voltage divider output (≈3.3V)",
+      "Test message length boundaries"
+    ],
+
+    "common_errors": [
+      "Direct 5V to HC-05 RX pin",
+      "Buffer overflow",
+      "No message termination character",
+      "Using hardware serial causing upload failure"
+    ],
+
+    "debugging_tips": [
+      "Test HC-05 using AT commands",
+      "Use Serial Monitor for raw data",
+      "Reduce message speed if garbled",
+      "Ensure correct pairing PIN"
+    ],
+
+    "limitations": [
+      "Limited range (≈10 m)",
+      "No encryption",
+      "Single-client connection"
+    ],
+
+    "improvements": [
+      "Password-protected updates",
+      "Scrolling text support",
+      "LED matrix display",
+      "Wi-Fi upgrade using ESP32",
+      "Mobile app with templates"
+    ],
+
+    "mini_challenge": "Add scrolling text for messages longer than 16 characters.",
+
+    "estimated_cost_india": {
+      "arduino_uno": "₹350",
+      "hc05_module": "₹280",
+      "lcd_16x2": "₹180",
+      "resistors_pot": "₹70",
+      "wires_misc": "₹100",
+      "total": "₹980 (approx)"
+    },
+
+    "learning_outcomes": [
+      "Wireless serial communication",
+      "Data buffering and validation",
+      "Embedded display handling",
+      "Voltage-level safety"
+    ],
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 420,
+    "title": "DTMF Controlled Robot",
+    "level": "Advanced (Telecom Signaling + Embedded Motor Control)",
+    "category": "Embedded Systems Projects",
+    "estimatedTime": "8–10 Hours",
+
+    "problem_statement": "Conventional remote-controlled robots have limited range and require line-of-sight or short-range communication. A DTMF-controlled robot enables long-distance control over cellular networks using standard telephone signals.",
+
+    "real_world_use_case": [
+      "Remote area robotics",
+      "Defense and surveillance training",
+      "Disaster response prototypes",
+      "Educational telecom-embedded projects",
+      "Robotics competitions"
+    ],
+
+    "embedded_concept": {
+      "core_topics": [
+        "DTMF tone decoding",
+        "Telecommunication signaling",
+        "Motor driver interfacing",
+        "Command-to-action mapping",
+        "Latency-tolerant control systems"
+      ],
+      "communication_principle": "Dual Tone Multi Frequency (DTMF) tones represent control commands"
+    },
+
+    "hardware": {
+      "microcontroller": "Arduino UNO (ATmega328P)",
+      "dtmf_decoder": "MT8870 DTMF Decoder IC",
+      "motor_driver": "L298N Dual H-Bridge",
+      "motors": "DC Gear Motors (2 or 4)",
+      "communication_device": "Mobile Phone (Call-based)",
+      "power_source": "12V Battery (Motors) + 5V Regulator (Logic)"
+    },
+
+    "dtmf_signal_principle": {
+      "dtmf_definition": "Each key press generates two simultaneous frequencies",
+      "decoder_function": "MT8870 converts tone pair into 4-bit digital code",
+      "advantage": "Works over any GSM network without internet"
+    },
+
+    "working_principle": [
+      "Mobile phone on robot auto-answers incoming call",
+      "Caller presses keypad buttons",
+      "DTMF tones transmitted via call audio",
+      "MT8870 decodes tone into 4-bit digital output",
+      "Microcontroller reads decoded command",
+      "Motor driver executes movement instruction",
+      "Robot moves accordingly"
+    ],
+
+    "command_mapping": {
+      "2": "Move Forward",
+      "8": "Move Backward",
+      "4": "Turn Left",
+      "6": "Turn Right",
+      "5": "Stop"
+    },
+
+    "block_diagram_logic": [
+      "Mobile Phone (Caller)",
+      "DTMF Audio Signal",
+      "MT8870 Decoder",
+      "Microcontroller",
+      "Motor Driver",
+      "Robot Motors"
+    ],
+
+    "pin_config": {
+      "arduino_uno": [
+        {
+          "module": "MT8870",
+          "pinName": "VCC",
+          "mcuPin": "5V",
+          "voltage": "5V",
+          "direction": "Power",
+          "description": "DTMF decoder power supply"
+        },
+        {
+          "module": "MT8870",
+          "pinName": "GND",
+          "mcuPin": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Common ground"
+        },
+        {
+          "module": "MT8870",
+          "pinName": "Q1",
+          "mcuPin": "D2",
+          "voltage": "5V logic",
+          "direction": "Input",
+          "description": "DTMF output bit 1"
+        },
+        {
+          "module": "MT8870",
+          "pinName": "Q2",
+          "mcuPin": "D3",
+          "voltage": "5V logic",
+          "direction": "Input",
+          "description": "DTMF output bit 2"
+        },
+        {
+          "module": "MT8870",
+          "pinName": "Q3",
+          "mcuPin": "D4",
+          "voltage": "5V logic",
+          "direction": "Input",
+          "description": "DTMF output bit 3"
+        },
+        {
+          "module": "MT8870",
+          "pinName": "Q4",
+          "mcuPin": "D5",
+          "voltage": "5V logic",
+          "direction": "Input",
+          "description": "DTMF output bit 4"
+        },
+        {
+          "module": "Motor Driver (L298N)",
+          "pinName": "IN1",
+          "mcuPin": "D8",
+          "voltage": "5V logic",
+          "direction": "Output",
+          "description": "Left motor control"
+        },
+        {
+          "module": "Motor Driver (L298N)",
+          "pinName": "IN2",
+          "mcuPin": "D9",
+          "voltage": "5V logic",
+          "direction": "Output",
+          "description": "Left motor control"
+        },
+        {
+          "module": "Motor Driver (L298N)",
+          "pinName": "IN3",
+          "mcuPin": "D10",
+          "voltage": "5V logic",
+          "direction": "Output",
+          "description": "Right motor control"
+        },
+        {
+          "module": "Motor Driver (L298N)",
+          "pinName": "IN4",
+          "mcuPin": "D11",
+          "voltage": "5V logic",
+          "direction": "Output",
+          "description": "Right motor control"
+        }
+      ]
+    },
+
+    "circuit_connection": [
+      "DTMF audio input taken from phone headset output",
+      "MT8870 clock circuit implemented using crystal",
+      "Motor driver powered from 12V battery",
+      "Logic and motor grounds connected together",
+      "Enable pins of L298N tied HIGH or PWM-controlled"
+    ],
+
+    "software_stack": [
+      "Arduino IDE",
+      "Digital I/O control",
+      "Binary decoding logic"
+    ],
+
+    "code": {
+      "language": "C++ (Arduino)",
+      "file": "dtmf_robot.ino",
+      "content": "#define Q1 2\n#define Q2 3\n#define Q3 4\n#define Q4 5\n\n#define L1 8\n#define L2 9\n#define R1 10\n#define R2 11\n\nint decodeDTMF() {\n  return (digitalRead(Q4)<<3) | (digitalRead(Q3)<<2) | (digitalRead(Q2)<<1) | digitalRead(Q1);\n}\n\nvoid setup() {\n  pinMode(Q1, INPUT);\n  pinMode(Q2, INPUT);\n  pinMode(Q3, INPUT);\n  pinMode(Q4, INPUT);\n\n  pinMode(L1, OUTPUT);\n  pinMode(L2, OUTPUT);\n  pinMode(R1, OUTPUT);\n  pinMode(R2, OUTPUT);\n}\n\nvoid loop() {\n  int cmd = decodeDTMF();\n\n  switch(cmd) {\n    case 2: // Forward\n      digitalWrite(L1, HIGH); digitalWrite(L2, LOW);\n      digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n      break;\n\n    case 8: // Backward\n      digitalWrite(L1, LOW); digitalWrite(L2, HIGH);\n      digitalWrite(R1, LOW); digitalWrite(R2, HIGH);\n      break;\n\n    case 4: // Left\n      digitalWrite(L1, LOW); digitalWrite(L2, HIGH);\n      digitalWrite(R1, HIGH); digitalWrite(R2, LOW);\n      break;\n\n    case 6: // Right\n      digitalWrite(L1, HIGH); digitalWrite(L2, LOW);\n      digitalWrite(R1, LOW); digitalWrite(R2, HIGH);\n      break;\n\n    case 5: // Stop\n      digitalWrite(L1, LOW); digitalWrite(L2, LOW);\n      digitalWrite(R1, LOW); digitalWrite(R2, LOW);\n      break;\n  }\n}"
+    },
+
+    "testing_and_output": [
+      "Robot responds to phone keypad commands",
+      "Commands executed reliably with slight telecom delay",
+      "Movement stops on STOP command",
+      "Stable operation across long distances"
+    ],
+
+    "common_errors": [
+      "No crystal on MT8870",
+      "Audio level mismatch",
+      "Shared power noise from motors",
+      "Incorrect binary decoding"
+    ],
+
+    "debugging_tips": [
+      "Test MT8870 output LEDs",
+      "Use multimeter on Q pins",
+      "Verify motor polarity",
+      "Test DTMF tones using audio generator"
+    ],
+
+    "limitations": [
+      "Call latency affects response time",
+      "No feedback from robot",
+      "Unencrypted commands"
+    ],
+
+    "improvements": [
+      "Add SMS fallback control",
+      "Add camera module",
+      "Command authentication",
+      "PWM speed control",
+      "Autonomous + manual hybrid mode"
+    ],
+
+    "mini_challenge": "Add speed control using additional DTMF keys.",
+
+    "estimated_cost_india": {
+      "arduino_uno": "₹350",
+      "mt8870_module": "₹220",
+      "l298n_driver": "₹260",
+      "dc_motors_chassis": "₹450",
+      "battery_misc": "₹250",
+      "total": "₹1,530 (approx)"
+    },
+
+    "learning_outcomes": [
+      "Telecom signal decoding",
+      "Command-based robotics",
+      "Motor driver control",
+      "Latency-tolerant system design"
+    ],
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 421,
+    "title": "IoT-Based Smart Switch (Local + Cloud Control)",
+    "level": "Advanced (IoT Networking + Embedded Systems)",
+    "category": "Embedded Systems Projects",
+    "estimatedTime": "10–12 Hours",
+
+    "problem_statement": "Conventional smart switches depend entirely on cloud connectivity, making them unreliable during internet failures. A hybrid smart switch that supports both local control and cloud-based remote access ensures reliability, safety, and scalability.",
+
+    "real_world_use_case": [
+      "Smart homes",
+      "Industrial control panels",
+      "Smart classrooms",
+      "Energy management systems",
+      "IoT product startups"
+    ],
+
+    "embedded_concept": {
+      "core_topics": [
+        "Wi-Fi networking",
+        "Local embedded web server",
+        "Cloud IoT communication",
+        "Relay isolation",
+        "Fail-safe control logic"
+      ],
+      "design_philosophy": "Local-first control with cloud synchronization"
+    },
+
+    "system_architecture": {
+      "local_control": "ESP32 hosts local web server over LAN",
+      "cloud_control": "Cloud dashboard sends commands via MQTT",
+      "fallback_logic": "Local control works even if internet fails"
+    },
+
+    "hardware": {
+      "microcontroller": "ESP32 Dev Module",
+      "relay_module": "5V Opto-isolated Relay (10A)",
+      "manual_input": "Physical Push Button",
+      "connectivity": "Wi-Fi 2.4 GHz",
+      "power_supply": "5V SMPS (isolated)"
+    },
+
+    "working_principle": [
+      "ESP32 connects to local Wi-Fi network",
+      "Local web server exposes ON/OFF control page",
+      "MQTT client connects to cloud broker",
+      "Commands received from either source",
+      "Relay toggled with priority-based logic",
+      "State synchronized to cloud dashboard"
+    ],
+
+    "control_priority_logic": {
+      "highest_priority": "Physical push button",
+      "medium_priority": "Local web control",
+      "lowest_priority": "Cloud command",
+      "reason": "Safety and immediate human control"
+    },
+
+    "pin_config": {
+      "esp32": [
+        {
+          "module": "Relay",
+          "pinName": "IN",
+          "mcuPin": "GPIO26",
+          "voltage": "5V (via relay module)",
+          "direction": "Output",
+          "description": "Controls AC load switching"
+        },
+        {
+          "module": "Relay",
+          "pinName": "VCC",
+          "mcuPin": "5V",
+          "voltage": "5V",
+          "direction": "Power",
+          "description": "Relay coil supply"
+        },
+        {
+          "module": "Relay",
+          "pinName": "GND",
+          "mcuPin": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Common ground"
+        },
+        {
+          "module": "Push Button",
+          "pinName": "Signal",
+          "mcuPin": "GPIO18",
+          "voltage": "3.3V logic",
+          "direction": "Input",
+          "description": "Manual override switch (pull-up enabled)"
+        }
+      ]
+    },
+
+    "electrical_safety_notes": [
+      "Relay provides galvanic isolation from AC mains",
+      "AC and DC grounds are NOT connected",
+      "Use proper enclosure for mains wiring",
+      "Follow IEC safety clearance standards"
+    ],
+
+    "software_stack": [
+      "ESP32 Arduino Core",
+      "WiFi.h",
+      "AsyncWebServer",
+      "PubSubClient (MQTT)",
+      "HTML + CSS (local UI)"
+    ],
+
+    "cloud_stack": {
+      "protocol": "MQTT",
+      "broker": "Mosquitto / HiveMQ",
+      "dashboard": "Node-RED / Home Assistant",
+      "topic_structure": {
+        "command": "home/switch1/cmd",
+        "status": "home/switch1/status"
+      }
+    },
+
+    "code": {
+      "language": "C++ (ESP32 Arduino)",
+      "file": "smart_switch_421.ino",
+      "content": "#include <WiFi.h>\n#include <PubSubClient.h>\n#include <WebServer.h>\n\n#define RELAY 26\n#define BUTTON 18\n\nWebServer server(80);\nWiFiClient espClient;\nPubSubClient client(espClient);\n\nbool relayState = false;\n\nvoid handleRoot() {\n  String page = \"<h1>Smart Switch</h1>\";\n  page += relayState ? \"<p>ON</p>\" : \"<p>OFF</p>\";\n  page += \"<a href='/toggle'>Toggle</a>\";\n  server.send(200, \"text/html\", page);\n}\n\nvoid handleToggle() {\n  relayState = !relayState;\n  digitalWrite(RELAY, relayState);\n  client.publish(\"home/switch1/status\", relayState ? \"ON\" : \"OFF\");\n  server.sendHeader(\"Location\", \"/\");\n  server.send(303);\n}\n\nvoid mqttCallback(char* topic, byte* payload, unsigned int length) {\n  if (payload[0] == '1') {\n    relayState = true;\n  } else {\n    relayState = false;\n  }\n  digitalWrite(RELAY, relayState);\n}\n\nvoid setup() {\n  pinMode(RELAY, OUTPUT);\n  pinMode(BUTTON, INPUT_PULLUP);\n\n  WiFi.begin(\"SSID\", \"PASSWORD\");\n  while (WiFi.status() != WL_CONNECTED) delay(500);\n\n  server.on(\"/\", handleRoot);\n  server.on(\"/toggle\", handleToggle);\n  server.begin();\n\n  client.setServer(\"BROKER_IP\", 1883);\n  client.setCallback(mqttCallback);\n}\n\nvoid loop() {\n  if (!client.connected()) {\n    while (!client.connect(\"SmartSwitch421\")) delay(500);\n    client.subscribe(\"home/switch1/cmd\");\n  }\n\n  client.loop();\n  server.handleClient();\n\n  if (digitalRead(BUTTON) == LOW) {\n    relayState = !relayState;\n    digitalWrite(RELAY, relayState);\n    delay(300);\n  }\n}"
+    },
+
+    "testing_and_output": [
+      "Local web page toggles load instantly",
+      "Cloud MQTT commands reflected locally",
+      "Button override works during Wi-Fi failure",
+      "Relay state remains consistent after reboot"
+    ],
+
+    "common_errors": [
+      "Relay powered from ESP32 3.3V",
+      "No debounce on button",
+      "Blocking Wi-Fi reconnect logic",
+      "Using non-isolated relay for AC loads"
+    ],
+
+    "debugging_strategy": [
+      "Test relay using GPIO only",
+      "Check MQTT messages via broker console",
+      "Use serial logs for state tracing",
+      "Simulate internet failure scenario"
+    ],
+
+    "limitations": [
+      "Single-load control",
+      "No energy monitoring",
+      "Wi-Fi dependency for cloud access"
+    ],
+
+    "improvements": [
+      "Add current sensor (ACS712)",
+      "TLS-secured MQTT",
+      "Mobile app integration",
+      "Multi-relay expansion",
+      "OTA firmware updates"
+    ],
+
+    "mini_challenge": "Add power consumption monitoring and cloud logging.",
+
+    "estimated_cost_india": {
+      "esp32": "₹320",
+      "relay_module": "₹120",
+      "smps_power": "₹180",
+      "push_button_misc": "₹80",
+      "total": "₹700 (approx)"
+    },
+
+    "learning_outcomes": [
+      "Hybrid IoT architecture design",
+      "Local vs cloud control trade-offs",
+      "Safe relay interfacing",
+      "MQTT-based IoT systems"
+    ],
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 422,
+    "title": "Alcohol Detection for Vehicle Ignition",
+    "level": "Advanced (Safety-Critical Embedded Systems)",
+    "category": "Embedded Systems Projects",
+    "estimatedTime": "10–14 Hours",
+
+    "problem_statement": "Drunk driving is a major cause of fatal road accidents. Conventional enforcement relies on manual checks, which are inconsistent and reactive. An embedded alcohol detection system integrated with vehicle ignition can proactively prevent vehicle operation when alcohol levels exceed legal limits.",
+
+    "real_world_use_case": [
+      "Automobile safety systems",
+      "Commercial transport fleets",
+      "School and college buses",
+      "Industrial vehicle safety",
+      "Smart vehicle compliance systems"
+    ],
+
+    "embedded_concept": {
+      "core_topics": [
+        "Gas sensor analog signal processing",
+        "ADC calibration and thresholding",
+        "Safety interlock systems",
+        "Fail-safe embedded design",
+        "Automotive-grade power handling"
+      ],
+      "design_philosophy": "Preventive safety over reactive enforcement"
+    },
+
+    "system_architecture": {
+      "sensing_layer": "Alcohol gas sensor near driver seat",
+      "processing_layer": "Microcontroller evaluates BAC proxy level",
+      "decision_layer": "Ignition enable / disable logic",
+      "actuation_layer": "Relay-based ignition lock",
+      "alert_layer": "Buzzer + LED indication"
+    },
+
+    "hardware": {
+      "microcontroller": "Arduino UNO / ATmega328P",
+      "sensor": "MQ-3 Alcohol Gas Sensor",
+      "actuator": "12V Automotive Relay",
+      "alert": "Buzzer + Status LEDs",
+      "power_supply": "12V Vehicle Battery → Buck Converter (5V)"
+    },
+
+    "working_principle": [
+      "MQ-3 sensor continuously samples breath alcohol concentration",
+      "Analog voltage proportional to alcohol presence generated",
+      "ADC converts sensor output to digital value",
+      "Value compared against calibrated threshold",
+      "If alcohol detected → ignition relay remains OFF",
+      "If safe → ignition relay enabled",
+      "Alert indicators display system state"
+    ],
+
+    "safety_logic": {
+      "startup_check": "Vehicle ignition disabled until sensor stabilizes",
+      "threshold_margin": "Conservative safety margin below legal BAC",
+      "fail_safe": "Sensor failure defaults to ignition lock",
+      "tamper_protection": "Warm-up time prevents bypass attempts"
+    },
+
+    "pin_config": {
+      "arduino_uno": [
+        {
+          "module": "MQ-3 Sensor",
+          "pinName": "AO",
+          "mcuPin": "A0",
+          "voltage": "0–5V (analog)",
+          "direction": "Input",
+          "description": "Alcohol concentration signal"
+        },
+        {
+          "module": "MQ-3 Sensor",
+          "pinName": "VCC",
+          "mcuPin": "5V",
+          "voltage": "5V",
+          "direction": "Power",
+          "description": "Sensor heater and circuit supply"
+        },
+        {
+          "module": "MQ-3 Sensor",
+          "pinName": "GND",
+          "mcuPin": "GND",
+          "voltage": "0V",
+          "direction": "Ground",
+          "description": "Common ground"
+        },
+        {
+          "module": "Ignition Relay",
+          "pinName": "IN",
+          "mcuPin": "D8",
+          "voltage": "5V logic",
+          "direction": "Output",
+          "description": "Controls ignition lock"
+        },
+        {
+          "module": "Buzzer",
+          "pinName": "IN",
+          "mcuPin": "D9",
+          "voltage": "5V",
+          "direction": "Output",
+          "description": "Audible alert for alcohol detection"
+        },
+        {
+          "module": "Status LED (Red)",
+          "pinName": "Anode",
+          "mcuPin": "D10",
+          "voltage": "5V (via resistor)",
+          "direction": "Output",
+          "description": "Alcohol detected indicator"
+        },
+        {
+          "module": "Status LED (Green)",
+          "pinName": "Anode",
+          "mcuPin": "D11",
+          "voltage": "5V (via resistor)",
+          "direction": "Output",
+          "description": "Safe to drive indicator"
+        }
+      ]
+    },
+
+    "electrical_and_automotive_safety": [
+      "Use flyback diode across relay coil",
+      "Buck converter mandatory for stable 5V",
+      "Automotive relay rated for ignition current",
+      "Sensor placed to sample driver's breath only",
+      "No direct battery-to-microcontroller connection"
+    ],
+
+    "software_stack": [
+      "Arduino IDE",
+      "ADC calibration routines",
+      "Non-blocking timing (millis-based)",
+      "EEPROM for threshold storage"
+    ],
+
+    "calibration_procedure": {
+      "warmup_time": "20–30 seconds",
+      "baseline_sampling": "Average of clean air readings",
+      "threshold_setting": "Baseline + safety offset",
+      "validation": "Multiple test runs"
+    },
+
+    "code": {
+      "language": "C++ (Arduino)",
+      "file": "alcohol_lock_422.ino",
+      "content": "#define MQ3 A0\n#define RELAY 8\n#define BUZZER 9\n#define RED_LED 10\n#define GREEN_LED 11\n\nint threshold = 400; // calibrated value\n\nvoid setup() {\n  pinMode(RELAY, OUTPUT);\n  pinMode(BUZZER, OUTPUT);\n  pinMode(RED_LED, OUTPUT);\n  pinMode(GREEN_LED, OUTPUT);\n\n  digitalWrite(RELAY, LOW); // ignition locked by default\n  Serial.begin(9600);\n}\n\nvoid loop() {\n  int sensorValue = analogRead(MQ3);\n  Serial.println(sensorValue);\n\n  if (sensorValue > threshold) {\n    digitalWrite(RELAY, LOW);\n    digitalWrite(BUZZER, HIGH);\n    digitalWrite(RED_LED, HIGH);\n    digitalWrite(GREEN_LED, LOW);\n  } else {\n    digitalWrite(RELAY, HIGH);\n    digitalWrite(BUZZER, LOW);\n    digitalWrite(RED_LED, LOW);\n    digitalWrite(GREEN_LED, HIGH);\n  }\n\n  delay(200);\n}"
+    },
+
+    "testing_and_output": [
+      "Clean breath → ignition enabled",
+      "Alcohol presence → ignition disabled",
+      "Buzzer and red LED alert activated",
+      "Green LED indicates safe condition"
+    ],
+
+    "common_errors": [
+      "Skipping sensor warm-up",
+      "Wrong threshold calibration",
+      "Using non-automotive relay",
+      "Direct battery power to Arduino"
+    ],
+
+    "debugging_strategy": [
+      "Log raw ADC values via Serial Monitor",
+      "Test relay independently",
+      "Validate sensor in controlled environment",
+      "Simulate sensor disconnection"
+    ],
+
+    "limitations": [
+      "Cannot distinguish driver vs passenger breath",
+      "Environmental alcohol vapors may affect readings",
+      "Not a legal BAC measurement device"
+    ],
+
+    "improvements": [
+      "Driver-side breath funnel",
+      "Multi-sensor fusion",
+      "GSM alert to fleet owner",
+      "CAN bus integration",
+      "AI-based breath pattern analysis"
+    ],
+
+    "mini_challenge": "Log alcohol events with timestamp and vehicle ID.",
+
+    "estimated_cost_india": {
+      "arduino_uno": "₹280",
+      "mq3_sensor": "₹180",
+      "automotive_relay": "₹150",
+      "buck_converter": "₹120",
+      "misc_components": "₹120",
+      "total": "₹850 (approx)"
+    },
+
+    "learning_outcomes": [
+      "Designing safety interlock systems",
+      "Sensor calibration techniques",
+      "Automotive embedded constraints",
+      "Fail-safe embedded logic"
+    ],
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 423,
+    "title": "Fire Detection and GSM Emergency Alert System",
+    "level": "Advanced (Industrial Embedded Safety System)",
+    "category": "Embedded Systems Projects",
+    "estimatedTime": "12–16 Hours",
+
+    "problem_statement": "Conventional fire alarms provide only local alerts and fail when no one is present. Industrial and residential environments require automatic remote alerting to emergency contacts to minimize response time and property loss.",
+
+    "real_world_use_case": [
+      "Industrial plants",
+      "Warehouses",
+      "Residential apartments",
+      "Server rooms",
+      "Schools and hospitals"
+    ],
+
+    "embedded_concept": {
+      "core_topics": [
+        "Multi-sensor fire detection",
+        "Analog + digital sensor fusion",
+        "GSM communication (AT commands)",
+        "Interrupt-driven alert systems",
+        "Fail-safe embedded design"
+      ],
+      "design_philosophy": "Early detection + guaranteed notification"
+    },
+
+    "system_architecture": {
+      "sensing_layer": "Flame + Smoke + Temperature sensors",
+      "processing_layer": "Microcontroller decision logic",
+      "communication_layer": "GSM SMS alert",
+      "actuation_layer": "Buzzer + Relay (sprinkler/exhaust)",
+      "power_layer": "Isolated regulated supply"
+    },
+
+    "hardware": {
+      "microcontroller": "Arduino UNO / ATmega328P",
+      "flame_sensor": "IR Flame Sensor Module",
+      "smoke_sensor": "MQ-2 Gas/Smoke Sensor",
+      "temperature_sensor": "LM35",
+      "communication": "SIM800L GSM Module",
+      "actuators": [
+        "Buzzer",
+        "Relay Module (Exhaust / Sprinkler)"
+      ],
+      "power_supply": "12V Adapter → Buck Converter (5V & 4V)"
+    },
+
+    "working_principle": [
+      "Flame sensor detects IR radiation from fire",
+      "Smoke sensor detects combustible gases",
+      "Temperature sensor monitors ambient heat rise",
+      "Microcontroller evaluates sensor fusion logic",
+      "If fire confirmed → buzzer activates",
+      "Relay triggers exhaust or sprinkler",
+      "GSM module sends SMS alert to registered numbers"
+    ],
+
+    "fire_detection_logic": {
+      "multi_sensor_validation": "At least 2 sensors must trigger",
+      "false_alarm_reduction": "Temperature + smoke correlation",
+      "priority_override": "Flame sensor triggers immediate alert",
+      "retry_logic": "SMS resent if GSM fails"
+    },
+
+    "pin_config": {
+      "arduino_uno": [
+        {
+          "module": "Flame Sensor",
+          "pinName": "DO",
+          "mcuPin": "D2",
+          "voltage": "5V logic",
+          "direction": "Input",
+          "description": "Digital flame detection signal"
+        },
+        {
+          "module": "Smoke Sensor (MQ-2)",
+          "pinName": "AO",
+          "mcuPin": "A0",
+          "voltage": "0–5V (analog)",
+          "direction": "Input",
+          "description": "Smoke concentration level"
+        },
+        {
+          "module": "Temperature Sensor (LM35)",
+          "pinName": "Vout",
+          "mcuPin": "A1",
+          "voltage": "0–1.5V",
+          "direction": "Input",
+          "description": "Ambient temperature measurement"
+        },
+        {
+          "module": "GSM Module (SIM800L)",
+          "pinName": "TX",
+          "mcuPin": "D10",
+          "voltage": "2.8–3V logic",
+          "direction": "Input",
+          "description": "GSM data to MCU"
+        },
+        {
+          "module": "GSM Module (SIM800L)",
+          "pinName": "RX",
+          "mcuPin": "D11",
+          "voltage": "2.8–3V logic",
+          "direction": "Output",
+          "description": "MCU commands to GSM"
+        },
+        {
+          "module": "Relay Module",
+          "pinName": "IN",
+          "mcuPin": "D8",
+          "voltage": "5V logic",
+          "direction": "Output",
+          "description": "Controls exhaust fan / sprinkler"
+        },
+        {
+          "module": "Buzzer",
+          "pinName": "IN",
+          "mcuPin": "D9",
+          "voltage": "5V",
+          "direction": "Output",
+          "description": "Local audible fire alarm"
+        }
+      ]
+    },
+
+    "power_and_safety_design": [
+      "SIM800L powered via separate 4V buck converter",
+      "Common ground mandatory across modules",
+      "Relay isolation using optocoupler",
+      "TVS diode recommended for surge protection",
+      "No USB power for GSM operation"
+    ],
+
+    "software_stack": [
+      "Arduino IDE",
+      "SoftwareSerial",
+      "AT command handling",
+      "Non-blocking timing (millis)"
+    ],
+
+    "gsm_alert_flow": [
+      "Initialize GSM network",
+      "Check SIM registration",
+      "Set SMS text mode",
+      "Send alert message",
+      "Verify delivery response"
+    ],
+
+    "code": {
+      "language": "C++ (Arduino)",
+      "file": "fire_gsm_423.ino",
+      "content": "#include <SoftwareSerial.h>\n\nSoftwareSerial gsm(10, 11);\n\n#define FLAME 2\n#define SMOKE A0\n#define TEMP A1\n#define RELAY 8\n#define BUZZER 9\n\nint smokeThreshold = 350;\nint tempThreshold = 60; // Celsius\n\nvoid sendSMS() {\n  gsm.println(\"AT+CMGF=1\");\n  delay(1000);\n  gsm.println(\"AT+CMGS=\\\"+91XXXXXXXXXX\\\"\");\n  delay(1000);\n  gsm.print(\"FIRE ALERT! Immediate action required.\");\n  gsm.write(26);\n}\n\nvoid setup() {\n  pinMode(FLAME, INPUT);\n  pinMode(RELAY, OUTPUT);\n  pinMode(BUZZER, OUTPUT);\n\n  digitalWrite(RELAY, LOW);\n  digitalWrite(BUZZER, LOW);\n\n  gsm.begin(9600);\n  Serial.begin(9600);\n}\n\nvoid loop() {\n  int flame = digitalRead(FLAME);\n  int smoke = analogRead(SMOKE);\n  float temp = analogRead(TEMP) * 0.488;\n\n  if (flame == LOW || (smoke > smokeThreshold && temp > tempThreshold)) {\n    digitalWrite(BUZZER, HIGH);\n    digitalWrite(RELAY, HIGH);\n    sendSMS();\n    delay(10000);\n  }\n}"
+    },
+
+    "testing_and_output": [
+      "Flame detected → instant alarm + SMS",
+      "Smoke + temperature rise → alarm after validation",
+      "Relay activates exhaust/sprinkler",
+      "SMS received on registered phone"
+    ],
+
+    "common_errors": [
+      "Powering GSM from Arduino 5V",
+      "Ignoring GSM current spikes",
+      "Improper sensor threshold calibration",
+      "Single-sensor fire detection"
+    ],
+
+    "debugging_strategy": [
+      "Test GSM AT commands independently",
+      "Log sensor values via Serial Monitor",
+      "Simulate fire using controlled source",
+      "Test SMS delivery with weak signal"
+    ],
+
+    "limitations": [
+      "SMS delivery depends on network availability",
+      "Not a certified fire safety product",
+      "Sensor aging affects accuracy"
+    ],
+
+    "improvements": [
+      "IoT cloud logging",
+      "Battery backup",
+      "CAN/RS485 industrial interface",
+      "Mobile app integration",
+      "AI-based fire classification"
+    ],
+
+    "mini_challenge": "Add automatic fire brigade alert with GPS location.",
+
+    "estimated_cost_india": {
+      "arduino_uno": "₹280",
+      "mq2_sensor": "₹150",
+      "flame_sensor": "₹120",
+      "lm35": "₹90",
+      "sim800l": "₹350",
+      "relay_module": "₹120",
+      "power_components": "₹200",
+      "total": "₹1,310 (approx)"
+    },
+
+    "learning_outcomes": [
+      "Designing emergency embedded systems",
+      "GSM communication handling",
+      "Sensor fusion logic",
+      "Industrial safety practices"
+    ],
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 423,
+    "title": "Fire Detection and GSM Emergency Alert System",
+    "level": "Advanced (Industrial Embedded Safety System)",
+    "category": "Embedded Systems Projects",
+    "estimatedTime": "12–16 Hours",
+
+    "problem_statement": "Conventional fire alarms provide only local alerts and fail when no one is present. Industrial and residential environments require automatic remote alerting to emergency contacts to minimize response time and property loss.",
+
+    "real_world_use_case": [
+      "Industrial plants",
+      "Warehouses",
+      "Residential apartments",
+      "Server rooms",
+      "Schools and hospitals"
+    ],
+
+    "embedded_concept": {
+      "core_topics": [
+        "Multi-sensor fire detection",
+        "Analog + digital sensor fusion",
+        "GSM communication (AT commands)",
+        "Interrupt-driven alert systems",
+        "Fail-safe embedded design"
+      ],
+      "design_philosophy": "Early detection + guaranteed notification"
+    },
+
+    "system_architecture": {
+      "sensing_layer": "Flame + Smoke + Temperature sensors",
+      "processing_layer": "Microcontroller decision logic",
+      "communication_layer": "GSM SMS alert",
+      "actuation_layer": "Buzzer + Relay (sprinkler/exhaust)",
+      "power_layer": "Isolated regulated supply"
+    },
+
+    "hardware": {
+      "microcontroller": "Arduino UNO / ATmega328P",
+      "flame_sensor": "IR Flame Sensor Module",
+      "smoke_sensor": "MQ-2 Gas/Smoke Sensor",
+      "temperature_sensor": "LM35",
+      "communication": "SIM800L GSM Module",
+      "actuators": [
+        "Buzzer",
+        "Relay Module (Exhaust / Sprinkler)"
+      ],
+      "power_supply": "12V Adapter → Buck Converter (5V & 4V)"
+    },
+
+    "working_principle": [
+      "Flame sensor detects IR radiation from fire",
+      "Smoke sensor detects combustible gases",
+      "Temperature sensor monitors ambient heat rise",
+      "Microcontroller evaluates sensor fusion logic",
+      "If fire confirmed → buzzer activates",
+      "Relay triggers exhaust or sprinkler",
+      "GSM module sends SMS alert to registered numbers"
+    ],
+
+    "fire_detection_logic": {
+      "multi_sensor_validation": "At least 2 sensors must trigger",
+      "false_alarm_reduction": "Temperature + smoke correlation",
+      "priority_override": "Flame sensor triggers immediate alert",
+      "retry_logic": "SMS resent if GSM fails"
+    },
+
+    "pin_config": {
+      "arduino_uno": [
+        {
+          "module": "Flame Sensor",
+          "pinName": "DO",
+          "mcuPin": "D2",
+          "voltage": "5V logic",
+          "direction": "Input",
+          "description": "Digital flame detection signal"
+        },
+        {
+          "module": "Smoke Sensor (MQ-2)",
+          "pinName": "AO",
+          "mcuPin": "A0",
+          "voltage": "0–5V (analog)",
+          "direction": "Input",
+          "description": "Smoke concentration level"
+        },
+        {
+          "module": "Temperature Sensor (LM35)",
+          "pinName": "Vout",
+          "mcuPin": "A1",
+          "voltage": "0–1.5V",
+          "direction": "Input",
+          "description": "Ambient temperature measurement"
+        },
+        {
+          "module": "GSM Module (SIM800L)",
+          "pinName": "TX",
+          "mcuPin": "D10",
+          "voltage": "2.8–3V logic",
+          "direction": "Input",
+          "description": "GSM data to MCU"
+        },
+        {
+          "module": "GSM Module (SIM800L)",
+          "pinName": "RX",
+          "mcuPin": "D11",
+          "voltage": "2.8–3V logic",
+          "direction": "Output",
+          "description": "MCU commands to GSM"
+        },
+        {
+          "module": "Relay Module",
+          "pinName": "IN",
+          "mcuPin": "D8",
+          "voltage": "5V logic",
+          "direction": "Output",
+          "description": "Controls exhaust fan / sprinkler"
+        },
+        {
+          "module": "Buzzer",
+          "pinName": "IN",
+          "mcuPin": "D9",
+          "voltage": "5V",
+          "direction": "Output",
+          "description": "Local audible fire alarm"
+        }
+      ]
+    },
+
+    "power_and_safety_design": [
+      "SIM800L powered via separate 4V buck converter",
+      "Common ground mandatory across modules",
+      "Relay isolation using optocoupler",
+      "TVS diode recommended for surge protection",
+      "No USB power for GSM operation"
+    ],
+
+    "software_stack": [
+      "Arduino IDE",
+      "SoftwareSerial",
+      "AT command handling",
+      "Non-blocking timing (millis)"
+    ],
+
+    "gsm_alert_flow": [
+      "Initialize GSM network",
+      "Check SIM registration",
+      "Set SMS text mode",
+      "Send alert message",
+      "Verify delivery response"
+    ],
+
+    "code": {
+      "language": "C++ (Arduino)",
+      "file": "fire_gsm_423.ino",
+      "content": "#include <SoftwareSerial.h>\n\nSoftwareSerial gsm(10, 11);\n\n#define FLAME 2\n#define SMOKE A0\n#define TEMP A1\n#define RELAY 8\n#define BUZZER 9\n\nint smokeThreshold = 350;\nint tempThreshold = 60; // Celsius\n\nvoid sendSMS() {\n  gsm.println(\"AT+CMGF=1\");\n  delay(1000);\n  gsm.println(\"AT+CMGS=\\\"+91XXXXXXXXXX\\\"\");\n  delay(1000);\n  gsm.print(\"FIRE ALERT! Immediate action required.\");\n  gsm.write(26);\n}\n\nvoid setup() {\n  pinMode(FLAME, INPUT);\n  pinMode(RELAY, OUTPUT);\n  pinMode(BUZZER, OUTPUT);\n\n  digitalWrite(RELAY, LOW);\n  digitalWrite(BUZZER, LOW);\n\n  gsm.begin(9600);\n  Serial.begin(9600);\n}\n\nvoid loop() {\n  int flame = digitalRead(FLAME);\n  int smoke = analogRead(SMOKE);\n  float temp = analogRead(TEMP) * 0.488;\n\n  if (flame == LOW || (smoke > smokeThreshold && temp > tempThreshold)) {\n    digitalWrite(BUZZER, HIGH);\n    digitalWrite(RELAY, HIGH);\n    sendSMS();\n    delay(10000);\n  }\n}"
+    },
+
+    "testing_and_output": [
+      "Flame detected → instant alarm + SMS",
+      "Smoke + temperature rise → alarm after validation",
+      "Relay activates exhaust/sprinkler",
+      "SMS received on registered phone"
+    ],
+
+    "common_errors": [
+      "Powering GSM from Arduino 5V",
+      "Ignoring GSM current spikes",
+      "Improper sensor threshold calibration",
+      "Single-sensor fire detection"
+    ],
+
+    "debugging_strategy": [
+      "Test GSM AT commands independently",
+      "Log sensor values via Serial Monitor",
+      "Simulate fire using controlled source",
+      "Test SMS delivery with weak signal"
+    ],
+
+    "limitations": [
+      "SMS delivery depends on network availability",
+      "Not a certified fire safety product",
+      "Sensor aging affects accuracy"
+    ],
+
+    "improvements": [
+      "IoT cloud logging",
+      "Battery backup",
+      "CAN/RS485 industrial interface",
+      "Mobile app integration",
+      "AI-based fire classification"
+    ],
+
+    "mini_challenge": "Add automatic fire brigade alert with GPS location.",
+
+    "estimated_cost_india": {
+      "arduino_uno": "₹280",
+      "mq2_sensor": "₹150",
+      "flame_sensor": "₹120",
+      "lm35": "₹90",
+      "sim800l": "₹350",
+      "relay_module": "₹120",
+      "power_components": "₹200",
+      "total": "₹1,310 (approx)"
+    },
+
+    "learning_outcomes": [
+      "Designing emergency embedded systems",
+      "GSM communication handling",
+      "Sensor fusion logic",
+      "Industrial safety practices"
+    ],
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 425,
+    "title": "Smart Elevator Control System using 8051",
+    "level": "Advanced (Embedded Control & Safety Systems)",
+    "category": "Embedded Systems Projects",
+    "estimatedTime": "14–18 Hours",
+
+    "problem_statement": "Elevator systems require precise sequencing, safety interlocks, and reliable control. Manual relay-based systems lack flexibility and diagnostics. An 8051-based smart elevator controller provides deterministic operation, floor management, and safety handling at low cost.",
+
+    "real_world_use_case": [
+      "Residential apartment elevators",
+      "College and hospital lifts",
+      "Industrial material lifts",
+      "Embedded control training systems"
+    ],
+
+    "embedded_concept": {
+      "core_topics": [
+        "8051 microcontroller architecture",
+        "Finite State Machine (FSM)",
+        "Motor direction and braking control",
+        "Safety interlock logic",
+        "Interrupt-driven floor sensing"
+      ],
+      "design_philosophy": "Fail-safe vertical transport control"
+    },
+
+    "system_architecture": {
+      "input_layer": "Floor request buttons + limit switches",
+      "processing_layer": "8051 control logic",
+      "output_layer": "Motor driver + door actuator",
+      "feedback_layer": "Floor sensors and door status",
+      "safety_layer": "Overtravel + door lock protection"
+    },
+
+    "hardware": {
+      "microcontroller": "AT89S52 (8051 Family)",
+      "input_devices": [
+        "Floor Call Buttons",
+        "Cabin Floor Buttons",
+        "Limit Switches (Top & Bottom)",
+        "Door Closed Sensor"
+      ],
+      "output_devices": [
+        "DC Motor / Gear Motor",
+        "Relay-based Motor Driver",
+        "Door Motor / Solenoid",
+        "Floor Indicator LEDs / 7-Segment"
+      ],
+      "power_supply": "230V AC → SMPS (12V & 5V)",
+      "driver_stage": "Relay Module / L293D (logic only)"
+    },
+
+    "working_principle": [
+      "User presses floor request button",
+      "Controller registers target floor",
+      "Motor direction decided (UP/DOWN)",
+      "Motor runs until floor sensor triggers",
+      "Motor stops and brake applied",
+      "Door unlocks and opens",
+      "After timeout, door closes",
+      "System returns to IDLE state"
+    ],
+
+    "elevator_control_logic": {
+      "control_model": "Finite State Machine",
+      "states": [
+        "IDLE",
+        "MOVING_UP",
+        "MOVING_DOWN",
+        "DOOR_OPEN",
+        "DOOR_CLOSE",
+        "EMERGENCY_STOP"
+      ],
+      "priority_rules": [
+        "Complete current direction before reversing",
+        "Ignore new requests during motion",
+        "Emergency stop overrides all states"
+      ]
+    },
+
+    "pin_config": {
+      "at89s52": [
+        {
+          "module": "Floor Button (F1)",
+          "pinName": "Signal",
+          "mcuPin": "P1.0",
+          "voltage": "5V logic",
+          "direction": "Input",
+          "description": "Floor 1 request"
+        },
+        {
+          "module": "Floor Button (F2)",
+          "pinName": "Signal",
+          "mcuPin": "P1.1",
+          "voltage": "5V logic",
+          "direction": "Input",
+          "description": "Floor 2 request"
+        },
+        {
+          "module": "Limit Switch (Top)",
+          "pinName": "NC",
+          "mcuPin": "P1.6",
+          "voltage": "5V logic",
+          "direction": "Input",
+          "description": "Overtravel protection (top)"
+        },
+        {
+          "module": "Limit Switch (Bottom)",
+          "pinName": "NC",
+          "mcuPin": "P1.7",
+          "voltage": "5V logic",
+          "direction": "Input",
+          "description": "Overtravel protection (bottom)"
+        },
+        {
+          "module": "Motor Relay UP",
+          "pinName": "IN",
+          "mcuPin": "P2.0",
+          "voltage": "5V",
+          "direction": "Output",
+          "description": "Controls upward motion"
+        },
+        {
+          "module": "Motor Relay DOWN",
+          "pinName": "IN",
+          "mcuPin": "P2.1",
+          "voltage": "5V",
+          "direction": "Output",
+          "description": "Controls downward motion"
+        },
+        {
+          "module": "Door Motor",
+          "pinName": "IN",
+          "mcuPin": "P2.2",
+          "voltage": "5V",
+          "direction": "Output",
+          "description": "Door open/close control"
+        },
+        {
+          "module": "Buzzer",
+          "pinName": "IN",
+          "mcuPin": "P2.3",
+          "voltage": "5V",
+          "direction": "Output",
+          "description": "Emergency alert"
+        }
+      ]
+    },
+
+    "safety_and_protection": [
+      "Limit switches wired in series with motor",
+      "Door lock prevents motion when open",
+      "Emergency stop cuts motor supply",
+      "Motor brake engaged on power loss",
+      "Watchdog reset on software hang"
+    ],
+
+    "software_stack": [
+      "Keil µVision IDE",
+      "Embedded C for 8051",
+      "Timer interrupts",
+      "Polling + interrupt hybrid logic"
+    ],
+
+    "firmware_design": {
+      "timers": "Timer0 for delays",
+      "interrupts": "External interrupt for emergency stop",
+      "debouncing": "Software debounce for buttons"
+    },
+
+    "code": {
+      "language": "Embedded C (8051)",
+      "file": "elevator_425.c",
+      "content": "#include <reg52.h>\n\nsbit UP = P2^0;\nsbit DOWN = P2^1;\nsbit DOOR = P2^2;\n\nvoid delay(unsigned int t) {\n  unsigned int i, j;\n  for (i = 0; i < t; i++)\n    for (j = 0; j < 1275; j++);\n}\n\nvoid main() {\n  UP = 0; DOWN = 0; DOOR = 0;\n\n  while (1) {\n    if (P1^0 == 0) { // Floor 1 request\n      DOWN = 1; UP = 0;\n      delay(3000);\n      DOWN = 0;\n      DOOR = 1;\n      delay(2000);\n      DOOR = 0;\n    }\n    if (P1^1 == 0) { // Floor 2 request\n      UP = 1; DOWN = 0;\n      delay(3000);\n      UP = 0;\n      DOOR = 1;\n      delay(2000);\n      DOOR = 0;\n    }\n  }\n}"
+    },
+
+    "testing_and_output": [
+      "Correct floor movement on button press",
+      "Door opens only when stopped",
+      "Limit switch stops overtravel",
+      "Emergency stop halts system immediately"
+    ],
+
+    "common_errors": [
+      "No door interlock logic",
+      "Using delays instead of FSM",
+      "Motor driven directly from MCU",
+      "Skipping limit switches"
+    ],
+
+    "debugging_strategy": [
+      "Test motor direction without load",
+      "Verify each input independently",
+      "Simulate fault conditions",
+      "Monitor relay outputs with LEDs"
+    ],
+
+    "limitations": [
+      "Single-elevator logic only",
+      "No load sensing",
+      "No destination queue optimization"
+    ],
+
+    "improvements": [
+      "Multi-floor queue management",
+      "Load sensor integration",
+      "Voice floor announcement",
+      "CAN-based group control",
+      "Touchscreen HMI"
+    ],
+
+    "mini_challenge": "Implement priority floor logic for emergencies.",
+
+    "estimated_cost_india": {
+      "at89s52": "₹180",
+      "relay_module": "₹200",
+      "dc_motor": "₹250",
+      "limit_switches": "₹120",
+      "power_supply": "₹300",
+      "misc_components": "₹150",
+      "total": "₹1,200 (approx)"
+    },
+
+    "learning_outcomes": [
+      "8051 real-world control systems",
+      "State-machine based design",
+      "Safety interlock implementation",
+      "Electromechanical system integration"
+    ],
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 425,
+    "title": "Smart Elevator Control System using 8051",
+    "level": "Advanced (Embedded Control & Safety Systems)",
+    "category": "Embedded Systems Projects",
+    "estimatedTime": "14–18 Hours",
+
+    "problem_statement": "Elevator systems require precise sequencing, safety interlocks, and reliable control. Manual relay-based systems lack flexibility and diagnostics. An 8051-based smart elevator controller provides deterministic operation, floor management, and safety handling at low cost.",
+
+    "real_world_use_case": [
+      "Residential apartment elevators",
+      "College and hospital lifts",
+      "Industrial material lifts",
+      "Embedded control training systems"
+    ],
+
+    "embedded_concept": {
+      "core_topics": [
+        "8051 microcontroller architecture",
+        "Finite State Machine (FSM)",
+        "Motor direction and braking control",
+        "Safety interlock logic",
+        "Interrupt-driven floor sensing"
+      ],
+      "design_philosophy": "Fail-safe vertical transport control"
+    },
+
+    "system_architecture": {
+      "input_layer": "Floor request buttons + limit switches",
+      "processing_layer": "8051 control logic",
+      "output_layer": "Motor driver + door actuator",
+      "feedback_layer": "Floor sensors and door status",
+      "safety_layer": "Overtravel + door lock protection"
+    },
+
+    "hardware": {
+      "microcontroller": "AT89S52 (8051 Family)",
+      "input_devices": [
+        "Floor Call Buttons",
+        "Cabin Floor Buttons",
+        "Limit Switches (Top & Bottom)",
+        "Door Closed Sensor"
+      ],
+      "output_devices": [
+        "DC Motor / Gear Motor",
+        "Relay-based Motor Driver",
+        "Door Motor / Solenoid",
+        "Floor Indicator LEDs / 7-Segment"
+      ],
+      "power_supply": "230V AC → SMPS (12V & 5V)",
+      "driver_stage": "Relay Module / L293D (logic only)"
+    },
+
+    "working_principle": [
+      "User presses floor request button",
+      "Controller registers target floor",
+      "Motor direction decided (UP/DOWN)",
+      "Motor runs until floor sensor triggers",
+      "Motor stops and brake applied",
+      "Door unlocks and opens",
+      "After timeout, door closes",
+      "System returns to IDLE state"
+    ],
+
+    "elevator_control_logic": {
+      "control_model": "Finite State Machine",
+      "states": [
+        "IDLE",
+        "MOVING_UP",
+        "MOVING_DOWN",
+        "DOOR_OPEN",
+        "DOOR_CLOSE",
+        "EMERGENCY_STOP"
+      ],
+      "priority_rules": [
+        "Complete current direction before reversing",
+        "Ignore new requests during motion",
+        "Emergency stop overrides all states"
+      ]
+    },
+
+    "pin_config": {
+      "at89s52": [
+        {
+          "module": "Floor Button (F1)",
+          "pinName": "Signal",
+          "mcuPin": "P1.0",
+          "voltage": "5V logic",
+          "direction": "Input",
+          "description": "Floor 1 request"
+        },
+        {
+          "module": "Floor Button (F2)",
+          "pinName": "Signal",
+          "mcuPin": "P1.1",
+          "voltage": "5V logic",
+          "direction": "Input",
+          "description": "Floor 2 request"
+        },
+        {
+          "module": "Limit Switch (Top)",
+          "pinName": "NC",
+          "mcuPin": "P1.6",
+          "voltage": "5V logic",
+          "direction": "Input",
+          "description": "Overtravel protection (top)"
+        },
+        {
+          "module": "Limit Switch (Bottom)",
+          "pinName": "NC",
+          "mcuPin": "P1.7",
+          "voltage": "5V logic",
+          "direction": "Input",
+          "description": "Overtravel protection (bottom)"
+        },
+        {
+          "module": "Motor Relay UP",
+          "pinName": "IN",
+          "mcuPin": "P2.0",
+          "voltage": "5V",
+          "direction": "Output",
+          "description": "Controls upward motion"
+        },
+        {
+          "module": "Motor Relay DOWN",
+          "pinName": "IN",
+          "mcuPin": "P2.1",
+          "voltage": "5V",
+          "direction": "Output",
+          "description": "Controls downward motion"
+        },
+        {
+          "module": "Door Motor",
+          "pinName": "IN",
+          "mcuPin": "P2.2",
+          "voltage": "5V",
+          "direction": "Output",
+          "description": "Door open/close control"
+        },
+        {
+          "module": "Buzzer",
+          "pinName": "IN",
+          "mcuPin": "P2.3",
+          "voltage": "5V",
+          "direction": "Output",
+          "description": "Emergency alert"
+        }
+      ]
+    },
+
+    "safety_and_protection": [
+      "Limit switches wired in series with motor",
+      "Door lock prevents motion when open",
+      "Emergency stop cuts motor supply",
+      "Motor brake engaged on power loss",
+      "Watchdog reset on software hang"
+    ],
+
+    "software_stack": [
+      "Keil µVision IDE",
+      "Embedded C for 8051",
+      "Timer interrupts",
+      "Polling + interrupt hybrid logic"
+    ],
+
+    "firmware_design": {
+      "timers": "Timer0 for delays",
+      "interrupts": "External interrupt for emergency stop",
+      "debouncing": "Software debounce for buttons"
+    },
+
+    "code": {
+      "language": "Embedded C (8051)",
+      "file": "elevator_425.c",
+      "content": "#include <reg52.h>\n\nsbit UP = P2^0;\nsbit DOWN = P2^1;\nsbit DOOR = P2^2;\n\nvoid delay(unsigned int t) {\n  unsigned int i, j;\n  for (i = 0; i < t; i++)\n    for (j = 0; j < 1275; j++);\n}\n\nvoid main() {\n  UP = 0; DOWN = 0; DOOR = 0;\n\n  while (1) {\n    if (P1^0 == 0) { // Floor 1 request\n      DOWN = 1; UP = 0;\n      delay(3000);\n      DOWN = 0;\n      DOOR = 1;\n      delay(2000);\n      DOOR = 0;\n    }\n    if (P1^1 == 0) { // Floor 2 request\n      UP = 1; DOWN = 0;\n      delay(3000);\n      UP = 0;\n      DOOR = 1;\n      delay(2000);\n      DOOR = 0;\n    }\n  }\n}"
+    },
+
+    "testing_and_output": [
+      "Correct floor movement on button press",
+      "Door opens only when stopped",
+      "Limit switch stops overtravel",
+      "Emergency stop halts system immediately"
+    ],
+
+    "common_errors": [
+      "No door interlock logic",
+      "Using delays instead of FSM",
+      "Motor driven directly from MCU",
+      "Skipping limit switches"
+    ],
+
+    "debugging_strategy": [
+      "Test motor direction without load",
+      "Verify each input independently",
+      "Simulate fault conditions",
+      "Monitor relay outputs with LEDs"
+    ],
+
+    "limitations": [
+      "Single-elevator logic only",
+      "No load sensing",
+      "No destination queue optimization"
+    ],
+
+    "improvements": [
+      "Multi-floor queue management",
+      "Load sensor integration",
+      "Voice floor announcement",
+      "CAN-based group control",
+      "Touchscreen HMI"
+    ],
+
+    "mini_challenge": "Implement priority floor logic for emergencies.",
+
+    "estimated_cost_india": {
+      "at89s52": "₹180",
+      "relay_module": "₹200",
+      "dc_motor": "₹250",
+      "limit_switches": "₹120",
+      "power_supply": "₹300",
+      "misc_components": "₹150",
+      "total": "₹1,200 (approx)"
+    },
+
+    "learning_outcomes": [
+      "8051 real-world control systems",
+      "State-machine based design",
+      "Safety interlock implementation",
+      "Electromechanical system integration"
+    ],
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 426,
+    "title": "Embedded System for Drone Control",
+    "level": "Advanced (Real-Time Embedded Control Systems)",
+    "category": "Embedded Systems Projects",
+    "estimatedTime": "18–24 Hours",
+
+    "problem_statement": "Stable drone flight requires continuous real-time control, sensor fusion, and precise motor actuation. Manual RC-only systems lack autonomy and stability. An embedded flight controller enables closed-loop stabilization and safe aerial operation.",
+
+    "real_world_use_case": [
+      "Aerial photography drones",
+      "Agricultural monitoring drones",
+      "Surveillance UAVs",
+      "Research and academic flight platforms"
+    ],
+
+    "embedded_concept": {
+      "core_topics": [
+        "Real-time control systems",
+        "IMU sensor fusion",
+        "PID control loops",
+        "PWM motor control",
+        "Interrupt-driven timing",
+        "Failsafe embedded design"
+      ],
+      "design_philosophy": "High-frequency control + deterministic timing"
+    },
+
+    "system_architecture": {
+      "sensing_layer": "IMU (accelerometer + gyroscope)",
+      "control_layer": "Embedded flight controller",
+      "actuation_layer": "ESC-driven BLDC motors",
+      "input_layer": "RC receiver / command interface",
+      "safety_layer": "Arming logic + failsafe shutdown"
+    },
+
+    "hardware": {
+      "microcontroller": "STM32F405 / STM32F103 (ARM Cortex-M)",
+      "imu_sensor": "MPU6050 (Accel + Gyro)",
+      "motors": "BLDC Motors (4x)",
+      "motor_drivers": "Electronic Speed Controllers (ESC)",
+      "frame": "Quadcopter Frame",
+      "power": "Li-Po Battery (3S / 4S)",
+      "regulation": "5V BEC / Buck Converter"
+    },
+
+    "working_principle": [
+      "IMU continuously measures angular velocity and acceleration",
+      "Sensor fusion estimates roll, pitch, and yaw",
+      "PID controller computes correction values",
+      "PWM signals sent to ESCs",
+      "ESCs regulate motor speed",
+      "Drone maintains stable flight",
+      "Failsafe shuts motors on signal loss"
+    ],
+
+    "flight_control_logic": {
+      "control_loop_frequency": "200–500 Hz",
+      "control_axes": ["Roll", "Pitch", "Yaw"],
+      "control_method": "PID (Proportional–Integral–Derivative)",
+      "sensor_fusion": "Complementary Filter"
+    },
+
+    "pin_config": {
+      "stm32": [
+        {
+          "module": "MPU6050",
+          "pinName": "SDA",
+          "mcuPin": "PB7",
+          "voltage": "3.3V",
+          "direction": "I2C",
+          "description": "IMU data line"
+        },
+        {
+          "module": "MPU6050",
+          "pinName": "SCL",
+          "mcuPin": "PB6",
+          "voltage": "3.3V",
+          "direction": "I2C",
+          "description": "IMU clock line"
+        },
+        {
+          "module": "ESC Motor 1",
+          "pinName": "Signal",
+          "mcuPin": "PA8",
+          "voltage": "3.3V PWM",
+          "direction": "Output",
+          "description": "Front-left motor control"
+        },
+        {
+          "module": "ESC Motor 2",
+          "pinName": "Signal",
+          "mcuPin": "PA9",
+          "voltage": "3.3V PWM",
+          "direction": "Output",
+          "description": "Front-right motor control"
+        },
+        {
+          "module": "ESC Motor 3",
+          "pinName": "Signal",
+          "mcuPin": "PA10",
+          "voltage": "3.3V PWM",
+          "direction": "Output",
+          "description": "Rear-right motor control"
+        },
+        {
+          "module": "ESC Motor 4",
+          "pinName": "Signal",
+          "mcuPin": "PA11",
+          "voltage": "3.3V PWM",
+          "direction": "Output",
+          "description": "Rear-left motor control"
+        }
+      ]
+    },
+
+    "electrical_and_flight_safety": [
+      "Separate power for motors and controller",
+      "ESC calibration before flight",
+      "Propellers removed during testing",
+      "Failsafe motor cutoff on sensor failure",
+      "Battery low-voltage protection"
+    ],
+
+    "software_stack": [
+      "STM32CubeIDE",
+      "HAL / Bare-metal C",
+      "I2C driver",
+      "Timer-based PWM",
+      "Real-time loop scheduler"
+    ],
+
+    "firmware_design": {
+      "loop_structure": [
+        "IMU read",
+        "Sensor fusion",
+        "PID computation",
+        "Motor output update"
+      ],
+      "timing_source": "Hardware timer interrupt",
+      "failsafe": "Watchdog + signal timeout"
+    },
+
+    "code": {
+      "language": "C (STM32 HAL)",
+      "file": "drone_controller_426.c",
+      "content": "// Simplified flight control loop (conceptual)\n\nvoid controlLoop() {\n  readIMU();\n  computeOrientation();\n  computePID();\n  updateMotors();\n}\n\nint main(void) {\n  initHardware();\n  while (1) {\n    controlLoop();\n  }\n}"
+    },
+
+    "testing_and_output": [
+      "Stable hover achieved",
+      "Roll and pitch corrections visible",
+      "Motor response proportional to tilt",
+      "Failsafe motor cutoff works"
+    ],
+
+    "common_errors": [
+      "Wrong motor orientation",
+      "Incorrect PID tuning",
+      "No vibration isolation",
+      "Power noise affecting IMU"
+    ],
+
+    "debugging_strategy": [
+      "Test IMU output via serial",
+      "Tune PID one axis at a time",
+      "Use props-off testing",
+      "Log control values"
+    ],
+
+    "limitations": [
+      "No GPS navigation",
+      "Manual PID tuning required",
+      "Limited autonomy"
+    ],
+
+    "improvements": [
+      "GPS waypoint navigation",
+      "Kalman filter sensor fusion",
+      "Autonomous flight modes",
+      "Telemetry via RF module",
+      "Obstacle avoidance"
+    ],
+
+    "mini_challenge": "Achieve stable hover for 60 seconds without drift.",
+
+    "estimated_cost_india": {
+      "stm32_controller": "₹450",
+      "mpu6050": "₹180",
+      "esc_30a": "₹1,200",
+      "bldc_motors": "₹1,600",
+      "frame": "₹800",
+      "battery": "₹1,200",
+      "misc_components": "₹400",
+      "total": "₹5,800 (approx)"
+    },
+
+    "learning_outcomes": [
+      "Real-time embedded control",
+      "PID tuning techniques",
+      "IMU sensor fusion",
+      "Aerial robotics fundamentals"
+    ],
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 427,
+    "title": "Raspberry Pi–Based Surveillance Robot",
+    "level": "Advanced (Embedded Robotics + Vision Systems)",
+    "category": "Embedded Systems Projects",
+    "estimatedTime": "18–24 Hours",
+
+    "problem_statement": "Static CCTV systems suffer from blind spots and limited coverage. In hazardous, restricted, or large environments, human patrol is unsafe or inefficient. A mobile surveillance robot provides dynamic visual monitoring, remote navigation, and real-time threat observation.",
+
+    "real_world_use_case": [
+      "Warehouse and factory surveillance",
+      "Campus and hostel security patrol",
+      "Military and defense reconnaissance (prototype)",
+      "Disaster zone inspection",
+      "Robotics and AI research"
+    ],
+
+    "embedded_concept": {
+      "core_topics": [
+        "Raspberry Pi system-level programming",
+        "Motor control via external drivers",
+        "Camera interfacing and video streaming",
+        "Remote control over network",
+        "Real-time decision making"
+      ],
+      "design_philosophy": "Mobile vision + remote intelligence"
+    },
+
+    "system_architecture": {
+      "mobility_layer": "DC motors + motor driver",
+      "vision_layer": "Camera module with live stream",
+      "control_layer": "Raspberry Pi command processing",
+      "communication_layer": "Wi-Fi based remote control",
+      "power_layer": "Battery with regulated supplies"
+    },
+
+    "hardware": {
+      "processor": "Raspberry Pi 4 Model B",
+      "camera": "Raspberry Pi Camera Module v2",
+      "motor_driver": "L298N Dual H-Bridge",
+      "motors": "DC Gear Motors (2 or 4)",
+      "chassis": "Robot car chassis",
+      "power_supply": "12V Battery → Buck Converter (5V)",
+      "additional_modules": [
+        "Pan-Tilt Servo Mount (optional)",
+        "Ultrasonic Sensor (optional obstacle sensing)"
+      ]
+    },
+
+    "working_principle": [
+      "Robot powered ON and Raspberry Pi boots Linux",
+      "Camera initializes and starts video stream",
+      "User connects to robot via web interface",
+      "Directional commands sent over Wi-Fi",
+      "Motor driver actuates motors accordingly",
+      "Live video feedback enables navigation",
+      "Robot can patrol or inspect target areas"
+    ],
+
+    "control_logic": {
+      "control_mode": "Remote manual control",
+      "communication_protocol": "HTTP/WebSocket",
+      "command_types": [
+        "Forward",
+        "Backward",
+        "Left",
+        "Right",
+        "Stop"
+      ],
+      "safety_logic": [
+        "Motor stop on connection loss",
+        "Manual emergency stop command"
+      ]
+    },
+
+    "pin_config": {
+      "raspberry_pi": [
+        {
+          "module": "L298N Motor Driver",
+          "pinName": "IN1",
+          "mcuPin": "GPIO17",
+          "voltage": "3.3V logic",
+          "direction": "Output",
+          "description": "Left motor direction control"
+        },
+        {
+          "module": "L298N Motor Driver",
+          "pinName": "IN2",
+          "mcuPin": "GPIO18",
+          "voltage": "3.3V logic",
+          "direction": "Output",
+          "description": "Left motor direction control"
+        },
+        {
+          "module": "L298N Motor Driver",
+          "pinName": "IN3",
+          "mcuPin": "GPIO22",
+          "voltage": "3.3V logic",
+          "direction": "Output",
+          "description": "Right motor direction control"
+        },
+        {
+          "module": "L298N Motor Driver",
+          "pinName": "IN4",
+          "mcuPin": "GPIO23",
+          "voltage": "3.3V logic",
+          "direction": "Output",
+          "description": "Right motor direction control"
+        },
+        {
+          "module": "Pi Camera",
+          "pinName": "CSI",
+          "mcuPin": "Camera Port",
+          "voltage": "5V",
+          "direction": "Input",
+          "description": "High-speed camera interface"
+        }
+      ]
+    },
+
+    "electrical_and_robot_safety": [
+      "Separate motor and logic power supplies",
+      "Common ground between Raspberry Pi and motor driver",
+      "Current rating of motors matched to driver",
+      "Motor driver heat sink required",
+      "Camera cable strain relief to prevent damage"
+    ],
+
+    "software_stack": [
+      "Raspberry Pi OS (Linux)",
+      "Python 3",
+      "OpenCV",
+      "Flask (Web Server)",
+      "RPi.GPIO"
+    ],
+
+    "firmware_design": {
+      "process_model": "Event-driven command handling",
+      "video_pipeline": "Camera → OpenCV → MJPEG stream",
+      "motor_control": "GPIO-based H-bridge control"
+    },
+
+    "code": {
+      "language": "Python",
+      "file": "surveillance_robot_427.py",
+      "content": "from flask import Flask, render_template, request\nimport RPi.GPIO as GPIO\n\napp = Flask(__name__)\n\nGPIO.setmode(GPIO.BCM)\nM1A, M1B, M2A, M2B = 17, 18, 22, 23\n\nfor pin in [M1A, M1B, M2A, M2B]:\n    GPIO.setup(pin, GPIO.OUT)\n    GPIO.output(pin, GPIO.LOW)\n\ndef move(cmd):\n    if cmd == 'forward':\n        GPIO.output(M1A, 1); GPIO.output(M2A, 1)\n    elif cmd == 'backward':\n        GPIO.output(M1B, 1); GPIO.output(M2B, 1)\n    elif cmd == 'left':\n        GPIO.output(M1B, 1); GPIO.output(M2A, 1)\n    elif cmd == 'right':\n        GPIO.output(M1A, 1); GPIO.output(M2B, 1)\n    else:\n        for p in [M1A, M1B, M2A, M2B]: GPIO.output(p, 0)\n\n@app.route('/control')\ndef control():\n    cmd = request.args.get('cmd')\n    move(cmd)\n    return 'OK'\n\napp.run(host='0.0.0.0', port=5000)"
+    },
+
+    "testing_and_output": [
+      "Robot responds to directional commands",
+      "Live video stream visible on browser",
+      "Smooth motor movement",
+      "Emergency stop halts robot instantly"
+    ],
+
+    "common_errors": [
+      "Motor noise resetting Raspberry Pi",
+      "Incorrect GPIO pin mapping",
+      "Insufficient motor current supply",
+      "Camera stream lag due to low bandwidth"
+    ],
+
+    "debugging_strategy": [
+      "Test motor driver independently",
+      "Verify GPIO output using LEDs",
+      "Check power rails with multimeter",
+      "Test network latency"
+    ],
+
+    "limitations": [
+      "Manual control only",
+      "Limited obstacle avoidance",
+      "Wi-Fi range dependent"
+    ],
+
+    "improvements": [
+      "AI-based person detection",
+      "Autonomous patrol paths",
+      "Night vision camera",
+      "Two-way audio communication",
+      "Cloud video logging"
+    ],
+
+    "mini_challenge": "Add automatic obstacle avoidance using ultrasonic sensor.",
+
+    "estimated_cost_india": {
+      "raspberry_pi_4": "₹3,500",
+      "camera_module": "₹900",
+      "motor_driver": "₹220",
+      "dc_motors_chassis": "₹800",
+      "battery_and_power": "₹600",
+      "misc_components": "₹300",
+      "total": "₹6,300 (approx)"
+    },
+
+    "learning_outcomes": [
+      "Mobile robotics integration",
+      "Vision-based remote systems",
+      "Linux-based embedded control",
+      "Network-controlled robots"
+    ],
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 428,
+    "title": "Wi-Fi Controlled Smart Home System",
+    "level": "Advanced (Embedded Networking + Home Automation)",
+    "category": "Embedded Systems Projects",
+    "estimatedTime": "16–20 Hours",
+
+    "problem_statement": "Traditional home automation solutions are either cloud-dependent or limited to single-device control. A scalable Wi-Fi based smart home system should support multiple appliances, local fallback control, real-time status feedback, and safe AC isolation.",
+
+    "real_world_use_case": [
+      "Residential smart homes",
+      "Smart hostels and PGs",
+      "Energy-efficient buildings",
+      "Assistive living environments",
+      "IoT product development"
+    ],
+
+    "embedded_concept": {
+      "core_topics": [
+        "Wi-Fi networking",
+        "Embedded web server",
+        "MQTT publish/subscribe model",
+        "Relay-based AC control",
+        "State synchronization",
+        "Fail-safe automation design"
+      ],
+      "design_philosophy": "Local reliability + remote accessibility"
+    },
+
+    "system_architecture": {
+      "control_layer": "ESP32 handles automation logic",
+      "network_layer": "Wi-Fi LAN + Internet",
+      "user_interface": "Web dashboard / mobile app",
+      "actuation_layer": "Relay-controlled AC appliances",
+      "feedback_layer": "Real-time state reporting"
+    },
+
+    "hardware": {
+      "microcontroller": "ESP32 Dev Module",
+      "actuators": "4-Channel Opto-Isolated Relay Module",
+      "input_devices": "Manual wall switches (override)",
+      "loads": [
+        "Lights",
+        "Fans",
+        "Sockets",
+        "Appliances"
+      ],
+      "power_supply": "230V AC → SMPS (5V DC, isolated)"
+    },
+
+    "working_principle": [
+      "ESP32 connects to Wi-Fi network",
+      "Embedded web server hosts control UI",
+      "User sends ON/OFF commands via browser/app",
+      "ESP32 toggles corresponding relay",
+      "Appliance state updated instantly",
+      "State synchronized across all interfaces",
+      "Manual switch override always has priority"
+    ],
+
+    "control_priority_logic": {
+      "highest_priority": "Manual wall switch",
+      "medium_priority": "Local web dashboard",
+      "lowest_priority": "Remote cloud command",
+      "reason": "User safety and immediate control"
+    },
+
+    "pin_config": {
+      "esp32": [
+        {
+          "module": "Relay Channel 1",
+          "pinName": "IN1",
+          "mcuPin": "GPIO26",
+          "voltage": "5V relay logic",
+          "direction": "Output",
+          "description": "Controls Light 1"
+        },
+        {
+          "module": "Relay Channel 2",
+          "pinName": "IN2",
+          "mcuPin": "GPIO27",
+          "voltage": "5V relay logic",
+          "direction": "Output",
+          "description": "Controls Fan"
+        },
+        {
+          "module": "Relay Channel 3",
+          "pinName": "IN3",
+          "mcuPin": "GPIO14",
+          "voltage": "5V relay logic",
+          "direction": "Output",
+          "description": "Controls Socket"
+        },
+        {
+          "module": "Relay Channel 4",
+          "pinName": "IN4",
+          "mcuPin": "GPIO12",
+          "voltage": "5V relay logic",
+          "direction": "Output",
+          "description": "Controls Appliance"
+        },
+        {
+          "module": "Manual Switch",
+          "pinName": "Signal",
+          "mcuPin": "GPIO33",
+          "voltage": "3.3V logic",
+          "direction": "Input",
+          "description": "Physical override switch (pull-up enabled)"
+        },
+        {
+          "module": "Power",
+          "pinName": "VIN",
+          "mcuPin": "VIN",
+          "voltage": "5V",
+          "direction": "Power",
+          "description": "ESP32 power input"
+        }
+      ]
+    },
+
+    "electrical_and_home_safety": [
+      "Opto-isolated relays mandatory for AC loads",
+      "AC wiring fully separated from logic side",
+      "Use proper MCB and fuse protection",
+      "Fire-retardant enclosure recommended",
+      "Grounding mandatory for metal enclosures"
+    ],
+
+    "software_stack": [
+      "ESP32 Arduino Core",
+      "WiFi.h",
+      "AsyncWebServer",
+      "MQTT (PubSubClient)",
+      "HTML/CSS/JS for UI"
+    ],
+
+    "cloud_integration": {
+      "protocol": "MQTT",
+      "broker": "Mosquitto / HiveMQ",
+      "topics": {
+        "command": "home/room1/cmd",
+        "status": "home/room1/status"
+      }
+    },
+
+    "firmware_design": {
+      "task_model": "Non-blocking event-driven",
+      "network_handling": "Auto reconnect with timeout",
+      "state_management": "Retained MQTT messages",
+      "safety": "Relay OFF on reboot until sync"
+    },
+
+    "code": {
+      "language": "C++ (ESP32 Arduino)",
+      "file": "smart_home_428.ino",
+      "content": "#include <WiFi.h>\n#include <WebServer.h>\n\n#define R1 26\n#define R2 27\n#define R3 14\n#define R4 12\n\nWebServer server(80);\nbool state[4] = {0,0,0,0};\n\nvoid handleToggle(int i) {\n  state[i] = !state[i];\n  digitalWrite((i==0)?R1:(i==1)?R2:(i==2)?R3:R4, state[i]);\n  server.send(200, \"text/plain\", \"OK\");\n}\n\nvoid setup() {\n  pinMode(R1, OUTPUT);\n  pinMode(R2, OUTPUT);\n  pinMode(R3, OUTPUT);\n  pinMode(R4, OUTPUT);\n\n  WiFi.begin(\"SSID\",\"PASSWORD\");\n  while(WiFi.status()!=WL_CONNECTED) delay(500);\n\n  server.on(\"/r1\", [](){handleToggle(0);} );\n  server.on(\"/r2\", [](){handleToggle(1);} );\n  server.on(\"/r3\", [](){handleToggle(2);} );\n  server.on(\"/r4\", [](){handleToggle(3);} );\n\n  server.begin();\n}\n\nvoid loop() {\n  server.handleClient();\n}"
+    },
+
+    "testing_and_output": [
+      "Appliances toggle via web dashboard",
+      "Manual switch overrides cloud control",
+      "Relay states retained after reconnect",
+      "Safe operation under network loss"
+    ],
+
+    "common_errors": [
+      "Using non-isolated relay boards",
+      "No pull-up on manual switch",
+      "Blocking Wi-Fi connection logic",
+      "Incorrect GPIO selection"
+    ],
+
+    "debugging_strategy": [
+      "Test each relay individually",
+      "Log Wi-Fi and MQTT states",
+      "Simulate power and network failure",
+      "Verify AC isolation physically"
+    ],
+
+    "limitations": [
+      "No energy monitoring",
+      "Wi-Fi dependent for remote access",
+      "Single-node architecture"
+    ],
+
+    "improvements": [
+      "Energy metering (PZEM-004T)",
+      "Voice assistant integration",
+      "Room-based automation rules",
+      "Mobile app with authentication",
+      "OTA firmware updates"
+    ],
+
+    "mini_challenge": "Implement schedule-based automation for lights.",
+
+    "estimated_cost_india": {
+      "esp32": "₹320",
+      "4ch_relay_module": "₹240",
+      "smps_5v": "₹180",
+      "switches_wiring": "₹150",
+      "enclosure_misc": "₹200",
+      "total": "₹1,090 (approx)"
+    },
+
+    "learning_outcomes": [
+      "Scalable smart home architecture",
+      "Wi-Fi embedded systems",
+      "Safe AC appliance control",
+      "Local + remote automation design"
+    ],
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+
+  {
+    "id": 429,
+    "title": "Smart Power Theft Prevention System",
+    "level": "Advanced (Embedded Energy Systems + Anti-Tampering)",
+    "category": "Embedded Systems Projects",
+    "estimatedTime": "18–22 Hours",
+
+    "problem_statement": "Power theft through meter bypassing, neutral manipulation, and illegal tapping causes massive revenue loss and grid instability. Traditional electromechanical meters cannot detect sophisticated theft techniques. An embedded power theft detection system enables real-time monitoring, tamper detection, and remote alerting.",
+
+    "real_world_use_case": [
+      "Electricity distribution companies",
+      "Smart grid infrastructure",
+      "Industrial energy auditing",
+      "Apartment power monitoring",
+      "Utility R&D and pilot projects"
+    ],
+
+    "embedded_concept": {
+      "core_topics": [
+        "Energy metering principles",
+        "Current and voltage sensing",
+        "Neutral tamper detection",
+        "Embedded anomaly detection",
+        "GSM / IoT alert systems"
+      ],
+      "design_philosophy": "Measure, compare, detect, and report"
+    },
+
+    "system_architecture": {
+      "measurement_layer": "Voltage + current sensing on phase and neutral",
+      "processing_layer": "Embedded computation and validation",
+      "decision_layer": "Theft detection logic",
+      "communication_layer": "GSM / IoT alert",
+      "actuation_layer": "Relay-based disconnection (optional)"
+    },
+
+    "hardware": {
+      "microcontroller": "ESP32 / Arduino UNO (ESP32 preferred)",
+      "current_sensors": [
+        "CT Sensor (Phase)",
+        "CT Sensor (Neutral)"
+      ],
+      "voltage_sensor": "ZMPT101B AC Voltage Sensor",
+      "communication": "SIM800L GSM Module / Wi-Fi",
+      "actuator": "Relay / Contactor (cut-off)",
+      "power_supply": "230V AC → Isolated SMPS (5V & 4V)"
+    },
+
+    "working_principle": [
+      "Voltage and current continuously sampled",
+      "Phase current compared with neutral current",
+      "Power calculated using real-time samples",
+      "Mismatch beyond tolerance indicates theft",
+      "Tamper condition logged and alerted",
+      "Optional load disconnection triggered"
+    ],
+
+    "theft_detection_logic": {
+      "neutral_bypass": "Phase current ≠ Neutral current",
+      "meter_bypass": "Voltage present but current absent",
+      "overload_tamper": "Sudden abnormal current spikes",
+      "thresholds": "Dynamic tolerance based on calibration"
+    },
+
+    "pin_config": {
+      "esp32": [
+        {
+          "module": "CT Sensor (Phase)",
+          "pinName": "OUT",
+          "mcuPin": "GPIO34",
+          "voltage": "0–3.3V analog",
+          "direction": "Input",
+          "description": "Measures phase current"
+        },
+        {
+          "module": "CT Sensor (Neutral)",
+          "pinName": "OUT",
+          "mcuPin": "GPIO35",
+          "voltage": "0–3.3V analog",
+          "direction": "Input",
+          "description": "Measures neutral current"
+        },
+        {
+          "module": "Voltage Sensor (ZMPT101B)",
+          "pinName": "OUT",
+          "mcuPin": "GPIO32",
+          "voltage": "0–3.3V analog",
+          "direction": "Input",
+          "description": "AC voltage sensing"
+        },
+        {
+          "module": "GSM Module",
+          "pinName": "TX",
+          "mcuPin": "GPIO16",
+          "voltage": "2.8–3V logic",
+          "direction": "Input",
+          "description": "GSM data to ESP32"
+        },
+        {
+          "module": "GSM Module",
+          "pinName": "RX",
+          "mcuPin": "GPIO17",
+          "voltage": "2.8–3V logic",
+          "direction": "Output",
+          "description": "ESP32 commands to GSM"
+        },
+        {
+          "module": "Relay / Contactor",
+          "pinName": "IN",
+          "mcuPin": "GPIO25",
+          "voltage": "5V logic (isolated)",
+          "direction": "Output",
+          "description": "Disconnects load during theft"
+        }
+      ]
+    },
+
+    "electrical_and_regulatory_safety": [
+      "CT sensors provide galvanic isolation",
+      "Voltage sensor isolated from mains",
+      "Relay drives contactor, not load directly",
+      "System must not violate utility regulations",
+      "Logging before disconnection recommended"
+    ],
+
+    "software_stack": [
+      "ESP32 Arduino Core",
+      "ADC sampling routines",
+      "Signal filtering (moving average)",
+      "AT command handling / MQTT"
+    ],
+
+    "signal_processing": {
+      "sampling_rate": "2–5 kHz",
+      "filtering": "Moving average + RMS calculation",
+      "power_calculation": "P = V_rms × I_rms"
+    },
+
+    "code": {
+      "language": "C++ (ESP32 Arduino)",
+      "file": "power_theft_429.ino",
+      "content": "#define IP GPIO34\n#define IN GPIO35\n#define VP GPIO32\n#define RELAY 25\n\nvoid setup() {\n  pinMode(RELAY, OUTPUT);\n  digitalWrite(RELAY, HIGH);\n}\n\nvoid loop() {\n  int ip = analogRead(IP);\n  int in = analogRead(IN);\n\n  if (abs(ip - in) > 200) {\n    digitalWrite(RELAY, LOW);\n    // send alert\n  }\n  delay(500);\n}"
+    },
+
+    "testing_and_output": [
+      "Normal load → no alert",
+      "Neutral bypass → theft detected",
+      "Relay disconnects on confirmed theft",
+      "Alert sent to utility operator"
+    ],
+
+    "common_errors": [
+      "Incorrect CT orientation",
+      "No RMS computation",
+      "Powering GSM incorrectly",
+      "Over-sensitive thresholds"
+    ],
+
+    "debugging_strategy": [
+      "Log raw ADC values",
+      "Test each sensor independently",
+      "Simulate theft scenarios",
+      "Validate isolation"
+    ],
+
+    "limitations": [
+      "Not utility-certified",
+      "Advanced theft methods may bypass",
+      "Requires careful calibration"
+    ],
+
+    "improvements": [
+      "AI-based load pattern learning",
+      "Cloud analytics dashboard",
+      "Tamper-proof enclosure",
+      "Blockchain-based audit trail"
+    ],
+
+    "mini_challenge": "Implement cloud dashboard for theft analytics.",
+
+    "estimated_cost_india": {
+      "esp32": "₹320",
+      "ct_sensors": "₹400",
+      "zmpt101b": "₹180",
+      "gsm_module": "₹350",
+      "relay_contactor": "₹300",
+      "power_components": "₹250",
+      "total": "₹1,800 (approx)"
+    },
+
+    "learning_outcomes": [
+      "Energy metering systems",
+      "Embedded anomaly detection",
+      "Utility-scale embedded design",
+      "Safe mains interfacing"
+    ],
+
+    "author_name": "NISHANTH",
+    "status": "Published"
+  },
+  {
+    "id": 428,
+    "title": "Wi-Fi Controlled Smart Home System",
+    "level": "Advanced (Embedded Networking + Home Automation)",
+    "category": "Embedded Systems Projects",
+    "estimatedTime": "16–20 Hours",
+
+    "problem_statement": "Traditional home automation solutions are either cloud-dependent or limited to single-device control. A scalable Wi-Fi based smart home system should support multiple appliances, local fallback control, real-time status feedback, and safe AC isolation.",
+
+    "real_world_use_case": [
+      "Residential smart homes",
+      "Smart hostels and PGs",
+      "Energy-efficient buildings",
+      "Assistive living environments",
+      "IoT product development"
+    ],
+
+    "embedded_concept": {
+      "core_topics": [
+        "Wi-Fi networking",
+        "Embedded web server",
+        "MQTT publish/subscribe model",
+        "Relay-based AC control",
+        "State synchronization",
+        "Fail-safe automation design"
+      ],
+      "design_philosophy": "Local reliability + remote accessibility"
+    },
+
+    "system_architecture": {
+      "control_layer": "ESP32 handles automation logic",
+      "network_layer": "Wi-Fi LAN + Internet",
+      "user_interface": "Web dashboard / mobile app",
+      "actuation_layer": "Relay-controlled AC appliances",
+      "feedback_layer": "Real-time state reporting"
+    },
+
+    "hardware": {
+      "microcontroller": "ESP32 Dev Module",
+      "actuators": "4-Channel Opto-Isolated Relay Module",
+      "input_devices": "Manual wall switches (override)",
+      "loads": [
+        "Lights",
+        "Fans",
+        "Sockets",
+        "Appliances"
+      ],
+      "power_supply": "230V AC → SMPS (5V DC, isolated)"
+    },
+
+    "working_principle": [
+      "ESP32 connects to Wi-Fi network",
+      "Embedded web server hosts control UI",
+      "User sends ON/OFF commands via browser/app",
+      "ESP32 toggles corresponding relay",
+      "Appliance state updated instantly",
+      "State synchronized across all interfaces",
+      "Manual switch override always has priority"
+    ],
+
+    "control_priority_logic": {
+      "highest_priority": "Manual wall switch",
+      "medium_priority": "Local web dashboard",
+      "lowest_priority": "Remote cloud command",
+      "reason": "User safety and immediate control"
+    },
+
+    "pin_config": {
+      "esp32": [
+        {
+          "module": "Relay Channel 1",
+          "pinName": "IN1",
+          "mcuPin": "GPIO26",
+          "voltage": "5V relay logic",
+          "direction": "Output",
+          "description": "Controls Light 1"
+        },
+        {
+          "module": "Relay Channel 2",
+          "pinName": "IN2",
+          "mcuPin": "GPIO27",
+          "voltage": "5V relay logic",
+          "direction": "Output",
+          "description": "Controls Fan"
+        },
+        {
+          "module": "Relay Channel 3",
+          "pinName": "IN3",
+          "mcuPin": "GPIO14",
+          "voltage": "5V relay logic",
+          "direction": "Output",
+          "description": "Controls Socket"
+        },
+        {
+          "module": "Relay Channel 4",
+          "pinName": "IN4",
+          "mcuPin": "GPIO12",
+          "voltage": "5V relay logic",
+          "direction": "Output",
+          "description": "Controls Appliance"
+        },
+        {
+          "module": "Manual Switch",
+          "pinName": "Signal",
+          "mcuPin": "GPIO33",
+          "voltage": "3.3V logic",
+          "direction": "Input",
+          "description": "Physical override switch (pull-up enabled)"
+        },
+        {
+          "module": "Power",
+          "pinName": "VIN",
+          "mcuPin": "VIN",
+          "voltage": "5V",
+          "direction": "Power",
+          "description": "ESP32 power input"
+        }
+      ]
+    },
+
+    "electrical_and_home_safety": [
+      "Opto-isolated relays mandatory for AC loads",
+      "AC wiring fully separated from logic side",
+      "Use proper MCB and fuse protection",
+      "Fire-retardant enclosure recommended",
+      "Grounding mandatory for metal enclosures"
+    ],
+
+    "software_stack": [
+      "ESP32 Arduino Core",
+      "WiFi.h",
+      "AsyncWebServer",
+      "MQTT (PubSubClient)",
+      "HTML/CSS/JS for UI"
+    ],
+
+    "cloud_integration": {
+      "protocol": "MQTT",
+      "broker": "Mosquitto / HiveMQ",
+      "topics": {
+        "command": "home/room1/cmd",
+        "status": "home/room1/status"
+      }
+    },
+
+    "firmware_design": {
+      "task_model": "Non-blocking event-driven",
+      "network_handling": "Auto reconnect with timeout",
+      "state_management": "Retained MQTT messages",
+      "safety": "Relay OFF on reboot until sync"
+    },
+
+    "code": {
+      "language": "C++ (ESP32 Arduino)",
+      "file": "smart_home_428.ino",
+      "content": "#include <WiFi.h>\n#include <WebServer.h>\n\n#define R1 26\n#define R2 27\n#define R3 14\n#define R4 12\n\nWebServer server(80);\nbool state[4] = {0,0,0,0};\n\nvoid handleToggle(int i) {\n  state[i] = !state[i];\n  digitalWrite((i==0)?R1:(i==1)?R2:(i==2)?R3:R4, state[i]);\n  server.send(200, \"text/plain\", \"OK\");\n}\n\nvoid setup() {\n  pinMode(R1, OUTPUT);\n  pinMode(R2, OUTPUT);\n  pinMode(R3, OUTPUT);\n  pinMode(R4, OUTPUT);\n\n  WiFi.begin(\"SSID\",\"PASSWORD\");\n  while(WiFi.status()!=WL_CONNECTED) delay(500);\n\n  server.on(\"/r1\", [](){handleToggle(0);} );\n  server.on(\"/r2\", [](){handleToggle(1);} );\n  server.on(\"/r3\", [](){handleToggle(2);} );\n  server.on(\"/r4\", [](){handleToggle(3);} );\n\n  server.begin();\n}\n\nvoid loop() {\n  server.handleClient();\n}"
+    },
+
+    "testing_and_output": [
+      "Appliances toggle via web dashboard",
+      "Manual switch overrides cloud control",
+      "Relay states retained after reconnect",
+      "Safe operation under network loss"
+    ],
+
+    "common_errors": [
+      "Using non-isolated relay boards",
+      "No pull-up on manual switch",
+      "Blocking Wi-Fi connection logic",
+      "Incorrect GPIO selection"
+    ],
+
+    "debugging_strategy": [
+      "Test each relay individually",
+      "Log Wi-Fi and MQTT states",
+      "Simulate power and network failure",
+      "Verify AC isolation physically"
+    ],
+
+    "limitations": [
+      "No energy monitoring",
+      "Wi-Fi dependent for remote access",
+      "Single-node architecture"
+    ],
+
+    "improvements": [
+      "Energy metering (PZEM-004T)",
+      "Voice assistant integration",
+      "Room-based automation rules",
+      "Mobile app with authentication",
+      "OTA firmware updates"
+    ],
+
+    "mini_challenge": "Implement schedule-based automation for lights.",
+
+    "estimated_cost_india": {
+      "esp32": "₹320",
+      "4ch_relay_module": "₹240",
+      "smps_5v": "₹180",
+      "switches_wiring": "₹150",
+      "enclosure_misc": "₹200",
+      "total": "₹1,090 (approx)"
+    },
+
+    "learning_outcomes": [
+      "Scalable smart home architecture",
+      "Wi-Fi embedded systems",
+      "Safe AC appliance control",
+      "Local + remote automation design"
+    ],
+
+    "author_name": "NISHANTH",
+    "status": "Published"
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ];

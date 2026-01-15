@@ -20,7 +20,11 @@ export const cProgrammingCourse = {
                         "Minimal memory footprint (KB vs MB)",
                         "Deterministic execution timing",
                         "No garbage collection overhead"
-                    ]
+                    ],
+                    code: `// C allows direct memory access
+uint8_t *led_reg = (uint8_t *)0x40021000;
+*led_reg |= 0x01; // Turn on LED without high-level library`,
+                    practice: "Identify three hardware limitations of an Arduino Uno (e.g., RAM size) and explain why Python would be difficult to run on it."
                 },
                 {
                     name: "C vs C++ vs Python for IoT",
@@ -31,7 +35,8 @@ export const cProgrammingCourse = {
                         "C++": { speed: "Fast", memory: "Low", control: "High", learning: "Moderate" },
                         Python: { speed: "Slow", memory: "High", control: "Limited", learning: "Easy" }
                     },
-                    recommendation: "Use C for production IoT devices, C++ for Arduino projects, Python for prototyping."
+                    recommendation: "Use C for production IoT devices, C++ for Arduino projects, Python for prototyping.",
+                    practice: "You are building a solar-powered sensor node that must last 5 years on a single battery. Which language (C or Python) would you choose and why?"
                 },
                 {
                     name: "Compilation Process for MCUs",
@@ -44,7 +49,11 @@ export const cProgrammingCourse = {
                         "Linking: Combines object files into executable",
                         "Flashing: Uploads to microcontroller flash memory"
                     ],
-                    toolchain: "GCC for AVR (Arduino), Xtensa GCC (ESP32), ARM GCC (STM32)"
+                    toolchain: "GCC for AVR (Arduino), Xtensa GCC (ESP32), ARM GCC (STM32)",
+                    code: `// Preprocessor replaces LED_PIN with 13
+#define LED_PIN 13
+void setup() { pinMode(LED_PIN, OUTPUT); }`,
+                    practice: "A 'Missing Header' error occurs during compilation. In which stage (Preprocessing, Compilation, or Linking) does this error actually happen?"
                 },
                 {
                     name: "Memory Types in MCUs",
@@ -55,7 +64,8 @@ export const cProgrammingCourse = {
                         SRAM: "Variables, stack, heap, volatile, 2KB-520KB typical",
                         EEPROM: "Config data, calibration values, 512B-4KB typical"
                     },
-                    example: "Arduino Uno: 32KB Flash, 2KB SRAM, 1KB EEPROM"
+                    example: "Arduino Uno: 32KB Flash, 2KB SRAM, 1KB EEPROM",
+                    practice: "You have a constant lookup table of 5000 integers. Should you store this in SRAM or Flash to save runtime memory?"
                 }
             ]
         },
@@ -94,7 +104,8 @@ int main() {
     // 7. Return Statement
     return 0; // 0 means success
 }`,
-                    iotExample: "In Arduino, the 'main' function is hidden by the core library, which calls 'setup()' once and then 'loop()' forever."
+                    iotExample: "In Arduino, the 'main' function is hidden by the core library, which calls 'setup()' once and then 'loop()' forever.",
+                    practice: "Rewrite the 'Blink LED' program structure adding a global variable 'blinkDelay' and use it inside main."
                 },
                 {
                     name: "Comments & Syntax Rules",
@@ -115,7 +126,8 @@ int X = 20;   // Case-sensitive: x and X are different identifiers
     int z = 30; // 'z' only exists inside these braces (Scope)
 }
 // z = 40; // Error: z is undefined here`,
-                    iotExample: "Always comment your pin definitions and complex logic. Future you will thank you when debugging hardware."
+                    iotExample: "Always comment your pin definitions and complex logic. Future you will thank you when debugging hardware.",
+                    practice: "Identify the syntax error in this line: 'int x = 10 printf(\"%d\", x)'"
                 },
                 {
                     name: "Number Systems for IoT",
@@ -134,7 +146,8 @@ int hex = 0xA;      // Hexadecimal (Base 16) - Prefix '0x'
 // 0xFF = MAX (255)
 // 0x0F = Lower 4 bits
 // 0xF0 = Upper 4 bits`,
-                    iotExample: "Setting register addresses (e.g., 0x40003000) or I2C addresses (e.g., 0x27) always uses Hex."
+                    iotExample: "Setting register addresses (e.g., 0x40003000) or I2C addresses (e.g., 0x27) always uses Hex.",
+                    practice: "Convert the binary value 0b1100 to both Decimal and Hexadecimal."
                 },
                 {
                     name: "Variables & Data Types",
@@ -157,7 +170,8 @@ unsigned long timeActive = 4500000L; // 'L' forces long type
 
 // Size matters!
 printf("%d", sizeof(int)); // Prints bytes used by int`,
-                    iotExample: "Use 'uint8_t' (1 byte) for GPIO pins. Use 'unsigned long' for millis() timers."
+                    iotExample: "Use 'uint8_t' (1 byte) for GPIO pins. Use 'unsigned long' for millis() timers.",
+                    practice: "What is the most memory-efficient data type to store a sensor 'ID' that ranges from 1 to 100?"
                 },
                 {
                     name: "Operators & Expressions",
@@ -180,7 +194,8 @@ a += 5; // Same as a = a + 5
 // Increment/Decrement
 i++; // Post-increment
 ++i; // Pre-increment`,
-                    iotExample: "Using modulus (%) to perform an action every Nth loop iteration."
+                    iotExample: "Using modulus (%) to perform an action every Nth loop iteration.",
+                    practice: "Write an expression using the modulus operator (%) to check if a variable 'counter' is even."
                 },
                 {
                     name: "Loops & Control Flow",
@@ -212,7 +227,8 @@ for (int i=0; i<10; i++) {
 while (sensorReading < target) {
     sensorReading = analogRead(A0);
 }`,
-                    iotExample: "The 'main loop' of every IoT device is essentially a 'while(1)' infinite loop."
+                    iotExample: "The 'main loop' of every IoT device is essentially a 'while(1)' infinite loop.",
+                    practice: "Write a 'for' loop that blinks an LED exactly 10 times."
                 },
                 {
                     name: "Functions & Scope",
@@ -238,7 +254,8 @@ void test() {
     // Can see globalVar
     // Cannot see variables from 'setup'
 }`,
-                    iotExample: "Create a 'connectWiFi()' function so you can reuse it in every project."
+                    iotExample: "Create a 'connectWiFi()' function so you can reuse it in every project.",
+                    practice: "Create a function called 'isHot' that takes a float temperature and returns true if it is above 40.0."
                 }
             ]
         },
@@ -265,7 +282,8 @@ int buffer[10] = {1, 2, 3}; // Remaining 7 become 0
 
 // 4. Calculating Size
 int len = sizeof(grades) / sizeof(grades[0]); // 20 / 4 = 5 elements`,
-                    iotExample: "Buffers for UART data reception often use fixed-size arrays (e.g., `uint8_t buffer[64]`)."
+                    iotExample: "Buffers for UART data reception often use fixed-size arrays (e.g., `uint8_t buffer[64]`).",
+                    practice: "Calculate the sum of all elements in an array 'readings[10]' using a loop."
                 },
                 {
                     name: "Strings & <string.h>",
@@ -293,7 +311,8 @@ int len = strlen(dest); // 9 (excludes \\0)
 if (strcmp(src, "IoT") == 0) {
     // Strings are identical
 }`,
-                    iotExample: "Parsing AT commands from GSM modules or JSON strings from cloud responses."
+                    iotExample: "Parsing AT commands from GSM modules or JSON strings from cloud responses.",
+                    practice: "Write a code snippet to copy the word 'ACTIVE' into a destination string 'status'."
                 },
                 {
                     name: "2D Arrays (Matrices)",
@@ -316,7 +335,8 @@ for(int r=0; r<4; r++) {
         scanKey(r, c);
     }
 }`,
-                    iotExample: "Scanning matrix keypads or controlling LED dot matrix displays."
+                    iotExample: "Scanning matrix keypads or controlling LED dot matrix displays.",
+                    practice: "Define a 2D array to represent a 4x4 keypad and initialize the first row with digits '1', '2', '3', 'a'."
                 },
                 {
                     name: "Character Handling <ctype.h>",
@@ -332,7 +352,8 @@ if (isspace(c)) { ... } // Is whitespace?
 
 char lower = tolower(c); // 'a'
 char upper = toupper('b'); // 'B'`,
-                    iotExample: "Validating user input from a serial terminal or checking if a GPS sentence ID is valid."
+                    iotExample: "Validating user input from a serial terminal or checking if a GPS sentence ID is valid.",
+                    practice: "Use 'isdigit()' to check if the char 'c' is a number and print 'Num' if true."
                 },
                 {
                     name: "Passing Arrays to Functions",
@@ -349,7 +370,8 @@ int main() {
     int data[10];
     processBuffer(data, 10); // Pass name 'data', not 'data[]'
 }`,
-                    iotExample: "Processing a buffer of sensor readings in a separate function without taking up double memory."
+                    iotExample: "Processing a buffer of sensor readings in a separate function without taking up double memory.",
+                    practice: "Write a function 'avgVal' that takes an array of 5 integers and its size, and returns the average."
                 }
             ]
         },
@@ -373,7 +395,8 @@ int *ptr = &x; // 'ptr' holds the address of 'x'
 // *ptr -> Goes to 0x2000 and gets value (10)
 
 *ptr = 20; // Changes 'x' to 20 indirectly`,
-                    iotExample: "Writing to a configuration register at 0x40021000 requires a pointer to that address."
+                    iotExample: "Writing to a configuration register at 0x40021000 requires a pointer to that address.",
+                    practice: "Create an integer variable 'count', a pointer 'p', and use 'p' to increment 'count' by 1."
                 },
                 {
                     name: "Pointer Arithmetic",
@@ -389,7 +412,8 @@ p += 2; // Moves 8 bytes forward -> buff[3]
 for(int *p = buff; p < buff+5; p++) {
     *p = 0; // Clear buffer
 }`,
-                    iotExample: "Iterating through a frame buffer for a display driver."
+                    iotExample: "Iterating through a frame buffer for a display driver.",
+                    practice: "Given 'int arr[] = {1, 2, 3}', use a pointer and arithmetic to print the third element (3)."
                 },
                 {
                     name: "Void Pointers (Generic)",
@@ -405,7 +429,8 @@ int val = *(int*)genericPtr;
 
 genericPtr = &c; // Point to char
 char letter = *(char*)genericPtr;`,
-                    iotExample: "FreeRTOS tasks take a `void *` parameter so you can pass any data structure to a thread."
+                    iotExample: "FreeRTOS tasks take a `void *` parameter so you can pass any data structure to a thread.",
+                    practice: "Cast 'void *ptr = &temp' (where temp is float) to a float pointer and print its value."
                 },
                 {
                     name: "Function Pointers",
@@ -423,7 +448,8 @@ actionFunc(); // Calls turnOn()
 
 actionFunc = turnOff;
 actionFunc(); // Calls turnOff()`,
-                    iotExample: "Implementing an interrupt handler callback or a menu system where each item triggers a different function."
+                    iotExample: "Implementing an interrupt handler callback or a menu system where each item triggers a different function.",
+                    practice: "Declare a function pointer 'cb' for a function that returns void and takes no arguments."
                 },
                 {
                     name: "Const & Volatile Pointers",
@@ -442,7 +468,8 @@ const int * const p3 = &x;
 
 // 4. Volatile Pointer (Hardware register)
 volatile uint8_t *reg = (uint8_t*)0x5000;`,
-                    iotExample: "Protecting lookup tables (const data) and accessing hardware registers (volatile)."
+                    iotExample: "Protecting lookup tables (const data) and accessing hardware registers (volatile).",
+                    practice: "Explain the difference between 'const int *p' and 'int * const p'."
                 }
             ]
         },
@@ -471,7 +498,8 @@ temp.active = false;
 
 // Array of Structs
 struct Sensor sensors[10];`,
-                    iotExample: "Representing a physical device (ID, status, battery level) as a single code object."
+                    iotExample: "Representing a physical device (ID, status, battery level) as a single code object.",
+                    practice: "Define a struct 'Time' with members 'hour', 'minute', 'second', and create a variable for 12:30:00."
                 },
                 {
                     name: "Padding & Packing",
@@ -489,7 +517,8 @@ struct __attribute__((packed)) Packed {
     char c;     // 1 byte
     int i;      // 4 bytes
 }; // Size = 5 bytes`,
-                    iotExample: "Sending a struct directly over LoRa or BLE requires packed structures so the receiver gets the exact bytes."
+                    iotExample: "Sending a struct directly over LoRa or BLE requires packed structures so the receiver gets the exact bytes.",
+                    practice: "Explain why the size of a struct with 'char c' and 'int i' might be 8 bytes instead of 5."
                 },
                 {
                     name: "Bit Fields",
@@ -505,7 +534,8 @@ struct __attribute__((packed)) Packed {
 
 struct StatusReg reg;
 reg.mode = 5; // Binary 101`,
-                    iotExample: "Defining specific bits for a hardware control register or protocol header."
+                    iotExample: "Defining specific bits for a hardware control register or protocol header.",
+                    practice: "Define a bit field for an 8-bit register where the first 3 bits are 'mode' and the next 5 bits are 'address'."
                 },
                 {
                     name: "Unions for Data Parsers",
@@ -524,7 +554,8 @@ Serial.write(converter.b[0]);
 Serial.write(converter.b[1]);
 Serial.write(converter.b[2]);
 Serial.write(converter.b[3]);`,
-                    iotExample: "Deconstructing a float sensor variable into 4 bytes to send over I2C or UART."
+                    iotExample: "Deconstructing a float sensor variable into 4 bytes to send over I2C or UART.",
+                    practice: "How many bytes does a union occupy if it contains a 'long' (4 bytes) and a 'char' (1 byte)?"
                 }
             ]
         },
@@ -557,7 +588,8 @@ void loop() {
 // Hardware Registers are always volatile pointers
 #define REG_STATUS (*(volatile uint8_t *)0x4000)
 while(REG_STATUS == 0); // Polling hardware`,
-                    iotExample: "Interrupt flags, DMA buffers, and memory-mapped I/O registers."
+                    iotExample: "Interrupt flags, DMA buffers, and memory-mapped I/O registers.",
+                    practice: "Why should a variable used inside an Interrupt Service Routine (ISR) be declared as 'volatile'?"
                 },
                 {
                     name: "static, const & extern",
@@ -579,7 +611,8 @@ const float PI = 3.14159;
 
 // 4. extern (Global visibility)
 extern int sharedVar; // "It is defined in another file"`,
-                    iotExample: "Use 'static' for internal driver state. Use 'extern' to share configuration between main.c and wifi.c."
+                    iotExample: "Use 'static' for internal driver state. Use 'extern' to share configuration between main.c and wifi.c.",
+                    practice: "What happens to a 'static' variable inside a function when the function finishes executing?"
                 },
                 {
                     name: "Register-Level Programming",
@@ -597,7 +630,8 @@ PORTB ^= (1 << 5); // Toggle Pin 13
 // ESP32 Example (32-bit registers):
 GPIO.out_w1ts = (1 << 2); // Set pin 2 HIGH (atomic)
 GPIO.out_w1tc = (1 << 2); // Set pin 2 LOW (atomic)`,
-                    iotExample: "Generating high-frequency signals (e.g., 38kHz IR remote carrier) or optimizing display drivers."
+                    iotExample: "Generating high-frequency signals (e.g., 38kHz IR remote carrier) or optimizing display drivers.",
+                    practice: "Write a line of code to set the 3rd bit of register 'PORTB' using bitwise OR (|=) and shift (<<)."
                 },
                 {
                     name: "Interrupts & Atomic Access",
@@ -620,7 +654,8 @@ void loop() {
     
     Serial.println(safeCopy);
 }`,
-                    iotExample: "Reading a 32-bit encoder position or a float variable updated by an ISR."
+                    iotExample: "Reading a 32-bit encoder position or a float variable updated by an ISR.",
+                    practice: "Why is it dangerous to read a 32-bit variable in the main loop if it's updated by an interrupt on an 8-bit MCU?"
                 },
                 {
                     name: "Bitwise Macros",
@@ -634,7 +669,8 @@ void loop() {
 
 // Usage
 SET_BIT(PORTB, 5); // LED ON`,
-                    iotExample: "Every vendor SDK (STM32 HAL, ESP-IDF) uses these patterns."
+                    iotExample: "Every vendor SDK (STM32 HAL, ESP-IDF) uses these patterns.",
+                    practice: "Use the TOGGLE macro to flip the state of the 5th bit in 'MY_REG'."
                 }
             ]
         },
@@ -663,7 +699,8 @@ if (Serial.available()) {
        // Reset command received
     }
 }`,
-                    iotExample: "Debugging to PC, GPS Modules (NMEA), GSM/LTE Modems (AT Commands)."
+                    iotExample: "Debugging to PC, GPS Modules (NMEA), GSM/LTE Modems (AT Commands).",
+                    practice: "If the sender is at 9600 baud and receiver is at 115200 baud, what will the receiver likely see?"
                 },
                 {
                     name: "I2C (Inter-Integrated Circuit)",
@@ -689,7 +726,8 @@ void readSensor() {
         int val = (high << 8) | low; // Combine
     }
 }`,
-                    iotExample: "OLED Displays (SSD1306), Accelerometers (MPU6050), Temp/Hum (BME280)."
+                    iotExample: "OLED Displays (SSD1306), Accelerometers (MPU6050), Temp/Hum (BME280).",
+                    practice: "Explain why I2C needs pull-up resistors on the SDA and SCL lines."
                 },
                 {
                     name: "SPI (Serial Peripheral Interface)",
@@ -711,7 +749,8 @@ void transferData() {
     
     digitalWrite(CS_PIN, HIGH); // Deselect
 }`,
-                    iotExample: "SD Cards, TFT LCD Screens, Ethernet Modules (W5500), RF Transceivers (LoRa)."
+                    iotExample: "SD Cards, TFT LCD Screens, Ethernet Modules (W5500), RF Transceivers (LoRa).",
+                    practice: "How does a Master select a specific Slave device in an SPI bus with 3 Slaves?"
                 },
                 {
                     name: "Hardware Timers",
@@ -731,7 +770,8 @@ void setup() {
     timerAlarmWrite(timer, 1000000, true); // 1M us = 1s
     timerAlarmEnable(timer);
 }`,
-                    iotExample: "Generating precise PWM for servo motors, periodic sensor sampling without blocking."
+                    iotExample: "Generating precise PWM for servo motors, periodic sensor sampling without blocking.",
+                    practice: "Calculate the overflow time of a 16-bit timer ticking at 1MHz (1 tick = 1us)."
                 },
                 {
                     name: "ADC Resolution & Reference",
@@ -750,7 +790,8 @@ float voltage = raw * (3.3 / 4095.0);
 long sum = 0;
 for(int i=0; i<64; i++) sum += analogRead(pin);
 int smooth = sum >> 6; // Divide by 64`,
-                    iotExample: "Battery level monitoring, audio sampling, analog joysticks."
+                    iotExample: "Battery level monitoring, audio sampling, analog joysticks.",
+                    practice: "The ADC value is 512 on a 10-bit ADC with 5V Vref. What is the approximate voltage?"
                 }
             ]
         },
@@ -806,7 +847,8 @@ int factorial(int n) {
 // IoT Warning:
 // Stack space is limited (e.g., 2KB on Arduino).
 // Deep recursion can crash the MCU!`,
-                    iotExample: "Parsing nested JSON structures or traversing a file system directory tree."
+                    iotExample: "Parsing nested JSON structures or traversing a file system directory tree.",
+                    practice: "Explain why deep recursion is generally avoided in 8-bit microcontrollers like Arduino Uno."
                 },
                 {
                     name: "Enumerations (enum)",
@@ -824,7 +866,8 @@ enum State currentState = IDLE;
 if (currentState == CONNECTING) {
     // blink LED fast
 }`,
-                    iotExample: "Defining WiFi connection states or Finite State Machine (FSM) modes."
+                    iotExample: "Defining WiFi connection states or Finite State Machine (FSM) modes.",
+                    practice: "Define an enum 'Direction' with constants 'NORTH', 'SOUTH', 'EAST', 'WEST'."
                 },
                 {
                     name: "Typedef",
@@ -841,7 +884,8 @@ typedef struct {
 
 Point_t p1;
 p1.x = 10.5;`,
-                    iotExample: "Standard integer types like `uint8_t`, `int32_t` are all typedefs to ensure size consistency across platforms."
+                    iotExample: "Standard integer types like `uint8_t`, `int32_t` are all typedefs to ensure size consistency across platforms.",
+                    practice: "Use 'typedef' to create a new name 'u32' for 'unsigned long'."
                 },
                 {
                     name: "Advanced Preprocessor",
@@ -864,7 +908,8 @@ p1.x = 10.5;`,
 #define HEADER_H
     // Declarations...
 #endif`,
-                    iotExample: "Disabling Serial prints in production code or supporting multiple board types in one codebase."
+                    iotExample: "Disabling Serial prints in production code or supporting multiple board types in one codebase.",
+                    practice: "Write a macro 'SQUARE(x)' that calculates the square of x."
                 }
             ]
         },
@@ -891,7 +936,8 @@ int main(void) {
         _delay_ms(1000);
     }
 }`,
-                    explanation: "Direct register manipulation - 25x faster than digitalWrite()"
+                    explanation: "Direct register manipulation - 25x faster than digitalWrite()",
+                    practice: "Modify the code to blink at 2Hz (0.5s period) instead of 0.5Hz."
                 },
                 {
                     name: "Button with Debouncing",
@@ -924,7 +970,8 @@ void loop() {
     
     lastButtonState = reading;
 }`,
-                    explanation: "Prevents false triggers from mechanical switch bounce"
+                    explanation: "Prevents false triggers from mechanical switch bounce",
+                    practice: "Add a second button to turn the LED off, making it a Start/Stop system."
                 },
                 {
                     name: "Temperature Sensor (LM35)",
@@ -948,7 +995,8 @@ void loop() {
     
     delay(1000);
 }`,
-                    explanation: "LM35 outputs 10mV per degree Celsius"
+                    explanation: "LM35 outputs 10mV per degree Celsius",
+                    practice: "Store the maximum and minimum temperature reached during the session."
                 },
                 {
                     name: "UART Data Logger",
@@ -979,7 +1027,8 @@ void loop() {
     sendData(reading);
     delay(5000);
 }`,
-                    explanation: "CSV format for easy Excel/Python analysis"
+                    explanation: "CSV format for easy Excel/Python analysis",
+                    practice: "Add a header row (e.g., 'Time,Temp,Hum,Light') when the program starts."
                 }
             ]
         },
@@ -1025,7 +1074,8 @@ void loop() {
     }
 }`,
                     components: ["Arduino", "LED", "220Ω resistor", "USB cable"],
-                    learnings: ["Serial communication", "PWM control", "String parsing"]
+                    learnings: ["Serial communication", "PWM control", "String parsing"],
+                    practice: "Add a 'STATUS' command that returns the current brightness value."
                 },
                 {
                     difficulty: "Intermediate",
@@ -1068,7 +1118,8 @@ void loop() {
     delay(100);
 }`,
                     components: ["Arduino", "LDR", "10kΩ resistor", "LED", "Button"],
-                    learnings: ["Sensor-based automation", "Mode switching", "Real-world IoT logic"]
+                    learnings: ["Sensor-based automation", "Mode switching", "Real-world IoT logic"],
+                    practice: "Implement a 'Power Saving' mode where the light only stays on for 30 seconds after a button press."
                 },
                 {
                     difficulty: "Advanced",
@@ -1134,7 +1185,8 @@ void loop() {
     server.handleClient();
 }`,
                     components: ["ESP32", "DHT22", "LDR", "WiFi network"],
-                    learnings: ["WiFi connectivity", "Web server", "JSON API", "Dashboard creation"]
+                    learnings: ["WiFi connectivity", "Web server", "JSON API", "Dashboard creation"],
+                    practice: "Add a simple password check (Basic Auth) to the web dashboard."
                 }
             ]
         },
@@ -1304,6 +1356,158 @@ void loop() {
                     "Stay updated with latest MCU releases and protocols"
                 ]
             }
+        },
+        {
+            level: 12,
+            title: "Advanced Embedded C Techniques",
+            color: "#f43f5e",
+            description: "Deep dive into RTOS, Low Power, DMA, and System Reliability",
+            topics: [
+                {
+                    name: "Real-Time Operating Systems (RTOS)",
+                    desc: "Multitasking and Deterministic Execution",
+                    explanation: "An RTOS allows you to run multiple 'tasks' (threads) seemingly at once. Unlike a standard OS, an RTOS guarantees that high-priority tasks meet their deadlines.",
+                    code: `// FreeRTOS Task Example (ESP32)
+void sensorTask(void *pvParameters) {
+    while(1) {
+        readSensor();
+        // Give up CPU for 1000ms
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
+    }
+}
+
+void setup() {
+    // Create task: name, stack size, priority, handle
+    xTaskCreate(sensorTask, "Sensor", 2048, NULL, 1, NULL);
+}`,
+                    iotRelevance: "Essential for complex IoT devices that must handle WiFi, sensors, and UI simultaneously without hanging.",
+                    keyPoints: ["Task Scheduling", "Priorities", "Context Switching", "Semaphores/Mutices"],
+                    practice: "Define two tasks with different priorities and explain which one the RTOS will run first."
+                },
+                {
+                    name: "Low Power Management",
+                    desc: "Maximizing Battery Life",
+                    explanation: "IoT devices are often battery-powered. C allows you to put the CPU and peripherals into sleep states, waking them only when needed via timers or external triggers.",
+                    code: `// ESP32 Deep Sleep Example
+#define BUTTON_PIN 33
+
+void setup() {
+    // Wake up when GPIO 33 goes HIGH
+    esp_sleep_enable_ext0_wakeup((gpio_num_t)BUTTON_PIN, 1);
+    
+    Serial.println("Going to sleep now...");
+    esp_deep_sleep_start();
+}
+
+void loop() {
+    // This code never runs
+}`,
+                    iotRelevance: "Increases battery life from days to years. Core skill for production IoT engineering.",
+                    keyPoints: ["Light vs Deep Sleep", "Wake-up Sources", "Current Consumption", "Power Budgeting"],
+                    practice: "Identify a scenario where 'Sleep Mode' is better than 'Power Down' mode."
+                },
+                {
+                    name: "Direct Memory Access (DMA)",
+                    desc: "CPU-Free Data Transfer",
+                    explanation: "DMA allows hardware peripherals (like ADC or SPI) to transfer data directly to/from RAM without involving the CPU. This frees the CPU for complex calculations.",
+                    code: `// Conceptual DMA Setup
+DMA_Channel_Config config;
+config.source = &ADC_DATA_REG;
+config.dest = &buffer[0];
+config.length = 100;
+
+DMA_Start(&config);
+// CPU continues working while data transfers in background...`,
+                    iotRelevance: "High-speed data logging, audio processing, and fast display updates.",
+                    keyPoints: ["Memory-to-Peripheral", "Peripheral-to-Memory", "Bus Mastering", "Zero-CPU Overhead"],
+                    practice: "Name one peripheral (e.g., ADC) that would benefit most from using DMA during high-speed data sampling."
+                },
+                {
+                    name: "Watchdog Timers (WDT)",
+                    desc: "System Self-Healing",
+                    explanation: "A WDT is a hardware timer that resets the system if the software hangs (fails to 'kick the dog'). It prevents remote IoT devices from becoming 'bricks' on site.",
+                    code: `#include <esp_task_wdt.h>
+
+void setup() {
+    esp_task_wdt_init(5, true); // 5 second timeout
+    esp_task_wdt_add(NULL);      // Watch current task
+}
+
+void loop() {
+    // Perform work
+    doSomething();
+    
+    // Reset timer
+    esp_task_wdt_reset();
+}`,
+                    iotRelevance: "Critical for remote deployments (e.g., weather stations) where manual reset is impossible.",
+                    keyPoints: ["Hardware Reset", "Timeout Periods", "Kicking the Dog", "System Reliability"],
+                    practice: "What happens to the microcontroller if the code gets stuck in a loop and fails to 'kick the dog' (reset the WDT)?"
+                }
+            ]
+        },
+        {
+            level: 13,
+            title: "Hands-on Practice Challenges",
+            color: "#fbbf24",
+            description: "Test your skills with real-world embedded C problems",
+            challenges: [
+                {
+                    title: "The Bitwise Toggle",
+                    difficulty: "Beginner",
+                    problem: "Write a C function `toggleBit(uint8_t reg, int n)` that flips the Nth bit of an 8-bit register and returns the result.",
+                    hint: "Use the XOR (^) operator and the left shift (<<) operator.",
+                    solution: `uint8_t toggleBit(uint8_t reg, int n) {
+    return reg ^ (1 << n);
+}`
+                },
+                {
+                    title: "The Non-Blocking Blink",
+                    difficulty: "Intermediate",
+                    problem: "Implement a blink function that doesn't use `delay()`. Use a timer-based approach (like `millis()` in Arduino) to toggle an LED every 500ms while allowing other code to run.",
+                    hint: "Store the 'lastTime' the LED was toggled and compare it with the current time in every loop.",
+                    solution: `unsigned long lastToggle = 0;
+const int interval = 500;
+bool ledState = false;
+
+void loop() {
+    unsigned long currentMillis = millis();
+    
+    if (currentMillis - lastToggle >= interval) {
+        lastToggle = currentMillis;
+        ledState = !ledState;
+        digitalWrite(LED_PIN, ledState);
+    }
+    
+    // Other code can run here!
+}`
+                },
+                {
+                    title: "The Circular Buffer",
+                    difficulty: "Advanced",
+                    problem: "Create a simple circular buffer for a UART stream. Implement `push(uint8_t val)` and `pop()` functions to handle data without losing it when the buffer is full.",
+                    hint: "Use an array and two indices: `head` for writing and `tail` for reading. Use the modulo (%) operator to wrap indices.",
+                    solution: `#define BUF_SIZE 64
+uint8_t buffer[BUF_SIZE];
+int head = 0;
+int tail = 0;
+
+void push(uint8_t val) {
+    int next = (head + 1) % BUF_SIZE;
+    if (next != tail) { // Check if full
+        buffer[head] = val;
+        head = next;
+    }
+}
+
+int pop() {
+    if (head == tail) return -1; // Empty
+    uint8_t val = buffer[tail];
+    tail = (tail + 1) % BUF_SIZE;
+    return val;
+}`
+                }
+            ]
         }
     ],
 

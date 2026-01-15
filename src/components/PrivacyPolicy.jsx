@@ -1,27 +1,35 @@
 import React from 'react';
+import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 
 export default function PrivacyPolicy({ setView }) {
+    const isMobile = window.innerWidth <= 820;
+
     return (
-        <section className="container" style={{ padding: '4rem 0', maxWidth: '900px' }}>
+        <section className="container" style={{ maxWidth: '900px', paddingTop: isMobile ? '1rem' : 'var(--app-py)', paddingBottom: isMobile ? '4rem' : 'var(--app-py)' }}>
+            <Helmet>
+                <title>Privacy Policy | Data Sovereignty & Security | IoTNext</title>
+                <meta name="description" content="Our privacy protocol details how we handle your technical telemetry and ensure your data sovereignty on the IoTNext platform." />
+                <link rel="canonical" href="https://iotnext.store/privacy" />
+            </Helmet>
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                style={{ marginBottom: '3rem' }}
+                style={{ marginBottom: isMobile ? '2rem' : '3rem' }}
             >
                 <button
                     onClick={() => setView('home')}
                     className="btn btn-outline"
-                    style={{ marginBottom: '2rem' }}
+                    style={{ marginBottom: isMobile ? '1.5rem' : '2rem', padding: '0.5rem 1rem', fontSize: '0.9rem' }}
                 >
                     ← Back to Home
                 </button>
 
-                <h1 style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', fontWeight: 900, marginBottom: '1rem', letterSpacing: '-0.04em' }}>Privacy <span className="text-gradient">Protocol</span></h1>
-                <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', fontWeight: 600 }}>Last Updated: January 2, 2026</p>
+                <h1 style={{ fontSize: isMobile ? '2rem' : '3rem', fontWeight: 900, marginBottom: '1rem', letterSpacing: '-0.04em' }}>Privacy <span className="text-gradient">Protocol</span></h1>
+                <p style={{ color: 'var(--text-muted)', fontSize: isMobile ? '0.9rem' : '1.1rem', fontWeight: 600 }}>Last Updated: January 2, 2026</p>
             </motion.div>
 
-            <div className="glass" style={{ padding: 'clamp(1.5rem, 5vw, 3rem)', borderRadius: '2.5rem', lineHeight: '1.8', border: '1px solid var(--border)', background: 'var(--surface)' }}>
+            <div className="glass" style={{ padding: isMobile ? '1.5rem' : '3rem', borderRadius: isMobile ? '1.5rem' : '2.5rem', lineHeight: '1.8', border: '1px solid var(--border)', background: 'var(--surface)' }}>
                 <h2 style={{ marginTop: '2rem', marginBottom: '1.25rem', fontSize: '1.5rem', fontWeight: 900 }}>1. Data Sovereignty</h2>
                 <p>IoTnext operates on a "Privacy by Design" architecture. We believe your data belongs to you. Most of your interactions, including learning progress and technical preferences, are stored exclusively on your local device via encrypted browser storage.</p>
 

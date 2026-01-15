@@ -1,94 +1,88 @@
 [
   {
     "id": 1,
-    "title": "LED Blink: The Gateway to IoT",
-    "level": "Beginner",
-    "description": "Master the 'Hello World' of hardware by controlling a physical light source using digital logic and timing protocols.",
-    "category": "IoT & Systems",
-    "estimatedTime": "15 mins",
+    "title": "AI-Powered Precision Irrigation",
+    "level": "Advanced",
+    "description": "A next-generation agricultural system that leverages capacitive soil sensing and real-time telemetry to optimize water usage by 40% using specialized IoT protocols.",
+    "category": "Smart Agriculture",
+    "sub_category": "IoT (101-200)",
+    "estimatedTime": "2 Hours",
     "tech": [
-      "Arduino",
-      "ESP32"
+      "ESP32",
+      "Capacitive Earth Moister Sensor",
+      "MQTT",
+      "Solar Power"
     ],
-    "concept": "The LED Blink project introduces the fundamental concept of GPIO (General Purpose Input/Output). By toggling a digital signal between HIGH (5V/3.3V) and LOW (0V), we control the flow of electricity to an external component.",
-    "working_principle": "1. The microcontroller initializes the designated pin as an OUTPUT.\n2. In the main loop, it sets the pin HIGH to complete the circuit.\n3. A delay function pauses execution for a set duration (e.g., 1000ms).\n4. The pin is set LOW to break the circuit, turning the LED off.\n5. The process repeats indefinitely.",
+    "problem_statement": "Traditional timers and resistive soil sensors are inefficient, prone to corrosion, and lead to over-irrigation, wasting billions of liters of water annually while significantly increasing soil salinity.",
+    "real_world_case": "Deployed in vertical farms and drought-prone vineyard regions to maintain precise hydration levels, ensuring crop health even during severe heatwaves while reducing labor costs by 60%.",
+    "block_diagram": "graph TD; Solar_Panel-->Lipo_Charger; Lipo_Charger-->ESP32; Soil_Sensor-->ESP32; ESP32-->|MQTT|Cloud_Dashboard; ESP32-->|Relay|Water_Pump;",
+    "alternatives": {
+      "MCU": "Arduino Nano Matter (for Thread support)",
+      "Sensor": "TDR (Time Domain Reflectometry) Sensor for higher precision",
+      "Wireless": "LoRaWAN (for 10km+ range in rural farms)"
+    },
+    "testing_output": "1. Monitor Serial Monitor for Moister % calibration.\n2. Trigger manual pump via Dashboard toggle.\n3. Verify data packets arrive in Cloud logs every 5 minutes.\n4. Measure soil hydration change after 10s pump burst.",
+    "common_errors": "1. Air gaps in soil around sensor (Wait 24h for settling).\n2. Voltage drop during pump startup (Requires 1000uF capacitor).\n3. MQTT keep-alive timeout on 2.4GHz congested networks.",
+    "improvements": "Integrate DeepSeek-R1 AI local inference on-device to predict irrigation needs based on 7-day weather forecast API data.",
+    "mini_challenge": "Challenge: Modify the code to only allow irrigation between 10 PM and 4 AM to minimize evaporative loss and leverage off-peak electricity rates.",
+    "concept": "This project integrates high-precision capacitive sensing with low-power ESP32 sleep modes...",
+    "working_principle": "1. The sensor measures soil dielectric constant to determine moister level.\n2. ESP32 wakes up from deep sleep, reads moister, and connects to WiFi.\n3. Payload is published to the MQTT broker.\n4. If moister < threshold, the relay triggers the solenoid valve for a calculated duration.",
     "pin_config": {
       "arduino": [
         {
-          "module": "System Power",
-          "pinName": "VCC",
-          "mcuPin": "5V / 3.3V",
-          "direction": "Power",
-          "voltage": "5V",
-          "description": "Primary Supply"
+          "pin": "A0",
+          "component": "Soil Sensor Analog",
+          "note": "Input"
         },
         {
-          "module": "System Ground",
-          "pinName": "GND",
-          "mcuPin": "GND",
-          "direction": "Power",
-          "voltage": "0V",
-          "description": "Common Ground"
-        },
-        {
-          "module": "Output LED",
-          "pinName": "LED Anode (+)",
-          "mcuPin": "D13",
-          "direction": "Output",
-          "voltage": "5V",
-          "description": "Built-in LED"
-        },
-        {
-          "module": "Output LED",
-          "pinName": "LED Cathode (-)",
-          "mcuPin": "GND",
-          "direction": "Power",
-          "voltage": "5V",
-          "description": "Common Ground"
+          "pin": "D8",
+          "component": "Relay Module",
+          "note": "Output"
         }
       ],
       "esp32": [
         {
-          "module": "System Power",
-          "pinName": "VCC",
-          "mcuPin": "3.3V",
+          "module": "Power",
+          "pinName": "Battery Input",
+          "mcuPin": "VBAT",
           "direction": "Power",
+          "voltage": "3.7V",
+          "description": "Lipo Battery Supply"
+        },
+        {
+          "module": "Sensing",
+          "pinName": "Soil Analog",
+          "mcuPin": "GPIO34",
+          "direction": "Input",
           "voltage": "3.3V",
-          "description": "Primary Supply"
+          "description": "Moister Level Reading"
         },
         {
-          "module": "System Power",
-          "pinName": "VCC",
-          "mcuPin": "5V / 3.3V",
-          "direction": "Power",
-          "voltage": "5V",
-          "description": "Primary Supply"
-        },
-        {
-          "module": "System Ground",
-          "pinName": "GND",
-          "mcuPin": "GND",
-          "direction": "Power",
-          "voltage": "0V",
-          "description": "Common Ground"
+          "module": "Control",
+          "pinName": "Pump Relay",
+          "mcuPin": "GPIO12",
+          "direction": "Output",
+          "voltage": "3.3V",
+          "description": "Triggers 5V Load"
         }
       ]
     },
-    "code": "// LED Blink: Solid State Pulse\n// Compatible: Arduino UNO | ESP32 | ESP8266\n\nconst int ledPin = 13; // ESP32 typically uses GPIO 2\n\nvoid setup() {\n  // Hardware initialization\n  pinMode(ledPin, OUTPUT);\n}\n\nvoid loop() {\n  // Using blocking delay for fundamental concept learning\n  // For non-blocking, see 'BlinkWithoutDelay' in advanced projects\n  digitalWrite(ledPin, HIGH); // Logic State 1 (VOLTS ON)\n  delay(1000);              // Clock Pause\n  digitalWrite(ledPin, LOW);  // Logic State 0 (VOLTS OFF)\n  delay(1000);              // Clock Pause\n}",
-    "advantages": "Simple to implement, excellent for debugging, low power consumption.",
-    "disadvantages": "Limited application beyond basic signaling.",
-    "usage": "Connect the long leg of the LED to Pin 13 and the short leg to GND (use 220 ohm resistor).",
+    "code": "// AI-Powered Precision Irrigation v1.2\n// (C) 2026 IoTNext Enterprise\n\n#include <WiFi.h>\n#include <PubSubClient.h>\n\nconst int SOIL_PIN = 34;\nconst int PUMP_PIN = 12;\nconst int THRESHOLD = 65; // Percent\n\nvoid setup() {\n  Serial.begin(115200);\n  pinMode(PUMP_PIN, OUTPUT);\n  digitalWrite(PUMP_PIN, LOW);\n  // Initialize protocols...\n}\n\nvoid loop() {\n  int reading = analogRead(SOIL_PIN);\n  int moister = map(reading, 3500, 1200, 0, 100);\n  if(moister < THRESHOLD) {\n    triggerIrrigation(10000);\n  }\n  enterDeepSleep(300); // 5 Minutes\n}",
+    "advantages": "Non-corrosive sensor life, extreme power efficiency, cloud-ready telemetry.",
+    "disadvantages": "Requires WiFi coverage, higher initial BOM cost compared to timers.",
+    "usage": "Insert sensor 10cm deep, configure WiFi credentials in source, and map MQTT topics to your mobile dashboard.",
     "components": [
-      "1x Arduino UNO or ESP32",
-      "1x LED (5mm)",
-      "1x 220 Ohm Resistor",
-      "Jumper Wires"
+      "1x ESP32 NodeMCU",
+      "1x Capacitive Soil Sensor v2.0",
+      "1x 5V Solenoid Valve",
+      "1x 10W Solar Panel",
+      "1x TP4056 Charger"
     ],
-    "circuit_diagram": "Connect LED Anode to Pin 13 (Arduino) or GPIO 2 (ESP32) via a 220-ohm resistor. Connect LED Cathode to the Ground (GND) pin.",
+    "circuit_diagram": "Connect Sensor Analog to Pin 34, Relay Signal to Pin 12, and Battery to VSYS via charging circuit.",
+    "author_name": "NISHANTH",
     "status": "Published",
-    "industrial_use": "Critical for heartbeat indicators in industrial PLC units and system status LEDs.",
-    "bom_cost": "$2",
-    "author_name": "Antigravity"
+    "industrial_use": "Used in smart greenhouses and precision viticulture for water scarcity resilient farming.",
+    "bom_cost": "$18"
   },
   {
     "id": 2,
@@ -179,7 +173,7 @@
     "status": "Published",
     "industrial_use": "Used in smart dimming systems and variable speed motor controls.",
     "bom_cost": "$3",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 3,
@@ -286,7 +280,7 @@
     "status": "Published",
     "industrial_use": "Emergency stop buttons and tactile user inputs in ruggedized terminals.",
     "bom_cost": "$4",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 4,
@@ -385,7 +379,7 @@
     "status": "Published",
     "industrial_use": "Applied in logistics automation and automated conveyor sorting systems for status signaling.",
     "bom_cost": "$9",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 5,
@@ -484,7 +478,7 @@
     "status": "Published",
     "industrial_use": "Critical error alarms in medical equipment and proximity alerts in warehouse robots.",
     "bom_cost": "$5",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 6,
@@ -583,7 +577,7 @@
     "status": "Published",
     "industrial_use": "Pseudo-random generator logic for cryptographic testing and Monte Carlo simulations.",
     "bom_cost": "$9",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 7,
@@ -682,7 +676,7 @@
     "status": "Published",
     "industrial_use": "Calibration tool for visual color sensors and spectrometer testing rigs.",
     "bom_cost": "$6",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 8,
@@ -789,7 +783,7 @@
     "status": "Published",
     "industrial_use": "Automated security lighting and light-harvesting solar tracker optimization.",
     "bom_cost": "$7",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 9,
@@ -896,7 +890,7 @@
     "status": "Published",
     "industrial_use": "Precision light-exposure monitoring for pharmaceutical lab environments.",
     "bom_cost": "$4",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 10,
@@ -1011,7 +1005,7 @@
     "status": "Published",
     "industrial_use": "Early-warning system for electrical fire detection in localized control gear.",
     "bom_cost": "$10",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 11,
@@ -1127,7 +1121,7 @@
     "status": "Published",
     "industrial_use": "Local diagnostic displays for HVAC controllers and server rack monitors.",
     "bom_cost": "$12",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 12,
@@ -1242,7 +1236,7 @@
     "status": "Published",
     "industrial_use": "Used in emergency pull-cords for medical facilities and operator call buttons in factories.",
     "bom_cost": "$6",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 13,
@@ -1341,7 +1335,7 @@
     "status": "Published",
     "industrial_use": "Touchless interface for sterile medical environments and sound-activated safety shut-offs.",
     "bom_cost": "$8",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 14,
@@ -1448,7 +1442,7 @@
     "status": "Published",
     "industrial_use": "Object counting on fast-moving conveyor belts and proximity safety in handheld power tools.",
     "bom_cost": "$5",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 15,
@@ -1548,7 +1542,7 @@
     "status": "Published",
     "industrial_use": "Ruggedized touch panels for heavy machinery and sterile interfaces in food processing.",
     "bom_cost": "$4",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 16,
@@ -1656,7 +1650,7 @@
     "status": "Published",
     "industrial_use": "Critical gas leakage detection in commercial kitchens and boiler rooms.",
     "bom_cost": "$15",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 17,
@@ -1755,7 +1749,7 @@
     "status": "Published",
     "industrial_use": "Automated greenhouse closure systems and smart wipers in automotive HMI.",
     "bom_cost": "$7",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 18,
@@ -1847,7 +1841,7 @@
     "status": "Published",
     "industrial_use": "Liquid level measurement in non-corrosive tanks and collision avoidance for AGVs.",
     "bom_cost": "$9",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 19,
@@ -1955,7 +1949,7 @@
     "status": "Published",
     "industrial_use": "Water management in municipal storage tanks and cooling tower monitoring.",
     "bom_cost": "$14",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 20,
@@ -2039,7 +2033,7 @@
     "status": "Published",
     "industrial_use": "Automated hydroponic fertigation systems and smart home sump pump controllers.",
     "bom_cost": "$28",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 21,
@@ -2147,7 +2141,7 @@
     "status": "Published",
     "industrial_use": "Server room access control and high-value asset storage lockers.",
     "bom_cost": "$35",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 22,
@@ -2263,7 +2257,7 @@
     "status": "Published",
     "industrial_use": "Employee time-tracking systems and contactless inventory management.",
     "bom_cost": "$12",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 23,
@@ -2355,7 +2349,7 @@
     "status": "Published",
     "industrial_use": "Smart sub-metering for industrial equipment and solar panel efficiency monitoring.",
     "bom_cost": "$28",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 24,
@@ -2447,7 +2441,7 @@
     "status": "Published",
     "industrial_use": "Fleet management, asset tracking in logistics, and automated marine buoys.",
     "bom_cost": "$22",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 25,
@@ -2521,7 +2515,7 @@
     "status": "Published",
     "industrial_use": "Remote sensor clusters in agriculture and decentralized emergency alert systems.",
     "bom_cost": "$16",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 26,
@@ -2628,7 +2622,7 @@
     "status": "Published",
     "industrial_use": "Weather station data logging and flight recorders for hobby drones.",
     "bom_cost": "$14",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 27,
@@ -2727,7 +2721,7 @@
     "status": "Published",
     "industrial_use": "HVAC automation in smart buildings and pollutant monitoring in manufacturing plants.",
     "bom_cost": "$12",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 28,
@@ -2826,7 +2820,7 @@
     "status": "Published",
     "industrial_use": "Safety monitoring in high-decibel factories and noise restriction enforcement in residential áreas.",
     "bom_cost": "$10",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 29,
@@ -2910,7 +2904,7 @@
     "status": "Published",
     "industrial_use": "Automated lighting in warehouses and demand-based HVAC in office buildings.",
     "bom_cost": "$11",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 30,
@@ -3010,7 +3004,7 @@
     "status": "Published",
     "industrial_use": "Shift-change whistles in factories and automated street-lighting controllers.",
     "bom_cost": "$13",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 31,
@@ -3134,7 +3128,7 @@
     "status": "Published",
     "industrial_use": "Compact diagnostic displays for industrial pumps and smart thermostat interfaces.",
     "bom_cost": "$9",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 32,
@@ -3258,7 +3252,7 @@
     "status": "Published",
     "industrial_use": "Soil moisture monitoring in large-scale farms and remote meter reading in urban areas.",
     "bom_cost": "$18",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 33,
@@ -3357,7 +3351,7 @@
     "status": "Published",
     "industrial_use": "Integrating custom IoT sensors into factory SCADA systems like Ignition or Wonderware.",
     "bom_cost": "$10",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 34,
@@ -3456,7 +3450,7 @@
     "status": "Published",
     "industrial_use": "Predictive maintenance for cooling tower fans and industrial conveyor rollers.",
     "bom_cost": "$15",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 35,
@@ -3531,7 +3525,7 @@
     "status": "Published",
     "industrial_use": "Medical device data transmission and secure payment portals in kiosks.",
     "bom_cost": "$12",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 36,
@@ -3623,7 +3617,7 @@
     "status": "Published",
     "industrial_use": "Filling stations for chemical containers and automated parcel weighing in warehouses.",
     "bom_cost": "$14",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 37,
@@ -3706,7 +3700,7 @@
     "status": "Published",
     "industrial_use": "Smart irrigation monitoring and fuel consumption tracking in generators.",
     "bom_cost": "$12",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 38,
@@ -3814,7 +3808,7 @@
     "status": "Published",
     "industrial_use": "Utility-scale solar farms and smart house energy harvesting units.",
     "bom_cost": "$25",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 39,
@@ -3906,7 +3900,7 @@
     "status": "Published",
     "industrial_use": "PID-controlled industrial ovens and smart lighting for theaters/auditoriums.",
     "bom_cost": "$9",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 40,
@@ -3983,7 +3977,7 @@
     "status": "Published",
     "industrial_use": "Central control nodes in smart factories and environmental auditing for data centers.",
     "bom_cost": "$32",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 41,
@@ -4082,7 +4076,7 @@
     "status": "Published",
     "industrial_use": "Municipal waste management optimization and public restroom sanitation.",
     "bom_cost": "$12",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 42,
@@ -4173,7 +4167,7 @@
     "status": "Published",
     "industrial_use": "Livestock precision feeding and automated grain silos.",
     "bom_cost": "$18",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 43,
@@ -4281,7 +4275,7 @@
     "status": "Published",
     "industrial_use": "Remote weather stations and UPS battery health monitoring systems.",
     "bom_cost": "$15",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 44,
@@ -4389,7 +4383,7 @@
     "status": "Published",
     "industrial_use": "Remote patient monitoring and fitness tracking wearables.",
     "bom_cost": "$22",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 45,
@@ -4497,7 +4491,7 @@
     "status": "Published",
     "industrial_use": "Health screening at entry points and non-destructive industrial temperature checks.",
     "bom_cost": "$24",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 46,
@@ -4590,7 +4584,7 @@
     "status": "Published",
     "industrial_use": "Fleet management, high-value asset tracking (containers/heavy machinery), and wildlife tracking.",
     "bom_cost": "$45",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 47,
@@ -4682,7 +4676,7 @@
     "status": "Published",
     "industrial_use": "Large-scale automated greenhouses and precision farming consulting services.",
     "bom_cost": "$55",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 48,
@@ -4765,7 +4759,7 @@
     "status": "Published",
     "industrial_use": "Aquaponics, wastewater treatment plants, and smart pool maintenance.",
     "bom_cost": "$35",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 49,
@@ -4857,7 +4851,7 @@
     "status": "Published",
     "industrial_use": "Smart office ventilation, greenhouse climate control, and mining safety monitoring.",
     "bom_cost": "$28",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 50,
@@ -4957,7 +4951,7 @@
     "status": "Published",
     "industrial_use": "Earthquake early warning, structural health monitoring for bridges, and machinery fault detection.",
     "bom_cost": "$32",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 51,
@@ -5024,7 +5018,7 @@
     "status": "Published",
     "industrial_use": "Warehouse inventory tracking and customer dwell-time analysis in shopping malls.",
     "bom_cost": "$15",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 52,
@@ -5116,7 +5110,7 @@
     "status": "Published",
     "industrial_use": "Weather research balloons and long-range wildlife migration tracking.",
     "bom_cost": "$26",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 53,
@@ -5192,7 +5186,7 @@
     "status": "Published",
     "industrial_use": "Smart highway lighting and low-traffic industrial park security lighting.",
     "bom_cost": "$20",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 54,
@@ -5275,7 +5269,7 @@
     "status": "Published",
     "industrial_use": "Enforcing construction site noise limits and auditing highway acoustic barriers.",
     "bom_cost": "$14",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 55,
@@ -5374,7 +5368,7 @@
     "status": "Published",
     "industrial_use": "Employee access control and real-time palette tracking in loading bays.",
     "bom_cost": "$16",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 56,
@@ -5466,7 +5460,7 @@
     "status": "Published",
     "industrial_use": "Server room access control and high-security equipment lockers.",
     "bom_cost": "$38",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 57,
@@ -5602,7 +5596,7 @@
     "status": "Published",
     "industrial_use": "Chemical process tanks, water treatment plants, boiler water control, and smart irrigation systems.",
     "bom_cost": "$25",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 58,
@@ -5686,7 +5680,7 @@
     "status": "Published",
     "industrial_use": "Bottle counting in beverage plants and component verification in SMT assembly lines.",
     "bom_cost": "$12",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 59,
@@ -5785,7 +5779,7 @@
     "status": "Published",
     "industrial_use": "Home healthcare, senior living, patient safety monitoring, and personal security.",
     "bom_cost": "$42",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 60,
@@ -5882,7 +5876,7 @@
     "status": "Published",
     "industrial_use": "Smart agriculture, precision farming, greenhouse automation, water resource management.",
     "bom_cost": "$75",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 61,
@@ -5956,7 +5950,7 @@
     ],
     "status": "Published",
     "bom_cost": "$12",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 62,
@@ -6023,7 +6017,7 @@
     ],
     "status": "Published",
     "bom_cost": "$22",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 63,
@@ -6088,7 +6082,7 @@
     ],
     "status": "Published",
     "bom_cost": "$15",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 64,
@@ -6162,7 +6156,7 @@
     ],
     "status": "Published",
     "bom_cost": "$8",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 65,
@@ -6236,7 +6230,7 @@
     ],
     "status": "Published",
     "bom_cost": "$25",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 66,
@@ -6308,7 +6302,7 @@
     ],
     "status": "Published",
     "bom_cost": "$30",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 67,
@@ -6373,7 +6367,7 @@
     ],
     "status": "Published",
     "bom_cost": "$20",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 68,
@@ -6429,7 +6423,7 @@
     ],
     "status": "Published",
     "bom_cost": "$28",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 69,
@@ -6494,7 +6488,7 @@
     ],
     "status": "Published",
     "bom_cost": "$7",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 70,
@@ -6567,7 +6561,7 @@
     ],
     "status": "Published",
     "bom_cost": "$14",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 71,
@@ -6640,7 +6634,7 @@
     ],
     "status": "Published",
     "bom_cost": "$9",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 72,
@@ -6706,7 +6700,7 @@
     "status": "Published",
     "bom_cost": "$35",
     "code": "// Laser Tripwire Alarm\n// High-Fidelity Implementation\n\nconst int LDR_PIN = 34;\nconst int BUZZER_PIN = 13;\nconst int THRESHOLD = 500; // Calibrated Dark Value\n\nvoid setup() {\n  Serial.begin(115200);\n  pinMode(BUZZER_PIN, OUTPUT);\n  Serial.println(\"Security Perimeter Armed.\");\n}\n\nvoid loop() {\n  int lightLevel = analogRead(LDR_PIN);\n\n  if (lightLevel < THRESHOLD) {\n    Serial.println(\"ALARM! BEAM BROKEN!\");\n    for(int i=0; i<5; i++) {\n      digitalWrite(BUZZER_PIN, HIGH);\n      delay(100);\n      digitalWrite(BUZZER_PIN, LOW);\n      delay(100);\n    }\n  }\n  delay(50);\n}",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 73,
@@ -6762,7 +6756,7 @@
     ],
     "status": "Published",
     "bom_cost": "$5",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 74,
@@ -6835,7 +6829,7 @@
     "status": "Published",
     "bom_cost": "$12",
     "code": "// Light Intensity Logger\n#include <SPI.h>\n#include <SD.h>\n\nconst int LDR_PIN = 34;\n\nvoid setup() {\n  Serial.begin(115200);\n  if(!SD.begin()) { Serial.println(\"SD Failed\"); return; }\n}\n\nvoid loop() {\n  int val = analogRead(LDR_PIN);\n  File logFile = SD.open(\"/lights.csv\", FILE_WRITE);\n  if(logFile) {\n    logFile.print(millis());\n    logFile.print(\",\");\n    logFile.println(val);\n    logFile.close();\n  }\n  delay(3600000); // Record hourly\n}",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 75,
@@ -6899,7 +6893,7 @@
     "status": "Published",
     "bom_cost": "$18",
     "code": "// Smart Emergency SOS Node\n#define BTN_PIN 27\n#define BUZZER_PIN 26\n\nvoid setup() {\n  pinMode(BTN_PIN, INPUT_PULLUP);\n  pinMode(BUZZER_PIN, OUTPUT);\n  Serial.begin(115200);\n}\n\nvoid triggerSOS() {\n  Serial.println(\"EMERGENCY SIGNAL BROADCASTING...\");\n  for(int i=0; i<3; i++) { // S-O-S pattern\n    digitalWrite(BUZZER_PIN, HIGH); delay(200); digitalWrite(BUZZER_PIN, LOW); delay(200);\n  }\n  delay(500);\n}\n\nvoid loop() {\n  if(digitalRead(BTN_PIN) == LOW) {\n    triggerSOS();\n    delay(2000); // Prevent spamming\n  }\n}",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 76,
@@ -6964,7 +6958,7 @@
     "status": "Published",
     "bom_cost": "$22",
     "code": "// Smart Pressure Sensitive Door Mat\n#define FSR_PIN 32\n#define CHIME_PIN 13\n\nvoid setup() {\n  pinMode(CHIME_PIN, OUTPUT);\n  Serial.begin(115200);\n}\n\nvoid loop() {\n  int force = analogRead(FSR_PIN);\n  if (force > 500) { // Calibrated threshold for human weight\n    digitalWrite(CHIME_PIN, HIGH);\n    Serial.println(\"Visitor Detected at Entrance!\");\n    delay(2000);\n    digitalWrite(CHIME_PIN, LOW);\n  }\n  delay(100);\n}",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 77,
@@ -7029,7 +7023,7 @@
     "status": "Published",
     "bom_cost": "$6",
     "code": "// Auto Temperature Controlled Fan\n#include \"DHT.h\"\n#define DHTPIN 4\n#define FAN_PIN 13\n#define TEMP_THRESHOLD 28.0\n\nDHT dht(DHTPIN, DHT11);\n\nvoid setup() {\n  dht.begin();\n  pinMode(FAN_PIN, OUTPUT);\n}\n\nvoid loop() {\n  float t = dht.readTemperature();\n  if(!isnan(t)) {\n    if(t > TEMP_THRESHOLD) digitalWrite(FAN_PIN, HIGH); \n    else if(t < (TEMP_THRESHOLD - 1.0)) digitalWrite(FAN_PIN, LOW);\n  }\n  delay(2000);\n}",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 78,
@@ -7094,7 +7088,7 @@
     "status": "Published",
     "bom_cost": "$40",
     "code": "// Smart Automated Entry Node\n#define PIR 14\n#define LOCK_RELAY 27\n\nvoid setup() {\n  pinMode(PIR, INPUT);\n  pinMode(LOCK_RELAY, OUTPUT);\n  digitalWrite(LOCK_RELAY, HIGH); // Locked by default (Active Low)\n}\n\nvoid loop() {\n  if(digitalRead(PIR) == HIGH) {\n    digitalWrite(LOCK_RELAY, LOW); // Unlock\n    delay(10000); // 10s Entry Window\n    digitalWrite(LOCK_RELAY, HIGH);\n  }\n  delay(500);\n}",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 79,
@@ -7159,7 +7153,7 @@
     "status": "Published",
     "bom_cost": "$55",
     "code": "// Automated Gate Barrier\n#include <ESP32Servo.h>\n\nServo gateServo;\n#define TRIG 4\n#define ECHO 5\n\nvoid setup() {\n  gateServo.attach(18);\n  gateServo.write(0); // Closed\n  pinMode(TRIG, OUTPUT); pinMode(ECHO, INPUT);\n}\n\nvoid loop() {\n  digitalWrite(TRIG, HIGH); delayMicroseconds(10); digitalWrite(TRIG, LOW);\n  long duration = pulseIn(ECHO, HIGH);\n  int distance = duration * 0.034 / 2;\n\n  if (distance > 0 && distance < 50) {\n    gateServo.write(90); // Open\n    delay(5000);\n    gateServo.write(0);  // Close\n  }\n  delay(100);\n}",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 80,
@@ -7224,7 +7218,7 @@
     "status": "Published",
     "bom_cost": "$10",
     "code": "// Smart Adaptive Lamp\n// High-Fidelity Implementation\n\nconst int LAMP_PIN = 12;\nconst int PIR_PIN = 14;\nconst int LDR_PIN = 32;\n\nvoid setup() {\n  pinMode(LAMP_PIN, OUTPUT);\n  pinMode(PIR_PIN, INPUT);\n  Serial.begin(115200);\n}\n\nvoid loop() {\n  int lux = analogRead(LDR_PIN);\n  bool presence = digitalRead(PIR_PIN);\n  \n  if (presence) {\n    int brightness = map(lux, 4095, 0, 0, 255); // Inverse: darker = brighter\n    analogWrite(LAMP_PIN, brightness);\n    Serial.print(\"Lamp Active. Intensity: \");\n    Serial.println(brightness);\n  } else {\n    analogWrite(LAMP_PIN, 0);\n  }\n  delay(1000);\n}",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 81,
@@ -7280,7 +7274,7 @@
     ],
     "status": "Published",
     "bom_cost": "$8",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 82,
@@ -7352,7 +7346,7 @@
     ],
     "status": "Published",
     "bom_cost": "$22",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 83,
@@ -7432,7 +7426,7 @@
     "status": "Published",
     "bom_cost": "$35",
     "industrial_use": "Smart grids, industrial sub-metering, energy audits, and billing systems.",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 84,
@@ -7497,7 +7491,7 @@
     "status": "Published",
     "bom_cost": "$25",
     "code": "// Ultra-Low Power Weather Station\n#include <Adafruit_BME280.h>\n#include <WiFi.h>\n\n#define uS_TO_S_FACTOR 1000000\n#define TIME_TO_SLEEP  900\n\nAdafruit_BME280 bme;\n\nvoid setup() {\n  Serial.begin(115200);\n  if(!bme.begin(0x76)) { Serial.println(\"BME Error\"); return; }\n  \n  WiFi.begin(\"SSID\", \"PASS\");\n  while(WiFi.status() != WL_CONNECTED) delay(500);\n  \n  // PUSH DATA\n  Serial.printf(\"Temp: %.2f | Hum: %.2f\\n\", bme.readTemperature(), bme.readHumidity());\n  \n  esp_sleep_enable_timer_wakeup(TIME_TO_SLEEP * uS_TO_S_FACTOR);\n  Serial.println(\"Entering Deep Sleep...\");\n  Serial.flush(); \n  esp_deep_sleep_start();\n}\n\nvoid loop() {}",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 85,
@@ -7561,7 +7555,7 @@
     "status": "Published",
     "bom_cost": "$28",
     "code": "// Fail-Safe Smart Irrigation\nconst int SENSOR_PIN = 34;\nconst int VALVE_PIN = 25;\nconst int THRESHOLD = 2000;\n\nvoid setup() {\n  pinMode(VALVE_PIN, OUTPUT);\n  digitalWrite(VALVE_PIN, LOW);\n}\n\nvoid loop() {\n  int sum = 0;\n  for(int i=0; i<10; i++) sum += analogRead(SENSOR_PIN);\n  int avg = sum / 10;\n\n  if(avg > THRESHOLD) {\n    digitalWrite(VALVE_PIN, HIGH); // Open Valve\n    delay(15000);                 // Water for 15s\n    digitalWrite(VALVE_PIN, LOW);  // Close Valve\n    delay(3600000);               // Wait 1 hour for soil to soak\n  }\n  delay(60000); \n}",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 86,
@@ -7641,7 +7635,7 @@
     "status": "Published",
     "bom_cost": "$18",
     "code": "// High-Security RFID Lock\n#include <MFRC522.h>\n#include <BlynkSimpleEsp32.h>\n\nMFRC522 mfrc522(5, 22);\n\nvoid setup() {\n  Serial.begin(115200);\n  SPI.begin();\n  mfrc522.PCD_Init();\n  pinMode(27, OUTPUT); // Solenoid Pin\n}\n\nvoid loop() {\n  if (!mfrc522.PICC_IsNewCardPresent()) return;\n  if (!mfrc522.PICC_ReadCardSerial()) return;\n  \n  // Check UID logic\n  if(mfrc522.uid.uidByte[0] == 0xDE && mfrc522.uid.uidByte[1] == 0xAD) {\n    digitalWrite(27, HIGH);\n    delay(5000);\n    digitalWrite(27, LOW);\n  }\n}",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 87,
@@ -7739,7 +7733,7 @@
     "bom_cost": "$24",
     "code": "#include <SPI.h>\n#include <MFRC522.h>\n#include <Wire.h>\n#include <Adafruit_GFX.h>\n#include <Adafruit_SSD1306.h>\n\n#define SS_PIN 5\n#define RST_PIN 22\n#define BUZZER 26\nMFRC522 rfid(SS_PIN, RST_PIN);\nAdafruit_SSD1306 display(128, 64, &Wire, -1);\n\nvoid setup() {\n  Serial.begin(115200);\n  SPI.begin();\n  rfid.PCD_Init();\n  pinMode(BUZZER, OUTPUT);\n  Wire.begin(21, 22);\n  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);\n  display.clearDisplay();\n  display.setTextColor(WHITE);\n  display.setCursor(10, 20);\n  display.println(\"Scan Card...\");\n  display.display();\n}\n\nvoid loop() {\n  if (!rfid.PICC_IsNewCardPresent()) return;\n  if (!rfid.PICC_ReadCardSerial()) return;\n  \n  display.clearDisplay();\n  display.setCursor(0, 0);\n  display.print(\"ID: \");\n  for (byte i = 0; i < rfid.uid.size; i++) {\n    display.print(rfid.uid.uidByte[i] < 0x10 ? \" 0\" : \" \");\n    display.print(rfid.uid.uidByte[i], HEX);\n  }\n  display.display();\n  digitalWrite(BUZZER, HIGH); delay(100); digitalWrite(BUZZER, LOW);\n  rfid.PICC_HaltA();\n}",
     "industrial_use": "Corporate offices, education campus, secure areas.",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 88,
@@ -7811,7 +7805,7 @@
     "status": "Published",
     "bom_cost": "$12",
     "code": "// Industrial Gas Safety Node\n#define SENSOR_PIN 32\n#define SIREN_PIN 13\n#define SHUTOFF_VALVE 27\n\nvoid setup() {\n  pinMode(SIREN_PIN, OUTPUT);\n  pinMode(SHUTOFF_VALVE, OUTPUT);\n  digitalWrite(SHUTOFF_VALVE, HIGH); // Open by default\n}\n\nvoid loop() {\n  int val = analogRead(SENSOR_PIN);\n  if (val > 2500) { // Dangerous Level\n    digitalWrite(SIREN_PIN, HIGH);\n    digitalWrite(SHUTOFF_VALVE, LOW); // Close Valve\n    Serial.println(\"GAS EXCEEDED: CLOSING MAIN VALVE\");\n    // Telegram API call logic\n  }\n  delay(200);\n}",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 89,
@@ -7875,7 +7869,7 @@
     "status": "Published",
     "bom_cost": "$18",
     "code": "// Smart Parking Slot Monitor\n#include <PubSubClient.h>\n\nconst int TRIG = 4; const int ECHO = 5;\nconst int RED_LED = 25; const int GRN_LED = 26;\n\nvoid setup() {\n  pinMode(TRIG, OUTPUT); pinMode(ECHO, INPUT);\n  pinMode(RED_LED, OUTPUT); pinMode(GRN_LED, OUTPUT);\n}\n\nvoid loop() {\n  digitalWrite(TRIG, HIGH); delayMicroseconds(10); digitalWrite(TRIG, LOW);\n  long d = pulseIn(ECHO, HIGH) * 0.034 / 2;\n  \n  if(d < 50 && d > 0) {\n    digitalWrite(RED_LED, HIGH); digitalWrite(GRN_LED, LOW);\n    // MQTT publish \"Occupied\"\n  } else {\n    digitalWrite(RED_LED, LOW); digitalWrite(GRN_LED, HIGH);\n    // MQTT publish \"Vacant\"\n  }\n  delay(2000);\n}",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 90,
@@ -7956,7 +7950,7 @@
     "status": "Published",
     "bom_cost": "$15",
     "code": "// Autonomous Smart Streetlight\nconst int LED_PIN = 14;\nconst int PIR_PIN = 27;\n\nvoid setup() {\n  ledcSetup(0, 5000, 8);\n  ledcAttachPin(LED_PIN, 0);\n  pinMode(PIR_PIN, INPUT);\n}\n\nvoid loop() {\n  if(digitalRead(PIR_PIN)) {\n    for(int i=50; i<255; i++) { \n      ledcWrite(0, i); \n      delay(5); \n    }\n    delay(15000);\n  } else {\n    ledcWrite(0, 20); // 8% Standby\n  }\n  delay(500);\n}",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 91,
@@ -8028,7 +8022,7 @@
     "status": "Published",
     "bom_cost": "$14",
     "code": "// Fire Mitigation & Alert System\nconst int FLAME_PIN = 32;\nconst int PUMP_RELAY = 13;\n\nvoid setup() {\n  pinMode(FLAME_PIN, INPUT);\n  pinMode(PUMP_RELAY, OUTPUT);\n  digitalWrite(PUMP_RELAY, LOW);\n}\n\nvoid loop() {\n  if(digitalRead(FLAME_PIN) == LOW) { // Flame detected (Active Low)\n    digitalWrite(PUMP_RELAY, HIGH);\n    Serial.println(\"FIRE DETECTED! Suppression Active.\");\n    // Send Cloud Alert\n    delay(10000);\n  } else {\n    digitalWrite(PUMP_RELAY, LOW);\n  }\n  delay(50);\n}",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 92,
@@ -8100,7 +8094,7 @@
     "status": "Published",
     "bom_cost": "$28",
     "code": "// Liquid Level Logic Controller\n#define PUMP 15\n#define TRIG 12\n#define ECHO 13\n\nvoid setup() {\n  pinMode(PUMP, OUTPUT);\n  pinMode(TRIG, OUTPUT); pinMode(ECHO, INPUT);\n}\n\nvoid loop() {\n  digitalWrite(TRIG, HIGH); delayMicroseconds(10); digitalWrite(TRIG, LOW);\n  long dist = pulseIn(ECHO, HIGH) * 0.034 / 2;\n  int level = map(dist, 100, 10, 0, 100); // 100cm (Empty) to 10cm (Full)\n\n  if(level < 20) digitalWrite(PUMP, HIGH);\n  if(level > 95) digitalWrite(PUMP, LOW);\n  delay(5000);\n}",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 93,
@@ -8164,7 +8158,7 @@
     "status": "Published",
     "bom_cost": "$16",
     "code": "// Smart Refrigerator Security Log\n#include <OneWire.h>\n#include <DallasTemperature.h>\n\nOneWire oneWire(4);\nDallasTemperature sensors(&oneWire);\n#define REED_PIN 15\n#define BUZZER 13\n\nvoid setup() {\n  sensors.begin();\n  pinMode(REED_PIN, INPUT_PULLUP);\n  pinMode(BUZZER, OUTPUT);\n}\n\nvoid loop() {\n  sensors.requestTemperatures();\n  float t = sensors.getTempCByIndex(0);\n  bool doorOpen = digitalRead(REED_PIN) == HIGH;\n  \n  if (doorOpen) {\n    // Timer logic here\n    digitalWrite(BUZZER, HIGH); delay(100); digitalWrite(BUZZER, LOW);\n  }\n  delay(5000);\n}",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 94,
@@ -8228,7 +8222,7 @@
     "status": "Published",
     "bom_cost": "$26",
     "code": "// Smart Comfort & Energy Node\n#include <IRremote.h>\n\nconst int IR_RX = 15; \nconst int RELAY = 13;\n\nvoid setup() {\n  IrReceiver.begin(IR_RX, ENABLE_LED_FEEDBACK);\n  pinMode(RELAY, OUTPUT);\n}\n\nvoid loop() {\n  if (IrReceiver.decode()) {\n    if(IrReceiver.decodedIRData.command == 0x12) { // Example IR Command\n      digitalWrite(RELAY, !digitalRead(RELAY));\n    }\n    IrReceiver.resume();\n  }\n}",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 95,
@@ -8311,7 +8305,7 @@
     "bom_cost": "$32",
     "code": "#include <Wire.h>\n#include \"MAX30105.h\"\n#include \"heartRate.h\"\n#include <Adafruit_GFX.h>\n#include <Adafruit_SSD1306.h>\n\nMAX30105 particleSensor;\nAdafruit_SSD1306 display(128, 64, &Wire, -1);\nlong lastBeat = 0;\nfloat beatsPerMinute;\n\nvoid setup() {\n  Serial.begin(115200);\n  Wire.begin(21, 22);\n  if (!particleSensor.begin(Wire, I2C_SPEED_FAST)) return;\n  particleSensor.setup();\n  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);\n  display.clearDisplay();\n  display.setTextSize(1);\n  display.setTextColor(WHITE);\n}\n\nvoid loop() {\n  long irValue = particleSensor.getIR();\n  if (checkForBeat(irValue) == true) {\n    long delta = millis() - lastBeat;\n    lastBeat = millis();\n    beatsPerMinute = 60 / (delta / 1000.0);\n    display.clearDisplay();\n    display.setCursor(0, 0);\n    display.print(\"BPM: \");\n    display.println(beatsPerMinute);\n    display.display();\n  }\n}",
     "industrial_use": "Telemedicine, nursing home safety, fitness analytics.",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 96,
@@ -8417,7 +8411,7 @@
     "bom_cost": "$65",
     "code": "// Greenhouse Climate Controller\n#include \"Adafruit_SGP30.h\"\nAdafruit_SGP30 sgp;\n\nvoid setup() {\n  Serial.begin(115200);\n  if(!sgp.begin()) { Serial.println(\"CO2 Sensor Error\"); return; }\n  pinMode(13, OUTPUT); // Exhaust Fan\n}\n\nvoid loop() {\n  if(sgp.IAQmeasure()) {\n    Serial.print(\"CO2: \"); Serial.print(sgp.eCO2); Serial.println(\" ppm\");\n    if(sgp.eCO2 > 800) {\n      digitalWrite(13, HIGH); // Ventilate\n    } else {\n      digitalWrite(13, LOW);\n    }\n  }\n  delay(2000);\n}",
     "industrial_use": "Precision agriculture, research test-beds, commercial hydroponics.",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 97,
@@ -8481,7 +8475,7 @@
     "status": "Published",
     "bom_cost": "$28",
     "code": "// Density-Based Junction Logic\nconst int LANES[] = {32, 33, 34, 35}; // IR sensor pins\nconst int REDS[] = {2, 4, 5, 12};\nconst int GREENS[] = {13, 14, 15, 16};\n\nvoid setup() {\n  for(int i=0; i<4; i++) {\n    pinMode(LANES[i], INPUT);\n    pinMode(REDS[i], OUTPUT);\n    pinMode(GREENS[i], OUTPUT);\n  }\n}\n\nvoid loop() {\n  // Simple priority logic\n  for(int i=0; i<4; i++) {\n    if(digitalRead(LANES[i]) == LOW) { // Vehicle detected\n      digitalWrite(GREENS[i], HIGH); digitalWrite(REDS[i], LOW);\n      delay(10000);\n      digitalWrite(GREENS[i], LOW); digitalWrite(REDS[i], HIGH);\n    }\n  }\n  delay(100);\n}",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 98,
@@ -8553,7 +8547,7 @@
     "bom_cost": "$45",
     "code": "#include <Wire.h>\n#include <Adafruit_GFX.h>\n#include <Adafruit_SSD1306.h>\n#include <SDS011.h>\n\n// -------- OLED CONFIG ----------\n#define SCREEN_WIDTH 128\n#define SCREEN_HEIGHT 64\n#define OLED_RESET -1\n#define OLED_ADDR 0x3C\n\nAdafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);\n\n// -------- SDS011 CONFIG --------\n#define SDS_RX 16\n#define SDS_TX 17\n\nSDS011 sds;\nHardwareSerial sdsSerial(2);\n\n// -------- VARIABLES -----------\nfloat pm25, pm10;\n\nvoid setup() {\n  Serial.begin(115200);\n\n  // OLED Init\n  Wire.begin(21, 22);\n  if (!display.begin(SSD1306_SWITCHCAPVCC, OLED_ADDR)) {\n    Serial.println(\"OLED not found!\");\n    while (1);\n  }\n\n  display.clearDisplay();\n  display.setTextSize(1);\n  display.setTextColor(WHITE);\n  display.setCursor(10, 20);\n  display.println(\"Air Monitor\");\n  display.display();\n  delay(2000);\n\n  // SDS011 Init\n  sdsSerial.begin(9600, SERIAL_8N1, SDS_RX, SDS_TX);\n  sds.begin(&sdsSerial);\n}\n\nvoid loop() {\n  if (sds.read(&pm25, &pm10) == 0) {\n\n    Serial.printf(\"PM2.5: %.2f | PM10: %.2f\\n\", pm25, pm10);\n\n    display.clearDisplay();\n    display.setTextSize(1);\n\n    display.setCursor(0, 0);\n    display.println(\"Air Quality\");\n\n    display.setCursor(0, 20);\n    display.print(\"PM2.5: \");\n    display.print(pm25);\n    display.println(\" ug/m3\");\n    \n    display.setCursor(0, 40);\n    display.print(\"PM10: \");\n    display.print(pm10);\n    display.println(\" ug/m3\");\n    \n    display.display();\n  }\n  delay(1000);\n}",
     "industrial_use": "Smart city pollution mapping, HVAC optimization, industrial safety.",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 99,
@@ -8628,7 +8622,7 @@
     "bom_cost": "$28",
     "code": "#include <Wire.h>\\n#include <Adafruit_GFX.h>\\n#include <Adafruit_SSD1306.h>\\n\\n#define TRIG 5\\n#define ECHO 18\\n#define BUZZER 26\\n#define SCREEN_WIDTH 128\\n#define SCREEN_HEIGHT 64\\n\\nAdafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);\\n\\nvoid setup() {\\n  Serial.begin(115200);\\n  pinMode(TRIG, OUTPUT);\\n  pinMode(ECHO, INPUT);\\n  pinMode(BUZZER, OUTPUT);\\n  Wire.begin(21, 22);\\n  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);\\n  display.clearDisplay();\\n  display.setCursor(10, 20);\\n  display.setTextColor(WHITE);\\n  display.println(\"Smart Bin System\");\\n  display.display();\\n  delay(2000);\\n}\\n\\nvoid loop() {\\n  digitalWrite(TRIG, LOW);\\n  delayMicroseconds(2);\\n  digitalWrite(TRIG, HIGH);\\n  delayMicroseconds(10);\\n  digitalWrite(TRIG, LOW);\\n  long duration = pulseIn(ECHO, HIGH);\\n  int distance = duration * 0.034 / 2;\\n\\n  display.clearDisplay();\\n  display.setCursor(0, 0);\\n  display.print(\"Fill Level: \");\\n  display.print(distance);\\n  display.println(\" cm\");\\n\\n  if (distance < 10) {\\n    display.println(\"BIN FULL!\");\\n    digitalWrite(BUZZER, HIGH);\\n  } else {\\n    digitalWrite(BUZZER, LOW);\\n  }\\n  display.display();\\n  delay(2000);\\n}",
     "industrial_use": "Smart city sanitation, industrial waste compliance, institutional management.",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   },
   {
     "id": 100,
@@ -8725,6 +8719,6 @@
     "bom_cost": "$55",
     "code": "// Pro Vehicle Asset Tracker\n// Hardware: ESP32 + SIM800L + Neo-6M GPS\n\n#include <TinyGPS++.h>\n#include <HardwareSerial.h>\n\nTinyGPSPlus gps;\nHardwareSerial GPS_Serial(2);\n\nvoid setup() {\n  Serial.begin(115200);\n  GPS_Serial.begin(9600, SERIAL_8N1, 4, 5);\n  Serial.println(\"Booting Logistics Tracker...\");\n}\n\nvoid loop() {\n  while (GPS_Serial.available() > 0) {\n    if (gps.encode(GPS_Serial.read())) {\n      if (gps.location.isValid()) {\n        Serial.print(\"LAT: \"); Serial.println(gps.location.lat(), 6);\n        Serial.print(\"LNG: \"); Serial.println(gps.location.lng(), 6);\n        Serial.print(\"SPEED: \"); Serial.println(gps.speed.kmph());\n      }\n    }\n  }\n  \n  if (millis() > 5000 && gps.charsProcessed() < 10) {\n    Serial.println(\"No GPS Hardware Detected Check Wiring!\");\n  }\n}",
     "industrial_use": "Logistics tracking, vehicle recovery, cold-chain monitoring.",
-    "author_name": "Antigravity"
+    "author_name": "NISHANTH"
   }
 ]

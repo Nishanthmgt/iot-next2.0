@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, HelpCircle, Zap, Code, Cpu, Globe, Shield, Rocket } from 'lucide-react';
 
@@ -123,6 +124,13 @@ const faqs = [
 export default function QA() {
     const [openCategory, setOpenCategory] = useState(0);
     const [openQuestion, setOpenQuestion] = useState(null);
+    const [isMobile, setIsMobile] = React.useState(window.innerWidth <= 820);
+
+    React.useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth <= 820);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     const toggleQuestion = (categoryIndex, questionIndex) => {
         const key = `${categoryIndex}-${questionIndex}`;
@@ -130,25 +138,38 @@ export default function QA() {
     };
 
     return (
-        <section className="container" style={{ paddingTop: '6rem', paddingBottom: '8rem', minHeight: '100vh' }}>
+        <section className="container" style={{
+            paddingTop: isMobile ? '1rem' : 'var(--app-py)',
+            paddingBottom: isMobile ? '4rem' : 'var(--app-py)',
+            minHeight: '100vh',
+            paddingLeft: 'var(--app-px)',
+            paddingRight: 'var(--app-px)'
+        }}>
+            <Helmet>
+                <title>Common Questions & Debugging | IoT Troubleshooting FAQ | IoTNext</title>
+                <meta name="description" content="Find answers to common IoT engineering questions, troubleshooting tips for ESP32/Arduino, and debugging guides for industrial protocols." />
+                <meta property="og:title" content="IoT Troubleshooting & QA - IoTNext" />
+                <meta property="og:description" content="Technical answers for technical builders. Resolve common IoT development issues." />
+                <link rel="canonical" href="https://iotnext.store/qa" />
+            </Helmet>
             {/* Header */}
-            <div style={{ textAlign: 'center', marginBottom: '5rem' }}>
+            <div style={{ textAlign: 'center', marginBottom: isMobile ? '3rem' : '5rem' }}>
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     style={{
                         display: 'inline-flex',
                         alignItems: 'center',
-                        gap: '0.75rem',
+                        gap: '0.5rem',
                         background: 'rgba(var(--primary-rgb), 0.1)',
-                        padding: '0.75rem 1.5rem',
+                        padding: isMobile ? '0.5rem 1rem' : '0.75rem 1.5rem',
                         borderRadius: '2rem',
                         border: '1px solid rgba(var(--primary-rgb), 0.2)',
-                        marginBottom: '2rem'
+                        marginBottom: isMobile ? '1rem' : '2rem'
                     }}
                 >
-                    <HelpCircle size={20} color="var(--primary)" />
-                    <span style={{ fontSize: '0.85rem', fontWeight: '800', color: 'var(--primary)', letterSpacing: '0.1em' }}>
+                    <HelpCircle size={isMobile ? 16 : 20} color="var(--primary)" />
+                    <span style={{ fontSize: isMobile ? '0.75rem' : '0.85rem', fontWeight: '800', color: 'var(--primary)', letterSpacing: '0.1em' }}>
                         KNOWLEDGE BASE
                     </span>
                 </motion.div>
@@ -157,7 +178,12 @@ export default function QA() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 }}
-                    style={{ fontSize: 'clamp(2.5rem, 5vw, 4rem)', fontWeight: '950', marginBottom: '1.5rem', letterSpacing: '-0.04em' }}
+                    style={{
+                        fontSize: isMobile ? '2.5rem' : 'clamp(2.5rem, 5vw, 4rem)',
+                        fontWeight: '950',
+                        marginBottom: isMobile ? '0.75rem' : '1.5rem',
+                        letterSpacing: '-0.04em'
+                    }}
                 >
                     Questions & <span className="text-gradient">Answers</span>
                 </motion.h1>
@@ -166,14 +192,28 @@ export default function QA() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
-                    style={{ color: 'var(--text-muted)', fontSize: '1.2rem', maxWidth: '700px', margin: '0 auto', lineHeight: '1.8' }}
+                    style={{
+                        color: 'var(--text-muted)',
+                        fontSize: isMobile ? '1rem' : '1.2rem',
+                        maxWidth: '700px',
+                        margin: '0 auto',
+                        lineHeight: isMobile ? '1.5' : '1.8'
+                    }}
                 >
                     Find answers to common questions about IoTnext, our platform features, and IoT engineering best practices.
                 </motion.p>
             </div>
 
             {/* Category Tabs */}
-            <div style={{ display: 'flex', gap: '1rem', marginBottom: '3rem', overflowX: 'auto', paddingBottom: '1rem' }}>
+            <div style={{
+                display: 'flex',
+                gap: '0.75rem',
+                marginBottom: isMobile ? '1.5rem' : '3rem',
+                overflowX: 'auto',
+                paddingBottom: '0.5rem',
+                msOverflowStyle: 'none',
+                scrollbarWidth: 'none'
+            }}>
                 {faqs.map((category, index) => (
                     <motion.button
                         key={index}
@@ -181,30 +221,30 @@ export default function QA() {
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         style={{
-                            padding: '1rem 1.5rem',
-                            borderRadius: '1.25rem',
+                            padding: isMobile ? '0.6rem 1.25rem' : '1rem 1.5rem',
+                            borderRadius: isMobile ? '1rem' : '1.25rem',
                             background: openCategory === index ? 'var(--primary-gradient)' : 'var(--surface)',
                             color: openCategory === index ? 'white' : 'var(--text)',
                             border: openCategory === index ? 'none' : '1px solid var(--border)',
                             fontWeight: '800',
-                            fontSize: '0.95rem',
+                            fontSize: isMobile ? '0.85rem' : '0.95rem',
                             cursor: 'pointer',
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '0.75rem',
+                            gap: '0.5rem',
                             whiteSpace: 'nowrap',
                             boxShadow: openCategory === index ? '0 10px 30px rgba(var(--primary-rgb), 0.3)' : 'none',
                             transition: 'all 0.3s ease'
                         }}
                     >
-                        {category.icon}
+                        {React.cloneElement(category.icon, { size: isMobile ? 16 : 20 })}
                         {category.category}
                     </motion.button>
                 ))}
             </div>
 
             {/* FAQ Accordion */}
-            <div className="glass-plus" style={{ borderRadius: '2rem', overflow: 'hidden' }}>
+            <div className="glass-plus" style={{ borderRadius: isMobile ? '1.5rem' : '2rem', overflow: 'hidden' }}>
                 <AnimatePresence mode="wait">
                     <motion.div
                         key={openCategory}
@@ -212,7 +252,7 @@ export default function QA() {
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: -20 }}
                         transition={{ duration: 0.3 }}
-                        style={{ padding: '2rem' }}
+                        style={{ padding: isMobile ? '1.25rem' : '2rem' }}
                     >
                         {faqs[openCategory].questions.map((faq, qIndex) => {
                             const isOpen = openQuestion === `${openCategory}-${qIndex}`;
@@ -221,8 +261,8 @@ export default function QA() {
                                     key={qIndex}
                                     style={{
                                         borderBottom: qIndex < faqs[openCategory].questions.length - 1 ? '1px solid var(--border)' : 'none',
-                                        paddingBottom: '1.5rem',
-                                        marginBottom: qIndex < faqs[openCategory].questions.length - 1 ? '1.5rem' : '0'
+                                        paddingBottom: isMobile ? '1rem' : '1.5rem',
+                                        marginBottom: qIndex < faqs[openCategory].questions.length - 1 ? (isMobile ? '1rem' : '1.5rem') : '0'
                                     }}
                                 >
                                     <button
@@ -234,7 +274,7 @@ export default function QA() {
                                             alignItems: 'center',
                                             background: 'transparent',
                                             border: 'none',
-                                            padding: '1rem',
+                                            padding: isMobile ? '0.5rem' : '1rem',
                                             borderRadius: '1rem',
                                             cursor: 'pointer',
                                             textAlign: 'left',
@@ -242,17 +282,17 @@ export default function QA() {
                                         }}
                                         className="faq-question-btn"
                                     >
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flex: 1 }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '0.75rem' : '1rem', flex: 1 }}>
                                             <div
                                                 style={{
-                                                    width: '8px',
-                                                    height: '8px',
+                                                    width: isMobile ? '6px' : '8px',
+                                                    height: isMobile ? '6px' : '8px',
                                                     borderRadius: '50%',
                                                     background: faqs[openCategory].color,
                                                     boxShadow: `0 0 10px ${faqs[openCategory].color}`
                                                 }}
                                             />
-                                            <span style={{ fontSize: '1.1rem', fontWeight: '700', color: 'var(--text)' }}>
+                                            <span style={{ fontSize: isMobile ? '1rem' : '1.1rem', fontWeight: '700', color: 'var(--text)', lineHeight: 1.3 }}>
                                                 {faq.q}
                                             </span>
                                         </div>
@@ -261,7 +301,7 @@ export default function QA() {
                                             transition={{ duration: 0.3 }}
                                             style={{ color: 'var(--primary)' }}
                                         >
-                                            <ChevronDown size={24} />
+                                            <ChevronDown size={isMobile ? 20 : 24} />
                                         </motion.div>
                                     </button>
 
@@ -276,10 +316,10 @@ export default function QA() {
                                             >
                                                 <div
                                                     style={{
-                                                        padding: '1.5rem 1.5rem 0.5rem 3rem',
+                                                        padding: isMobile ? '1rem 1rem 0.5rem 1.75rem' : '1.5rem 1.5rem 0.5rem 3rem',
                                                         color: 'var(--text-muted)',
-                                                        fontSize: '1.05rem',
-                                                        lineHeight: '1.8',
+                                                        fontSize: isMobile ? '0.9rem' : '1.05rem',
+                                                        lineHeight: isMobile ? '1.5' : '1.8',
                                                         fontWeight: '500'
                                                     }}
                                                 >
@@ -302,28 +342,35 @@ export default function QA() {
                 transition={{ delay: 0.4 }}
                 className="glass"
                 style={{
-                    marginTop: '4rem',
-                    padding: '3rem',
-                    borderRadius: '2rem',
+                    marginTop: isMobile ? '2.5rem' : '4rem',
+                    padding: isMobile ? '2rem 1.5rem' : '3rem',
+                    borderRadius: isMobile ? '1.5rem' : '2rem',
                     textAlign: 'center',
                     border: '1px solid rgba(var(--primary-rgb), 0.2)',
                     background: 'linear-gradient(135deg, rgba(var(--primary-rgb), 0.05), rgba(var(--secondary-rgb), 0.05))'
                 }}
             >
-                <Zap size={48} color="var(--primary)" style={{ marginBottom: '1.5rem' }} />
-                <h3 style={{ fontSize: '2rem', fontWeight: '900', marginBottom: '1rem' }}>
+                <Zap size={isMobile ? 32 : 48} color="var(--primary)" style={{ marginBottom: isMobile ? '1rem' : '1.5rem' }} />
+                <h3 style={{ fontSize: isMobile ? '1.5rem' : '2rem', fontWeight: '900', marginBottom: isMobile ? '0.75rem' : '1rem' }}>
                     Still Have Questions?
                 </h3>
-                <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', marginBottom: '2rem', maxWidth: '600px', margin: '0 auto 2rem' }}>
+                <p style={{ color: 'var(--text-muted)', fontSize: isMobile ? '0.95rem' : '1.1rem', marginBottom: isMobile ? '1.5rem' : '2rem', maxWidth: '600px', margin: '0 auto 2rem' }}>
                     Our team is here to help. Reach out for technical support, project guidance, or partnership inquiries.
                 </p>
                 <a
                     href="mailto:circuitvibe0311@gmail.com"
                     className="btn btn-primary btn-primary-shiny"
-                    style={{ padding: '1rem 2.5rem', fontSize: '1.1rem', borderRadius: '1.5rem', display: 'inline-flex', alignItems: 'center', gap: '0.75rem' }}
+                    style={{
+                        padding: isMobile ? '0.75rem 1.5rem' : '1rem 2.5rem',
+                        fontSize: isMobile ? '1rem' : '1.1rem',
+                        borderRadius: isMobile ? '1rem' : '1.5rem',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.75rem'
+                    }}
                 >
                     Contact Support
-                    <ChevronDown size={20} style={{ transform: 'rotate(-90deg)' }} />
+                    <ChevronDown size={isMobile ? 18 : 20} style={{ transform: 'rotate(-90deg)' }} />
                 </a>
             </motion.div>
 

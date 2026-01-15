@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Star, MessageSquare, Send, User, CheckCircle, Mail, Shield, Trash2, X } from 'lucide-react';
+import { Star, MessageSquare, Send, User, CheckCircle, Mail, Shield, Trash2, X, MoreVertical, Heart } from 'lucide-react';
 
 import { supabase } from '../lib/supabase';
 
@@ -42,6 +42,7 @@ const seedReviews = [
 ];
 
 const RatingSummary = ({ reviews }) => {
+    const isMobile = window.innerWidth <= 768;
     const total = reviews.length;
     const stats = [5, 4, 3, 2, 1].map(star => {
         const count = reviews.filter(r => Math.round(r.rating) === star).length;
@@ -54,38 +55,57 @@ const RatingSummary = ({ reviews }) => {
         : 0;
 
     return (
-        <div className="glass" style={{ padding: '2rem', borderRadius: '2rem', marginBottom: '3rem' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(150px, 1fr) 2fr', gap: '3rem', alignItems: 'center' }}>
-                <div style={{ textAlign: 'center', borderRight: '1px solid var(--border)', paddingRight: '2rem' }}>
-                    <div style={{ fontSize: '4rem', fontWeight: 900, color: 'var(--primary)', lineHeight: 1 }}>{averageRating}</div>
-                    <div style={{ display: 'flex', justifyContent: 'center', gap: '0.2rem', margin: '1rem 0' }}>
+        <div style={{
+            padding: isMobile ? '1rem 0' : '2rem 0',
+            marginBottom: isMobile ? '1.5rem' : '3rem',
+            borderBottom: '1px solid var(--border)'
+        }}>
+            <div style={{
+                display: 'grid',
+                gridTemplateColumns: isMobile ? '1fr' : 'auto 1fr',
+                gap: isMobile ? '1.5rem' : '4rem',
+                alignItems: 'center'
+            }}>
+                <div style={{ textAlign: 'center', minWidth: '150px' }}>
+                    <div style={{
+                        fontSize: isMobile ? '3.5rem' : '5rem',
+                        fontWeight: 800,
+                        color: 'var(--text)',
+                        lineHeight: 1
+                    }}>
+                        {averageRating}
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'center', gap: '0.1rem', margin: '0.5rem 0' }}>
                         {[...Array(5)].map((_, i) => (
                             <Star
                                 key={i}
-                                size={20}
+                                size={isMobile ? 18 : 24}
                                 fill={i < Math.round(averageRating) ? "var(--secondary)" : "none"}
-                                stroke={i < Math.round(averageRating) ? "var(--secondary)" : "var(--text-muted)"}
+                                stroke={i < Math.round(averageRating) ? "var(--secondary)" : "var(--border)"}
                             />
                         ))}
                     </div>
-                    <div style={{ color: 'var(--text-muted)', fontWeight: 600 }}>{total} Global Reviews</div>
+                    <div style={{ color: 'var(--text-muted)', fontWeight: 600, fontSize: '0.9rem' }}>
+                        {total} reviews
+                    </div>
                 </div>
 
-                <div style={{ display: 'grid', gap: '0.8rem' }}>
+                <div style={{ display: 'grid', gap: '0.5rem', flex: 1 }}>
                     {stats.map(({ star, count, percentage }) => (
                         <div key={star} style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                            <div style={{ width: '50px', display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.9rem', fontWeight: 700 }}>
-                                {star} <Star size={12} fill="var(--text-muted)" stroke="none" />
-                            </div>
-                            <div style={{ flex: 1, height: '8px', background: 'rgba(var(--primary-rgb), 0.1)', borderRadius: '4px', overflow: 'hidden' }}>
+                            <div style={{ width: '30px', fontSize: '0.85rem', fontWeight: 700 }}>{star}</div>
+                            <div style={{
+                                flex: 1,
+                                height: '8px',
+                                background: 'rgba(var(--text-rgb), 0.05)',
+                                borderRadius: '4px',
+                                overflow: 'hidden'
+                            }}>
                                 <motion.div
                                     initial={{ width: 0 }}
                                     animate={{ width: `${percentage}%` }}
                                     style={{ height: '100%', background: 'var(--primary)', borderRadius: '4px' }}
                                 />
-                            </div>
-                            <div style={{ width: '40px', fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>
-                                {count}
                             </div>
                         </div>
                     ))}
@@ -95,12 +115,14 @@ const RatingSummary = ({ reviews }) => {
     );
 };
 
-export default function CustomReviews({ limit, setView, isAdmin }) {
+export default function CustomReviews({ limit, setView, isAdmin, autoOpenForm }) {
+    const isMobile = window.innerWidth <= 768;
     const [reviews, setReviews] = useState([]);
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [deletingId, setDeletingId] = useState(null);
     const [replyTo, setReplyTo] = useState(null);
+    const [sortBy, setSortBy] = useState('recent'); // recent, highest, lowest
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -115,23 +137,33 @@ export default function CustomReviews({ limit, setView, isAdmin }) {
         fetchReviews();
     }, []);
 
+    // Auto-open form if autoOpenForm prop is true
+    useEffect(() => {
+        if (autoOpenForm) {
+            setIsFormOpen(true);
+        }
+    }, [autoOpenForm]);
+
     const fetchReviews = async () => {
         setIsLoading(true);
         try {
             const { data, error } = await supabase
                 .from('reviews')
-                .select('*')
-                .order('created_at', { ascending: false });
+                .select('*');
 
             if (error) throw error;
 
+            // Client-side sort initial processing
             const likedReviews = JSON.parse(localStorage.getItem('iotnext_likes') || '[]');
             const liveReviews = data.map(r => ({
                 ...r,
                 date: new Date(r.created_at).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
+                timestamp: new Date(r.created_at).getTime(), // For sorting
                 userLiked: likedReviews.includes(r.id)
             }));
-            setReviews([...liveReviews, ...seedReviews]);
+            const allReviews = [...liveReviews, ...seedReviews.map(r => ({ ...r, timestamp: new Date(r.date).getTime() }))];
+
+            setReviews(allReviews);
         } catch (err) {
             console.error('Core protocol error fetching reviews:', err);
             setReviews(seedReviews);
@@ -238,308 +270,366 @@ export default function CustomReviews({ limit, setView, isAdmin }) {
         setFormData({ name: '', email: '', text: '', rating: 5, type: 'guest', role: '', college: '' });
     };
 
+    const sortedReviews = [...reviews].sort((a, b) => {
+        if (sortBy === 'highest') return b.rating - a.rating;
+        if (sortBy === 'lowest') return a.rating - b.rating;
+        return b.timestamp - a.timestamp; // default recent
+    });
+
     const displayedReviews = limit
-        ? reviews.filter(r => !r.parent_id).slice(0, limit)
-        : reviews.filter(r => !r.parent_id);
+        ? sortedReviews.filter(r => !r.parent_id).slice(0, limit)
+        : sortedReviews.filter(r => !r.parent_id);
 
     return (
-        <section id="reviews-system" aria-labelledby="community-experience-title" style={{ marginTop: limit <= 1 ? '1rem' : '2.5rem' }}>
+        <section id="reviews-system" aria-labelledby="community-experience-title" style={{ marginTop: limit <= 1 ? '1rem' : '1rem' }}>
             <div style={{
                 display: 'flex',
                 justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: limit <= 1 ? '1.5rem' : '3.5rem'
+                alignItems: isMobile ? 'flex-start' : 'center',
+                flexDirection: isMobile ? 'column' : 'row',
+                gap: isMobile ? '1rem' : '0',
+                marginBottom: isMobile ? '1.5rem' : '2.5rem'
             }}>
                 <div style={{ textAlign: 'left' }}>
                     <h3 id="community-experience-title" style={{
-                        fontSize: limit <= 1 ? '1.5rem' : '2.5rem',
-                        fontWeight: 950,
-                        letterSpacing: '-0.03em',
-                        marginBottom: '0.5rem'
+                        fontSize: isMobile ? '1.25rem' : '2rem',
+                        fontWeight: 900,
+                        letterSpacing: '-0.02em',
+                        marginBottom: '0.2rem',
+                        color: 'var(--text)'
                     }}>
-                        Community <span className="text-gradient">Experience</span>
+                        Ratings and reviews
                     </h3>
-                    {limit > 1 && (
-                        <p style={{ color: 'var(--text-muted)', fontWeight: 600, fontSize: '1.1rem' }}>
-                            Verified feedback from our global network of engineers.
-                        </p>
-                    )}
                 </div>
-                <button
-                    onClick={() => setIsFormOpen(true)}
-                    aria-label="Leave a Community Review"
-                    className="btn btn-primary"
-                    style={{ borderRadius: '1rem', padding: '0.8rem 1.75rem' }}
-                >
-                    Leave a Review
-                </button>
+                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                    {!limit && (
+                        <select
+                            value={sortBy}
+                            onChange={(e) => setSortBy(e.target.value)}
+                            style={{
+                                background: 'transparent',
+                                border: 'none',
+                                color: 'var(--primary)',
+                                fontWeight: '700',
+                                fontSize: '0.9rem',
+                                cursor: 'pointer',
+                                outline: 'none'
+                            }}
+                        >
+                            <option value="recent">Most Recent</option>
+                            <option value="highest">Highest Rating</option>
+                            <option value="lowest">Lowest Rating</option>
+                        </select>
+                    )}
+                    <button
+                        onClick={() => setIsFormOpen(!isFormOpen)} // Toggle behavior
+                        className="btn btn-primary"
+                        style={{ borderRadius: '2rem', padding: '0.5rem 1.25rem', fontSize: '0.85rem' }}
+                    >
+                        {isFormOpen ? 'Cancel' : 'Write a review'}
+                    </button>
+                </div>
             </div>
 
-            {limit > 1 && <RatingSummary reviews={reviews} />}
-
-            <div style={{ display: 'grid', gap: '1.5rem' }}>
-                {displayedReviews.map((review) => (
+            {/* Integrated Inline Review Form - Moved directly under the header/button */}
+            <AnimatePresence mode="wait">
+                {isFormOpen && (
                     <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        key={review.id}
-                        className="glass"
-                        style={{ padding: '2rem', borderRadius: '1.5rem', position: 'relative', overflow: 'hidden' }}
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                        style={{
+                            overflow: 'hidden',
+                            marginBottom: '2rem',
+                            border: '1px solid var(--border)',
+                            borderRadius: '1rem',
+                            background: 'var(--surface)',
+                            color: 'var(--text)'
+                        }}
                     >
-                        {review.isTop && (
-                            <div style={{ position: 'absolute', top: 0, right: 0, background: 'var(--primary)', color: 'white', padding: '0.4rem 1.2rem', fontSize: '0.65rem', fontWeight: '900', borderRadius: '0 0 0 1rem', letterSpacing: '0.05em' }}>
-                                MOST HELPFUL
-                            </div>
-                        )}
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                                <div
-                                    aria-label={`Avatar for ${review.user}`}
+                        <div style={{ padding: isMobile ? '1.5rem' : '2.5rem', position: 'relative' }}>
+                            <button
+                                onClick={() => setIsFormOpen(false)}
+                                aria-label="Close Review Form"
+                                style={{ position: 'absolute', top: '1.25rem', right: '1.25rem', background: 'transparent', color: 'var(--text-muted)', border: 'none', cursor: 'pointer' }}
+                            >
+                                <X size={24} />
+                            </button>
+                            <h2 style={{ fontSize: isMobile ? '1.5rem' : '1.75rem', fontWeight: 950, marginBottom: isMobile ? '1.5rem' : '2rem', letterSpacing: 'var(--ls-tight)' }}>
+                                {replyTo ? `Reply to ${replyTo.user}` : 'Submit Review'}
+                            </h2>
+
+                            <form onSubmit={handleSubmit} style={{ display: 'grid', gap: isMobile ? '1.25rem' : '1.75rem' }}>
+                                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1.25rem' }}>
+                                    <div style={{ display: 'grid', gap: '0.6rem' }}>
+                                        <label style={{ fontSize: '0.7rem', fontWeight: 850, color: 'var(--primary)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Name</label>
+                                        <input
+                                            type="text"
+                                            required
+                                            value={formData.name}
+                                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                            placeholder="e.g. Alex"
+                                            style={{
+                                                background: 'rgba(var(--text-rgb), 0.05)',
+                                                border: '1px solid var(--border)',
+                                                padding: '1rem',
+                                                borderRadius: '0.75rem',
+                                                color: 'var(--text)',
+                                                outline: 'none',
+                                                fontSize: '1rem',
+                                                fontWeight: '500',
+                                                transition: 'all 0.3s ease'
+                                            }}
+                                            onFocus={(e) => e.target.style.borderColor = 'var(--primary)'}
+                                            onBlur={(e) => e.target.style.borderColor = 'var(--border)'}
+                                        />
+                                    </div>
+                                    <div style={{ display: 'grid', gap: '0.6rem' }}>
+                                        <label style={{ fontSize: '0.7rem', fontWeight: 850, color: 'var(--primary)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Email ID (Optional)</label>
+                                        <input
+                                            type="email"
+                                            value={formData.email}
+                                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                            placeholder="e.g. alex@example.com"
+                                            style={{
+                                                background: 'rgba(var(--text-rgb), 0.05)',
+                                                border: '1px solid var(--border)',
+                                                padding: '1rem',
+                                                borderRadius: '0.75rem',
+                                                color: 'var(--text)',
+                                                outline: 'none',
+                                                fontSize: '1rem',
+                                                fontWeight: '500',
+                                                transition: 'all 0.3s ease'
+                                            }}
+                                            onFocus={(e) => e.target.style.borderColor = 'var(--primary)'}
+                                            onBlur={(e) => e.target.style.borderColor = 'var(--border)'}
+                                        />
+                                    </div>
+                                </div>
+                                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1.25rem' }}>
+                                    <div style={{ display: 'grid', gap: '0.6rem' }}>
+                                        <label style={{ fontSize: '0.7rem', fontWeight: 850, color: 'var(--primary)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Role</label>
+                                        <input
+                                            type="text"
+                                            value={formData.role}
+                                            onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                                            placeholder="e.g. Developer / Student"
+                                            style={{
+                                                background: 'rgba(var(--text-rgb), 0.05)',
+                                                border: '1px solid var(--border)',
+                                                padding: '1rem',
+                                                borderRadius: '0.75rem',
+                                                color: 'var(--text)',
+                                                outline: 'none',
+                                                fontSize: '1rem',
+                                                fontWeight: '500'
+                                            }}
+                                        />
+                                    </div>
+                                    <div style={{ display: 'grid', gap: '0.6rem' }}>
+                                        <label style={{ fontSize: '0.7rem', fontWeight: 850, color: 'var(--primary)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>College / Org</label>
+                                        <input
+                                            type="text"
+                                            value={formData.college}
+                                            onChange={(e) => setFormData({ ...formData, college: e.target.value })}
+                                            placeholder="e.g. Sathyabama Univ"
+                                            style={{
+                                                background: 'rgba(var(--text-rgb), 0.05)',
+                                                border: '1px solid var(--border)',
+                                                padding: '1rem',
+                                                borderRadius: '0.75rem',
+                                                color: 'var(--text)',
+                                                outline: 'none',
+                                                fontSize: '1rem',
+                                                fontWeight: '500'
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div style={{ display: 'grid', gap: '0.8rem', padding: '1rem', background: 'rgba(var(--secondary-rgb), 0.05)', borderRadius: '1.25rem', border: '1px solid rgba(var(--secondary-rgb), 0.1)' }}>
+                                    <label style={{ fontSize: '0.7rem', fontWeight: 850, color: 'var(--secondary)', letterSpacing: '0.1em', textTransform: 'uppercase', textAlign: 'center' }}>Validation Rating</label>
+                                    <div style={{ display: 'flex', gap: '0.6rem', justifyContent: 'center' }}>
+                                        {[1, 2, 3, 4, 5].map((star) => (
+                                            <motion.button
+                                                key={star}
+                                                type="button"
+                                                whileHover={{ scale: 1.2 }}
+                                                whileTap={{ scale: 0.9 }}
+                                                onClick={() => setFormData({ ...formData, rating: star })}
+                                                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0.2rem' }}
+                                            >
+                                                <Star
+                                                    size={isMobile ? 32 : 36}
+                                                    fill={star <= formData.rating ? "var(--secondary)" : "none"}
+                                                    stroke={star <= formData.rating ? "var(--secondary)" : "var(--border)"}
+                                                    strokeWidth={2.5}
+                                                />
+                                            </motion.button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div style={{ display: 'grid', gap: '0.6rem' }}>
+                                    <label style={{ fontSize: '0.7rem', fontWeight: 850, color: 'var(--primary)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Technical Feedback</label>
+                                    <textarea
+                                        required
+                                        value={formData.text}
+                                        onChange={(e) => setFormData({ ...formData, text: e.target.value })}
+                                        rows={isMobile ? 4 : 5}
+                                        placeholder="Share your data-driven experience..."
+                                        style={{
+                                            background: 'rgba(var(--text-rgb), 0.05)',
+                                            border: '1px solid var(--border)',
+                                            padding: '1rem',
+                                            borderRadius: '0.75rem',
+                                            color: 'var(--text)',
+                                            outline: 'none',
+                                            resize: 'none',
+                                            fontSize: '1rem',
+                                            fontWeight: '500',
+                                            lineHeight: '1.6'
+                                        }}
+                                    />
+                                </div>
+                                <button
+                                    type="submit"
+                                    className="btn btn-primary btn-primary-shiny"
                                     style={{
-                                        width: '48px',
-                                        height: '48px',
-                                        borderRadius: '12px',
-                                        background: 'rgba(var(--primary-rgb), 0.1)',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        color: 'var(--primary)'
+                                        padding: '1.25rem',
+                                        borderRadius: '1.25rem',
+                                        fontWeight: 900,
+                                        marginTop: '0.5rem',
+                                        fontSize: '1rem',
+                                        letterSpacing: '0.02em'
                                     }}
                                 >
-                                    <User size={24} />
-                                </div>
-                                <div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                        <span style={{ fontWeight: 800, fontSize: '1.1rem' }}>{review.user}</span>
-                                        {review.type === 'verified' && (
-                                            <div title="Verified Architect" style={{ color: '#10b981', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                                                <Shield size={16} fill="#10b981" fillOpacity={0.2} />
-                                                <span style={{ fontSize: '0.65rem', fontWeight: 800, background: 'rgba(16, 185, 129, 0.1)', padding: '2px 6px', borderRadius: '4px' }}>VERIFIED STUDENT</span>
-                                            </div>
-                                        )}
-                                        {review.type === 'email' && (
-                                            <div title="Verified via Email" style={{ color: 'var(--primary)', display: 'flex', alignItems: 'center' }}>
-                                                <CheckCircle size={16} />
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                        {review.role} • {review.college}
-                                    </div>
-                                    <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: '500', marginTop: '0.2rem', opacity: 0.7 }}>
-                                        {review.date}
-                                    </div>
-                                </div>
-                            </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
-                                <div style={{ display: 'flex', gap: '0.2rem' }}>
-                                    {[...Array(5)].map((_, i) => (
-                                        <Star key={i} size={14} fill={i < review.rating ? "var(--secondary)" : "none"} stroke={i < review.rating ? "var(--secondary)" : "var(--text-muted)"} />
-                                    ))}
-                                </div>
-                                {review.helpful > 0 && (
-                                    <div style={{ fontSize: '0.65rem', color: 'var(--primary)', fontWeight: '800' }}>
-                                        {review.helpful} engineers found this helpful
-                                    </div>
-                                )}
-                                {isAdmin && review.id !== 'seed-1' && review.id !== 'seed-2' && review.id !== 'seed-3' && (
-                                    <button
-                                        onClick={() => handleDeleteReview(review.id)}
-                                        disabled={deletingId === review.id}
-                                        style={{
-                                            marginTop: '0.5rem',
-                                            color: '#ef4444',
-                                            background: 'rgba(239, 68, 68, 0.1)',
-                                            border: 'none',
-                                            padding: '0.4rem',
-                                            borderRadius: '0.5rem',
-                                            cursor: 'pointer',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '0.3rem',
-                                            fontSize: '0.7rem',
-                                            fontWeight: 800
-                                        }}
-                                    >
-                                        <Trash2 size={12} /> {deletingId === review.id ? 'Deleting...' : 'Delete'}
-                                    </button>
-                                )}
-                            </div>
+                                    Verify & Post Feedback
+                                </button>
+                            </form>
                         </div>
-                        <p style={{ fontSize: '1.05rem', lineHeight: '1.6', color: 'var(--text-muted)', fontWeight: '500', marginBottom: '1.5rem' }}>
-                            "{review.text}"
-                        </p>
-                        <div style={{ display: 'flex', gap: '1rem', borderTop: '1px solid var(--border)', paddingTop: '1rem' }}>
-                            <button
-                                onClick={() => handleHelpful(review.id)}
-                                disabled={review.userLiked}
-                                style={{ background: 'none', border: 'none', color: review.userLiked ? 'var(--primary)' : 'var(--text-muted)', fontSize: '0.8rem', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
-                            >
-                                <CheckCircle size={14} /> {review.userLiked ? 'Helpful!' : 'Helpful?'}
-                            </button>
-                            <button
-                                onClick={() => {
-                                    setReplyTo(review);
-                                    setIsFormOpen(true);
-                                }}
-                                style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '0.8rem', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
-                            >
-                                <MessageSquare size={14} /> Reply
-                            </button>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {(!limit || limit > 1) && <RatingSummary reviews={reviews} />}
+
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                {displayedReviews.map((review) => (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        key={review.id}
+                        style={{
+                            padding: '1.5rem 0',
+                            borderBottom: '1px solid var(--border)',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '0.75rem'
+                        }}
+                    >
+                        {/* Header: Avatar + User Info */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                            <div style={{
+                                width: '36px',
+                                height: '36px',
+                                borderRadius: '50%',
+                                background: 'var(--primary)',
+                                color: 'white',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontWeight: '700',
+                                fontSize: '1rem',
+                                flexShrink: 0
+                            }}>
+                                {review.user.charAt(0)}
+                            </div>
+                            <div style={{ flex: 1 }}>
+                                <div style={{ fontSize: '0.95rem', fontWeight: '700', color: 'var(--text)' }}>
+                                    {review.user}
+                                    {review.type === 'verified' && <CheckCircle size={12} color="var(--primary)" style={{ marginLeft: '4px' }} />}
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                    <div style={{ display: 'flex', gap: '1px' }}>
+                                        {[...Array(5)].map((_, i) => (
+                                            <Star key={i} size={12} fill={i < review.rating ? "var(--secondary)" : "none"} stroke={i < review.rating ? "var(--secondary)" : "var(--border)"} />
+                                        ))}
+                                    </div>
+                                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{review.date}</span>
+                                </div>
+                            </div>
                         </div>
 
-                        {/* Recursive Replies Rendering */}
-                        {reviews.filter(r => r.parent_id === review.id).map(reply => (
-                            <div key={reply.id} style={{ marginLeft: '2rem', marginTop: '1rem', borderLeft: '2px solid var(--border)', paddingLeft: '1.5rem' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '0.5rem' }}>
-                                    <div style={{ padding: '0.4rem', borderRadius: '50%', background: 'rgba(var(--primary-rgb), 0.1)', color: 'var(--primary)' }}>
-                                        <User size={12} />
-                                    </div>
-                                    <span style={{ fontWeight: 800, fontSize: '0.9rem' }}>{reply.user}</span>
-                                    <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{reply.date}</span>
-                                </div>
-                                <p style={{ fontSize: '0.95rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>{reply.text}</p>
+                        {/* Review Content */}
+                        <p style={{ fontSize: '0.95rem', lineHeight: '1.5', color: 'var(--text)', margin: 0 }}>
+                            {review.text}
+                        </p>
+
+                        <div style={{
+                            fontSize: '0.75rem',
+                            color: 'var(--text-muted)',
+                            fontWeight: '600',
+                            marginTop: '0.2rem'
+                        }}>
+                            {review.role} • {review.college}
+                        </div>
+
+                        {/* Footer: Helpful */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginTop: '0.5rem' }}>
+                            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Was this helpful?</span>
+                            <div style={{ display: 'flex', gap: '1rem' }}>
+                                <button
+                                    onClick={() => handleHelpful(review.id)}
+                                    disabled={review.userLiked}
+                                    style={{
+                                        background: 'none',
+                                        border: '1px solid var(--border)',
+                                        borderRadius: '12px',
+                                        padding: '0.25rem 0.8rem',
+                                        fontSize: '0.75rem',
+                                        color: review.userLiked ? 'var(--primary)' : 'var(--text)',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '0.3rem'
+                                    }}
+                                >
+                                    <Heart size={12} fill={review.userLiked ? 'var(--primary)' : 'none'} />
+                                    Yes {review.helpful > 0 && `(${review.helpful})`}
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        setReplyTo(review);
+                                        setIsFormOpen(true);
+                                    }}
+                                    style={{ background: 'none', border: '1px solid var(--border)', borderRadius: '12px', padding: '0.25rem 0.8rem', fontSize: '0.75rem', color: 'var(--text)', cursor: 'pointer' }}
+                                >
+                                    Reply
+                                </button>
+                                {isAdmin && (
+                                    <button onClick={() => handleDeleteReview(review.id)} style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: '0.75rem', cursor: 'pointer' }}>Delete</button>
+                                )}
                             </div>
-                        ))}
+                        </div>
                     </motion.div>
                 ))}
             </div>
 
             {limit && reviews.length > limit && (
-                <div style={{ textAlign: 'center', marginTop: '3rem' }}>
+                <div style={{ textAlign: 'center', marginTop: isMobile ? '2rem' : '3rem' }}>
                     <button
                         onClick={() => setView('reviews-page')}
                         className="btn glass"
-                        style={{ padding: '1rem 3rem', borderRadius: '1.5rem', fontWeight: 800, color: 'var(--primary)' }}
+                        style={{ padding: isMobile ? '0.75rem 2rem' : '1rem 3rem', borderRadius: '1.5rem', fontWeight: 800, color: 'var(--primary)', fontSize: isMobile ? '0.85rem' : '1rem' }}
                     >
                         View All {reviews.length} Reviews
                     </button>
                 </div>
             )}
 
-            <AnimatePresence>
-                {isFormOpen && (
-                    <div style={{
-                        position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 10001,
-                        display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem',
-                        background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(10px)'
-                    }}>
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.9 }}
-                            className="glass"
-                            style={{
-                                width: '100%',
-                                maxWidth: '500px',
-                                maxHeight: '90vh',
-                                overflowY: 'auto',
-                                padding: '2.5rem',
-                                borderRadius: '2.5rem',
-                                position: 'relative'
-                            }}
-                        >
-                            <button
-                                onClick={() => setIsFormOpen(false)}
-                                aria-label="Close Review Form"
-                                style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: 'transparent', color: 'var(--text-muted)' }}
-                            >
-                                <X size={24} />
-                            </button>
-                            <h2 style={{ fontSize: '1.75rem', fontWeight: 950, marginBottom: '2rem' }}>
-                                {replyTo ? `Reply to ${replyTo.user}` : 'Submit Protocol'}
-                            </h2>
-
-                            <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '1.5rem' }}>
-                                <div style={{ display: 'grid', gap: '0.5rem' }}>
-                                    <label style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-muted)' }}>NAME (OPTIONAL)</label>
-                                    <input
-                                        type="text"
-                                        value={formData.name}
-                                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                        placeholder="Anonymous Architect"
-                                        style={{ background: 'var(--background)', border: '1px solid var(--border)', padding: '1rem', borderRadius: '1rem', color: 'var(--text)', outline: 'none' }}
-                                    />
-                                </div>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                                    <div style={{ display: 'grid', gap: '0.5rem' }}>
-                                        <label style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-muted)' }}>ROLE</label>
-                                        <input
-                                            type="text"
-                                            value={formData.role}
-                                            onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                                            placeholder="Student / Engineer"
-                                            style={{ background: 'var(--background)', border: '1px solid var(--border)', padding: '1rem', borderRadius: '1rem', color: 'var(--text)', outline: 'none' }}
-                                        />
-                                    </div>
-                                    <div style={{ display: 'grid', gap: '0.5rem' }}>
-                                        <label style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-muted)' }}>COLLEGE / ORG</label>
-                                        <input
-                                            type="text"
-                                            value={formData.college}
-                                            onChange={(e) => setFormData({ ...formData, college: e.target.value })}
-                                            placeholder="Global Institute"
-                                            style={{ background: 'var(--background)', border: '1px solid var(--border)', padding: '1rem', borderRadius: '1rem', color: 'var(--text)', outline: 'none' }}
-                                        />
-                                    </div>
-                                </div>
-                                <div style={{ display: 'grid', gap: '0.5rem' }}>
-                                    <label style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-muted)' }}>EMAIL (FOR VERIFIED BADGE)</label>
-                                    <input
-                                        type="email"
-                                        value={formData.email}
-                                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                        placeholder="engineer@protocol.com"
-                                        style={{ background: 'var(--background)', border: '1px solid var(--border)', padding: '1rem', borderRadius: '1rem', color: 'var(--text)', outline: 'none' }}
-                                    />
-                                </div>
-                                <div style={{ display: 'grid', gap: '0.8rem', marginBottom: '0.5rem' }}>
-                                    <label style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-muted)' }}>RATING</label>
-                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                        {[1, 2, 3, 4, 5].map((star) => (
-                                            <button
-                                                key={star}
-                                                type="button"
-                                                onClick={() => setFormData({ ...formData, rating: star })}
-                                                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0.2rem', transition: 'transform 0.2s ease' }}
-                                                onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.2)'}
-                                                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                                            >
-                                                <Star
-                                                    size={28}
-                                                    fill={star <= formData.rating ? "var(--secondary)" : "none"}
-                                                    stroke={star <= formData.rating ? "var(--secondary)" : "var(--text-muted)"}
-                                                    style={{ transition: 'all 0.3s ease' }}
-                                                />
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                                <div style={{ display: 'grid', gap: '0.5rem' }}>
-                                    <label style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-muted)' }}>REVIEW</label>
-                                    <textarea
-                                        required
-                                        value={formData.text}
-                                        onChange={(e) => setFormData({ ...formData, text: e.target.value })}
-                                        rows="4"
-                                        placeholder="Share your technical experience..."
-                                        style={{ background: 'var(--background)', border: '1px solid var(--border)', padding: '1rem', borderRadius: '1rem', color: 'var(--text)', outline: 'none', resize: 'none' }}
-                                    />
-                                </div>
-                                <div style={{ display: 'flex', gap: '1rem' }}>
-                                    <button
-                                        type="submit"
-                                        className="btn btn-primary"
-                                        style={{ flex: 1, padding: '1rem', borderRadius: '1rem', fontWeight: 800 }}
-                                    >
-                                        Log Review
-                                    </button>
-                                </div>
-                            </form>
-                        </motion.div>
-                    </div>
-                )}
-            </AnimatePresence>
         </section>
     );
 }

@@ -14,11 +14,20 @@ export default function AdminDashboard({ setView, setEditingProject, setEditingS
     const [loading, setLoading] = useState(true);
     const [isSyncing, setIsSyncing] = useState(false);
     const [showAuditLog, setShowAuditLog] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
     const [auditLogs] = useState([
-        { id: 1, action: 'Primary Terminal Access', user: 'Nishanth M', time: '02:45:10 UTC', status: 'Authorized' },
-        { id: 2, action: 'Supabase Cloud Sync', user: 'System-Auto', time: 'Yesterday', status: 'Complete' },
-        { id: 3, action: 'Project Table Upsert', user: 'mnishanth279@gmail.com', time: '3h ago', status: 'Success' }
+        { id: 1, action: 'Admin Dashboard Access', user: 'Nishanth M', time: 'Just now', status: 'Active' },
+        { id: 2, action: 'Database Sync', user: 'System', time: '2 hours ago', status: 'Complete' },
+        { id: 3, action: 'Content Update', user: 'Admin', time: 'Today', status: 'Success' }
     ]);
+
+    // Detect mobile
+    useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth <= 820);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     const fetchData = async (silent = false) => {
         if (!silent) setLoading(true);
@@ -280,19 +289,19 @@ export default function AdminDashboard({ setView, setEditingProject, setEditingS
 
     const handleLogout = async () => {
         await supabase.auth.signOut();
-        window.location.hash = 'home';
+        window.history.pushState({ view: 'home' }, '', '/');
         window.location.reload();
     };
 
     return (
         <section className="container" style={{ paddingBottom: '5rem', minHeight: '100vh' }}>
             <div style={{
-                padding: '4rem 0',
+                padding: isMobile ? '2rem 0' : '4rem 0',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '2rem',
+                gap: isMobile ? '1.5rem' : '2rem',
                 borderBottom: '1px solid var(--border)',
-                marginBottom: '4rem'
+                marginBottom: isMobile ? '2rem' : '4rem'
             }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1.5rem' }}>
                     <div>
@@ -300,20 +309,20 @@ export default function AdminDashboard({ setView, setEditingProject, setEditingS
                             <span className="badge badge-beginner" style={{ background: 'rgba(var(--primary-rgb), 0.1)', color: 'var(--primary)', border: '1px solid var(--primary)', fontSize: '0.7rem' }}>System Online</span>
                             {isSyncing && <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}><RefreshCw size={12} className="animate-spin" /> Syncing...</span>}
                         </div>
-                        <h1 style={{ fontSize: '4rem', fontWeight: '900', letterSpacing: '-0.04em', lineHeight: 1 }}>
+                        <h1 style={{ fontSize: isMobile ? '2rem' : '4rem', fontWeight: '900', letterSpacing: '-0.04em', lineHeight: 1 }}>
                             Command <span className="text-gradient">Center</span>
                         </h1>
                     </div>
 
-                    <div style={{ display: 'flex', gap: '1rem' }}>
+                    <div style={{ display: 'flex', gap: '0.75rem', flexDirection: 'row', width: isMobile ? '100%' : 'auto' }}>
                         <button
                             className="glass"
-                            style={{ borderRadius: '1rem', padding: '0.6rem 1.2rem', fontSize: '0.85rem', color: 'var(--primary)', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '0.5rem', border: '1px solid var(--border)' }}
+                            style={{ flex: isMobile ? 1 : 'none', borderRadius: '1rem', padding: isMobile ? '0.875rem 1rem' : '0.6rem 1.2rem', fontSize: '0.85rem', color: 'var(--primary)', fontWeight: '700', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', border: '1px solid var(--border)' }}
                             onClick={() => setShowAuditLog(!showAuditLog)}
                         >
                             <Target size={16} /> Logs
                         </button>
-                        <button className="btn btn-outline hover-lift" style={{ borderRadius: '1rem', padding: '0.6rem 1.2rem', fontSize: '0.85rem' }} onClick={handleLogout}>
+                        <button className="btn btn-outline hover-lift" style={{ flex: isMobile ? 1 : 'none', borderRadius: '1rem', padding: isMobile ? '0.875rem 1rem' : '0.6rem 1.2rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }} onClick={handleLogout}>
                             <LogOut size={16} /> Exit
                         </button>
                     </div>
@@ -392,28 +401,26 @@ export default function AdminDashboard({ setView, setEditingProject, setEditingS
                         </button>
                     </div>
 
-                    <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', width: isMobile ? '100%' : 'auto', flexDirection: isMobile ? 'column' : 'row' }}>
                         {activeTab === 'projects' ? (
-                            <div style={{ display: 'flex', gap: '0.75rem' }}>
-                                <button className="btn btn-outline" style={{ padding: '0.75rem 1.25rem', borderRadius: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem' }} onClick={syncProjects}>
+                            <>
+                                <button className="btn btn-outline" style={{ padding: isMobile ? '0.875rem 1.5rem' : '0.75rem 1.25rem', borderRadius: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', fontSize: '0.85rem' }} onClick={syncProjects}>
                                     <Cloud size={16} className={isSyncing ? "animate-spin" : ""} /> Cloud Sync
                                 </button>
-                                <button className="btn btn-primary btn-primary-shiny" style={{ padding: '0.75rem 1.5rem', borderRadius: '1rem', fontSize: '0.9rem' }} onClick={() => { setEditingProject(null); setView('admin-add'); }}>
+                                <button className="btn btn-primary btn-primary-shiny" style={{ padding: isMobile ? '0.875rem 1.5rem' : '0.75rem 1.5rem', borderRadius: '1rem', fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }} onClick={() => { setEditingProject(null); setView('admin-add'); }}>
                                     <Plus size={18} /> New Project
                                 </button>
-                            </div>
-                        ) : activeTab === 'sensors' ? (
-                            <>
-                                <button className="btn btn-primary btn-primary-shiny" style={{ padding: '0.75rem 1.5rem', borderRadius: '1rem', fontSize: '0.9rem' }} onClick={() => { setEditingSensor(null); setView('admin-sensor-add'); }}>
-                                    <Plus size={18} /> New Sensor
-                                </button>
                             </>
+                        ) : activeTab === 'sensors' ? (
+                            <button className="btn btn-primary btn-primary-shiny" style={{ padding: isMobile ? '0.875rem 1.5rem' : '0.75rem 1.5rem', borderRadius: '1rem', fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }} onClick={() => { setEditingSensor(null); setView('admin-sensor-add'); }}>
+                                <Plus size={18} /> New Sensor
+                            </button>
                         ) : (
                             <>
-                                <button className="btn btn-outline" style={{ padding: '0.75rem 1.25rem', borderRadius: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem' }} onClick={syncBoards}>
+                                <button className="btn btn-outline" style={{ padding: isMobile ? '0.875rem 1.5rem' : '0.75rem 1.25rem', borderRadius: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', fontSize: '0.85rem' }} onClick={syncBoards}>
                                     <RefreshCw size={16} className={isSyncing ? "animate-spin" : ""} /> Sync
                                 </button>
-                                <button className="btn btn-primary btn-primary-shiny" style={{ padding: '0.75rem 1.5rem', borderRadius: '1rem', fontSize: '0.9rem' }} onClick={() => { setView('admin-board-add'); }}>
+                                <button className="btn btn-primary btn-primary-shiny" style={{ padding: isMobile ? '0.875rem 1.5rem' : '0.75rem 1.5rem', borderRadius: '1rem', fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }} onClick={() => { setView('admin-board-add'); }}>
                                     <Plus size={18} /> New Board
                                 </button>
                             </>
@@ -437,80 +444,172 @@ export default function AdminDashboard({ setView, setEditingProject, setEditingS
                         <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem' }}>Your digital laboratory is empty.</p>
                     </div>
                 ) : (
-                    <div style={{ overflowX: 'auto' }}>
-                        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-                            <thead style={{ background: 'rgba(var(--surface-rgb), 0.5)', fontSize: '0.85rem' }}>
-                                <tr>
-                                    <th style={{ padding: '1.5rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-muted)' }}>
-                                        {activeTab === 'projects' ? 'Project Title' : activeTab === 'sensors' ? 'Component Name' : 'Board Name'}
-                                    </th>
-                                    <th style={{ padding: '1.5rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-muted)' }}>
-                                        {activeTab === 'projects' ? 'Level' : activeTab === 'sensors' ? 'Pins' : 'Category'}
-                                    </th>
-                                    {activeTab === 'projects' && (
-                                        <th style={{ padding: '1.5rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-muted)' }}>Status</th>
-                                    )}
-                                    <th style={{ padding: '1.5rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-muted)' }}>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {(activeTab === 'projects' ? projects : activeTab === 'sensors' ? sensors : boards).map((item) => (
-                                    <tr key={item.id} style={{ borderTop: '1px solid var(--border)', transition: 'var(--transition)' }} className="hover-row">
-                                        <td style={{ padding: '1.5rem', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                                            <img src={item.image} style={{ width: '40px', height: '40px', objectFit: 'contain', background: 'white', borderRadius: '0.5rem', padding: '0.2rem' }} alt="" />
-                                            <div>
-                                                <div>{activeTab === 'projects' ? item.title : item.name}</div>
-                                                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: '500' }}>
-                                                    {activeTab === 'sensors' ? (item.categoryId || item.category?.toLowerCase()) : activeTab === 'projects' ? item.category : 'Microcontroller'}
-                                                </div>
+                    isMobile ? (
+                        // Mobile Card Layout
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', padding: '1rem' }}>
+                            {(activeTab === 'projects' ? projects : activeTab === 'sensors' ? sensors : boards).map((item) => (
+                                <motion.div
+                                    key={item.id}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    style={{
+                                        background: 'var(--surface)',
+                                        border: '1px solid var(--border)',
+                                        borderRadius: '1rem',
+                                        padding: '1.25rem',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: '1rem'
+                                    }}
+                                >
+                                    {/* Item Header */}
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                        <img src={item.image} style={{ width: '50px', height: '50px', objectFit: 'contain', background: 'white', borderRadius: '0.75rem', padding: '0.3rem', flexShrink: 0 }} alt="" />
+                                        <div style={{ flex: 1 }}>
+                                            <div style={{ fontSize: '1rem', fontWeight: '700', marginBottom: '0.25rem' }}>
+                                                {activeTab === 'projects' ? item.title : item.name}
                                             </div>
-                                        </td>
-                                        <td style={{ padding: '1.5rem' }}>
-                                            <div style={{ display: 'grid', gap: '0.4rem' }}>
-                                                <span className={`badge badge-${(item.level || 'beginner').toLowerCase()}`}>{item.level || 'Beginner'}</span>
-                                                {activeTab === 'sensors' && (
-                                                    <div style={{ fontSize: '0.7rem', fontWeight: '800', color: 'var(--primary)' }}>
-                                                        {Object.values(item).filter(v => v && v !== '').length}/15 Fields
-                                                    </div>
-                                                )}
+                                            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: '500' }}>
+                                                {activeTab === 'sensors' ? (item.categoryId || item.category?.toLowerCase()) : activeTab === 'projects' ? item.category : 'Microcontroller'}
                                             </div>
-                                        </td>
-                                        {activeTab === 'projects' && (
-                                            <td style={{ padding: '1.5rem' }}>
-                                                <button
-                                                    onClick={() => toggleStatus(item.id, item.status)}
-                                                    style={{
-                                                        display: 'flex', alignItems: 'center', gap: '0.6rem', background: 'rgba(var(--surface-rgb), 0.5)',
-                                                        padding: '0.5rem 1rem', borderRadius: '0.75rem', border: '1px solid var(--border)',
-                                                        color: item.status === 'Published' ? '#10b981' : 'var(--text-muted)', cursor: 'pointer',
-                                                        fontSize: '0.9rem', fontWeight: '700', transition: 'var(--transition)'
-                                                    }}
-                                                    className="status-btn"
-                                                >
-                                                    {item.status === 'Published' ? <Eye size={16} /> : <EyeOff size={16} />}
-                                                    {item.status}
-                                                </button>
-                                            </td>
+                                        </div>
+                                    </div>
+
+                                    {/* Item Info */}
+                                    <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                                        <span className={`badge badge-${(item.level || 'beginner').toLowerCase()}`}>{item.level || 'Beginner'}</span>
+                                        {activeTab === 'sensors' && (
+                                            <div style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--primary)' }}>
+                                                {Object.values(item).filter(v => v && v !== '').length}/15 Fields
+                                            </div>
                                         )}
-                                        <td style={{ padding: '1.5rem' }}>
-                                            <div style={{ display: 'flex', gap: '0.75rem' }}>
-                                                <button className="btn-icon hover-lift" onClick={() => {
-                                                    if (activeTab === 'projects') { setEditingProject(item); setView('admin-edit'); }
-                                                    else if (activeTab === 'sensors') { setEditingSensor(item); setView('admin-sensor-edit'); }
-                                                    else { setEditingBoard(item); setView('admin-board-edit'); }
-                                                }} title="Edit" style={{ width: '40px', height: '40px', borderRadius: '0.75rem', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                                    <Edit size={18} />
-                                                </button>
-                                                <button className="btn-icon text-accent hover-lift" onClick={() => deleteItem(item.id, activeTab === 'boards' ? 'boards' : activeTab === 'projects' ? 'projects' : 'sensors')} title="Delete" style={{ width: '40px', height: '40px', borderRadius: '0.75rem', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                                    <Trash2 size={18} />
-                                                </button>
-                                            </div>
-                                        </td>
+                                        {activeTab === 'projects' && (
+                                            <button
+                                                onClick={() => toggleStatus(item.id, item.status)}
+                                                style={{
+                                                    display: 'flex', alignItems: 'center', gap: '0.5rem',
+                                                    background: 'rgba(var(--surface-rgb), 0.5)',
+                                                    padding: '0.5rem 0.875rem', borderRadius: '0.75rem',
+                                                    border: '1px solid var(--border)',
+                                                    color: item.status === 'Published' ? '#10b981' : 'var(--text-muted)',
+                                                    cursor: 'pointer', fontSize: '0.8rem', fontWeight: '700'
+                                                }}
+                                            >
+                                                {item.status === 'Published' ? <Eye size={14} /> : <EyeOff size={14} />}
+                                                {item.status}
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    {/* Actions */}
+                                    <div style={{ display: 'flex', gap: '0.75rem', paddingTop: '0.5rem', borderTop: '1px solid var(--border)' }}>
+                                        <button
+                                            className="btn btn-outline"
+                                            onClick={() => {
+                                                if (activeTab === 'projects') { setEditingProject(item); setView('admin-edit'); }
+                                                else if (activeTab === 'sensors') { setEditingSensor(item); setView('admin-sensor-edit'); }
+                                                else { setEditingBoard(item); setView('admin-board-edit'); }
+                                            }}
+                                            style={{
+                                                flex: 1, padding: '0.75rem', borderRadius: '0.75rem',
+                                                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
+                                                fontSize: '0.85rem', fontWeight: '700'
+                                            }}
+                                        >
+                                            <Edit size={16} /> Edit
+                                        </button>
+                                        <button
+                                            className="btn btn-outline text-accent"
+                                            onClick={() => deleteItem(item.id, activeTab === 'boards' ? 'boards' : activeTab === 'projects' ? 'projects' : 'sensors')}
+                                            style={{
+                                                flex: 1, padding: '0.75rem', borderRadius: '0.75rem',
+                                                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
+                                                fontSize: '0.85rem', fontWeight: '700'
+                                            }}
+                                        >
+                                            <Trash2 size={16} /> Delete
+                                        </button>
+                                    </div>
+                                </motion.div>
+                            ))}
+                        </div>
+                    ) : (
+                        // Desktop Table Layout
+                        <div style={{ overflowX: 'auto' }}>
+                            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                                <thead style={{ background: 'rgba(var(--surface-rgb), 0.5)', fontSize: '0.85rem' }}>
+                                    <tr>
+                                        <th style={{ padding: '1.5rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-muted)' }}>
+                                            {activeTab === 'projects' ? 'Project Title' : activeTab === 'sensors' ? 'Component Name' : 'Board Name'}
+                                        </th>
+                                        <th style={{ padding: '1.5rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-muted)' }}>
+                                            {activeTab === 'projects' ? 'Level' : activeTab === 'sensors' ? 'Pins' : 'Category'}
+                                        </th>
+                                        {activeTab === 'projects' && (
+                                            <th style={{ padding: '1.5rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-muted)' }}>Status</th>
+                                        )}
+                                        <th style={{ padding: '1.5rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-muted)' }}>Actions</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                                </thead>
+                                <tbody>
+                                    {(activeTab === 'projects' ? projects : activeTab === 'sensors' ? sensors : boards).map((item) => (
+                                        <tr key={item.id} style={{ borderTop: '1px solid var(--border)', transition: 'var(--transition)' }} className="hover-row">
+                                            <td style={{ padding: '1.5rem', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                                <img src={item.image} style={{ width: '40px', height: '40px', objectFit: 'contain', background: 'white', borderRadius: '0.5rem', padding: '0.2rem' }} alt="" />
+                                                <div>
+                                                    <div>{activeTab === 'projects' ? item.title : item.name}</div>
+                                                    <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: '500' }}>
+                                                        {activeTab === 'sensors' ? (item.categoryId || item.category?.toLowerCase()) : activeTab === 'projects' ? item.category : 'Microcontroller'}
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td style={{ padding: '1.5rem' }}>
+                                                <div style={{ display: 'grid', gap: '0.4rem' }}>
+                                                    <span className={`badge badge-${(item.level || 'beginner').toLowerCase()}`}>{item.level || 'Beginner'}</span>
+                                                    {activeTab === 'sensors' && (
+                                                        <div style={{ fontSize: '0.7rem', fontWeight: '800', color: 'var(--primary)' }}>
+                                                            {Object.values(item).filter(v => v && v !== '').length}/15 Fields
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </td>
+                                            {activeTab === 'projects' && (
+                                                <td style={{ padding: '1.5rem' }}>
+                                                    <button
+                                                        onClick={() => toggleStatus(item.id, item.status)}
+                                                        style={{
+                                                            display: 'flex', alignItems: 'center', gap: '0.6rem', background: 'rgba(var(--surface-rgb), 0.5)',
+                                                            padding: '0.5rem 1rem', borderRadius: '0.75rem', border: '1px solid var(--border)',
+                                                            color: item.status === 'Published' ? '#10b981' : 'var(--text-muted)', cursor: 'pointer',
+                                                            fontSize: '0.9rem', fontWeight: '700', transition: 'var(--transition)'
+                                                        }}
+                                                        className="status-btn"
+                                                    >
+                                                        {item.status === 'Published' ? <Eye size={16} /> : <EyeOff size={16} />}
+                                                        {item.status}
+                                                    </button>
+                                                </td>
+                                            )}
+                                            <td style={{ padding: '1.5rem' }}>
+                                                <div style={{ display: 'flex', gap: '0.75rem' }}>
+                                                    <button className="btn-icon hover-lift" onClick={() => {
+                                                        if (activeTab === 'projects') { setEditingProject(item); setView('admin-edit'); }
+                                                        else if (activeTab === 'sensors') { setEditingSensor(item); setView('admin-sensor-edit'); }
+                                                        else { setEditingBoard(item); setView('admin-board-edit'); }
+                                                    }} title="Edit" style={{ width: '40px', height: '40px', borderRadius: '0.75rem', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                        <Edit size={18} />
+                                                    </button>
+                                                    <button className="btn-icon text-accent hover-lift" onClick={() => deleteItem(item.id, activeTab === 'boards' ? 'boards' : activeTab === 'projects' ? 'projects' : 'sensors')} title="Delete" style={{ width: '40px', height: '40px', borderRadius: '0.75rem', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                        <Trash2 size={18} />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )
                 )}
             </div>
             <style dangerouslySetInnerHTML={{

@@ -5,6 +5,15 @@ import { Save, X, Plus, Trash2, ArrowLeft, Image as ImageIcon } from 'lucide-rea
 export default function ProjectForm({ setView, project }) {
     const isEdit = !!project;
     const [loading, setLoading] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
+
+    // Detect mobile
+    useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth <= 820);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     // Form States
     // Form States - Robust Initialization
@@ -40,8 +49,19 @@ export default function ProjectForm({ setView, project }) {
     const [circuitDiagram, setCircuitDiagram] = useState(project?.circuit_diagram || project?.image || '');
 
     const [status, setStatus] = useState(project?.status || 'Draft');
-    const [authorName, setAuthorName] = useState(project?.author_name || 'Antigravity');
+    const [authorName, setAuthorName] = useState(project?.author_name || 'NISHANTH');
+    const [subCategory, setSubCategory] = useState(project?.sub_category || 'Embedded Systems');
     const [slug, setSlug] = useState(project?.slug || '');
+
+    // New High-Fidelity Fields
+    const [problemStatement, setProblemStatement] = useState(project?.problem_statement || '');
+    const [realWorldCase, setRealWorldCase] = useState(project?.real_world_case || '');
+    const [blockDiagram, setBlockDiagram] = useState(project?.block_diagram || '');
+    const [alternatives, setAlternatives] = useState(project?.alternatives ? (typeof project.alternatives === 'string' ? project.alternatives : JSON.stringify(project.alternatives, null, 2)) : '');
+    const [testingOutput, setTestingOutput] = useState(project?.testing_output || '');
+    const [commonErrors, setCommonErrors] = useState(project?.common_errors || '');
+    const [improvements, setImprovements] = useState(project?.improvements || '');
+    const [miniChallenge, setMiniChallenge] = useState(project?.mini_challenge || '');
 
     // No longer fetching from separate table for Point 5 simplification
 
@@ -61,6 +81,10 @@ export default function ProjectForm({ setView, project }) {
             return;
         }
 
+        const finalAlternatives = alternatives.trim().startsWith('{') || alternatives.trim().startsWith('[')
+            ? JSON.parse(alternatives)
+            : alternatives;
+
         const projectData = {
             title,
             description,
@@ -74,7 +98,16 @@ export default function ProjectForm({ setView, project }) {
             disadvantages: disadvantages,
             status,
             author_name: authorName,
+            sub_category: subCategory,
             slug: slug || title.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, ''),
+            problem_statement: problemStatement,
+            real_world_case: realWorldCase,
+            block_diagram: blockDiagram,
+            alternatives: finalAlternatives,
+            testing_output: testingOutput,
+            common_errors: commonErrors,
+            improvements: improvements,
+            mini_challenge: miniChallenge,
             updated_at: new Date()
         };
 
@@ -92,24 +125,23 @@ export default function ProjectForm({ setView, project }) {
 
     return (
         <section className="container" style={{ paddingBottom: '5rem', minHeight: '100vh', background: 'var(--background)' }}>
-            {/* Header Area */}
             <div style={{
-                padding: '3rem 0',
+                padding: isMobile ? '2rem 0' : '3rem 0',
                 display: 'flex',
                 flexDirection: 'column',
                 gap: '1.5rem',
                 borderBottom: '1px solid var(--border)',
-                marginBottom: '4rem'
+                marginBottom: isMobile ? '2rem' : '4rem'
             }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
                     <div>
                         <button className="btn btn-outline" onClick={() => setView('admin-dashboard')} style={{ marginBottom: '1rem', background: 'rgba(255,255,255,0.05)', borderRadius: '0.75rem', border: '1px solid var(--border)', padding: '0.6rem 1rem', fontSize: '0.85rem' }}>
                             <ArrowLeft size={16} /> Dashboard
                         </button>
-                        <h1 style={{ fontSize: '3.5rem', fontWeight: '900', letterSpacing: '-0.04em', lineHeight: 1, background: 'linear-gradient(to right, var(--primary), var(--secondary))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                        <h1 style={{ fontSize: isMobile ? '2rem' : '3.5rem', fontWeight: '900', letterSpacing: '-0.04em', lineHeight: 1, background: 'linear-gradient(to right, var(--primary), var(--secondary))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                             {isEdit ? 'Refine Project' : 'Architect Project'}
                         </h1>
-                        <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', marginTop: '0.5rem' }}>Crafting high-quality IoT educational content</p>
+                        <p style={{ color: 'var(--text-muted)', fontSize: isMobile ? '0.85rem' : '0.95rem', marginTop: '0.5rem' }}>Crafting high-quality IoT educational content</p>
                     </div>
                 </div>
             </div>
@@ -117,8 +149,7 @@ export default function ProjectForm({ setView, project }) {
             <form onSubmit={handleSubmit} style={{ maxWidth: '1000px', margin: '0 auto' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '3rem' }}>
 
-                    {/* Core Identity Section */}
-                    <div className="glass" style={{ padding: '3rem', borderRadius: '1.5rem', border: '1px solid rgba(var(--primary-rgb), 0.2)', boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}>
+                    <div className="glass" style={{ padding: isMobile ? '1.5rem' : '3rem', borderRadius: '1.5rem', border: '1px solid rgba(var(--primary-rgb), 0.2)', boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}>
                         <div style={{ display: 'grid', gap: '2rem' }}>
                             <FormField label="1. Project Title" description="Clear, descriptive name for the experiment">
                                 <input type="text" className="advanced-input" placeholder="e.g. Smart Irrigation System" value={title} onChange={(e) => setTitle(e.target.value)} required />
@@ -128,7 +159,7 @@ export default function ProjectForm({ setView, project }) {
                                 <textarea className="advanced-input" rows="3" placeholder="Briefly explain what this project achieves..." value={description} onChange={(e) => setDescription(e.target.value)}></textarea>
                             </FormField>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '2rem' }}>
                                 <FormField label="3. Level" description="Difficulty">
                                     <select className="advanced-input" value={level} onChange={(e) => setLevel(e.target.value)}>
                                         <option>Beginner</option>
@@ -137,12 +168,33 @@ export default function ProjectForm({ setView, project }) {
                                     </select>
                                 </FormField>
                                 <FormField label="Author" description="Credit for the project">
-                                    <input type="text" className="advanced-input" placeholder="Antigravity" value={authorName} onChange={(e) => setAuthorName(e.target.value)} />
+                                    <input type="text" className="advanced-input" placeholder="NISHANTH" value={authorName} onChange={(e) => setAuthorName(e.target.value)} />
                                 </FormField>
                                 <FormField label="Slug" description="URL path (Leave blank for auto-gen)">
                                     <input type="text" className="advanced-input" placeholder="smart-irrigation" value={slug} onChange={(e) => setSlug(e.target.value)} />
                                 </FormField>
+                                <FormField label="Sub-Category (Track)" description="Track selection (1-500)">
+                                    <select className="advanced-input" value={subCategory} onChange={(e) => setSubCategory(e.target.value)}>
+                                        <option>Embedded Systems (1-100)</option>
+                                        <option>IoT (101-200)</option>
+                                        <option>Robotics (201-300)</option>
+                                        <option>AI + ML (301-400)</option>
+                                        <option>Combo Projects (401-500)</option>
+                                    </select>
+                                </FormField>
                             </div>
+                        </div>
+                    </div>
+
+                    {/* New Strategic Content Section */}
+                    <div className="glass" style={{ padding: '3rem', borderRadius: '1.5rem', border: '1px solid rgba(var(--primary-rgb), 0.2)' }}>
+                        <div style={{ display: 'grid', gap: '2rem' }}>
+                            <FormField label="Problem Statement" description="What pain point does this solve?">
+                                <textarea className="advanced-input" rows="3" placeholder="Identify the core issue learners are trying to solve..." value={problemStatement} onChange={(e) => setProblemStatement(e.target.value)}></textarea>
+                            </FormField>
+                            <FormField label="Real-World Use Case" description="How is this used in industry?">
+                                <textarea className="advanced-input" rows="3" placeholder="Describe the practical application..." value={realWorldCase} onChange={(e) => setRealWorldCase(e.target.value)}></textarea>
+                            </FormField>
                         </div>
                     </div>
 
@@ -213,6 +265,20 @@ export default function ProjectForm({ setView, project }) {
                         </FormField>
                     </div>
 
+                    {/* Diagram & Alternatives Section */}
+                    <div className="grid grid-2" style={{ gap: '2rem' }}>
+                        <div className="glass" style={{ padding: '2.5rem', borderRadius: '2rem' }}>
+                            <FormField label="Block Diagram" description="Mermaid.js syntax or Image URL">
+                                <textarea className="advanced-input" rows="6" placeholder="graph TD; A-->B..." value={blockDiagram} onChange={(e) => setBlockDiagram(e.target.value)}></textarea>
+                            </FormField>
+                        </div>
+                        <div className="glass" style={{ padding: '2.5rem', borderRadius: '2rem' }}>
+                            <FormField label="Alternatives" description="Alternative components (JSON or List)">
+                                <textarea className="advanced-input" rows="6" placeholder="e.g. DHT11 -> DHT22" value={alternatives} onChange={(e) => setAlternatives(e.target.value)}></textarea>
+                            </FormField>
+                        </div>
+                    </div>
+
                     {/* Technical Documents Section */}
                     <div className="grid grid-2" style={{ gap: '2rem', alignItems: 'start' }}>
                         <div className="glass" style={{ padding: '2.5rem', borderRadius: '2rem' }}>
@@ -278,6 +344,26 @@ export default function ProjectForm({ setView, project }) {
                                 </FormField>
                                 <FormField label="10. Disadvantages" icon="⚠️">
                                     <textarea className="advanced-input" rows="4" placeholder="High power consumption, limited range..." value={disadvantages} onChange={(e) => setDisadvantages(e.target.value)}></textarea>
+                                </FormField>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Testing & Challenges Section */}
+                    <div className="glass" style={{ padding: '3rem', borderRadius: '1.5rem', border: '1px solid var(--border)' }}>
+                        <div style={{ display: 'grid', gap: '2rem' }}>
+                            <FormField label="Testing & Output" description="How to verify the project works?">
+                                <textarea className="advanced-input" rows="3" placeholder="Step-by-step testing procedure..." value={testingOutput} onChange={(e) => setTestingOutput(e.target.value)}></textarea>
+                            </FormField>
+                            <FormField label="Common Errors" description="What usually goes wrong?">
+                                <textarea className="advanced-input" rows="3" placeholder="Troubleshooting tips..." value={commonErrors} onChange={(e) => setCommonErrors(e.target.value)}></textarea>
+                            </FormField>
+                            <div className="grid grid-2" style={{ gap: '2rem' }}>
+                                <FormField label="Improvements / Next Level" description="How to scale this?">
+                                    <textarea className="advanced-input" rows="4" placeholder="Add cloud logging, OTA updates..." value={improvements} onChange={(e) => setImprovements(e.target.value)}></textarea>
+                                </FormField>
+                                <FormField label="Mini Challenge" description="A quick task for the learner">
+                                    <textarea className="advanced-input" rows="4" placeholder="Try changing the sensor threshold to..." value={miniChallenge} onChange={(e) => setMiniChallenge(e.target.value)}></textarea>
                                 </FormField>
                             </div>
                         </div>

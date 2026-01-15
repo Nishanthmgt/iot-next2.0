@@ -145,7 +145,7 @@ const Footer = ({ setView }) => {
             </div>
             <style dangerouslySetInnerHTML={{
                 __html: `
-                @media (max-width: 768px) {
+                @media (max-width: 820px) {
                     .footer-container {
                         display: none !important;
                     }

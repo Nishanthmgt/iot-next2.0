@@ -4,6 +4,7 @@ import { Cpu, ChevronRight, Gauge, Radio, Zap, Activity } from 'lucide-react';
 import { BOARD_FAMILIES, getBoardCountByFamily } from '../utils/boardFamilies';
 
 export default function BoardFamilySelector({ setView, onSelectFamily }) {
+    const isMobile = window.innerWidth <= 820;
     // Filter out "All Boards" for the grid view
     const families = BOARD_FAMILIES.filter(f => f.id !== 'all');
 
@@ -11,12 +12,12 @@ export default function BoardFamilySelector({ setView, onSelectFamily }) {
         if (onSelectFamily) {
             onSelectFamily(familyId);
         } else {
-            window.location.hash = `pinout/family/${familyId}`;
+            window.history.pushState({ view: 'pinout', family: familyId }, '', `/pinout/family/${familyId}`);
         }
     };
 
     return (
-        <div className="container" style={{ padding: '0 1rem' }}>
+        <div className="container" style={{ padding: isMobile ? '0' : '0 1rem' }}>
             <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}

@@ -4,6 +4,7 @@ import { Save, X, Image as ImageIcon, Cpu, ChevronLeft, Layout, Terminal } from 
 
 export default function BoardForm({ setView, board, onComplete }) {
     const [loading, setLoading] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
         description: '',
@@ -11,6 +12,14 @@ export default function BoardForm({ setView, board, onComplete }) {
         image: '',
         pins: '[]'
     });
+
+    // Detect mobile
+    useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth <= 820);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     useEffect(() => {
         if (board) {
@@ -77,16 +86,16 @@ export default function BoardForm({ setView, board, onComplete }) {
                 <ChevronLeft size={16} /> BACK
             </button>
 
-            <div className="glass-plus" style={{ padding: '3rem', borderRadius: '1.5rem', maxWidth: '800px', margin: '0 auto' }}>
+            <div className="glass-plus" style={{ padding: isMobile ? '1.5rem' : '3rem', borderRadius: '1.5rem', maxWidth: '800px', margin: '0 auto' }}>
                 <div style={{ marginBottom: '2rem' }}>
-                    <h2 style={{ fontSize: '2.5rem', fontWeight: '900', letterSpacing: '-0.03em', lineHeight: 1.1 }}>
+                    <h2 style={{ fontSize: isMobile ? '1.75rem' : '2.5rem', fontWeight: '900', letterSpacing: '-0.03em', lineHeight: 1.1 }}>
                         {board ? 'Edit' : 'Register'} <span className="text-gradient">Board</span>
                     </h2>
-                    <p style={{ color: 'var(--text-muted)', fontWeight: '500', fontSize: '0.9rem', marginTop: '0.5rem' }}>Configure Pinout Lab hardware.</p>
+                    <p style={{ color: 'var(--text-muted)', fontWeight: '500', fontSize: isMobile ? '0.8rem' : '0.9rem', marginTop: '0.5rem' }}>Configure Pinout Lab hardware.</p>
                 </div>
 
                 <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '2rem' }}>
-                    <div className="grid grid-2" style={{ gap: '2rem' }}>
+                    <div className="grid grid-2" style={{ gap: '2rem', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr' }}>
                         {/* Name */}
                         <div style={{ display: 'grid', gap: '0.75rem' }}>
                             <label style={{ fontSize: '0.7rem', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.6, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>

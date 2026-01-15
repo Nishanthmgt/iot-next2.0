@@ -4,57 +4,70 @@ import { ArrowLeft, MessageSquare } from 'lucide-react';
 import CustomReviews from './CustomReviews';
 
 const ReviewsPage = ({ setView, isAdmin }) => {
+    const isMobile = window.innerWidth <= 768;
     return (
-        <div style={{ padding: '4rem 2rem', minHeight: '100vh', background: 'var(--background)' }}>
+        <div style={{
+            paddingTop: isMobile ? '1rem' : 'var(--app-py)',
+            paddingBottom: isMobile ? '3rem' : 'var(--app-py)',
+            paddingLeft: isMobile ? '0' : 'var(--app-px)',
+            paddingRight: isMobile ? '0' : 'var(--app-px)',
+            minHeight: '100vh',
+            background: 'var(--background)'
+        }}>
             <div className="container">
                 <button
                     onClick={() => setView('home')}
                     style={{
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '0.5rem',
-                        background: 'transparent',
+                        gap: '0.6rem',
+                        background: 'rgba(var(--primary-rgb), 0.05)',
                         color: 'var(--primary)',
-                        fontWeight: 700,
-                        marginBottom: '2rem',
-                        cursor: 'pointer'
+                        padding: '0.6rem 1.2rem',
+                        borderRadius: '2rem',
+                        border: '1px solid rgba(var(--primary-rgb), 0.1)',
+                        fontWeight: 800,
+                        marginBottom: isMobile ? '2rem' : '2.5rem',
+                        cursor: 'pointer',
+                        fontSize: isMobile ? '0.8rem' : '0.9rem',
+                        transition: 'all 0.2s ease',
+                        boxShadow: 'var(--shadow-sm)'
                     }}
                 >
-                    <ArrowLeft size={20} />
+                    <ArrowLeft size={isMobile ? 16 : 18} />
                     Back to Protocol
                 </button>
 
-                <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '0.6rem',
-                            background: 'rgba(var(--primary-rgb), 0.1)',
-                            padding: '0.6rem 1.75rem',
-                            borderRadius: '2rem',
-                            marginBottom: '1.5rem',
-                            border: '1px solid var(--border)',
-                            color: 'var(--primary)',
-                            fontWeight: '700'
-                        }}
-                    >
-                        <MessageSquare size={18} />
-                        <span style={{ fontSize: '0.9rem', letterSpacing: '0.02em' }}>GLOBAL COMMUNITY FEEDBACK</span>
-                    </motion.div>
-
-                    <h2 style={{ fontSize: '4rem', fontWeight: 950, marginBottom: '1rem', letterSpacing: '-0.04em' }}>
-                        Community <span className="text-gradient">Protocol Reviews</span>
+                <div style={{ textAlign: isMobile ? 'left' : 'center', marginBottom: isMobile ? '2rem' : '3rem' }}>
+                    <h2 style={{
+                        fontSize: isMobile ? '1.8rem' : '2.5rem',
+                        fontWeight: 700,
+                        marginBottom: '0.5rem',
+                        color: 'var(--text)'
+                    }}>
+                        Reviews
                     </h2>
-                    <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', maxWidth: '600px', margin: '0 auto', fontWeight: '500' }}>
-                        Browse all engineering insights and technical feedback from our global network.
+                    <p style={{
+                        color: 'var(--text-muted)',
+                        fontSize: isMobile ? '0.9rem' : '1rem',
+                        maxWidth: '600px',
+                        margin: isMobile ? '0' : '0 auto',
+                        fontWeight: '500'
+                    }}>
+                        Community feedback and technical validation.
                     </p>
                 </div>
 
-                <div className="glass" style={{ padding: '2rem', borderRadius: '2.5rem' }}>
-                    <CustomReviews setView={setView} isAdmin={isAdmin} />
+                <div
+                    className={isMobile ? "" : "glass"}
+                    style={{
+                        padding: isMobile ? '0 1.25rem' : '2rem',
+                        borderRadius: isMobile ? '0' : '2.5rem',
+                        background: isMobile ? 'transparent' : '',
+                        border: isMobile ? 'none' : ''
+                    }}
+                >
+                    <CustomReviews setView={setView} isAdmin={isAdmin} autoOpenForm={true} />
                 </div>
             </div>
         </div>
