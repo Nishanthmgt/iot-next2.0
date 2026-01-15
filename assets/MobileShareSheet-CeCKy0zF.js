@@ -1,4 +1,4 @@
-import{j as e,v as h,m as l,X as g,aM as b,aG as y,aK as u,a4 as f}from"./vendor-DvOKJbxy.js";import{b as v}from"./index-Tav0rY58.js";function w({isOpen:s,onClose:t,title:r,url:a,description:i}){const{addToast:c}=v(),p=async()=>{if(navigator.share)try{await navigator.share({title:r,text:i,url:a}),t()}catch(o){console.log("Error sharing:",o)}else d()},d=()=>{navigator.clipboard.writeText(a),c("Link copied to clipboard","success"),t()},x=()=>{const o=encodeURIComponent(`${r}
+import{j as e,v as h,m as l,X as g,aM as b,aG as y,aK as u,a4 as f}from"./vendor-DvOKJbxy.js";import{b as v}from"./index-Dx_JVzbf.js";function w({isOpen:s,onClose:t,title:r,url:a,description:i}){const{addToast:c}=v(),p=async()=>{if(navigator.share)try{await navigator.share({title:r,text:i,url:a}),t()}catch(o){console.log("Error sharing:",o)}else d()},d=()=>{navigator.clipboard.writeText(a),c("Link copied to clipboard","success"),t()},x=()=>{const o=encodeURIComponent(`${r}
 ${i}
 
 ${a}`);window.open(`https://wa.me/?text=${o}`,"_blank"),t()},m=()=>{const o=encodeURIComponent(`${r}
