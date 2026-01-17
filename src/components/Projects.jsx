@@ -325,8 +325,9 @@ export default function Projects({ onSelectProject, onAddToBuild, onRemoveFromBu
         { id: 'final', label: 'Final Year Combo', icon: Rocket, range: [601, 700], color: '#ef4444', description: 'Industry-grade, multi-domain integration projects' }
     ], []);
 
-    const { projects, loading } = useProjects(true);
-    const { savedProjects } = useDashboardData();
+    const { projects, loading: projectsLoading } = useProjects(true);
+    const { savedProjects = [] } = useDashboardData();
+    const loading = projectsLoading;
 
     const getCategoryProjects = (categoryId) => {
         const category = categories.find(c => c.id === categoryId);

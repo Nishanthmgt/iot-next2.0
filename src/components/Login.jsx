@@ -1,28 +1,149 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { motion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 
+// Dynamically import App plugin only if available
+let App;
+if (Capacitor.isNativePlatform()) {
+    try {
+        App = require('@capacitor/app').App;
+    } catch (e) {
+        console.log('App plugin not available');
+    }
+}
+
 export default function Login() {
     const [loading, setLoading] = useState(false);
 
+    useEffect(() => {
+        // Listen for deep link callback on native apps
+        if (Capacitor.isNativePlatform() && App) {
+            const handleDeepLink = App.addListener('appUrlOpen', async (event) => {
+                const url = event.url;
+                console.log('Deep link received:', url);
+
+                // TEST: Show alert immediately when ANY deep link is received
+                alert('Deep link received: ' + url);
+
+                if (url && url.includes('/auth/callback')) {
+                    setLoading(true);
+                    try {
+                        // Extract tokens from URL hash
+                        const hashPart = url.split('#')[1];
+                        if (hashPart) {
+                            const params = new URLSearchParams(hashPart);
+                            const access_token = params.get('access_token');
+                            const refresh_token = params.get('refresh_token');
+
+                            if (access_token) {
+                                const { error } = await supabase.auth.setSession({
+                                    access_token,
+                                    refresh_token
+                                });
+
+                                if (error) {
+                                    alert('Session error: ' + error.message);
+                                    setLoading(false);
+                                    return;
+                                }
+                                setLoading(false);
+                                // Navigate to home instead of reload
+                                window.location.href = '/';
+                            } else {
+                                alert('No access token found');
+                                setLoading(false);
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error handling deep link:', error);
+                        setLoading(false);
+                    }
+                }
+            });
+
+            return () => {
+                handleDeepLink.remove();
+            };
+        }
+
+        // Check for OAuth callback in URL hash (for web and fallback)
+        const handleAuthCallback = async () => {
+            const hash = window.location.hash;
+            const path = window.location.pathname;
+            const search = window.location.search;
+
+            console.log('🔍 Checking auth callback:', { path, hasHash: !!hash, hasSearch: !!search });
+
+            // Handle both /auth/callback route and hash-based callback (standard for Supabase)
+            if (
+                (hash && hash.includes('access_token')) ||
+                path.includes('/auth/callback') ||
+                (search && search.includes('access_token'))
+            ) {
+                setLoading(true);
+                try {
+                    // Force refresh session to catch the new tokens
+                    const { data, error } = await supabase.auth.getSession();
+
+                    if (error) {
+                        console.error('Session error:', error);
+                        // If hash is present but getSession fails, try setSession manually
+                        if (hash) {
+                            const params = new URLSearchParams(hash.replace('#', '?'));
+                            const access_token = params.get('access_token');
+                            const refresh_token = params.get('refresh_token');
+                            if (access_token) {
+                                await supabase.auth.setSession({ access_token, refresh_token });
+                            }
+                        }
+                    }
+
+                    const { data: { session } } = await supabase.auth.getSession();
+
+                    if (session) {
+                        console.log('✅ Auth successful, redirecting...');
+                        setLoading(false);
+                        // Clear hash and redirect
+                        window.location.hash = '';
+                        window.location.href = '/';
+                    } else {
+                        console.log('⚠️ No session found yet, waiting...');
+                        // Don't flip loading off immediately to avoid flash of login screen
+                        setTimeout(() => setLoading(false), 2000);
+                    }
+                } catch (error) {
+                    console.error('Auth callback error:', error);
+                    setLoading(false);
+                }
+            }
+        };
+
+        handleAuthCallback();
+    }, []);
+
     const handleGoogleLogin = async () => {
         setLoading(true);
+
         try {
-            // Check if running in Capacitor (native app)
             const isNative = Capacitor.isNativePlatform();
-            const redirectUrl = isNative ? 'com.iotnext.app://login-callback' : window.location.origin;
+            const redirectTo = isNative
+                ? 'https://iotnext.store/auth/callback'
+                : window.location.origin;
 
             const { error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
-                    redirectTo: redirectUrl,
-                    skipBrowserRedirect: isNative
+                    redirectTo: redirectTo
                 }
             });
+
             if (error) throw error;
+
+            // OAuth redirect happens automatically
         } catch (error) {
+            console.error('Login error:', error);
             alert('Error logging in: ' + error.message);
             setLoading(false);
         }

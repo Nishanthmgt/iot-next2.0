@@ -103,6 +103,14 @@ async function generateSitemaps() {
         { url: '/community', priority: '0.6', changefreq: 'weekly' },
         { url: '/blog', priority: '0.6', changefreq: 'weekly' },
         { url: '/about', priority: '0.5', changefreq: 'yearly' },
+        // Board Families
+        { url: '/pinout/family/Arduino', priority: '0.85', changefreq: 'weekly' },
+        { url: '/pinout/family/ESP32', priority: '0.85', changefreq: 'weekly' },
+        { url: '/pinout/family/STM32', priority: '0.8', changefreq: 'weekly' },
+        { url: '/pinout/family/RP2040', priority: '0.8', changefreq: 'weekly' },
+        { url: '/pinout/family/Nordic', priority: '0.8', changefreq: 'weekly' },
+        { url: '/pinout/family/Teensy', priority: '0.7', changefreq: 'weekly' },
+        { url: '/pinout/family/ATtiny', priority: '0.7', changefreq: 'weekly' },
     ];
 
     let pagesSitemap = `<?xml version="1.0" encoding="UTF-8"?>
@@ -156,14 +164,14 @@ async function generateSitemaps() {
     fs.writeFileSync(path.join(OUTPUT_DIR, 'sitemap-pages.xml'), pagesSitemap);
     fs.writeFileSync(path.join(OUTPUT_DIR, 'sitemap-projects.xml'), projectsSitemap);
 
-    // Generate slug mapping for routing
+    // Generate ID -> Slug mapping for routing and canonicals
     const slugMapping = {};
     projectData.forEach(p => {
-        slugMapping[p.slug] = p.id;
+        slugMapping[p.id] = p.slug;
     });
 
     fs.writeFileSync(
-        path.join(__dirname, '../src/data/project-slugs.json'),
+        path.join(__dirname, '../src/data/project-ids.json'),
         JSON.stringify(slugMapping, null, 2)
     );
 

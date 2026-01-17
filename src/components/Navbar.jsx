@@ -5,6 +5,7 @@ import {
     Sparkles, Box, User, Heart, Settings as SettingsIcon, LogOut, Grid, Bookmark
 } from 'lucide-react';
 import { useDashboardData } from '../hooks/useDashboardData';
+import { supabase } from '../lib/supabase';
 
 const Navbar = ({ setView, currentView, theme, toggleTheme, setIsSearchOpen, buildList = [] }) => {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -361,7 +362,6 @@ const Navbar = ({ setView, currentView, theme, toggleTheme, setIsSearchOpen, bui
                                             {[
                                                 { label: 'My Dashboard', icon: Grid, action: () => setView('dashboard') },
                                                 { label: 'Saved Projects', icon: Heart, action: () => setView('projects') },
-                                                { label: 'Settings', icon: SettingsIcon, action: () => setView('settings') },
                                             ].map((item, idx) => (
                                                 <div
                                                     key={idx}
@@ -387,7 +387,13 @@ const Navbar = ({ setView, currentView, theme, toggleTheme, setIsSearchOpen, bui
                                             ))}
                                             <div style={{ borderTop: '1px solid var(--border)', margin: '0.5rem 0' }} />
                                             <div
-                                                onClick={() => { setView('settings'); setIsProfileOpen(false); }}
+                                                onClick={async () => {
+                                                    await supabase.auth.signOut();
+                                                    localStorage.removeItem('iotnext-user');
+                                                    localStorage.removeItem('user_avatar');
+                                                    setIsProfileOpen(false);
+                                                    window.location.href = '/';
+                                                }}
                                                 style={{
                                                     padding: '0.75rem',
                                                     display: 'flex',
@@ -396,10 +402,11 @@ const Navbar = ({ setView, currentView, theme, toggleTheme, setIsSearchOpen, bui
                                                     cursor: 'pointer',
                                                     borderRadius: '0.5rem',
                                                     fontSize: '0.85rem',
-                                                    color: '#ef4444'
+                                                    color: '#ef4444',
+                                                    transition: 'background 0.2s'
                                                 }}
-                                                onMouseEnter={(e) => e.target.style.background = 'rgba(239, 68, 68, 0.1)'}
-                                                onMouseLeave={(e) => e.target.style.background = 'transparent'}
+                                                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)'}
+                                                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                                             >
                                                 <LogOut size={16} />
                                                 Sign Out

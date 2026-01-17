@@ -1,0 +1,398 @@
+import React, { useState, useMemo, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Helmet } from 'react-helmet-async';
+import {
+    Search, Filter, Heart, Scan, Grid, List as ListIcon, Zap, Target, Activity,
+    Thermometer, Wifi, Cpu, Eye, ArrowLeft, SlidersHorizontal, RefreshCw
+} from 'lucide-react';
+import { sensorCategories } from '../../data/sensors';
+import { useDashboardData } from '../../hooks/useDashboardData';
+import { supabase } from '../../lib/supabase';
+
+const MobileSensors = ({ onSelectSensor, setView }) => {
+    const { savedSensors, toggleSaveItem } = useDashboardData();
+    const [search, setSearch] = useState('');
+    const [selectedCategory, setSelectedCategory] = useState('All');
+    const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'list'
+
+    // Dynamic Data State
+    const [sensors, setSensors] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchSensors = async () => {
+            setLoading(true);
+            try {
+                const { data, error } = await supabase
+                    .from('sensors')
+                    .select('*');
+
+                if (error) throw error;
+                if (data) setSensors(data);
+            } catch (err) {
+                console.error("Error fetching mobile sensors:", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchSensors();
+    }, []);
+
+    // Filter Logic
+    const filteredSensors = useMemo(() => {
+        return sensors.filter(sensor => {
+            const matchesSearch = String(sensor.name || "").toLowerCase().includes(search.toLowerCase()) ||
+                String(sensor.id || "").toLowerCase().includes(search.toLowerCase());
+
+            if (selectedCategory === 'All') return matchesSearch;
+
+            // Loose matching for Category
+            const sCat = String(sensor.category || "").toLowerCase();
+            const sCatId = String(sensor.categoryId || sensor.category_id || "").toLowerCase();
+            const target = selectedCategory.toLowerCase();
+            const targetParts = target.split(' ')[0]; // Match "Environmental" from "Environmental Sensors"
+
+            // Check exact, ID, or partial match (e.g. "Environmental" inside "Environmental Sensors")
+            const matchesCategory =
+                sCat === target ||
+                sCatId === target ||
+                sCat.includes(targetParts) ||
+                target.includes(sCat);
+
+            return matchesSearch && matchesCategory;
+        });
+    }, [search, selectedCategory, sensors]);
+
+    // Categories with Icons (Helper) - Uses Category ID
+    const getCategoryIcon = (id) => {
+        switch (id) {
+            case 'environmental': return <Thermometer size={14} />;
+            case 'communication': return <Wifi size={14} />;
+            case 'actuators_drivers': return <Cpu size={14} />;
+            case 'motion_presence': return <Activity size={14} />;
+            case 'light_optical': return <Eye size={14} />;
+            case 'sound_vibration': return <Activity size={14} />;
+            case 'displays_hmi': return <Grid size={14} />;
+            case 'water_agriculture': return <Zap size={14} />;
+            case 'health_biomedical': return <Heart size={14} />;
+            case 'imu_position': return <Target size={14} />;
+            default: return <Zap size={14} />;
+        }
+    };
+
+    // Handle sensor click
+    const handleSensorClick = (sensor) => {
+        if (onSelectSensor) {
+            onSelectSensor(sensor);
+        } else {
+            console.warn("onSelectSensor prop missing");
+        }
+    }
+
+    return (
+        <div style={{ background: 'var(--background)', minHeight: '100vh', paddingBottom: '90px' }}>
+            <Helmet><title>Sensors Hub | IoTNext</title></Helmet>
+
+            {/* Sticky Native Header */}
+            <div style={{
+                position: 'sticky', top: 0, zIndex: 50,
+                background: 'rgba(var(--background-rgb), 0.95)',
+                backdropFilter: 'blur(12px)',
+                borderBottom: '1px solid var(--border)',
+                padding: '0.75rem 1rem'
+            }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                        <div style={{
+                            width: '36px', height: '36px', borderRadius: '10px',
+                            background: 'linear-gradient(135deg, var(--primary), var(--secondary))',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            color: 'white'
+                        }}>
+                            <Scan size={20} />
+                        </div>
+                        <h1 style={{ fontSize: '1.25rem', fontWeight: '800', margin: 0, letterSpacing: '-0.02em' }}>
+                            Sensors Registry
+                        </h1>
+                    </div>
+                </div>
+
+                {/* Search Bar */}
+                <div style={{ position: 'relative', marginBottom: '1rem' }}>
+                    <Search size={18} color="var(--text-muted)" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
+                    <input
+                        type="text"
+                        placeholder="Search sensors..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        style={{
+                            width: '100%',
+                            padding: '0.8rem 1rem 0.8rem 3rem',
+                            borderRadius: '1rem',
+                            border: 'none',
+                            background: 'var(--surface)',
+                            color: 'var(--text)',
+                            fontSize: '0.95rem',
+                            boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)'
+                        }}
+                    />
+                    <div style={{ position: 'absolute', right: '0.5rem', top: '50%', transform: 'translateY(-50%)' }}>
+                        <button
+                            onClick={() => setViewMode(prev => prev === 'grid' ? 'list' : 'grid')}
+                            style={{
+                                background: 'transparent', border: 'none', padding: '0.5rem',
+                                color: 'var(--text-muted)', display: 'flex'
+                            }}
+                        >
+                            {viewMode === 'grid' ? <ListIcon size={20} /> : <Grid size={20} />}
+                        </button>
+                    </div>
+                </div>
+
+                {/* Category Pills - Horizontal Scroll */}
+                <div style={{
+                    display: 'flex',
+                    gap: '0.5rem',
+                    overflowX: 'auto',
+                    paddingBottom: '0.5rem',
+                    marginRight: '-1rem', // Bleed out to edge
+                    paddingRight: '1rem',
+                    scrollbarWidth: 'none',
+                    msOverflowStyle: 'none'
+                }}>
+                    <motion.button
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => setSelectedCategory('All')}
+                        style={{
+                            padding: '0.5rem 1rem',
+                            borderRadius: '2rem',
+                            background: selectedCategory === 'All' ? 'var(--primary)' : 'var(--surface)',
+                            color: selectedCategory === 'All' ? 'white' : 'var(--text-muted)',
+                            border: selectedCategory === 'All' ? '1px solid var(--primary)' : '1px solid var(--border)',
+                            fontSize: '0.85rem',
+                            fontWeight: '600',
+                            whiteSpace: 'nowrap',
+                            flexShrink: 0
+                        }}
+                    >
+                        All
+                    </motion.button>
+                    {sensorCategories.map(cat => (
+                        <motion.button
+                            key={cat.id}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => setSelectedCategory(cat.id)}
+                            style={{
+                                padding: '0.5rem 1rem',
+                                borderRadius: '2rem',
+                                background: selectedCategory === cat.id ? 'var(--primary)' : 'var(--surface)',
+                                color: selectedCategory === cat.id ? 'white' : 'var(--text-muted)',
+                                border: selectedCategory === cat.id ? '1px solid var(--primary)' : '1px solid var(--border)',
+                                fontSize: '0.85rem',
+                                fontWeight: '600',
+                                whiteSpace: 'nowrap',
+                                flexShrink: 0,
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.3rem'
+                            }}
+                        >
+                            <span>{cat.emoji}</span> {cat.name}
+                        </motion.button>
+                    ))}
+                </div>
+
+                {/* Horizontal Categories */}
+                <div className="hide-scrollbar" style={{
+                    display: 'flex', gap: '0.75rem', overflowX: 'auto',
+                    paddingBottom: '0.5rem', margin: '0 -1rem', paddingLeft: '1rem', paddingRight: '1rem'
+                }}>
+                    <button
+                        onClick={() => setSelectedCategory('All')}
+                        style={{
+                            padding: '0.5rem 1rem', borderRadius: '2rem', whiteSpace: 'nowrap',
+                            background: selectedCategory === 'All' ? 'var(--primary)' : 'var(--surface)',
+                            color: selectedCategory === 'All' ? '#fff' : 'var(--text-muted)',
+                            border: selectedCategory === 'All' ? 'none' : '1px solid var(--border)',
+                            fontSize: '0.85rem', fontWeight: '600',
+                            transition: 'all 0.2s ease',
+                            display: 'flex', alignItems: 'center', gap: '0.5rem'
+                        }}
+                    >
+                        {loading && selectedCategory === 'All' && <RefreshCw size={12} className="animate-spin" />}
+                        All Sensors
+                    </button>
+                    {sensorCategories.map(cat => (
+                        <button
+                            key={cat.id}
+                            onClick={() => setSelectedCategory(cat.name)}
+                            style={{
+                                padding: '0.5rem 1rem', borderRadius: '2rem', whiteSpace: 'nowrap',
+                                background: selectedCategory === cat.name ? 'var(--primary)' : 'var(--surface)',
+                                color: selectedCategory === cat.name ? '#fff' : 'var(--text-muted)',
+                                border: selectedCategory === cat.name ? 'none' : '1px solid var(--border)',
+                                fontSize: '0.85rem', fontWeight: '600',
+                                display: 'flex', alignItems: 'center', gap: '0.5rem',
+                                transition: 'all 0.2s ease'
+                            }}
+                        >
+                            {/* Use cat.emoji if available or fallback to icon */}
+                            {cat.emoji ? <span style={{ marginRight: '4px' }}>{cat.emoji}</span> : getCategoryIcon(cat.id)}
+                            {cat.name}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            {/* Content Grid/List */}
+            <div style={{ padding: '1rem', display: viewMode === 'grid' ? 'grid' : 'flex', flexDirection: 'column', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+
+                {loading ? (
+                    // Loading Skeletons
+                    Array(6).fill(0).map((_, i) => (
+                        <div key={i} style={{
+                            height: viewMode === 'grid' ? '200px' : '100px',
+                            background: 'var(--surface)',
+                            borderRadius: '1.25rem',
+                            border: '1px solid var(--border)',
+                            opacity: 0.5
+                        }} />
+                    ))
+                ) : (
+                    <AnimatePresence mode='popLayout'>
+                        {filteredSensors.map(sensor => (
+                            <motion.div
+                                key={sensor.id}
+                                layout
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.95 }}
+                                onClick={() => handleSensorClick(sensor)}
+                                style={{
+                                    background: 'var(--surface)',
+                                    borderRadius: '1.25rem',
+                                    overflow: 'hidden',
+                                    border: '1px solid var(--border)',
+                                    position: 'relative',
+                                    display: viewMode === 'list' ? 'flex' : 'block',
+                                    alignItems: viewMode === 'list' ? 'center' : 'stretch',
+                                    gap: viewMode === 'list' ? '1rem' : 0,
+                                    padding: viewMode === 'list' ? '0.75rem' : 0,
+                                    boxShadow: '0 4px 20px -2px rgba(0, 0, 0, 0.05)'
+                                }}
+                            >
+                                {/* Save Button */}
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); toggleSaveItem('sensors', sensor.id); }}
+                                    style={{
+                                        position: 'absolute', top: '0.75rem', right: '0.75rem',
+                                        zIndex: 10, background: 'rgba(255,255,255,0.9)',
+                                        borderRadius: '50%',
+                                        width: '32px', height: '32px', border: '1px solid rgba(0,0,0,0.05)',
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                                    }}
+                                >
+                                    <Heart
+                                        size={16}
+                                        fill={savedSensors?.includes(sensor.id) ? '#ef4444' : 'none'}
+                                        color={savedSensors?.includes(sensor.id) ? '#ef4444' : '#64748b'}
+                                    />
+                                </button>
+
+                                {/* Image Area */}
+                                <div style={{
+                                    width: viewMode === 'list' ? '80px' : '100%',
+                                    height: viewMode === 'list' ? '80px' : '150px',
+                                    background: 'linear-gradient(180deg, var(--background) 0%, var(--surface) 100%)',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    borderRadius: viewMode === 'list' ? '1rem' : '0 0 0 0',
+                                    padding: '1.25rem', position: 'relative'
+                                }}>
+
+                                    {/* Primary Image */}
+                                    <img
+                                        src={sensor.image}
+                                        alt={sensor.name}
+                                        style={{ width: '100%', height: '100%', objectFit: 'contain', filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.15))', zIndex: 2, position: 'relative' }}
+                                        onError={(e) => {
+                                            e.target.style.display = 'none';
+                                            // Show fallback icon
+                                            const fallback = e.target.parentElement.querySelector('.fallback-icon');
+                                            if (fallback) fallback.style.display = 'flex';
+                                        }}
+                                    />
+
+                                    {/* Fallback Icon Gradient */}
+                                    <div className="fallback-icon" style={{
+                                        display: 'none',
+                                        position: 'absolute', inset: 0,
+                                        alignItems: 'center', justifyContent: 'center',
+                                        background: 'radial-gradient(circle at center, rgba(var(--primary-rgb), 0.1) 0%, transparent 70%)',
+                                        zIndex: 1
+                                    }}>
+                                        <div style={{
+                                            width: '60px', height: '60px', borderRadius: '50%',
+                                            background: 'var(--surface)',
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                            boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
+                                        }}>
+                                            <Cpu size={28} color='var(--primary)' style={{ opacity: 0.8 }} />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Info Area */}
+                                <div style={{
+                                    padding: viewMode === 'list' ? '0' : '1.25rem',
+                                    paddingTop: viewMode === 'list' ? '0' : '0.75rem',
+                                    flex: 1
+                                }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem' }}>
+                                        <span style={{
+                                            fontSize: '0.65rem', fontWeight: '800', textTransform: 'uppercase',
+                                            color: 'var(--primary)', letterSpacing: '0.05em',
+                                            background: 'rgba(var(--primary-rgb), 0.08)',
+                                            padding: '2px 6px', borderRadius: '4px'
+                                        }}>
+                                            {sensor.type || 'MODULE'}
+                                        </span>
+                                        <span style={{ fontSize: '0.8rem' }}>{sensor.emoji}</span>
+                                    </div>
+
+                                    <h3 style={{
+                                        fontSize: viewMode === 'list' ? '1rem' : '1.1rem',
+                                        fontWeight: '800', color: 'var(--text)',
+                                        margin: '0 0 0.5rem 0', lineHeight: '1.25',
+                                        letterSpacing: '-0.02em',
+                                        display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden'
+                                    }}>
+                                        {sensor.name}
+                                    </h3>
+
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                                        <div style={{
+                                            fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: '600',
+                                            display: 'flex', alignItems: 'center', gap: '0.3rem'
+                                        }}>
+                                            <span style={{ opacity: 0.5 }}>#</span>{sensor.id}
+                                        </div>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </AnimatePresence>
+                )}
+            </div>
+
+            {/* Empty State */}
+            {!loading && filteredSensors.length === 0 && (
+                <div style={{ textAlign: 'center', padding: '4rem 2rem', color: 'var(--text-muted)' }}>
+                    <p>No sensors found matching "{search}"</p>
+                </div>
+            )}
+        </div>
+    );
+};
+
+export default MobileSensors;

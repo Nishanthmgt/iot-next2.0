@@ -27,7 +27,7 @@ const MobileBottomNav = ({ activeTab, onTabChange }) => {
             zIndex: 1000
         }}>
             {tabs.map((tab) => {
-                const isActive = activeTab === tab.id;
+                const isActive = activeTab === tab.id || (activeTab.startsWith(tab.id + '/') && tab.id !== 'home');
                 const Icon = tab.icon;
 
                 return (

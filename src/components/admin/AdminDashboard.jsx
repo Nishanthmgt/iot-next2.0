@@ -74,59 +74,74 @@ export default function AdminDashboard({ setView, setEditingProject, setEditingS
     }, [activeTab]);
 
     const importStaticSensors = async () => {
-        if (!window.confirm("This will import the 110+ sensors from the registry into your dynamic database, preserving categories and levels. Continue?")) return;
+        if (!window.confirm(`Smart Restore: This will add missing sensors AND recover detailed data for any sensors currently showing as "Placeholders". Continue?`)) return;
 
         setIsSyncing(true);
-        let successCount = 0;
-        let failCount = 0;
+        let addedCount = 0;
+        let restoredCount = 0;
 
-        for (const s of staticSensors) {
-            // Check if already exists to avoid duplicates
-            const { data: existing } = await supabase
-                .from('sensors')
-                .select('id')
-                .eq('name', s.name)
-                .single();
+        try {
+            // 1. Fetch current DB state
+            const { data: dbData } = await supabase.from('sensors').select('*');
+            const dbMap = new Map((dbData || []).map(s => [s.name.toLowerCase().trim(), s]));
 
-            if (!existing) {
-                const { error } = await supabase
-                    .from('sensors')
-                    .insert([{
+            const inserts = [];
+            const updates = [];
+
+            // 2. Analyze static archive vs DB
+            staticSensors.filter(s => s && s.name).forEach(s => {
+                const key = s.name.toLowerCase().trim();
+                const existing = dbMap.get(key);
+
+                const isPlaceholder = (val) => !val.image || val.image.includes('placeholder') || (val.description && val.description.length < 20);
+                const isRich = (val) => val.image && !val.image.includes('placeholder') && val.description && val.description.length > 20;
+
+                if (!existing) {
+                    // New sensor to add
+                    inserts.push({
                         name: s.name,
-                        pins: s.pins,
+                        pins: s.pins || '',
+                        image: s.image || '',
+                        categoryId: s.categoryId || '',
+                        category: s.category || '',
+                        level: s.level || 'Beginner',
+                        emoji: s.emoji || '',
+                        description: s.description || ''
+                    });
+                } else if (isPlaceholder(existing) && isRich(s)) {
+                    // Restore clobbered data
+                    updates.push({
+                        id: existing.id,
+                        name: s.name,
+                        pins: s.pins || existing.pins,
                         image: s.image,
-                        categoryId: s.categoryId,
-                        category: s.category, // Legacy support
-                        level: s.level,
-                        emoji: s.emoji,
+                        categoryId: s.categoryId || existing.categoryId,
+                        category: s.category || existing.category,
                         description: s.description
-                    }]);
-                if (!error) {
-                    successCount++;
-                } else {
-                    console.error('Insert error for', s.name, ':', error);
-                    failCount++;
+                    });
                 }
-            } else {
-                // Update existing to fix missing metadata if needed
-                const { error } = await supabase
-                    .from('sensors')
-                    .update({
-                        categoryId: s.categoryId,
-                        category: s.category,
-                        level: s.level,
-                        emoji: s.emoji,
-                        description: s.description
-                    })
-                    .eq('name', s.name);
+            });
 
-                if (!error) successCount++;
-                else failCount++;
+            // 3. Execute Operations
+            if (inserts.length > 0) {
+                const { error } = await supabase.from('sensors').insert(inserts);
+                if (!error) addedCount = inserts.length;
             }
-        }
 
-        alert(`Sync Complete!\n- ${successCount} sensors updated/imported.\n- ${failCount} failed.`);
-        fetchData();
+            if (updates.length > 0) {
+                // Batch updates are tricky in Supabase without a RPC, so we do them sequentially or in a single upsert if we include IDs
+                const { error } = await supabase.from('sensors').upsert(updates);
+                if (!error) restoredCount = updates.length;
+            }
+
+            alert(`Sync Successful!\n- ${addedCount} new sensors added.\n- ${restoredCount} records restored to High-Fidelity status.`);
+        } catch (err) {
+            console.error('Critical sync failure:', err);
+            alert('A critical error occurred during smart restoration.');
+        } finally {
+            setIsSyncing(false);
+            fetchData();
+        }
     };
 
     const syncBoards = async () => {
@@ -412,9 +427,14 @@ export default function AdminDashboard({ setView, setEditingProject, setEditingS
                                 </button>
                             </>
                         ) : activeTab === 'sensors' ? (
-                            <button className="btn btn-primary btn-primary-shiny" style={{ padding: isMobile ? '0.875rem 1.5rem' : '0.75rem 1.5rem', borderRadius: '1rem', fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }} onClick={() => { setEditingSensor(null); setView('admin-sensor-add'); }}>
-                                <Plus size={18} /> New Sensor
-                            </button>
+                            <>
+                                <button className="btn btn-outline" style={{ padding: isMobile ? '0.875rem 1.5rem' : '0.75rem 1.25rem', borderRadius: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', fontSize: '0.85rem' }} onClick={importStaticSensors}>
+                                    <Cloud size={16} className={isSyncing ? "animate-spin" : ""} /> Cloud Sync
+                                </button>
+                                <button className="btn btn-primary btn-primary-shiny" style={{ padding: isMobile ? '0.875rem 1.5rem' : '0.75rem 1.5rem', borderRadius: '1rem', fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }} onClick={() => { setEditingSensor(null); setView('admin-sensor-add'); }}>
+                                    <Plus size={18} /> New Sensor
+                                </button>
+                            </>
                         ) : (
                             <>
                                 <button className="btn btn-outline" style={{ padding: isMobile ? '0.875rem 1.5rem' : '0.75rem 1.25rem', borderRadius: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', fontSize: '0.85rem' }} onClick={syncBoards}>

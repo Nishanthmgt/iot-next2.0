@@ -295,8 +295,9 @@ const PinoutLab = ({ initialFamily = 'all', showOnlySaved = false, setShowOnlySa
     return (
         <section className="container" style={{ padding: isMobile ? '1rem 0rem 8rem' : '2rem 1rem 4rem' }}>
             <Helmet>
-                <title>Pinout Lab - IoTNext</title>
-                <meta name="description" content="Interactive pinout diagrams and technical specifications." />
+                <title>{selectedFamily !== 'all' ? `${selectedFamily} Pinout Lab & Technical Reference` : 'Hardware Registry | IoT Microcontroller Pinouts'} | IoTNext</title>
+                <meta name="description" content={selectedFamily !== 'all' ? `Explore high-fidelity pinout diagrams and technical specifications for the ${selectedFamily} ecosystem.` : "Interactive pinout diagrams and technical specifications for ESP32, Arduino, STM32, and more."} />
+                <link rel="canonical" href={selectedFamily !== 'all' ? `https://iotnext.store/pinout/family/${selectedFamily}` : "https://iotnext.store/pinout"} />
             </Helmet>
 
             {selectedFamily === 'all' && !selectedBoardId ? (

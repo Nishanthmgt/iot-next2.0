@@ -1,0 +1,10 @@
+{
+  "appId": "com.iotnext.app",
+  "appName": "IoTNext",
+  "webDir": "dist",
+  "plugins": {
+    "CapacitorHttp": {
+      "enabled": true
+    }
+  }
+}

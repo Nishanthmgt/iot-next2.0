@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, ChevronRight, Code, Terminal, BookOpen, Brain, Download, CheckCircle, ArrowRight, ArrowLeft } from 'lucide-react';
+import { ChevronDown, ChevronRight, Code, Terminal, BookOpen, Brain, Download, CheckCircle, ArrowRight, ArrowLeft, Cpu, Target } from 'lucide-react';
 import { cProgrammingCourse } from '../data/cProgrammingCourse';
-import { setResumeCourse } from '../hooks/useDashboardData';
 
 const ChallengeItem = ({ challenge, color }) => {
     const [showHint, setShowHint] = useState(false);
@@ -138,11 +137,68 @@ const ChallengeItem = ({ challenge, color }) => {
     );
 };
 
+const RadialProgress = ({ percentage, size = 45, color = '#3b82f6' }) => {
+    const strokeWidth = 4;
+    const radius = (size - strokeWidth) / 2;
+    const circumference = radius * 2 * Math.PI;
+    const offset = circumference - (percentage / 100) * circumference;
+
+    return (
+        <div style={{ position: 'relative', width: size, height: size, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
+                <circle
+                    cx={size / 2}
+                    cy={size / 2}
+                    r={radius}
+                    fill="transparent"
+                    stroke="rgba(255,255,255,0.1)"
+                    strokeWidth={strokeWidth}
+                />
+                <motion.circle
+                    cx={size / 2}
+                    cy={size / 2}
+                    r={radius}
+                    fill="transparent"
+                    stroke={color}
+                    strokeWidth={strokeWidth}
+                    strokeDasharray={circumference}
+                    initial={{ strokeDashoffset: circumference }}
+                    animate={{ strokeDashoffset: offset }}
+                    transition={{ duration: 1, ease: "easeOut" }}
+                    strokeLinecap="round"
+                />
+            </svg>
+            <span style={{ position: 'absolute', fontSize: '10px', fontWeight: 'bold', color: '#fff' }}>
+                {Math.round(percentage)}%
+            </span>
+        </div>
+    );
+};
+
 const CProgrammingCourse = ({ onBack }) => {
     const [activeLevel, setActiveLevel] = useState(0);
     const [expandedTopic, setExpandedTopic] = useState(null);
     const [showCode, setShowCode] = useState(null);
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 820);
+    const [progress, setProgress] = useState(() => {
+        const saved = localStorage.getItem('iotnext_c_course_progress');
+        return saved ? JSON.parse(saved) : {};
+    });
+
+    useEffect(() => {
+        localStorage.setItem('iotnext_c_course_progress', JSON.stringify(progress));
+    }, [progress]);
+
+    const toggleComplete = (topicId) => {
+        setProgress(prev => ({
+            ...prev,
+            [topicId]: !prev[topicId]
+        }));
+    };
+
+    const totalTopics = cProgrammingCourse.levels.reduce((acc, level) => acc + (level.topics?.length || 0), 0);
+    const completedTopics = Object.values(progress).filter(Boolean).length;
+    const overallProgress = (completedTopics / totalTopics) * 100;
 
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth <= 820);
@@ -166,22 +222,45 @@ const CProgrammingCourse = ({ onBack }) => {
         <div className="course-container" style={{
             maxWidth: '1200px',
             margin: '0 auto',
-            padding: isMobile ? '1rem' : '3rem 2rem',
+            padding: isMobile ? '0 1rem 2rem' : '3rem 2rem',
             color: 'var(--text)',
             minHeight: '100vh',
             background: 'var(--background)'
         }}>
-            {/* Header: Mobile vs Desktop */}
-            {isMobile ? (
-                <div className="course-header" style={{ marginBottom: '1.5rem', textAlign: 'left' }}>
-                    <h1 style={{ fontSize: '1.8rem', fontWeight: '800', marginBottom: '0.5rem', letterSpacing: '-0.03em' }}>
-                        C Programming
-                    </h1>
-                    <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', margin: 0 }}>
-                        Embedded firmware mastery
-                    </p>
+            {/* Sticky Mobile Header */}
+            {isMobile && (
+                <div style={{
+                    position: 'sticky',
+                    top: 0,
+                    left: '-1rem',
+                    right: '-1rem',
+                    width: 'calc(100% + 2rem)',
+                    zIndex: 100,
+                    background: 'rgba(10, 10, 15, 0.95)',
+                    backdropFilter: 'blur(10px)',
+                    borderBottom: '1px solid rgba(255,255,255,0.05)',
+                    padding: '1rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    marginBottom: '1rem'
+                }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                        <button onClick={onBack} style={{ background: 'none', border: 'none', color: '#fff', padding: 0, display: 'flex', alignItems: 'center' }}>
+                            <ArrowLeft size={20} />
+                        </button>
+                        <div>
+                            <h2 style={{ fontSize: '1.2rem', fontWeight: '800', margin: 0 }}>Embedded C Core</h2>
+                            <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', fontWeight: '700' }}>
+                                {completedTopics} / {totalTopics} CONCEPTS
+                            </span>
+                        </div>
+                    </div>
+                    <RadialProgress percentage={overallProgress} />
                 </div>
-            ) : (
+            )}
+            {/* Desktop Header */}
+            {!isMobile && (
                 <div className="course-header-desktop" style={{ marginBottom: '4rem', textAlign: 'center', padding: '2rem 0', position: 'relative' }}>
                     <div style={{
                         position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
@@ -220,41 +299,58 @@ const CProgrammingCourse = ({ onBack }) => {
                 </div>
             )}
 
-            {/* Level Navigation */}
-            <div className="level-nav" style={{
+            {/* Level Selector - Horizontal Scroll */}
+            <div style={{
                 display: 'flex',
+                gap: '12px',
+                padding: '1rem 0',
                 overflowX: 'auto',
-                gap: '1rem',
-                padding: '1rem 0.5rem',
-                marginBottom: '2rem',
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none',
                 WebkitOverflowScrolling: 'touch',
-                scrollbarWidth: 'thin',
-                msOverflowStyle: 'auto',
-                overscrollBehaviorX: 'contain'
+                margin: isMobile ? '0 -1rem' : '0',
+                paddingLeft: isMobile ? '1rem' : '0',
+                paddingRight: isMobile ? '1rem' : '0'
             }}>
-                {cProgrammingCourse.levels.map((level) => (
-                    <button
-                        key={level.level}
-                        onClick={() => {
-                            setActiveLevel(level.level);
-                            setExpandedTopic(null);
-                        }}
-                        style={{
-                            padding: '0.75rem 1.5rem',
-                            borderRadius: '12px',
-                            background: activeLevel === level.level ? level.color : 'var(--surface)',
-                            color: activeLevel === level.level ? '#fff' : 'var(--text-secondary)',
-                            border: `1px solid ${activeLevel === level.level ? level.color : 'var(--border)'}`,
-                            whiteSpace: 'nowrap',
-                            cursor: 'pointer',
-                            fontWeight: '500',
-                            transition: 'all 0.3s ease',
-                            boxShadow: activeLevel === level.level ? `0 4px 12px ${level.color}40` : 'none'
-                        }}
-                    >
-                        Level {level.level}
-                    </button>
-                ))}
+                {cProgrammingCourse.levels.map((level, idx) => {
+                    const isActive = activeLevel === level.level;
+                    const levelTopics = level.topics?.length || 0;
+                    const levelCompleted = (level.topics || []).filter(t => progress[`${level.level}-${t.name}`]).length;
+                    const levelPercentage = levelTopics > 0 ? (levelCompleted / levelTopics) * 100 : 0;
+
+                    return (
+                        <motion.button
+                            key={idx}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => {
+                                setActiveLevel(level.level);
+                                setExpandedTopic(null);
+                            }}
+                            style={{
+                                flex: '0 0 auto',
+                                padding: '12px 20px',
+                                borderRadius: '16px',
+                                background: isActive ? 'rgba(59, 130, 246, 0.1)' : 'rgba(255,255,255,0.03)',
+                                border: `2px solid ${isActive ? '#3b82f6' : 'transparent'}`,
+                                textAlign: 'left',
+                                minWidth: '140px',
+                                transition: 'all 0.3s ease',
+                                cursor: 'pointer',
+                                color: isActive ? '#fff' : 'rgba(255,255,255,0.6)'
+                            }}
+                        >
+                            <div style={{ fontSize: '0.8rem', fontWeight: '800', opacity: 0.5, marginBottom: '4px' }}>LEVEL {level.level}</div>
+                            <div style={{ fontSize: '1rem', fontWeight: '800' }}>{level.title}</div>
+                            <div style={{ height: '4px', width: '100%', background: 'rgba(255,255,255,0.05)', borderRadius: '2px', marginTop: '12px', overflow: 'hidden' }}>
+                                <motion.div
+                                    initial={{ width: 0 }}
+                                    animate={{ width: `${levelPercentage}%` }}
+                                    style={{ height: '100%', background: level.color || '#3b82f6' }}
+                                />
+                            </div>
+                        </motion.button>
+                    );
+                })}
             </div>
 
             {/* Main Content Area */}
@@ -325,180 +421,183 @@ const CProgrammingCourse = ({ onBack }) => {
 
                     {/* Topics List */}
                     <div className="topics-list" style={{ display: 'grid', gap: '1rem' }}>
-                        {currentLevelData.topics && currentLevelData.topics.map((topic, index) => (
-                            <div key={index} style={{
-                                background: 'var(--background)',
-                                borderRadius: '16px',
-                                border: '1px solid var(--border)',
-                                overflow: 'hidden'
-                            }}>
-                                <button
-                                    onClick={() => toggleTopic(index)}
-                                    style={{
-                                        width: '100%',
-                                        padding: '1.5rem',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'space-between',
-                                        background: 'none',
-                                        border: 'none',
-                                        color: 'var(--text)',
-                                        cursor: 'pointer',
-                                        textAlign: 'left'
-                                    }}
-                                >
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                                        <div style={{
-                                            width: '44px',
-                                            height: '44px',
-                                            borderRadius: '12px',
-                                            background: `linear-gradient(135deg, ${currentLevelData.color}dd, ${currentLevelData.color}88)`,
-                                            color: '#fff',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            boxShadow: `0 4px 12px ${currentLevelData.color}40`,
-                                            border: '1px solid rgba(255, 255, 255, 0.1)'
-                                        }}>
-                                            <BookOpen size={22} />
-                                        </div>
-                                        <div>
-                                            <h3 style={{ fontSize: '1.15rem', fontWeight: '700', marginBottom: '0.2rem' }}>{topic.name}</h3>
-                                            <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', fontWeight: '500' }}>{topic.desc}</p>
-                                        </div>
-                                    </div>
-                                    {expandedTopic === index ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
-                                </button>
+                        {/* Topics Roadmap Wrapper */}
+                        <div style={{ position: 'relative', gridColumn: '1 / -1' }}>
+                            {!isMobile && (
+                                <div style={{
+                                    position: 'absolute',
+                                    left: '20px',
+                                    top: '2rem',
+                                    bottom: '0',
+                                    width: '2px',
+                                    background: 'rgba(255,255,255,0.05)',
+                                    zIndex: 0
+                                }} />
+                            )}
+                            <div style={{ display: 'grid', gap: '1.5rem' }}>
+                                {currentLevelData.topics && currentLevelData.topics.map((topic, index) => {
+                                    const topicId = `${activeLevel}-${topic.name}`;
+                                    const isCompleted = progress[topicId];
+                                    const isExpanded = expandedTopic === index;
 
-                                <AnimatePresence>
-                                    {expandedTopic === index && (
+                                    return (
                                         <motion.div
-                                            initial={{ height: 0, opacity: 0 }}
-                                            animate={{ height: 'auto', opacity: 1 }}
-                                            exit={{ height: 0, opacity: 0 }}
-                                            style={{ overflow: 'hidden' }}
+                                            key={index}
+                                            layout
+                                            style={{
+                                                background: isExpanded ? 'rgba(59, 130, 246, 0.05)' : 'rgba(255,255,255,0.02)',
+                                                borderRadius: isMobile ? '20px' : '24px',
+                                                border: `1px solid ${isExpanded ? 'rgba(59, 130, 246, 0.2)' : 'rgba(255,255,255,0.05)'}`,
+                                                overflow: 'hidden',
+                                                position: 'relative',
+                                                zIndex: 1
+                                            }}
                                         >
-                                            <div style={{ padding: '0 1.5rem 1.5rem 1.5rem' }}>
-                                                <div style={{
-                                                    padding: '1.5rem',
-                                                    background: 'rgba(99, 102, 241, 0.05)',
-                                                    borderRadius: '12px',
-                                                    marginBottom: '1.5rem'
-                                                }}>
-                                                    <p style={{ lineHeight: '1.6' }}>{topic.explanation}</p>
+                                            <div
+                                                onClick={() => toggleTopic(index)}
+                                                style={{
+                                                    padding: isMobile ? '1rem' : '1.25rem',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '1rem',
+                                                    cursor: 'pointer'
+                                                }}
+                                            >
+                                                {/* Completion Toggle */}
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        toggleComplete(topicId);
+                                                    }}
+                                                    style={{
+                                                        width: '40px',
+                                                        height: '40px',
+                                                        borderRadius: '12px',
+                                                        background: isCompleted ? '#22c55e' : 'rgba(255,255,255,0.05)',
+                                                        border: 'none',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        cursor: 'pointer',
+                                                        color: '#fff',
+                                                        flexShrink: 0,
+                                                        transition: 'all 0.3s'
+                                                    }}
+                                                >
+                                                    {isCompleted ? <CheckCircle size={24} /> : <div style={{ width: '12px', height: '12px', borderRadius: '50%', border: '2px solid rgba(255,255,255,0.2)' }} />}
+                                                </button>
+
+                                                <div style={{ flex: 1 }}>
+                                                    <h3 style={{ fontSize: isMobile ? '1rem' : '1.1rem', fontWeight: '800', margin: 0, color: isCompleted ? 'rgba(255,255,255,0.6)' : '#fff' }}>
+                                                        {topic.name}
+                                                    </h3>
+                                                    <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)', margin: '4px 0 0 0' }}>{topic.desc}</p>
                                                 </div>
 
-                                                {topic.keyPoints && (
-                                                    <div style={{ marginBottom: '1.5rem' }}>
-                                                        <h4 style={{ fontSize: '0.9rem', textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>Key Concepts</h4>
-                                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                                                            {topic.keyPoints.map((pt, i) => (
-                                                                <span key={i} style={{
-                                                                    background: 'var(--surface)',
-                                                                    border: '1px solid var(--border)',
-                                                                    padding: '0.25rem 0.75rem',
-                                                                    borderRadius: '20px',
-                                                                    fontSize: '0.9rem'
-                                                                }}>{pt}</span>
-                                                            ))}
-                                                        </div>
-                                                    </div>
-                                                )}
-
-                                                {topic.code && (
-                                                    <div style={{ marginBottom: '1.5rem' }}>
-                                                        <div style={{
-                                                            display: 'flex',
-                                                            alignItems: 'center',
-                                                            justifyContent: 'space-between',
-                                                            marginBottom: '0.5rem'
-                                                        }}>
-                                                            <h4 style={{ fontSize: '0.9rem', textTransform: 'uppercase', color: 'var(--text-secondary)' }}>Code Example</h4>
-                                                            <span style={{ fontSize: '0.8rem', color: '#6366f1', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                                                                <Terminal size={14} /> C / Embedded C
-                                                            </span>
-                                                        </div>
-                                                        <pre style={{
-                                                            background: '#1e1e2e',
-                                                            padding: isMobile ? '1rem' : '1.5rem',
-                                                            borderRadius: '12px',
-                                                            overflowX: 'auto',
-                                                            border: '1px solid #313244',
-                                                            color: '#a6accd',
-                                                            fontFamily: 'monospace',
-                                                            fontSize: isMobile ? '0.8rem' : '0.9rem',
-                                                            lineHeight: '1.5',
-                                                            maxWidth: '100%'
-                                                        }}>
-                                                            <code style={{ whiteSpace: 'pre', display: 'block' }}>{topic.code}</code>
-                                                        </pre>
-                                                    </div>
-                                                )}
-
-                                                {topic.iotExample && (
-                                                    <div style={{
-                                                        background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(34, 197, 94, 0.05))',
-                                                        border: '1px solid rgba(34, 197, 94, 0.2)',
-                                                        borderRadius: '12px',
-                                                        padding: '1rem',
-                                                        display: 'flex',
-                                                        gap: '1rem'
-                                                    }}>
-                                                        <div style={{
-                                                            minWidth: '38px',
-                                                            height: '38px',
-                                                            borderRadius: '10px',
-                                                            background: 'linear-gradient(135deg, #10b981, #34d399)',
-                                                            color: '#fff',
-                                                            display: 'flex',
-                                                            alignItems: 'center',
-                                                            justifyContent: 'center',
-                                                            boxShadow: '0 4px 10px rgba(16, 185, 129, 0.3)'
-                                                        }}>
-                                                            <Brain size={20} />
-                                                        </div>
-                                                        <div>
-                                                            <h4 style={{ color: '#22c55e', fontWeight: '600', marginBottom: '0.25rem', fontSize: '0.9rem' }}>Real-World IoT Application</h4>
-                                                            <p style={{ fontSize: '0.95rem', color: 'var(--text)' }}>{topic.iotExample}</p>
-                                                        </div>
-                                                    </div>
-                                                )}
-
-                                                {topic.practice && (
-                                                    <div style={{
-                                                        marginTop: '1.5rem',
-                                                        background: 'linear-gradient(135deg, rgba(234, 179, 8, 0.1), rgba(234, 179, 8, 0.05))',
-                                                        border: '1px solid rgba(234, 179, 8, 0.2)',
-                                                        borderRadius: '12px',
-                                                        padding: '1rem',
-                                                        display: 'flex',
-                                                        gap: '1rem'
-                                                    }}>
-                                                        <div style={{
-                                                            minWidth: '38px',
-                                                            height: '38px',
-                                                            borderRadius: '10px',
-                                                            background: 'linear-gradient(135deg, #eab308, #fbbf24)',
-                                                            color: '#fff',
-                                                            display: 'flex',
-                                                            alignItems: 'center',
-                                                            justifyContent: 'center',
-                                                            boxShadow: '0 4px 10px rgba(234, 179, 8, 0.3)'
-                                                        }}>
-                                                            <Terminal size={20} />
-                                                        </div>
-                                                        <div>
-                                                            <h4 style={{ color: '#eab308', fontWeight: '600', marginBottom: '0.25rem', fontSize: '0.9rem' }}>Real-Time Practice</h4>
-                                                            <p style={{ fontSize: '0.95rem', color: 'var(--text)' }}>{topic.practice}</p>
-                                                        </div>
-                                                    </div>
-                                                )}
+                                                <div style={{ color: 'rgba(255,255,255,0.2)' }}>
+                                                    {isExpanded ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
+                                                </div>
                                             </div>
+
+                                            <AnimatePresence>
+                                                {isExpanded && (
+                                                    <motion.div
+                                                        initial={{ height: 0, opacity: 0 }}
+                                                        animate={{ height: 'auto', opacity: 1 }}
+                                                        exit={{ height: 0, opacity: 0 }}
+                                                    >
+                                                        <div style={{ padding: '0 1.25rem 1.25rem', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '1.25rem' }}>
+                                                            {/* Explanation */}
+                                                            <div style={{
+                                                                padding: '1.25rem',
+                                                                background: 'rgba(255,255,255,0.02)',
+                                                                borderRadius: '16px',
+                                                                marginBottom: '1.5rem',
+                                                                border: '1px solid rgba(255,255,255,0.03)',
+                                                                fontSize: '0.95rem',
+                                                                lineHeight: '1.6',
+                                                                color: 'rgba(255,255,255,0.8)'
+                                                            }}>
+                                                                {topic.explanation}
+                                                            </div>
+
+                                                            {/* Key Points */}
+                                                            {topic.keyPoints && (
+                                                                <div style={{ marginBottom: '1.5rem' }}>
+                                                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                                                                        {topic.keyPoints.map((pt, i) => (
+                                                                            <span key={i} style={{
+                                                                                background: 'rgba(59, 130, 246, 0.1)',
+                                                                                color: '#3b82f6',
+                                                                                padding: '4px 12px',
+                                                                                borderRadius: '20px',
+                                                                                fontSize: '0.8rem',
+                                                                                fontWeight: '700'
+                                                                            }}>{pt}</span>
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+                                                            )}
+
+                                                            {/* Code Sample */}
+                                                            {topic.code && (
+                                                                <div style={{ marginBottom: '1.5rem' }}>
+                                                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                                                                        <h4 style={{ fontSize: '0.8rem', fontWeight: '800', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>Code Sample</h4>
+                                                                        <Terminal size={16} style={{ color: 'rgba(255,255,255,0.2)' }} />
+                                                                    </div>
+                                                                    <pre style={{
+                                                                        background: '#0a0a0f',
+                                                                        padding: '1.25rem',
+                                                                        borderRadius: '16px',
+                                                                        overflowX: 'auto',
+                                                                        fontSize: '0.9rem',
+                                                                        border: '1px solid rgba(255,255,255,0.05)',
+                                                                        color: '#e2e8f0',
+                                                                        fontFamily: 'JetBrains Mono, monospace'
+                                                                    }}><code>{topic.code}</code></pre>
+                                                                </div>
+                                                            )}
+
+                                                            {/* IoT Context */}
+                                                            {topic.iotContext && (
+                                                                <div style={{
+                                                                    padding: '1.25rem',
+                                                                    background: 'rgba(34, 197, 94, 0.05)',
+                                                                    borderRadius: '16px',
+                                                                    border: '1px solid rgba(34, 197, 94, 0.1)',
+                                                                    marginBottom: '1.5rem'
+                                                                }}>
+                                                                    <h4 style={{ color: '#22c55e', fontSize: '0.8rem', fontWeight: '800', textTransform: 'uppercase', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                                                        <Cpu size={14} /> IoT Implementation
+                                                                    </h4>
+                                                                    <p style={{ margin: 0, fontSize: '0.9rem', lineHeight: '1.5', color: 'rgba(255,255,255,0.7)' }}>{topic.iotContext}</p>
+                                                                </div>
+                                                            )}
+
+                                                            {/* Practice Exercise */}
+                                                            {topic.exercise && (
+                                                                <div style={{
+                                                                    padding: '1.25rem',
+                                                                    background: 'rgba(234, 179, 8, 0.05)',
+                                                                    borderRadius: '16px',
+                                                                    border: '1px solid rgba(234, 179, 8, 0.1)'
+                                                                }}>
+                                                                    <h4 style={{ color: '#eab308', fontSize: '0.8rem', fontWeight: '800', textTransform: 'uppercase', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                                                        <Target size={14} /> Practice Challenge
+                                                                    </h4>
+                                                                    <p style={{ margin: 0, fontSize: '0.9rem', lineHeight: '1.5', color: 'rgba(255,255,255,0.7)' }}>{topic.exercise}</p>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </motion.div>
+                                                )}
+                                            </AnimatePresence>
                                         </motion.div>
-                                    )}
-                                </AnimatePresence>
+                                    );
+                                })}
                             </div>
-                        ))}
+                        </div>
 
                         {/* Practical Programs Section */}
                         {currentLevelData.programs && currentLevelData.programs.map((prog, index) => (

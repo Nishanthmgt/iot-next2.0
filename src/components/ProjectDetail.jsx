@@ -30,17 +30,21 @@ export default function ProjectDetail({ project: rawProject, onBack, onAddToBuil
         };
     }, []);
     // Field Aliasing for High-Fidelity AI Projects
-    const project = rawProject ? {
-        ...rawProject,
-        problem_statement: rawProject.problem_statement || rawProject.problem || "",
-        real_world_case: rawProject.real_world_use_case || rawProject.real_world_case || "",
-        working_principle: rawProject.working_explanation || rawProject.working_principle || "",
-        testing_output: rawProject.testing_and_output || rawProject.testing_output || "",
-        common_errors: rawProject.common_errors || rawProject.troubleshooting || "",
-        improvements: rawProject.improvements_next_level || rawProject.improvements || "",
-        mini_challenge: rawProject.mini_challenge_for_learner || rawProject.mini_challenge || "",
-        pin_config: rawProject.pin_configuration || rawProject.pin_config || {}
-    } : null;
+    const project = React.useMemo(() => {
+        if (!rawProject) return null;
+        return {
+            ...rawProject,
+            problem_statement: rawProject.problem_statement || rawProject.problem || "",
+            real_world_case: rawProject.real_world_use_case || rawProject.real_world_case || "",
+            working_principle: rawProject.working_explanation || rawProject.working_principle || "",
+            testing_output: rawProject.testing_and_output || rawProject.testing_output || "",
+            common_errors: rawProject.common_errors || rawProject.troubleshooting || "",
+            improvements: rawProject.improvements_next_level || rawProject.improvements || "",
+            mini_challenge: rawProject.mini_challenge_for_learner || rawProject.mini_challenge || "",
+            pin_config: rawProject.pin_configuration || rawProject.pin_config || {}
+        };
+    }, [rawProject]);
+
     if (!project) return (
         <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1.5rem', background: 'var(--background)' }}>
             <div className="iot-loader">
@@ -49,6 +53,7 @@ export default function ProjectDetail({ project: rawProject, onBack, onAddToBuil
             <p style={{ fontWeight: 800, letterSpacing: '0.1em', color: 'var(--primary)' }}>DECODING PROJECT...</p>
         </div>
     );
+
     const getLines = (data) => {
         if (!data) return [];
         if (Array.isArray(data)) return data;

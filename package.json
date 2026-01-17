@@ -5,7 +5,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "predeploy": "npm run generate-sitemap && npm run build && node scripts/copy-404.js",
+    "predeploy": "npm run generate-sitemap && npm run build && node scripts/copy-404.mjs",
     "deploy": "gh-pages -d dist",
     "generate-sitemap": "node scripts/generate-sitemap.mjs",
     "cap:sync": "npm run build && npx cap sync",
@@ -14,6 +14,8 @@
   },
   "dependencies": {
     "@capacitor/android": "^8.0.1",
+    "@capacitor/app": "^8.0.0",
+    "@capacitor/browser": "^8.0.0",
     "@capacitor/cli": "^8.0.1",
     "@capacitor/core": "^8.0.1",
     "@google/generative-ai": "^0.24.1",

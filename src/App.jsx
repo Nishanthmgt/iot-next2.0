@@ -13,7 +13,7 @@ import BackToTop from './components/BackToTop';
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Analytics } from "@vercel/analytics/react";
 import { projects as localProjects } from './data/projects';
-import projectSlugs from './data/project-slugs.json';
+import projectSlugs from './data/project-ids.json';
 import { ToastProvider } from './context/ToastContext';
 import { HelmetProvider } from 'react-helmet-async';
 import { useDashboardData, logActivity } from './hooks/useDashboardData';
@@ -65,6 +65,7 @@ import { useDashboardData, logActivity } from './hooks/useDashboardData';
 const Roadmap = lazy(() => import('./components/Roadmap'));
 const Projects = lazy(() => import('./components/Projects'));
 const Sensors = lazy(() => import('./components/Sensors'));
+const SensorDetail = lazy(() => import('./components/SensorDetail'));
 const ProjectDetail = lazy(() => import('./components/ProjectDetail'));
 const ShareProject = lazy(() => import('./components/ShareProject'));
 const SetupGuides = lazy(() => import('./components/SetupGuides'));
@@ -94,11 +95,23 @@ const BoardForm = lazy(() => import('./components/admin/BoardForm'));
 const MasteryHub = lazy(() => import('./components/MasteryHub'));
 
 // Mobile App Components
+// Mobile App Components
 import MobileTopBar from './components/mobile/MobileTopBar';
 import MobileBottomNav from './components/mobile/MobileBottomNav';
 import AppDashboard from './components/mobile/AppDashboard';
 import DesktopDashboard from './components/DesktopDashboard';
 import Login from './components/Login'; // Static Import
+
+// Lazy Load Mobile Pages to avoid circular dependency warnings and reduce bundle size
+const MobileShareProject = lazy(() => import('./components/mobile/MobileShareProject'));
+const MobilePinoutLab = lazy(() => import('./components/mobile/MobilePinoutLab'));
+const MobileBlynkIoT = lazy(() => import('./components/mobile/MobileBlynkIoT'));
+const MobileSensors = lazy(() => import('./components/mobile/MobileSensors'));
+const MobileProjectDetail = lazy(() => import('./components/mobile/MobileProjectDetail'));
+const MobileProjects = lazy(() => import('./components/mobile/MobileProjects'));
+const MobileReviews = lazy(() => import('./components/mobile/MobileReviews'));
+const MobileNotifications = lazy(() => import('./components/mobile/MobileNotifications'));
+
 const Settings = lazy(() => import('./components/Settings'));
 // const Login = lazy(() => import('./components/Login'));
 
@@ -128,6 +141,7 @@ const LoadingFallback = () => (
 const App = () => {
   const [view, setView] = useState('home');
   const [selectedProject, setSelectedProject] = useState(null);
+  const [selectedSensor, setSelectedSensor] = useState(null);
 
   // Enhanced mobile detection that handles "Request Desktop Site" in Chrome
   const checkIsMobile = () => {
@@ -168,9 +182,7 @@ const App = () => {
     // Auth Listener
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN') {
-        // Only redirect if explicitly on the login page or if we are effectively at root (view is home but might need dashboard)
-        // But for safety, let's limit to login view to avoid redirect loops
-        // Auto-redirect if already at home and logged in
+        // Only redirect if explicitly on the login page or if we are effectively at root
         if (view === 'login' || (view === 'home' && isMobile)) {
           setView('dashboard');
           window.scrollTo({ top: 0, behavior: 'instant' });
@@ -397,6 +409,12 @@ const App = () => {
   const handleViewChange = (newView, options = {}) => {
     setView(newView);
 
+    // Sync activeFamily if navigating to a board family subpath
+    if (newView.startsWith('pinout/family/')) {
+      const familyId = newView.split('/')[2];
+      setActiveFamily(familyId);
+    }
+
     // Handle filter state - only reset if explicitly navigating away or if options say so
     if (options.showOnlySaved !== undefined) {
       setShowOnlySaved(options.showOnlySaved);
@@ -427,7 +445,7 @@ const App = () => {
           {isMobile ? (
             <>
               {/* Debug overlay removed */}
-              {isMobile && (
+              {isMobile && view !== 'project-detail' && (
                 <MobileTopBar
                   title={getTitleForView(view)}
                   showBack={view?.startsWith('project-') || view?.startsWith('sensor-') || view === 'cartlist'}
@@ -449,59 +467,9 @@ const App = () => {
               )}
               <AnimatePresence>
                 {showNotifications && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    onClick={() => setShowNotifications(false)}
-                    style={{
-                      position: 'fixed',
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      background: 'rgba(0,0,0,0.5)',
-                      zIndex: 2000,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      backdropFilter: 'blur(4px)'
-                    }}
-                  >
-                    <motion.div
-                      initial={{ scale: 0.9, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      exit={{ scale: 0.9, opacity: 0 }}
-                      style={{
-                        background: 'var(--surface)',
-                        padding: '2rem',
-                        borderRadius: '1.5rem',
-                        textAlign: 'center',
-                        maxWidth: '80%',
-                        border: '1px solid var(--border)',
-                        boxShadow: '0 20px 50px rgba(0,0,0,0.2)'
-                      }}
-                    >
-                      <Bell size={48} color="var(--primary)" style={{ marginBottom: '1rem', opacity: 0.5 }} />
-                      <h3 style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '0.5rem', color: 'var(--text)' }}>All Caught Up!</h3>
-                      <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>You have no new notifications at this time.</p>
-                      <button
-                        onClick={() => setShowNotifications(false)}
-                        style={{
-                          marginTop: '1.5rem',
-                          padding: '0.75rem 2rem',
-                          background: 'var(--primary)',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '1rem',
-                          fontWeight: 700,
-                          fontSize: '0.9rem'
-                        }}
-                      >
-                        Close
-                      </button>
-                    </motion.div>
-                  </motion.div>
+                  <Suspense fallback={null}>
+                    <MobileNotifications onClose={() => setShowNotifications(false)} theme={theme} />
+                  </Suspense>
                 )}
               </AnimatePresence>
             </>
@@ -524,7 +492,7 @@ const App = () => {
                 isMobile ? (
                   <MobileHome key="mobile-home" setView={handleViewChange} userName={userName} isAuthenticated={isAuthenticated} onSelectProject={handleProjectSelect} />
                 ) : (
-                  <Hero key="hero" setView={handleViewChange} />
+                  <Hero key="hero" setView={handleViewChange} theme={theme} />
                 )
               )}
 
@@ -571,72 +539,124 @@ const App = () => {
 
               {view === 'projects' && (
                 <motion.div key="view-projects" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                  <Projects
-                    onSelectProject={handleProjectSelect}
-                    onAddToBuild={addToBuild}
-                    onRemoveFromBuild={removeFromBuild}
-                    buildList={buildList}
-                    setView={handleViewChange}
-                    showOnlySaved={showOnlySaved}
-                    setShowOnlySaved={setShowOnlySaved}
-                  />
+                  {isMobile ? (
+                    <MobileProjects
+                      onSelectProject={handleProjectSelect}
+                      onAddToBuild={addToBuild}
+                      onRemoveFromBuild={removeFromBuild}
+                      buildList={buildList}
+                      showOnlySaved={showOnlySaved}
+                      setShowOnlySaved={setShowOnlySaved}
+                    />
+                  ) : (
+                    <Projects
+                      onSelectProject={handleProjectSelect}
+                      onAddToBuild={addToBuild}
+                      onRemoveFromBuild={removeFromBuild}
+                      buildList={buildList}
+                      setView={handleViewChange}
+                      showOnlySaved={showOnlySaved}
+                      setShowOnlySaved={setShowOnlySaved}
+                    />
+                  )}
                 </motion.div>
               )}
 
               {view === 'share-project' && (
                 <motion.div key="view-share" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                  <ShareProject setView={handleViewChange} />
+                  {isMobile ? (
+                    <MobileShareProject setView={handleViewChange} />
+                  ) : (
+                    <ShareProject setView={handleViewChange} />
+                  )}
                 </motion.div>
               )}
 
               {view === 'project-detail' && (
                 <motion.div key="view-project-detail" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                  <ProjectDetail
-                    project={selectedProject}
-                    onBack={handleBack}
-                    onAddToBuild={addToBuild}
-                    onRemoveFromBuild={removeFromBuild}
-                    isInBuild={selectedProject && buildList.includes(selectedProject.id)}
-                    onNext={() => {
-                      const currentIndex = localProjects.findIndex(p => p.id === selectedProject.id);
-                      const nextIndex = (currentIndex + 1) % localProjects.length;
-                      handleProjectSelect(localProjects[nextIndex]);
-                    }}
-                    onPrev={() => {
-                      const currentIndex = localProjects.findIndex(p => p.id === selectedProject.id);
-                      const prevIndex = (currentIndex - 1 + localProjects.length) % localProjects.length;
-                      handleProjectSelect(localProjects[prevIndex]);
-                    }}
-                  />
+                  {isMobile ? (
+                    <MobileProjectDetail
+                      project={selectedProject}
+                      onBack={handleBack}
+                      onAddToBuild={addToBuild}
+                      onRemoveFromBuild={removeFromBuild}
+                      isInBuild={selectedProject && buildList.includes(selectedProject.id)}
+                    />
+                  ) : (
+                    <ProjectDetail
+                      project={selectedProject}
+                      onBack={handleBack}
+                      onAddToBuild={addToBuild}
+                      onRemoveFromBuild={removeFromBuild}
+                      isInBuild={selectedProject && buildList.includes(selectedProject.id)}
+                      onNext={() => {
+                        const currentIndex = localProjects.findIndex(p => p.id === selectedProject.id);
+                        const nextIndex = (currentIndex + 1) % localProjects.length;
+                        handleProjectSelect(localProjects[nextIndex]);
+                      }}
+                      onPrev={() => {
+                        const currentIndex = localProjects.findIndex(p => p.id === selectedProject.id);
+                        const prevIndex = (currentIndex - 1 + localProjects.length) % localProjects.length;
+                        handleProjectSelect(localProjects[prevIndex]);
+                      }}
+                    />
+                  )}
                 </motion.div>
               )}
 
               {view === 'sensors' && (
                 <motion.div key="view-sensors" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                  <Sensors
-                    isAdmin={isAdmin}
-                    setEditingSensor={setEditingSensor}
-                    setView={handleViewChange}
-                    showOnlySaved={showOnlySaved}
-                    setShowOnlySaved={setShowOnlySaved}
-                  />
-                  <SetupGuides />
+                  {isMobile ? (
+                    <MobileSensors
+                      setView={handleViewChange}
+                      onSelectSensor={(sensor) => {
+                        setSelectedSensor(sensor);
+                        handleViewChange('sensor-detail');
+                      }}
+                    />
+                  ) : (
+                    <Sensors
+                      isAdmin={isAdmin}
+                      setEditingSensor={setEditingSensor}
+                      setView={handleViewChange}
+                      showOnlySaved={showOnlySaved}
+                      setShowOnlySaved={setShowOnlySaved}
+                    />
+                  )}
                 </motion.div>
+              )}
+
+              {view === 'sensor-detail' && selectedSensor && (
+                <AnimatePresence>
+                  <SensorDetail
+                    sensor={selectedSensor}
+                    onClose={() => handleViewChange('sensors')}
+                  />
+                </AnimatePresence>
               )}
 
               {view === 'blynk-iot' && (
                 <motion.div key="view-blynk" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                  <BlynkIoT />
+                  {isMobile ? <MobileBlynkIoT setView={handleViewChange} /> : <BlynkIoT />}
                 </motion.div>
               )}
 
-              {view === 'pinout' && (
+              {view.startsWith('pinout') && (
                 <motion.div key="view-pinout" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                  <PinoutLab
-                    initialFamily={activeFamily}
-                    showOnlySaved={showOnlySaved}
-                    setShowOnlySaved={setShowOnlySaved}
-                  />
+                  {isMobile ? (
+                    <MobilePinoutLab
+                      initialFamily={activeFamily}
+                      showOnlySaved={showOnlySaved}
+                      setShowOnlySaved={setShowOnlySaved}
+                      setView={handleViewChange}
+                    />
+                  ) : (
+                    <PinoutLab
+                      initialFamily={activeFamily}
+                      showOnlySaved={showOnlySaved}
+                      setShowOnlySaved={setShowOnlySaved}
+                    />
+                  )}
                 </motion.div>
               )}
 
@@ -651,7 +671,15 @@ const App = () => {
               {view === 'privacy' && <motion.div key="view-privacy" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><PrivacyPolicy setView={handleViewChange} /></motion.div>}
               {view === 'terms' && <motion.div key="view-terms" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><TermsOfService setView={handleViewChange} /></motion.div>}
               {view === 'about' && <motion.div key="view-about" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><About setView={handleViewChange} /></motion.div>}
-              {view === 'reviews-page' && <motion.div key="view-reviews" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><ReviewsPage setView={handleViewChange} isAdmin={isAdmin} /></motion.div>}
+              {view === 'reviews-page' && (
+                <motion.div key="view-reviews" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                  {isMobile ? (
+                    <MobileReviews setView={handleViewChange} isAdmin={isAdmin} />
+                  ) : (
+                    <ReviewsPage setView={handleViewChange} isAdmin={isAdmin} />
+                  )}
+                </motion.div>
+              )}
               {view === 'simulator' && <motion.div key="view-sim" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><Simulator setView={handleViewChange} /></motion.div>}
               {view === 'assistant' && <motion.div key="view-ai" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><AIAssistant mode="screen" /></motion.div>}
 
@@ -708,7 +736,7 @@ const App = () => {
           </main>
 
           {isMobile ? (
-            <MobileBottomNav activeTab={view} onTabChange={handleViewChange} />
+            view !== 'share-project' && view !== 'project-detail' && <MobileBottomNav activeTab={view} onTabChange={handleViewChange} />
           ) : (
             <Footer setView={handleViewChange} />
           )}
@@ -731,4 +759,5 @@ const App = () => {
   );
 }
 
+// Force Update: v2.1
 export default App;

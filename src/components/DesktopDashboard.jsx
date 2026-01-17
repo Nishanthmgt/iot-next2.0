@@ -6,7 +6,8 @@ import { projects } from '../data/projects';
 import { sensors } from '../data/sensors';
 import { BOARDS } from '../data/boards';
 import { supabase } from '../lib/supabase';
-import SensorDetail from './SensorDetail';
+// Lazy load SensorDetail to avoid bundle duplication
+const SensorDetail = lazy(() => import('./SensorDetail'));
 
 // Lazy load ProjectDetail to avoid bundle duplication
 const ProjectDetail = lazy(() => import('./ProjectDetail'));
@@ -87,6 +88,7 @@ const DesktopDashboard = ({ setView }) => {
 
     const [dbSensors, setDbSensors] = useState([]);
     const [showAllSaved, setShowAllSaved] = useState(false);
+    const [showAppBanner, setShowAppBanner] = useState(true);
 
     // Detail modal states
     const [selectedSensor, setSelectedSensor] = useState(null);
@@ -94,12 +96,23 @@ const DesktopDashboard = ({ setView }) => {
     const [selectedBoard, setSelectedBoard] = useState(null);
 
     useEffect(() => {
+        // Check if app banner was dismissed
+        const dismissed = localStorage.getItem('appBannerDismissed');
+        if (dismissed) {
+            setShowAppBanner(false);
+        }
+
         const fetchSensors = async () => {
             const { data } = await supabase.from('sensors').select('*');
             if (data) setDbSensors(data);
         };
         fetchSensors();
     }, []);
+
+    const dismissAppBanner = () => {
+        setShowAppBanner(false);
+        localStorage.setItem('appBannerDismissed', 'true');
+    };
 
     // Map IDs to actual data - Using string conversion to avoid type mismatches
     const fullSavedProjects = (savedProjects || []).map(id => projects.find(p => String(p.id) === String(id))).filter(Boolean);
@@ -149,6 +162,89 @@ const DesktopDashboard = ({ setView }) => {
                     {/* Quick Stats or Actions could go here */}
                 </div>
             </div>
+
+            {/* App Install Banner */}
+            {showAppBanner && (
+                <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    style={{
+                        background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                        borderRadius: '1.25rem',
+                        padding: '1.25rem 1.5rem',
+                        marginBottom: '2rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: '1.5rem',
+                        color: 'white',
+                        boxShadow: '0 10px 30px rgba(16, 185, 129, 0.2)'
+                    }}
+                >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', flex: 1 }}>
+                        <div style={{
+                            width: '50px',
+                            height: '50px',
+                            borderRadius: '12px',
+                            background: 'rgba(255, 255, 255, 0.2)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '1.5rem'
+                        }}>
+                            📱
+                        </div>
+                        <div style={{ flex: 1 }}>
+                            <div style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '0.25rem' }}>
+                                Get IoTNext Mobile App
+                            </div>
+                            <div style={{ fontSize: '0.9rem', opacity: 0.95 }}>
+                                Install our Android app for better offline experience and native performance
+                            </div>
+                        </div>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                        <button
+                            onClick={() => alert('Mobile-ல் பயன்படுத்த:\n1. உங்கள் Android/iOS போனில் Chrome/Safari-ல் iotnext.store-ஐத் திறக்கவும்.\n2. த்ரீ டாட்ஸ் (⋮) கிளிக் செய்து "Install App" அல்லது "Add to Home screen" கொடுக்கவும்.\n\nஇது உங்களுக்கு ஆப் போன்ற சிறப்பான அனுபவத்தைத் தரும்!')}
+                            style={{
+                                background: 'white',
+                                color: '#10b981',
+                                padding: '0.75rem 1.5rem',
+                                borderRadius: '0.75rem',
+                                fontWeight: '800',
+                                fontSize: '0.95rem',
+                                border: 'none',
+                                cursor: 'pointer',
+                                whiteSpace: 'nowrap',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+                            }}
+                        >
+                            <Smartphone size={18} />
+                            Install App
+                        </button>
+                        <button
+                            onClick={dismissAppBanner}
+                            style={{
+                                background: 'rgba(255, 255, 255, 0.2)',
+                                border: 'none',
+                                borderRadius: '0.5rem',
+                                padding: '0.5rem',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                color: 'white'
+                            }}
+                        >
+                            <X size={20} />
+                        </button>
+                    </div>
+                </motion.div>
+            )}
 
             {/* Core Cards Grid */}
             <div style={{
@@ -354,10 +450,12 @@ const DesktopDashboard = ({ setView }) => {
 
             {/* Detail Modals */}
             {selectedSensor && (
-                <SensorDetail
-                    sensor={selectedSensor}
-                    onClose={() => setSelectedSensor(null)}
-                />
+                <Suspense fallback={null}>
+                    <SensorDetail
+                        sensor={selectedSensor}
+                        onClose={() => setSelectedSensor(null)}
+                    />
+                </Suspense>
             )}
 
             {selectedProject && (
