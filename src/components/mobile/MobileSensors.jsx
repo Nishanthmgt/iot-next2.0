@@ -13,7 +13,7 @@ const MobileSensors = ({ onSelectSensor, setView }) => {
     const { savedSensors, toggleSaveItem } = useDashboardData();
     const [search, setSearch] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('All');
-    const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'list'
+    const [viewMode, setViewMode] = useState('list'); // Default to 'list' for one-by-one view
 
     // Dynamic Data State
     const [sensors, setSensors] = useState([]);
@@ -60,7 +60,7 @@ const MobileSensors = ({ onSelectSensor, setView }) => {
                 target.includes(sCat);
 
             return matchesSearch && matchesCategory;
-        });
+        }).sort((a, b) => a.name.localeCompare(b.name)); // A-Z Sorting
     }, [search, selectedCategory, sensors]);
 
     // Categories with Icons (Helper) - Uses Category ID
@@ -137,15 +137,7 @@ const MobileSensors = ({ onSelectSensor, setView }) => {
                         }}
                     />
                     <div style={{ position: 'absolute', right: '0.5rem', top: '50%', transform: 'translateY(-50%)' }}>
-                        <button
-                            onClick={() => setViewMode(prev => prev === 'grid' ? 'list' : 'grid')}
-                            style={{
-                                background: 'transparent', border: 'none', padding: '0.5rem',
-                                color: 'var(--text-muted)', display: 'flex'
-                            }}
-                        >
-                            {viewMode === 'grid' ? <ListIcon size={20} /> : <Grid size={20} />}
-                        </button>
+                        {/* List View Default (Toggle Removed per user request) */}
                     </div>
                 </div>
             </div>
