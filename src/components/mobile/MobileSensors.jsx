@@ -137,8 +137,16 @@ const MobileSensors = ({ onSelectSensor, setView }) => {
                         }}
                     />
                     <div style={{ position: 'absolute', right: '0.5rem', top: '50%', transform: 'translateY(-50%)' }}>
-                        {/* List View Default (Toggle Removed per user request) */}
+                        {/* List View Default */}
                     </div>
+                </div>
+
+                {/* Sensor Count Display */}
+                <div style={{ padding: '0 0.5rem 1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: '600' }}>
+                        {filteredSensors.length} Sensors
+                    </span>
+                    {/* Category Display or Sort Option could go here */}
                 </div>
             </div>
 
@@ -247,14 +255,14 @@ const MobileSensors = ({ onSelectSensor, setView }) => {
                                         paddingTop: viewMode === 'list' ? '0' : '0.75rem',
                                         flex: 1
                                     }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
                                             <span style={{
                                                 fontSize: '0.65rem', fontWeight: '800', textTransform: 'uppercase',
                                                 color: 'var(--primary)', letterSpacing: '0.05em',
                                                 background: 'rgba(var(--primary-rgb), 0.08)',
                                                 padding: '2px 6px', borderRadius: '4px'
                                             }}>
-                                                {sensor.type || 'MODULE'}
+                                                {sensor.category || 'MODULE'}
                                             </span>
                                             <span style={{ fontSize: '0.8rem' }}>{sensor.emoji}</span>
                                         </div>
@@ -262,19 +270,31 @@ const MobileSensors = ({ onSelectSensor, setView }) => {
                                         <h3 style={{
                                             fontSize: viewMode === 'list' ? '1rem' : '1.1rem',
                                             fontWeight: '800', color: 'var(--text)',
-                                            margin: '0 0 0.5rem 0', lineHeight: '1.25',
+                                            margin: '0 0 0.25rem 0', lineHeight: '1.25',
                                             letterSpacing: '-0.02em',
                                             display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden'
                                         }}>
                                             {sensor.name}
                                         </h3>
 
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                                        {/* Pinout & ID Line */}
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap', marginTop: '4px' }}>
+                                            {/* Pins Info */}
                                             <div style={{
-                                                fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: '600',
+                                                fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: '500',
                                                 display: 'flex', alignItems: 'center', gap: '0.3rem'
                                             }}>
-                                                <span style={{ opacity: 0.5 }}>#</span>{sensor.id}
+                                                <Zap size={12} />
+                                                <span>{sensor.pins ? sensor.pins.split('(')[0].trim() : 'Pinout N/A'}</span>
+                                            </div>
+
+                                            {/* ID info */}
+                                            <div style={{
+                                                fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: '600',
+                                                display: 'flex', alignItems: 'center', gap: '0.3rem',
+                                                opacity: 0.6
+                                            }}>
+                                                <span>#</span>{sensor.id}
                                             </div>
                                         </div>
                                     </div>
