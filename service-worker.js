@@ -1,7 +1,7 @@
 // Service Worker for IoTNext PWA
 // Enables offline functionality and app-like experience
 
-const CACHE_NAME = 'iotnext-v1';
+const CACHE_NAME = 'iotnext-v2';
 const OFFLINE_URL = '/';
 
 // Assets to cache immediately on install
@@ -43,41 +43,57 @@ self.addEventListener('activate', (event) => {
     self.clients.claim();
 });
 
-// Fetch event - serve from cache, fallback to network
+// Fetch event - Network First for navigation, Cache First for others
 self.addEventListener('fetch', (event) => {
     // Skip cross-origin requests
     if (!event.request.url.startsWith(self.location.origin)) {
         return;
     }
 
+    // Network First for HTML/Navigation requests
+    if (event.request.mode === 'navigate' ||
+        (event.request.method === 'GET' && event.request.headers.get('accept').includes('text/html'))) {
+        event.respondWith(
+            fetch(event.request)
+                .then((response) => {
+                    // Update cache with latest version
+                    const responseClone = response.clone();
+                    caches.open(CACHE_NAME).then((cache) => {
+                        cache.put(event.request, responseClone);
+                    });
+                    return response;
+                })
+                .catch(() => {
+                    // Fallback to cache if network fails
+                    return caches.match(OFFLINE_URL);
+                })
+        );
+        return;
+    }
+
+    // Cache First for static assets
     event.respondWith(
         caches.match(event.request).then((response) => {
-            // Cache hit - return response
             if (response) {
                 return response;
             }
 
-            // Clone the request
             const fetchRequest = event.request.clone();
-
             return fetch(fetchRequest).then((response) => {
-                // Check if valid response
                 if (!response || response.status !== 200 || response.type !== 'basic') {
                     return response;
                 }
 
-                // Clone the response
                 const responseToCache = response.clone();
-
-                // Cache the new resource
                 caches.open(CACHE_NAME).then((cache) => {
                     cache.put(event.request, responseToCache);
                 });
 
                 return response;
             }).catch(() => {
-                // Network failed, try to return offline page
-                return caches.match(OFFLINE_URL);
+                // If it's an image or something else, we could return a fallback
+                // For now, just let it fail or return nothing
+                return null;
             });
         })
     );
