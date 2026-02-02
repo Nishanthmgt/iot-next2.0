@@ -110,7 +110,7 @@
       return false;
     };
   </script>
-  <script type="module" crossorigin src="./assets/index-bxikHIHj.js"></script>
+  <script type="module" crossorigin src="./assets/index-Cd8wDqK_.js"></script>
   <link rel="modulepreload" crossorigin href="./assets/vendor-B0dHrycD.js">
   <link rel="modulepreload" crossorigin href="./assets/projects-data-Bop-xCBe.js">
   <link rel="modulepreload" crossorigin href="./assets/boards-data-0DUAycZa.js">
@@ -193,7 +193,7 @@
       Loading IoTNext</div>
     <div id="recovery-option">
       <p style="font-size: 0.8rem; color: #475569; margin-bottom: 0.75rem;">Still loading? Try refreshing.</p>
-      <button class="reset-btn" onclick="localStorage.clear(); location.reload(true);">Reset & Refresh</button>
+      <button class="reset-btn" id="reset-btn" onclick="resetAndRefresh()">Reset & Refresh</button>
     </div>
   </div>
 
@@ -220,11 +220,28 @@
         }
       }, 12000);
 
-      window.onerror = function (msg) {
-        if (msg.indexOf('loading chunk') > -1 || msg.indexOf('SyntaxError') > -1) {
-          if (recovery) recovery.style.display = 'block';
+      window.resetAndRefresh = async function () {
+        const btn = document.querySelector('.reset-btn');
+        if (btn) btn.innerText = 'Clearing System...';
+
+        try {
+          localStorage.clear();
+          sessionStorage.clear();
+
+          if ('serviceWorker' in navigator) {
+            const regs = await navigator.serviceWorker.getRegistrations();
+            for (let r of regs) await r.unregister();
+          }
+
+          if ('caches' in window) {
+            const keys = await caches.keys();
+            for (let k of keys) await caches.delete(k);
+          }
+
+          window.location.replace('/');
+        } catch (e) {
+          window.location.reload();
         }
-        return false;
       };
     })();
   </script>
